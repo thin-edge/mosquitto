@@ -8,6 +8,7 @@ DIRS= \
 		delayed-auth \
 		deny-protocol-version \
 		force-retain \
+		limit-subscription-qos \
 		message-timestamp \
 		payload-ban \
 		payload-modification \
