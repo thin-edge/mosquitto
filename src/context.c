@@ -20,6 +20,9 @@ Contributors:
 
 #include <assert.h>
 #include <time.h>
+#ifdef __APPLE__
+#include <sys/socket.h>
+#endif
 
 #include "mosquitto_broker_internal.h"
 #include "alias_mosq.h"
@@ -318,4 +321,3 @@ void context__remove_from_by_id(struct mosquitto *context)
 		context->in_by_id = false;
 	}
 }
-

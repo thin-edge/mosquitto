@@ -148,12 +148,6 @@ endif()
 
 add_definitions (-DWITH_BROKER)
 
-if(WITH_DLT)
-    message(STATUS "DLT_LIBDIR = ${DLT_LIBDIR}")
-    link_directories(${DLT_LIBDIR})
-    set (MOSQ_LIBS ${MOSQ_LIBS} ${DLT_LIBRARIES})
-endif()
-
 set (MOSQ_LIBS ${MOSQ_LIBS} ${OPENSSL_LIBRARIES})
 # Check for getaddrinfo_a
 include(CheckLibraryExists)
@@ -210,7 +204,6 @@ if(WITH_WEBSOCKETS)
 			set (MOSQ_LIBS ${MOSQ_LIBS} websockets_static)
 			if(WIN32)
 				set (MOSQ_LIBS ${MOSQ_LIBS} iphlpapi)
-				link_directories(${mosquitto_SOURCE_DIR})
 			endif()
 		else(STATIC_WEBSOCKETS)
 			set (MOSQ_LIBS ${MOSQ_LIBS} websockets)
@@ -218,19 +211,28 @@ if(WITH_WEBSOCKETS)
 	endif()
 endif()
 
-if(CJSON_FOUND)
-	set (MOSQ_LIBS ${MOSQ_LIBS} cjson)
+if(WITH_DLT)
+    message(STATUS "DLT_LIBDIR = ${DLT_LIBDIR}")
+    target_link_directories(mosquitto PRIVATE ${DLT_LIBDIR})
+    set (MOSQ_LIBS ${MOSQ_LIBS} ${DLT_LIBRARIES})
+	target_compile_definitions(mosquitto PRIVATE "WITH_DLT")
 endif()
 
-target_include_directories(mosquitto PRIVATE
-	"${OPENSSL_INCLUDE_DIR}"
-	"${STDBOOL_H_PATH}"
-	"${STDINT_H_PATH}"
-	"${mosquitto_SOURCE_DIR}"
-	"${mosquitto_SOURCE_DIR}/common"
-	"${mosquitto_SOURCE_DIR}/include"
-	"${mosquitto_SOURCE_DIR}/lib"
-	"${mosquitto_SOURCE_DIR}/src"
+if(CJSON_FOUND)
+	target_link_libraries(mosquitto PRIVATE cJSON)
+endif()
+
+target_include_directories(mosquitto
+	PUBLIC
+		"${mosquitto_SOURCE_DIR}/include"
+		"${OPENSSL_INCLUDE_DIR}"
+	PRIVATE
+		"${STDBOOL_H_PATH}"
+		"${STDINT_H_PATH}"
+		"${mosquitto_SOURCE_DIR}"
+		"${mosquitto_SOURCE_DIR}/common"
+		"${mosquitto_SOURCE_DIR}/lib"
+		"${mosquitto_SOURCE_DIR}/src"
 )
 if(WITH_BUNDLED_DEPS)
 	target_include_directories(mosquitto PRIVATE
@@ -250,11 +252,9 @@ if (WITH_THREADING AND NOT WIN32)
 	target_link_libraries(mosquitto PRIVATE Threads::Threads)
 endif()
 
-if(WIN32)
-	set_target_properties(mosquitto PROPERTIES
-		ENABLE_EXPORTS 1
-	)
-endif()
+set_target_properties(mosquitto PROPERTIES
+	ENABLE_EXPORTS 1
+)
 
 if(UNIX)
 	if(APPLE)

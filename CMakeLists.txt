@@ -4,7 +4,7 @@
 # To configure the build options either use the CMake gui, or run the command
 # line utility including the "-i" option.
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 set (VERSION 2.1.0)
 project(mosquitto
@@ -50,7 +50,7 @@ endif()
 
 option(WITH_SQLITE "Include sqlite persistence support?" ON)
 if (WITH_SQLITE)
-	find_package(sqlite3 REQUIRED)
+	find_package(SQLite3 REQUIRED)
 	add_definitions("-DWITH_SQLITE")
 endif()
 
@@ -79,10 +79,8 @@ endif()
 option(WITH_DLT "Include DLT support?" OFF)
 message(STATUS "WITH_DLT = ${WITH_DLT}")
 if(WITH_DLT)
-	#find_package(DLT REQUIRED)
 	find_package(PkgConfig)
-	pkg_check_modules(DLT "automotive-dlt >= 2.11")
-	add_definitions("-DWITH_DLT")
+	pkg_check_modules(DLT "automotive-dlt >= 2.11" REQUIRED)
 endif()
 
 option(WITH_CJSON "Build with cJSON support (required for dynamic security plugin and useful for mosquitto_sub)?" ON)
@@ -90,7 +88,7 @@ if(WITH_CJSON)
 	FIND_PACKAGE(cJSON)
 	if(CJSON_FOUND)
 		message(STATUS ${CJSON_FOUND})
-		add_definitions(-DWITH_CJSON)
+		target_compile_definitions(cJSON INTERFACE WITH_CJSON)
 	else()
 		message(STATUS "Optional dependency cJSON not found. Some features will be disabled.")
 	endif()

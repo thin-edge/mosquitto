@@ -52,7 +52,7 @@ int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int l
 	struct kevent ev;
 	int i;
 
-	memset(&event_list, 0, sizeof(struct kevent)*MAX_EVENTS);
+	memset(&ev, 0, sizeof(struct kevent));
 
 	for(i=0; i<listensock_count; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_ADD, 0, 0, &listensock[i]);
@@ -91,7 +91,7 @@ int mux_kqueue__add_out(struct mosquitto *context)
 	struct kevent ev;
 
 	if(context->events != EVFILT_WRITE){
-		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_ADD, 0, 0, &context);
+		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_ADD, 0, 0, context);
 		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue re-registering to EVFILT_WRITE: %s", strerror(errno));
 		}
@@ -107,7 +107,7 @@ int mux_kqueue__remove_out(struct mosquitto *context)
 	struct kevent ev;
 
 	if(context->events == EVFILT_WRITE){
-		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, &context);
+		EV_SET(&ev, context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
 		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_DEBUG, "Error in kqueue removing EVFILT_WRITE: %s", strerror(errno));
 		}
@@ -137,8 +137,8 @@ int mux_kqueue__delete(struct mosquitto *context)
 	struct kevent ev[2];
 
 	if(context->sock != INVALID_SOCKET){
-		EV_SET(&ev[0], context->sock, EVFILT_READ, EV_DELETE, 0, 0, &context);
-		EV_SET(&ev[1], context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, &context);
+		EV_SET(&ev[0], context->sock, EVFILT_READ, EV_DELETE, 0, 0, context);
+		EV_SET(&ev[1], context->sock, EVFILT_WRITE, EV_DELETE, 0, 0, context);
 		if(kevent(db.kqueuefd, ev, 2, NULL, 0, NULL) == -1){
 			return 1;
 		}

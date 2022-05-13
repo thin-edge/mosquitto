@@ -306,6 +306,7 @@ struct mosquitto__config {
 	uint16_t cmd_port[CMD_PORT_LIMIT];
 	int cmd_port_count;
 	bool daemon;
+	bool test_configuration;
 	bool enable_control_api;
 	int global_max_clients;
 	int global_max_connections;

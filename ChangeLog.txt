@@ -55,6 +55,8 @@ Broker:
 - Bridge reconnection backoff improvements.
 - Add bridge_tls_use_os_certs option to allow bridges to be easily configured
   to trust default CA certificates. Closes #2473.
+- Add `--test-config` option which can be used to test a configuration file
+  before trying to use it in a live broker. Closes #2521.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.
@@ -137,6 +139,9 @@ Clients:
 - Add float printing option to mosquitto_sub.
 - Fix `-f` and `-s` options in mosquitto_rr.
 
+Build:
+- Increased CMake minimal required version to 3.14, which is required for the
+  preinstalled SQLite3 find module.
 
 2.0.14 - 2021-11-17
 ===================

@@ -387,7 +387,8 @@ static void print_usage(void)
 	printf("      Not recommended in conjunction with the -c option.\n");
 	printf(" -v : verbose mode - enable all logging types. This overrides\n");
 	printf("      any logging options given in the config file.\n");
-	printf(" --tls-keylog : Log TLS connection information to a file, to allow\n");
+	printf(" --test-config : test config file and exit\n");
+	printf(" --tls-keylog : log TLS connection information to a file, to allow\n");
 	printf("      debugging with e.g. wireshark. Do not use on a production\n");
 	printf("      server.\n");
 	printf("\nSee https://mosquitto.org/ for more information.\n\n");
@@ -454,6 +455,8 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 #endif
 		}else if(!strcmp(argv[i], "-v") || !strcmp(argv[i], "--verbose")){
 			db.verbose = true;
+		}else if(!strcmp(argv[i], "--test-config")){
+			config->test_configuration = true;
 		}else{
 			fprintf(stderr, "Error: Unknown option '%s'.\n",argv[i]);
 			print_usage();

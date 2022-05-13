@@ -264,6 +264,16 @@ int main(int argc, char *argv[])
 	rc = config__parse_args(&config, argc, argv);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
 
+	if(config.test_configuration){
+		if(!db.config_file){
+			log__printf(NULL, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
+			return MOSQ_ERR_INVAL;
+		}else{
+			log__printf(NULL, MOSQ_LOG_INFO, "Configuration file is OK.");
+			return MOSQ_ERR_SUCCESS;
+		}
+	}
+
 	rc = keepalive__init();
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
 

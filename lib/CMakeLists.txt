@@ -101,17 +101,17 @@ if(WITH_WEBSOCKETS AND WITH_WEBSOCKETS_BUILTIN)
 		"${mosquitto_SOURCE_DIR}/deps/picohttpparser")
 endif()
 
-target_include_directories(libmosquitto PRIVATE
-	"${OPENSSL_INCLUDE_DIR}"
-	"${STDBOOL_H_PATH}"
-	"${STDINT_H_PATH}"
-	"${mosquitto_SOURCE_DIR}"
-	"${mosquitto_SOURCE_DIR}/common"
-	"${mosquitto_SOURCE_DIR}/include"
-	"${mosquitto_SOURCE_DIR}/lib"
+target_include_directories(libmosquitto
+	PUBLIC
+		"${mosquitto_SOURCE_DIR}/include"
+		"${OPENSSL_INCLUDE_DIR}"
+	PRIVATE
+		"${STDBOOL_H_PATH}"
+		"${STDINT_H_PATH}"
+		"${mosquitto_SOURCE_DIR}"
+		"${mosquitto_SOURCE_DIR}/common"
+		"${mosquitto_SOURCE_DIR}/lib"
 )
-
-link_directories("${mosquitto_SOURCE_DIR}/lib")
 
 if(WITH_BUNDLED_DEPS)
 	target_include_directories(libmosquitto PRIVATE

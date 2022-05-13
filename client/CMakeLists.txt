@@ -12,14 +12,6 @@ set(CLIENT_INC
 	"${mosquitto_SOURCE_DIR}/include"
 )
 
-set(CLIENT_DIR ${mosquitto_BINARY_DIR}/lib)
-
-if(CJSON_FOUND)
-	add_definitions("-DWITH_CJSON")
-	set(CLIENT_DIR "${CLIENT_DIR};${CJSON_DIR}")
-	set(CLIENT_INC "${CLIENT_INC};${CJSON_INCLUDE_DIRS}")
-endif()
-
 if(WITH_WEBSOCKETS AND WITH_WEBSOCKETS_BUILTIN)
 	add_definitions("-DWITH_WEBSOCKETS=WS_IS_BUILTIN")
 endif()
@@ -46,13 +38,10 @@ if(WITH_BUNDLED_DEPS)
 	target_include_directories(mosquitto_rr PRIVATE "${mosquitto_SOURCE_DIR}/deps")
 endif()
 
-link_directories(${CLIENT_DIR})
-
-
 if(CJSON_FOUND)
-	target_link_libraries(mosquitto_pub PRIVATE ${CJSON_LIBRARIES})
-	target_link_libraries(mosquitto_sub PRIVATE ${CJSON_LIBRARIES})
-	target_link_libraries(mosquitto_rr PRIVATE ${CJSON_LIBRARIES})
+	target_link_libraries(mosquitto_pub PRIVATE cJSON)
+	target_link_libraries(mosquitto_sub PRIVATE cJSON)
+	target_link_libraries(mosquitto_rr PRIVATE cJSON)
 endif()
 
 if(WITH_STATIC_LIBRARIES)

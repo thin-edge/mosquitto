@@ -8,15 +8,15 @@ set_target_properties(mosquittopp PROPERTIES
 	POSITION_INDEPENDENT_CODE 1
 )
 
-target_include_directories(mosquittopp PRIVATE
-	"${STDBOOL_H_PATH}"
-	"${STDINT_H_PATH}"
-	"${mosquitto_SOURCE_DIR}/include"
-	"${mosquitto_SOURCE_DIR}/lib"
-	"${mosquitto_SOURCE_DIR}/lib/cpp"
+target_include_directories(mosquittopp
+	PUBLIC
+		"${mosquitto_SOURCE_DIR}/include"
+	PRIVATE
+		"${STDBOOL_H_PATH}"
+		"${STDINT_H_PATH}"
+		"${mosquitto_SOURCE_DIR}/lib"
+		"${mosquitto_SOURCE_DIR}/lib/cpp"
 )
-
-link_directories(${mosquitto_BINARY_DIR}/lib)
 
 target_link_libraries(mosquittopp PRIVATE libmosquitto)
 

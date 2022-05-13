@@ -1,8 +1,4 @@
 if(WITH_TLS AND CJSON_FOUND)
-	add_definitions("-DWITH_CJSON")
-
-	link_directories(${CJSON_DIR})
-
 	add_executable(mosquitto_ctrl
 		mosquitto_ctrl.c mosquitto_ctrl.h
 		../../common/base64_mosq.c ../../common/base64_mosq.h
@@ -21,7 +17,6 @@ if(WITH_TLS AND CJSON_FOUND)
 	)
 
 	target_include_directories(mosquitto_ctrl PRIVATE
-		"${CJSON_INCLUDE_DIRS}"
 		"${OPENSSL_INCLUDE_DIR}"
 		"${STDBOOL_H_PATH}"
 		"${STDINT_H_PATH}"
@@ -63,7 +58,7 @@ if(WITH_TLS AND CJSON_FOUND)
 	target_link_libraries(mosquitto_ctrl
 	  PRIVATE
 		${OPENSSL_LIBRARIES}
-		${CJSON_LIBRARIES}
+		cJSON
 	)
 
 	if (WITH_THREADING AND NOT WIN32)

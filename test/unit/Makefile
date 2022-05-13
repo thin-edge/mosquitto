@@ -198,7 +198,7 @@ test-broker : build
 test : test-broker test-lib
 
 clean :
-	-rm -rf mosq_test bridge_topic_test keepalive_test persist_read_test persist_write_test
+	-rm -rf mosq_test bridge_topic_test keepalive_test persist_read_test persist_write_test subs_test
 	-rm -rf *.o *.gcda *.gcno coverage.info out/
 
 coverage :
