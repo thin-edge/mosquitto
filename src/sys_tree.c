@@ -397,7 +397,7 @@ void sys_tree__update(void)
 
 		if(out_packet_count != g_out_packet_count){
 			out_packet_count = g_out_packet_count;
-			len = (uint32_t)snprintf(buf, BUFLEN, "%llu", out_packet_count);
+			len = (uint32_t)snprintf(buf, BUFLEN, "%lu", out_packet_count);
 			db__messages_easy_queue(NULL, "$SYS/broker/packet/out/count", SYS_TREE_QOS, len, buf, 1, 60, NULL);
 		}
 

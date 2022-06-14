@@ -57,7 +57,7 @@ Contributors:
 
 extern int g_run;
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_WEBSOCKETS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
 void lws__sul_callback(struct lws_sorted_usec_list *l)
 {
 }
@@ -175,7 +175,7 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 	int rc;
 
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_WEBSOCKETS && LWS_LIBRARY_VERSION_NUMBER == 3002000
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS && LWS_LIBRARY_VERSION_NUMBER == 3002000
 	memset(&sul, 0, sizeof(struct lws_sorted_usec_list));
 #endif
 

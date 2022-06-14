@@ -323,6 +323,7 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 	struct mosquitto *found_client;
     char *id_dup;
 	bool in_by_id;
+	int clientid_len;
 
     if(!client || !clientid) return MOSQ_ERR_INVAL;
 
@@ -343,7 +344,7 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 		}
 	}
 
-    int clientid_len = (int)strlen(clientid);
+    clientid_len = (int)strlen(clientid);
     if(mosquitto_validate_utf8(clientid, clientid_len)){
         return MOSQ_ERR_INVAL;
     }
@@ -601,7 +602,7 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *client_id)
 }
 
 
-struct mosquitto_base_msg *find_store_msg(uint64_t store_id)
+static struct mosquitto_base_msg *find_store_msg(uint64_t store_id)
 {
 	struct mosquitto_base_msg *base_msg;
 

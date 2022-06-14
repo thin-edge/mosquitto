@@ -26,6 +26,7 @@ Contributors:
 
 #include "mosquitto_internal.h"
 #include "base64_mosq.h"
+#include "http_client.h"
 #include "memory_mosq.h"
 #include "mqtt_protocol.h"
 #include "net_mosq.h"

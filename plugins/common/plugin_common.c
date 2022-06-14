@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "plugin_common.h"
 #include "json_help.h"
 #include <mqtt_protocol.h>

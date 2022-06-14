@@ -204,7 +204,7 @@ static ssize_t read_ws_payloadlen_extended(struct mosquitto *mosq)
 }
 
 
-ssize_t read_ws_mask(struct mosquitto *mosq)
+static ssize_t read_ws_mask(struct mosquitto *mosq)
 {
 	ssize_t len;
 
