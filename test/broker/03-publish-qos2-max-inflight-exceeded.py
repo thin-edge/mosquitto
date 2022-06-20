@@ -27,13 +27,14 @@ def do_test(proto_ver):
             disconnect_packet = mosq_test.gen_disconnect(reason_code=mqtt5_rc.MQTT_RC_RECEIVE_MAXIMUM_EXCEEDED, proto_ver=proto_ver)
         else:
             disconnect_packet = b""
-        mosq_test.do_send_receive(sock, publish_packet, disconnect_packet, "disconnect")
+        try:
+            mosq_test.do_send_receive(sock, publish_packet, disconnect_packet, "disconnect")
+        except BrokenPipeError:
+            pass
 
         rc = 0
 
         sock.close()
-    except mosq_test.TestError:
-        pass
     finally:
         broker.terminate()
         broker.wait()
@@ -41,9 +42,15 @@ def do_test(proto_ver):
         if rc:
             print(stde.decode('utf-8'))
             print("proto_ver=%d" % (proto_ver))
-            exit(rc)
+    return rc
 
 
-do_test(proto_ver=4)
-do_test(proto_ver=5)
-exit(0)
+def all_test():
+    rc = do_test(proto_ver=4)
+    if rc:
+        return rc
+    rc = do_test(proto_ver=5)
+    return rc
+
+if __name__ == "__main__":
+    sys.exit(all_test())

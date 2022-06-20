@@ -54,9 +54,15 @@ connack5_packet = mosq_test.gen_connack(rc=0, proto_ver=5, properties=props)
 
 broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
 
+
 try:
-    sock = mosq_test.do_client_connect(connect1_packet, b"", timeout=20, port=port)
-    sock.close()
+    sock = None
+    try:
+        sock = mosq_test.do_client_connect(connect1_packet, b"", timeout=20, port=port)
+        sock.close()
+        rc = 2
+    except BrokenPipeError:
+        pass
 
     sock = mosq_test.do_client_connect(connect2_packet, connack2_packet, timeout=20, port=port)
     sock.close()
@@ -71,8 +77,6 @@ try:
     sock.close()
 
     rc = 0
-except mosq_test.TestError:
-    pass
 finally:
     os.remove(conf_file)
     broker.terminate()
@@ -82,5 +86,4 @@ finally:
         print(stde.decode('utf-8'))
 
 
-exit(rc)
-
+sys.exit(rc)
