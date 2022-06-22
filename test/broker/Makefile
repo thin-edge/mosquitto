@@ -239,18 +239,21 @@ ifeq ($(WITH_CJSON),yes)
 	./14-dynsec-allow-wildcard.py
 	./14-dynsec-anon-group.py
 	./14-dynsec-auth.py
-	./14-dynsec-client.py
 	./14-dynsec-client-invalid.py
+	./14-dynsec-client.py
+	./14-dynsec-config-init-env.py
+	./14-dynsec-config-init-file.py
+	./14-dynsec-config-init-random.py
 	./14-dynsec-default-access.py
 	./14-dynsec-disable-client.py
-	./14-dynsec-group.py
 	./14-dynsec-group-invalid.py
+	./14-dynsec-group.py
 	./14-dynsec-modify-client.py
 	./14-dynsec-modify-group.py
 	./14-dynsec-modify-role.py
 	./14-dynsec-plugin-invalid.py
-	./14-dynsec-role.py
 	./14-dynsec-role-invalid.py
+	./14-dynsec-role.py
 endif
 endif
 

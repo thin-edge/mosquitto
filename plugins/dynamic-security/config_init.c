@@ -19,6 +19,7 @@ Contributors:
 #include "config.h"
 
 #include <cjson/cJSON.h>
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,7 +64,56 @@ static int add_default_access(cJSON *j_tree)
 }
 
 
-static int generate_password(int iterations, char **password, char **password_hash, char **salt)
+static int get_password_from_init_file(struct dynsec__data *data, char **pw)
+{
+	FILE *fptr;
+	char buf[1024];
+	int pos;
+
+	if(data->password_init_file == NULL){
+		*pw = NULL;
+		return MOSQ_ERR_SUCCESS;
+	}
+	fptr = fopen(data->password_init_file, "rt");
+	if(!fptr){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Unable to get initial password from '%s', file not accessible.", data->password_init_file);
+		return MOSQ_ERR_INVAL;
+	}
+	if(!fgets(buf, sizeof(buf), fptr)){
+		fclose(fptr);
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Unable to get initial password from '%s', file empty.", data->password_init_file);
+		return MOSQ_ERR_INVAL;
+	}
+	fclose(fptr);
+
+	pos = (int)strlen(buf)-1;
+	while(pos >= 0 && isspace(buf[pos])){
+		buf[pos] = '\0';
+		pos--;
+	}
+	if(strlen(buf) == 0){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Unable to get initial password from '%s', password is empty.", data->password_init_file);
+		return MOSQ_ERR_INVAL;
+	}
+	*pw = strdup(buf);
+	if(!*pw){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Unable to get initial password from '%s', out of memory.", data->password_init_file);
+		return MOSQ_ERR_NOMEM;
+	}else{
+		return MOSQ_ERR_SUCCESS;
+	}
+}
+
+
+/* Generate a password for the admin user
+ *
+ * Uses passwords from, in order:
+ *
+ * * The password defined in the plugin_opt_password_init_file file
+ * * The contents of the MOSQUITTO_DYNSEC_PASSWORD environment variable
+ * * Randomly generated passwords for "admin", "user", stored in plain text at '<plugin_opt_config_file>.pw'
+ */
+static int generate_password(struct dynsec__data *data, int iterations, char **password, char **password_hash, char **salt)
 {
 	struct mosquitto_pw pw;
 	int i;
@@ -75,9 +125,13 @@ static int generate_password(int iterations, char **password, char **password_ha
 	memset(&pw, 0, sizeof(struct mosquitto_pw));
 	pw.hashtype = pw_sha512_pbkdf2;
 
-	pwenv = getenv("MOSQUITTO_DYNSEC_PASSWORD");
-	if(pwenv){
-		if(strlen(pwenv) < 12){
+	if(data->init_mode == dpwim_file){
+		if(get_password_from_init_file(data, password)){
+			return MOSQ_ERR_INVAL;
+		}
+	}else if(data->init_mode == dpwim_env){
+		pwenv = getenv("MOSQUITTO_DYNSEC_PASSWORD");
+		if(pwenv == NULL || strlen(pwenv) < 12){
 			mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Not generating dynsec config, MOSQUITTO_DYNSEC_PASSWORD must be at least 12 characters.");
 			return MOSQ_ERR_INVAL;
 		}
@@ -140,14 +194,14 @@ static int client_role_add(cJSON *j_roles, const char *rolename)
 }
 
 
-static int client_add_admin(FILE *pwfile, cJSON *j_clients)
+static int client_add_admin(struct dynsec__data *data, FILE *pwfile, cJSON *j_clients)
 {
 	cJSON *j_client, *j_roles;
 	char *password = NULL;
 	char *password_hash = NULL;
 	char *salt = NULL;
 
-	if(generate_password(10000, &password, &password_hash, &salt)){
+	if(generate_password(data, 10000, &password, &password_hash, &salt)){
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -181,23 +235,25 @@ static int client_add_admin(FILE *pwfile, cJSON *j_clients)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	fprintf(pwfile, "admin %s\n", password);
+	if(data->init_mode == dpwim_random){
+		fprintf(pwfile, "admin %s\n", password);
+	}
 	free(password);
 
 	return MOSQ_ERR_SUCCESS;
 }
 
-static int client_add_user(FILE *pwfile, cJSON *j_clients)
+static int client_add_user(struct dynsec__data *data, FILE *pwfile, cJSON *j_clients)
 {
 	cJSON *j_client, *j_roles;
 	char *password = NULL;
 	char *password_hash = NULL;
 	char *salt = NULL;
 
-	if(getenv("MOSQUITTO_DYNSEC_PASSWORD")){
+	if(data->init_mode != dpwim_random){
 		return MOSQ_ERR_SUCCESS;
 	}
-	if(generate_password(10000, &password, &password_hash, &salt)){
+	if(generate_password(data, 10000, &password, &password_hash, &salt)){
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -234,40 +290,42 @@ static int client_add_user(FILE *pwfile, cJSON *j_clients)
 	return MOSQ_ERR_SUCCESS;
 }
 
-static int add_clients(const char *filename, cJSON *j_tree)
+static int add_clients(struct dynsec__data *data, cJSON *j_tree)
 {
 	cJSON *j_clients;
 	char *pwfile;
 	size_t len;
-	FILE *fptr;
+	FILE *fptr = NULL;
 
-	len = strlen(filename) + 5;
-	pwfile = malloc(len);
-	if(pwfile == NULL){
-		return MOSQ_ERR_NOMEM;
-	}
-	snprintf(pwfile, len, "%s.pw", filename);
-	fptr = mosquitto__fopen(pwfile, "wb", true);
-	free(pwfile);
-	if(fptr == NULL){
-		return MOSQ_ERR_UNKNOWN;
+	if(data->init_mode == dpwim_random){
+		len = strlen(data->config_file) + 5;
+		pwfile = malloc(len);
+		if(pwfile == NULL){
+			return MOSQ_ERR_NOMEM;
+		}
+		snprintf(pwfile, len, "%s.pw", data->config_file);
+		fptr = mosquitto__fopen(pwfile, "wb", true);
+		free(pwfile);
+		if(fptr == NULL){
+			return MOSQ_ERR_UNKNOWN;
+		}
 	}
 
 	j_clients = cJSON_AddArrayToObject(j_tree, "clients");
 	if(j_clients == NULL){
-		fclose(fptr);
+		if(fptr) fclose(fptr);
 		return MOSQ_ERR_NOMEM;
 	}
 
-	if(client_add_admin(fptr, j_clients)
-			|| client_add_user(fptr, j_clients)
+	if(client_add_admin(data, fptr, j_clients)
+			|| client_add_user(data, fptr, j_clients)
 			){
 
-		fclose(fptr);
+		if(fptr) fclose(fptr);
 		return MOSQ_ERR_NOMEM;
 	}
 
-	fclose(fptr);
+	if(fptr) fclose(fptr);
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -416,7 +474,7 @@ static int role_add_topic_observe(cJSON *j_roles)
 
 	if(cJSON_AddStringToObject(j_role, "rolename", "topic-observe") == NULL
 			|| cJSON_AddStringToObject(j_role, "textdescription",
-				"Read/write access to the full application topic hierarchy.") == NULL
+				"Read only access to the full application topic hierarchy.") == NULL
 			|| (j_acls = cJSON_AddArrayToObject(j_role, "acls")) == NULL
 			){
 
@@ -455,11 +513,24 @@ static int add_roles(cJSON *j_tree)
 }
 
 
-int dynsec__config_init(const char *filename)
+int dynsec__config_init(struct dynsec__data *data)
 {
 	FILE *fptr;
 	cJSON *j_tree;
 	char *json_str;
+
+	mosquitto_log_printf(MOSQ_LOG_INFO, "Dynamic security plugin config not found, generating a default config.");
+
+	if(data->password_init_file){
+		mosquitto_log_printf(MOSQ_LOG_INFO, "  Using admin password from file '%s'", data->password_init_file);
+		data->init_mode = dpwim_file;
+	}else if(getenv("MOSQUITTO_DYNSEC_PASSWORD")){
+		mosquitto_log_printf(MOSQ_LOG_INFO, "  Using admin password from MOSQUITTO_DYNSEC_PASSWORD environment variable");
+		data->init_mode = dpwim_env;
+	}else{
+		mosquitto_log_printf(MOSQ_LOG_INFO, "  Generated passwords are at %s.pw", data->config_file);
+		data->init_mode = dpwim_random;
+	}
 
 	j_tree = cJSON_CreateObject();
 	if(j_tree == NULL){
@@ -467,7 +538,7 @@ int dynsec__config_init(const char *filename)
 	}
 
 	if(add_default_access(j_tree) != MOSQ_ERR_SUCCESS
-			|| add_clients(filename, j_tree) != MOSQ_ERR_SUCCESS
+			|| add_clients(data, j_tree) != MOSQ_ERR_SUCCESS
 			|| add_groups(j_tree) != MOSQ_ERR_SUCCESS
 			|| add_roles(j_tree) != MOSQ_ERR_SUCCESS
 			|| cJSON_AddStringToObject(j_tree, "anonymousGroup", "unauthenticated") == NULL
@@ -483,7 +554,7 @@ int dynsec__config_init(const char *filename)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	fptr = mosquitto__fopen(filename, "wb", true);
+	fptr = mosquitto__fopen(data->config_file, "wb", true);
 	if(fptr == NULL){
 		return MOSQ_ERR_UNKNOWN;
 	}

@@ -136,14 +136,22 @@ struct dynsec__acl_default_access{
 	bool unsubscribe;
 };
 
+enum dynsec_pw_init_mode{
+	dpwim_file = 1,
+	dpwim_env = 2,
+	dpwim_random = 3,
+};
+
 struct dynsec__data{
 	char *config_file;
+	char *password_init_file;
 	struct dynsec__client *clients;
 	struct dynsec__group *groups;
 	struct dynsec__role *roles;
 	struct dynsec__group *anonymous_group;
 	struct dynsec__kicklist *kicklist;
 	struct dynsec__acl_default_access default_access;
+	int init_mode;
 };
 
 /* ################################################################
@@ -152,7 +160,7 @@ struct dynsec__data{
  * #
  * ################################################################ */
 
-int dynsec__config_init(const char *filename);
+int dynsec__config_init(struct dynsec__data *data);
 void dynsec__config_save(struct dynsec__data *data);
 int dynsec__config_load(struct dynsec__data *data);
 char *dynsec__config_to_json(struct dynsec__data *data);
