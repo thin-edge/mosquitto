@@ -16,36 +16,31 @@ def do_test(start_broker, proto_ver):
     connect_packet = struct.pack("B"*len(bmod), *bmod)
 
     port = mosq_test.get_port()
+    broker = None
     if start_broker:
         broker = mosq_test.start_broker(filename=os.path.basename(__file__), port=port)
 
     try:
         sock = mosq_test.do_client_connect(connect_packet, b"", port=port)
         sock.close()
+    except BrokenPipeError:
         rc = 0
-    except mosq_test.TestError:
-        pass
     finally:
-        if start_broker:
+        if broker:
             broker.terminate()
             broker.wait()
             (stdo, stde) = broker.communicate()
             if rc:
                 print(stde.decode('utf-8'))
                 print("proto_ver=%d" % (proto_ver))
-                exit(rc)
-        else:
-            return rc
+    return rc
 
 
 def all_tests(start_broker=False):
     rc = do_test(start_broker, proto_ver=4)
     if rc:
-        return rc;
-    rc = do_test(start_broker, proto_ver=5)
-    if rc:
-        return rc;
-    return 0
+        return rc
+    return do_test(start_broker, proto_ver=5)
 
 if __name__ == '__main__':
-    all_tests(True)
+    sys.exit(all_tests(True))

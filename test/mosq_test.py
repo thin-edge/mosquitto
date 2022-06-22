@@ -119,7 +119,7 @@ def expect_packet(sock, name, expected):
         while len(packet_recvd) < rlen:
             data = sock.recv(rlen-len(packet_recvd))
             if len(data) == 0:
-                break
+                raise BrokenPipeError(f"when reading {name} from {sock.getpeername()}")
             packet_recvd += data
     except socket.timeout:
         pass
