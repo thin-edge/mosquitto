@@ -171,5 +171,5 @@ if(WITH_STATIC_LIBRARIES)
 	)
 endif()
 
-install(FILES ../include/mosquitto.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-install(FILES ../include/mqtt_protocol.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(FILES ${mosquitto_SOURCE_DIR}/include/mosquitto.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(FILES ${mosquitto_SOURCE_DIR}/include/mqtt_protocol.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")

@@ -186,7 +186,7 @@ endif()
 if(WITH_WEBSOCKETS)
 	if(WITH_WEBSOCKETS_BUILTIN)
 		add_definitions("-DWITH_WEBSOCKETS=WS_IS_BUILTIN")
-		set(MOSQ_SRCS ${MOSQ_SRCS} ../deps/picohttpparser/picohttpparser.c)
+		set(MOSQ_SRCS ${MOSQ_SRCS} ${mosquitto_SOURCE_DIR}/deps/picohttpparser/picohttpparser.c)
 	else()
 		find_package(libwebsockets)
 		add_definitions("-DWITH_WEBSOCKETS=WS_IS_LWS")
@@ -271,4 +271,9 @@ endif()
 install(TARGETS mosquitto
 	RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}"
 )
-install(FILES ../include/mosquitto_broker.h ../include/mosquitto_plugin.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(
+	FILES
+	${mosquitto_SOURCE_DIR}/include/mosquitto_broker.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto_plugin.h
+	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
