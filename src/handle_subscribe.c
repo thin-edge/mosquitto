@@ -158,6 +158,7 @@ int handle__subscribe(struct mosquitto *context)
 			if(qos > context->max_qos){
 				qos = context->max_qos;
 			}
+			sub.options |= qos;
 
 
 			if(context->listener && context->listener->mount_point){
@@ -196,7 +197,12 @@ int handle__subscribe(struct mosquitto *context)
 			}
 
 			if(allowed){
-				sub.options |= qos;
+				rc2 = plugin__handle_subscribe(context, &sub);
+				if(rc2){
+					mosquitto__FREE(sub.topic);
+					return rc2;
+				}
+
 				rc2 = sub__add(context, &sub);
 				if(rc2 > 0){
 					mosquitto__FREE(sub.topic);
@@ -216,7 +222,11 @@ int handle__subscribe(struct mosquitto *context)
 
 				log__printf(NULL, MOSQ_LOG_SUBSCRIBE, "%s %d %s", context->id, qos, sub.topic);
 
-				plugin__handle_subscribe(context, &sub);
+				rc = plugin__handle_subscribe(context, &sub);
+				if(rc){
+					mosquitto__FREE(sub.topic);
+					return rc;
+				}
 				plugin_persist__handle_subscription_add(context, &sub);
 			}
 			mosquitto__FREE(sub.topic);

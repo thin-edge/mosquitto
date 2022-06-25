@@ -24,17 +24,21 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, const struct mosquitto_subscription *sub)
+static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_subscribe event_data;
 	struct mosquitto__callback *cb_base;
 	int rc = MOSQ_ERR_SUCCESS;
+	uint8_t qos;
+	uint8_t options;
 
+	qos = sub->options & 0x03;
+	options = sub->options &= 0xFC;
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
 	event_data.topic = sub->topic;
-	event_data.qos = sub->options & 0x03;
-	event_data.subscription_options = sub->options;
+	event_data.qos = qos;
+	event_data.subscription_options = options;
 	event_data.subscription_identifier = sub->identifier;
 	event_data.properties = sub->properties;
 
@@ -43,24 +47,31 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 		if(rc != MOSQ_ERR_SUCCESS){
 			break;
 		}
+
+		if(sub->topic != event_data.topic){
+			mosquitto__free(sub->topic);
+			sub->topic = event_data.topic;
+		}
 	}
+	if(event_data.qos < qos){
+		qos = event_data.qos;
+	}
+	sub->options = qos | options;
 
 	return rc;
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, const struct mosquitto_subscription *sub)
+int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
-	rc = plugin__handle_subscribe_single(&db.config->security_options,
-			context, sub);
+	rc = plugin__handle_subscribe_single(&db.config->security_options, context, sub);
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
-		rc = plugin__handle_subscribe_single(context->listener->security_options,
-				context, sub);
+		rc = plugin__handle_subscribe_single(context->listener->security_options, context, sub);
 	}
 
 	return rc;

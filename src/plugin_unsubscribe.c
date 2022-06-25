@@ -24,7 +24,7 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, const struct mosquitto_subscription *sub)
+static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_unsubscribe event_data;
 	struct mosquitto__callback *cb_base;
@@ -35,10 +35,15 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 	event_data.topic = sub->topic;
 	event_data.properties = sub->properties;
 
-	DL_FOREACH(opts->plugin_callbacks.unsubscribe, cb_base){
+	DL_FOREACH(opts->plugin_callbacks.subscribe, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
 		if(rc != MOSQ_ERR_SUCCESS){
 			break;
+		}
+
+		if(sub->topic != event_data.topic){
+			mosquitto__free(sub->topic);
+			sub->topic = event_data.topic;
 		}
 	}
 
@@ -46,7 +51,7 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, const struct mosquitto_subscription *sub)
+int plugin__handle_unsubscribe(struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
