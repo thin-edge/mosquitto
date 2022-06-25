@@ -278,7 +278,7 @@ int handle__publish(struct mosquitto *context)
 	}
 
 	{
-		rc = plugin__handle_message(context, base_msg);
+		rc = plugin__handle_message_write(context, &base_msg->data);
 		if(rc == MOSQ_ERR_ACL_DENIED){
 			log__printf(NULL, MOSQ_LOG_DEBUG,
 					"Denied PUBLISH from %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))",
