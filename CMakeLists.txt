@@ -104,10 +104,8 @@ option(WITH_APPS "Build apps?" ON)
 option(WITH_PLUGINS "Build plugins?" ON)
 option(DOCUMENTATION "Build documentation?" ON)
 
-add_library(config-header
-	INTERFACE
-		config.h
-)
+add_library(config-header INTERFACE)
+target_sources(config-header INTERFACE config.h)
 target_include_directories(config-header
 	INTERFACE
 		${mosquitto_SOURCE_DIR}
