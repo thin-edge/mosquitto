@@ -18,7 +18,7 @@ target_include_directories(mosquittopp
 		"${mosquitto_SOURCE_DIR}/lib/cpp"
 )
 
-target_link_libraries(mosquittopp PRIVATE libmosquitto)
+target_link_libraries(mosquittopp PRIVATE libmosquitto common-options)
 
 if (WITH_THREADING AND NOT WIN32)
 	set(THREADS_PREFER_PTHREAD_FLAG ON)

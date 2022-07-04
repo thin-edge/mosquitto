@@ -30,6 +30,7 @@ if(SQLITE3_FOUND AND CJSON_FOUND)
 
 	target_link_libraries(mosquitto_persist_sqlite
 		PRIVATE
+			common-options
 			SQLite::SQLite3
 			cJSON
 	)

@@ -10,7 +10,12 @@ target_include_directories(common-unit-test-header
         "${mosquitto_SOURCE_DIR}/src"
         "${mosquitto_SOURCE_DIR}/test"
 )
-target_link_libraries(common-unit-test-header INTERFACE config-header CUnit::CUnit)
+target_link_libraries(common-unit-test-header
+    INTERFACE
+        common-options
+        config-header
+        CUnit::CUnit
+)
 
 # unit-broker
 add_executable(broker-test

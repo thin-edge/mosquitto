@@ -107,6 +107,8 @@ int mux__handle(struct mosquitto__listener_sock *listensock, int listensock_coun
 	UNUSED(listensock_count);
 	return mux_epoll__handle();
 #elif defined(WITH_KQUEUE)
+	UNUSED(listensock);
+	UNUSED(listensock_count);
 	return mux_kqueue__handle();
 #else
 	return mux_poll__handle(listensock, listensock_count);

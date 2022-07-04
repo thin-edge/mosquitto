@@ -58,8 +58,10 @@ if (WITH_THREADING AND WIN32)
 	list(APPEND C_SRC "../common/winthread_mosq.c" "../common/winthread_mosq.h")
 endif()
 
+set(LIBRARIES common-options)
+
 if(WITH_TLS)
-	set (LIBRARIES OpenSSL::SSL)
+	set (LIBRARIES ${LIBRARIES} OpenSSL::SSL)
 endif()
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
