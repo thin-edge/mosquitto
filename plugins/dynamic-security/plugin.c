@@ -50,7 +50,11 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 			if(dynsec_data.config_file == NULL){
 				return MOSQ_ERR_NOMEM;
 			}
-			break;
+		}else if(!strcasecmp(options[i].key, "password_init_file")){
+			dynsec_data.password_init_file = mosquitto_strdup(options[i].value);
+			if(dynsec_data.password_init_file == NULL){
+				return MOSQ_ERR_NOMEM;
+			}
 		}
 	}
 	if(dynsec_data.config_file == NULL){
@@ -82,5 +86,9 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *options, int
 
 	mosquitto_free(dynsec_data.config_file);
 	dynsec_data.config_file = NULL;
+
+	mosquitto_free(dynsec_data.password_init_file);
+	dynsec_data.password_init_file = NULL;
+
 	return MOSQ_ERR_SUCCESS;
 }

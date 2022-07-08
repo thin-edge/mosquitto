@@ -57,6 +57,8 @@ Broker:
   to trust default CA certificates. Closes #2473.
 - Add `--test-config` option which can be used to test a configuration file
   before trying to use it in a live broker. Closes #2521.
+- Print messages in mosquitto_passwd when adding/updating passwords.
+  Closes #2544.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.
@@ -84,6 +86,8 @@ Plugins / plugin interface:
 - The dynamic security plugin now supports `%c` and `%u` patterns for
   substituting client id and username respectively, in all ACLs except for
   subscribeLiteral and unsubscribeLiteral.
+- The dynamic security plugin now supports multiple ways to initialise the
+  first configuration file.
 - Add `mosquitto_sub_matches_acl()`, which can match one topic filter (a
   subscription) against another topic filter (an ACL).
 - Registration of the MOSQ_EVT_CONTROL plugin event is now handled globally

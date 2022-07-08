@@ -504,7 +504,7 @@ int mosquitto_int_option(struct mosquitto *mosq, enum mosq_opt_t option, int val
 			break;
 
 		case MOSQ_OPT_TRANSPORT:
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == LWS_IS_BUILTIN
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 			if(value == mosq_t_tcp || value == mosq_t_ws){
 				mosq->transport = (uint8_t)value;
 			}else{
@@ -516,7 +516,7 @@ int mosquitto_int_option(struct mosquitto *mosq, enum mosq_opt_t option, int val
 			break;
 
 		case MOSQ_OPT_HTTP_HEADER_SIZE:
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == LWS_IS_BUILTIN
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 			if(value < 100){ /* arbitrary limit */
 				return MOSQ_ERR_INVAL;
 			}else if(mosq->http_request){

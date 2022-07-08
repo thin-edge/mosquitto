@@ -88,7 +88,7 @@
 #endif
 
 #define WS_IS_LWS 1
-#define WS_IS_WSLAY 2
+#define WS_IS_BUILTIN 2
 
 #ifdef WITH_BROKER
 #  ifdef __GNUC__

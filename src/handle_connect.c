@@ -460,6 +460,114 @@ static int check_protocol_version(struct mosquitto__listener *listener, int prot
 }
 
 
+#ifdef WITH_TLS
+static int get_username_from_cert(struct mosquitto *context)
+{
+	int i;
+	X509 *client_cert = NULL;
+	X509_NAME *name;
+	X509_NAME_ENTRY *name_entry;
+	ASN1_STRING *name_asn1 = NULL;
+	BIO *subject_bio;
+	char *data_start;
+	long name_length;
+	char *subject;
+
+	client_cert = SSL_get_peer_certificate(context->ssl);
+	if(!client_cert){
+		if(context->protocol == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
+		}else{
+			send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
+		}
+		return MOSQ_ERR_AUTH;
+	}
+	name = X509_get_subject_name(client_cert);
+	if(!name){
+		if(context->protocol == mosq_p_mqtt5){
+			send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
+		}else{
+			send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
+		}
+		X509_free(client_cert);
+		return MOSQ_ERR_AUTH;
+	}
+	if(context->listener->use_identity_as_username){ /* use_identity_as_username */
+		i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+		if(i == -1){
+			if(context->protocol == mosq_p_mqtt5){
+				send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
+			}else{
+				send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
+			}
+			X509_free(client_cert);
+			return MOSQ_ERR_AUTH;
+		}
+		name_entry = X509_NAME_get_entry(name, i);
+		if(name_entry){
+			name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
+			if (name_asn1 == NULL) {
+				if(context->protocol == mosq_p_mqtt5){
+					send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
+				}else{
+					send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
+				}
+				X509_free(client_cert);
+				return MOSQ_ERR_AUTH;
+			}
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+			context->username = mosquitto__strdup((char *) ASN1_STRING_data(name_asn1));
+#else
+			context->username = mosquitto__strdup((char *) ASN1_STRING_get0_data(name_asn1));
+#endif
+			if(!context->username){
+				if(context->protocol == mosq_p_mqtt5){
+					send__connack(context, 0, MQTT_RC_SERVER_UNAVAILABLE, NULL);
+				}else{
+					send__connack(context, 0, CONNACK_REFUSED_SERVER_UNAVAILABLE, NULL);
+				}
+				X509_free(client_cert);
+				return MOSQ_ERR_NOMEM;
+			}
+			/* Make sure there isn't an embedded NUL character in the CN */
+			if ((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)) {
+				if(context->protocol == mosq_p_mqtt5){
+					send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
+				}else{
+					send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
+				}
+				X509_free(client_cert);
+				return MOSQ_ERR_AUTH;
+			}
+		}
+	} else { /* use_subject_as_username */
+		subject_bio = BIO_new(BIO_s_mem());
+		X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
+		data_start = NULL;
+		name_length = BIO_get_mem_data(subject_bio, &data_start);
+		subject = mosquitto__malloc(sizeof(char)*(size_t)(name_length+1));
+		if(!subject){
+			BIO_free(subject_bio);
+			X509_free(client_cert);
+			return MOSQ_ERR_NOMEM;
+		}
+		memcpy(subject, data_start, (size_t)name_length);
+		subject[name_length] = '\0';
+		BIO_free(subject_bio);
+		context->username = subject;
+	}
+	if(!context->username){
+		X509_free(client_cert);
+		return MOSQ_ERR_AUTH;
+	}
+	X509_free(client_cert);
+	client_cert = NULL;
+
+	return MOSQ_ERR_SUCCESS;
+}
+#endif
+
+
 int handle__connect(struct mosquitto *context)
 {
 	char protocol_name[7];
@@ -479,17 +587,6 @@ int handle__connect(struct mosquitto *context)
 	void *auth_data_out = NULL;
 	uint16_t auth_data_out_len = 0;
 	bool allow_zero_length_clientid;
-#ifdef WITH_TLS
-	int i;
-	X509 *client_cert = NULL;
-	X509_NAME *name;
-	X509_NAME_ENTRY *name_entry;
-	ASN1_STRING *name_asn1 = NULL;
-	BIO *subject_bio;
-	char *data_start;
-	long name_length;
-	char *subject;
-#endif
 
 	G_CONNECTION_COUNT_INC();
 
@@ -807,96 +904,8 @@ int handle__connect(struct mosquitto *context)
 			}
 		}else{
 #endif /* FINAL_WITH_TLS_PSK */
-			client_cert = SSL_get_peer_certificate(context->ssl);
-			if(!client_cert){
-				if(context->protocol == mosq_p_mqtt5){
-					send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
-				}else{
-					send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
-				}
-				rc = MOSQ_ERR_AUTH;
-				goto handle_connect_error;
-			}
-			name = X509_get_subject_name(client_cert);
-			if(!name){
-				if(context->protocol == mosq_p_mqtt5){
-					send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
-				}else{
-					send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
-				}
-				rc = MOSQ_ERR_AUTH;
-				goto handle_connect_error;
-			}
-			if (context->listener->use_identity_as_username) { /* use_identity_as_username */
-				i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
-				if(i == -1){
-					if(context->protocol == mosq_p_mqtt5){
-						send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
-					}else{
-						send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
-					}
-					rc = MOSQ_ERR_AUTH;
-					goto handle_connect_error;
-				}
-				name_entry = X509_NAME_get_entry(name, i);
-				if(name_entry){
-					name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
-					if (name_asn1 == NULL) {
-						if(context->protocol == mosq_p_mqtt5){
-							send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
-						}else{
-							send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
-						}
-						rc = MOSQ_ERR_AUTH;
-						goto handle_connect_error;
-					}
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-					context->username = mosquitto__strdup((char *) ASN1_STRING_data(name_asn1));
-#else
-					context->username = mosquitto__strdup((char *) ASN1_STRING_get0_data(name_asn1));
-#endif
-					if(!context->username){
-						if(context->protocol == mosq_p_mqtt5){
-							send__connack(context, 0, MQTT_RC_SERVER_UNAVAILABLE, NULL);
-						}else{
-							send__connack(context, 0, CONNACK_REFUSED_SERVER_UNAVAILABLE, NULL);
-						}
-						rc = MOSQ_ERR_NOMEM;
-						goto handle_connect_error;
-					}
-					/* Make sure there isn't an embedded NUL character in the CN */
-					if ((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)) {
-						if(context->protocol == mosq_p_mqtt5){
-							send__connack(context, 0, MQTT_RC_BAD_USERNAME_OR_PASSWORD, NULL);
-						}else{
-							send__connack(context, 0, CONNACK_REFUSED_BAD_USERNAME_PASSWORD, NULL);
-						}
-						rc = MOSQ_ERR_AUTH;
-						goto handle_connect_error;
-					}
-				}
-			} else { /* use_subject_as_username */
-				subject_bio = BIO_new(BIO_s_mem());
-				X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
-				data_start = NULL;
-				name_length = BIO_get_mem_data(subject_bio, &data_start);
-				subject = mosquitto__malloc(sizeof(char)*(size_t)(name_length+1));
-				if(!subject){
-					BIO_free(subject_bio);
-					rc = MOSQ_ERR_NOMEM;
-					goto handle_connect_error;
-				}
-				memcpy(subject, data_start, (size_t)name_length);
-				subject[name_length] = '\0';
-				BIO_free(subject_bio);
-				context->username = subject;
-			}
-			if(!context->username){
-				rc = MOSQ_ERR_AUTH;
-				goto handle_connect_error;
-			}
-			X509_free(client_cert);
-			client_cert = NULL;
+			rc = get_username_from_cert(context);
+			if(rc) goto handle_connect_error;
 #ifdef FINAL_WITH_TLS_PSK
 		}
 #endif /* FINAL_WITH_TLS_PSK */
@@ -1022,9 +1031,6 @@ handle_connect_error:
 		mosquitto__FREE(will_struct);
 	}
 	context->will = NULL;
-#ifdef WITH_TLS
-	if(client_cert) X509_free(client_cert);
-#endif
 	/* We return an error here which means the client is freed later on. */
 	context->clean_start = true;
 	context->session_expiry_interval = 0;

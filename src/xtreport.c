@@ -43,13 +43,7 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 	long tBytes;
 
 	pkt_count = 1;
-	pkt_bytes = context->in_packet.packet_length;
-	pkt_tmp = context->out_packet;
-	while(pkt_tmp){
-		pkt_count++;
-		pkt_bytes += pkt_tmp->packet_length;
-		pkt_tmp = pkt_tmp->next;
-	}
+	pkt_bytes = context->in_packet.packet_length + context->out_packet_bytes;
 
 	cmsg_count = context->msgs_in.inflight_count + context->msgs_in.queued_count;
 	cmsg_bytes = context->msgs_in.inflight_bytes + context->msgs_in.queued_bytes;

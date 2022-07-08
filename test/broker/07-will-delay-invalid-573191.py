@@ -8,7 +8,6 @@ from mosq_test_helper import *
 def do_test():
     rc = 1
 
-    mid = 1
     props = mqtt5_props.gen_uint32_prop(mqtt5_props.PROP_WILL_DELAY_INTERVAL, 3)
     connect_packet = mosq_test.gen_connect("will-573191-test", proto_ver=5, will_topic="", will_properties=props)
     connack_packet = b""
@@ -19,6 +18,7 @@ def do_test():
     try:
         sock = mosq_test.do_client_connect(connect_packet, connack_packet, timeout=30, port=port)
         sock.close()
+    except BrokenPipeError:
         rc = 0
     finally:
         broker.terminate()
@@ -28,6 +28,6 @@ def do_test():
         (stdo, stde) = broker.communicate()
         if rc:
             print(stde.decode('utf-8'))
-            exit(rc)
+    return rc
 
-do_test()
+sys.exit(do_test())

@@ -98,7 +98,7 @@ int dynsec__config_from_json(struct dynsec__data *data, const char *json_str)
 
 	tree = cJSON_Parse(json_str);
 	if(tree == NULL){
-		mosquitto_log_printf(MOSQ_LOG_ERR, "Error loading Dynamic security plugin config: File is not valid JSON.\n");
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error loading Dynamic security plugin config: File is not valid JSON.");
 		return 1;
 	}
 
@@ -128,9 +128,7 @@ int dynsec__config_load(struct dynsec__data *data)
 	fptr = fopen(data->config_file, "rb");
 	if(fptr == NULL){
 		/* Attempt to initialise a new config file */
-		if(dynsec__config_init(data->config_file) == MOSQ_ERR_SUCCESS){
-			mosquitto_log_printf(MOSQ_LOG_INFO, "Dynamic security plugin config not found, generating a default config.");
-			mosquitto_log_printf(MOSQ_LOG_INFO, "  Generated passwords are at %s.pw", data->config_file);
+		if(dynsec__config_init(data) == MOSQ_ERR_SUCCESS){
 			/* If it works, try to open the file again */
 			fptr = fopen(data->config_file, "rb");
 		}

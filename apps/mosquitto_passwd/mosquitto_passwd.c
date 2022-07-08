@@ -336,8 +336,10 @@ static int update_pwuser(FILE *fptr, FILE *ftmp, const char *username, const cha
 	rc = pwfile_iterate(fptr, ftmp, update_pwuser_cb, &helper);
 
 	if(helper.found){
+		printf("Updating password for user %s\n", username);
 		return rc;
 	}else{
+		printf("Adding password for user %s\n", username);
 		return output_new_password(ftmp, username, password, iterations);
 	}
 }
@@ -606,6 +608,7 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 		free(password_file);
+		printf("Adding password for user %s\n", username);
 		rc = output_new_password(fptr, username, password_cmd, iterations);
 		fclose(fptr);
 		return rc;

@@ -37,7 +37,7 @@ def do_test():
         # Try to open an 11th connection
         try:
             sock_bad = mosq_test.do_client_connect(connect_packet_bad, connack_packet_bad, port=port)
-        except ConnectionResetError:
+        except (ConnectionResetError, BrokenPipeError):
             # Expected behaviour
             pass
 
@@ -50,7 +50,7 @@ def do_test():
         # Try to open an 11th connection
         try:
             sock_bad = mosq_test.do_client_connect(connect_packet_bad, connack_packet_bad, port=port)
-        except ConnectionResetError:
+        except (ConnectionResetError, BrokenPipeError):
             # Expected behaviour
             pass
 
@@ -68,7 +68,6 @@ def do_test():
         (stdo, stde) = broker.communicate()
         if rc:
             print(stde.decode('utf-8'))
-            exit(rc)
+    return rc
 
-do_test()
-exit(0)
+sys.exit(do_test())

@@ -49,6 +49,7 @@ Contributors:
 #include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "send_mosq.h"
+#include "sys_tree.h"
 #include "time_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
@@ -847,7 +848,10 @@ static void bridge__packet_cleanup(struct mosquitto *context)
 	}
 	context->out_packet = NULL;
 	context->out_packet_last = NULL;
+	G_OUT_PACKET_COUNT_DEC(context->out_packet_count);
+	G_OUT_PACKET_BYTES_DEC(context->out_packet_bytes);
 	context->out_packet_count = 0;
+	context->out_packet_bytes = 0;
 
 	packet__cleanup(&(context->in_packet));
 }

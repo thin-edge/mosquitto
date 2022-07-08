@@ -243,7 +243,7 @@ struct mosquitto_msg_data{
 #define WS_PING 0x09
 #define WS_PONG 0x0A
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == LWS_IS_BUILTIN
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 struct ws_data{
 	struct mosquitto__packet *out_packet;
 	char *http_path;
@@ -281,7 +281,7 @@ struct mosquitto {
 	struct gaicb *adns; /* For getaddrinfo_a */
 #endif
 	uint64_t last_cmsg_id;
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == LWS_IS_BUILTIN
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 	struct ws_data wsd;
 #endif
 	enum mosquitto__protocol protocol;
@@ -307,6 +307,7 @@ struct mosquitto {
 	uint16_t alias_max_l2r;
 	uint32_t will_delay_interval;
 	int out_packet_count;
+	int64_t out_packet_bytes;
 	time_t will_delay_time;
 #ifdef WITH_TLS
 	SSL *ssl;

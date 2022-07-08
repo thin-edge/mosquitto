@@ -148,7 +148,9 @@ endif()
 
 add_definitions (-DWITH_BROKER)
 
-set (MOSQ_LIBS ${MOSQ_LIBS} ${OPENSSL_LIBRARIES})
+if(WITH_TLS)
+	set (MOSQ_LIBS ${MOSQ_LIBS} OpenSSL::SSL)
+endif()
 # Check for getaddrinfo_a
 include(CheckLibraryExists)
 check_library_exists(anl getaddrinfo_a  "" HAVE_GETADDRINFO_A)
@@ -186,7 +188,7 @@ endif()
 if(WITH_WEBSOCKETS)
 	if(WITH_WEBSOCKETS_BUILTIN)
 		add_definitions("-DWITH_WEBSOCKETS=WS_IS_BUILTIN")
-		set(MOSQ_SRCS ${MOSQ_SRCS} ../deps/picohttpparser/picohttpparser.c)
+		set(MOSQ_SRCS ${MOSQ_SRCS} ${mosquitto_SOURCE_DIR}/deps/picohttpparser/picohttpparser.c)
 	else()
 		find_package(libwebsockets)
 		add_definitions("-DWITH_WEBSOCKETS=WS_IS_LWS")
@@ -225,11 +227,9 @@ endif()
 target_include_directories(mosquitto
 	PUBLIC
 		"${mosquitto_SOURCE_DIR}/include"
-		"${OPENSSL_INCLUDE_DIR}"
 	PRIVATE
 		"${STDBOOL_H_PATH}"
 		"${STDINT_H_PATH}"
-		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
 		"${mosquitto_SOURCE_DIR}/lib"
 		"${mosquitto_SOURCE_DIR}/src"
@@ -241,8 +241,10 @@ if(WITH_BUNDLED_DEPS)
 endif()
 
 target_link_libraries(mosquitto
-  PRIVATE
-	${MOSQ_LIBS}
+	PUBLIC
+		config-header
+  	PRIVATE
+		${MOSQ_LIBS}
 )
 
 if (WITH_THREADING AND NOT WIN32)
@@ -271,4 +273,9 @@ endif()
 install(TARGETS mosquitto
 	RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}"
 )
-install(FILES ../include/mosquitto_broker.h ../include/mosquitto_plugin.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(
+	FILES
+	${mosquitto_SOURCE_DIR}/include/mosquitto_broker.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto_plugin.h
+	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)

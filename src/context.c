@@ -29,6 +29,7 @@ Contributors:
 #include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "sys_tree.h"
 #include "time_mosq.h"
 #include "util_mosq.h"
 #include "will_mosq.h"
@@ -99,6 +100,7 @@ struct mosquitto *context__init(void)
 	packet__cleanup(&context->in_packet);
 	context->out_packet = NULL;
 	context->out_packet_count = 0;
+	context->out_packet_bytes = 0;
 
 	context->address = NULL;
 	context->bridge = NULL;
@@ -163,7 +165,10 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 		context->out_packet = context->out_packet->next;
 		mosquitto__FREE(packet);
 	}
+	G_OUT_PACKET_COUNT_DEC(context->out_packet_count);
+	G_OUT_PACKET_BYTES_DEC(context->out_packet_bytes);
 	context->out_packet_count = 0;
+	context->out_packet_bytes = 0;
 #if defined(WITH_BROKER) && defined(__GLIBC__) && defined(WITH_ADNS)
 	if(context->adns){
 		gai_cancel(context->adns);
@@ -219,7 +224,7 @@ void context__disconnect(struct mosquitto *context)
 		return;
 	}
 
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == LWS_IS_BUILTIN
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 	if(context->transport == mosq_t_ws){
 		uint8_t buf[4] = {0x88, 0x02, 0x03, context->wsd.disconnect_reason};
 		/* Send the disconnect reason, but don't care if it fails */

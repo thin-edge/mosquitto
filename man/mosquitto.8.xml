@@ -557,6 +557,28 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
+				<term><option>$SYS/broker/packet/out/count</option></term>
+				<listitem>
+					<para>
+						The current number of packets queued for delivery across
+						all clients. A large and increasing value here may
+						indicate messages are being sent faster than the network
+						can handle.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>$SYS/broker/packet/out/bytes</option></term>
+				<listitem>
+					<para>
+						The current number of bytes in packets queued for
+						delivery across all clients. A large and increasing
+						value here may indicate messages are being sent faster
+						than the network can handle.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
 				<term><option>$SYS/broker/publish/messages/dropped</option></term>
 				<listitem>
 					<para>The total number of publish messages that have been

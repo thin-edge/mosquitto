@@ -329,24 +329,59 @@ during normal operation the configuration stays in memory.
 
 ### Generating the configuration file - 2.1 onwards
 
-To generate your initial configuration file there are two choices. In version
+To generate your initial configuration file there are a few choices. In version
 2.0.x, you must use the `mosquitto_ctrl` utility as described below. From
 version 2.1 onwards, if the configuration file does not exist, the plugin will
-attempt to generate a default configuration file with some sensible defaults,
-including an admin client that can administer the plugin, a democlient client
-that has read/write access to the application topic hierarchy, and a few roles
-for different situations. Random passwords will be generated for the two
-clients and placed in a file with the same name and location as the
-configuration file, with `.pw` appended. For example
-`dynamic-security.json.pw`.
+attempt to generate a default configuration file with some sensible defaults.
 
 The roles created are:
 
+* `broker-admin` - grants access to administer general broker settings
 * `client` - read/write access to the full application topic hierarchy '#'
 * `dynsec-admin` - grants access to administer clients/groups/roles
+* `super-admin` - grants access to administer any `$CONTROL` APIs
 * `sys-notify` - allow bridges to publish connection state messages
 * `sys-observe` - allow read only access to the $SYS/# topic hierarchy
 * `topic-observe` - allow read only access to the full application topic hierarchy '#'
+
+The groups created are:
+
+* `unauthenticated` - automatic group that anonymous/unauthenticated clients
+  are placed in, if anonymous access is allowed.
+
+The initial users can be generated in three different ways, as described below.
+
+#### Initialisation file
+
+Create a text file with a single line. This line will be used as the password
+for the `admin` user, which will have access to administer the dynamic security
+plugin.
+
+Set the configuration option to trigger the use of this file:
+```
+plugin_opt_password_init_file path/to/init-file
+```
+
+Once the initial run of the broker has been done, the init file can be deleted.
+
+This method is well suited to use with e.g. docker secrets inside a container.
+
+#### Environment variable
+
+Set the `MOSQUITTO_DYNSEC_PASSWORD` environment variable to a string text and
+it will be used as the password for the `admin` user, which will have access to
+administer the dynamic security plugin.
+
+#### Default
+
+If neither `plugin_opt_password_init_file` nor `MOSQUITTO_DYNSEC_PASSWORD` are
+set, then the plugin will generate random passwords and store them in *plain
+text* at `<plugin_opt_config_file>.pw`, for example `dynamic-security.json.pw`.
+This file should be deleted once the passwords are known.
+
+Two users will be created, `admin`, which will have access to administer the
+dynamic security plugin, and `democlient`, which will have read/write access to
+the application topic hierarchy `#`.
 
 ### Generating the configuration file - 2.0 onwards
 

@@ -33,6 +33,7 @@ option(WITH_BUNDLED_DEPS "Build with bundled dependencies?" ON)
 option(WITH_TLS "Include SSL/TLS support?" ON)
 option(WITH_TLS_PSK "Include TLS-PSK support (requires WITH_TLS)?" ON)
 option(WITH_EC "Include Elliptic Curve support (requires WITH_TLS)?" ON)
+option(WITH_TESTS "Enable tests" ON)
 if (WITH_TLS)
 	find_package(OpenSSL REQUIRED)
 	add_definitions("-DWITH_TLS")
@@ -104,6 +105,21 @@ option(WITH_APPS "Build apps?" ON)
 option(WITH_PLUGINS "Build plugins?" ON)
 option(DOCUMENTATION "Build documentation?" ON)
 
+add_library(config-header INTERFACE)
+target_sources(config-header INTERFACE config.h)
+target_include_directories(config-header
+	INTERFACE
+		${mosquitto_SOURCE_DIR}
+)
+
+if(WITH_TLS)
+	target_include_directories(config-header
+		INTERFACE
+			"${OPENSSL_INCLUDE_DIR}"
+	)
+endif()
+
+
 add_subdirectory(lib)
 if(WITH_CLIENTS)
 	add_subdirectory(client)
@@ -145,4 +161,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquittopp.pc" DESTINATION "${CMA
 # ========================================
 # Testing
 # ========================================
-enable_testing()
+if(WITH_TESTS)
+	enable_testing()
+	add_subdirectory(test)
+endif()

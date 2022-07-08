@@ -37,11 +37,13 @@ uint64_t g_bytes_received = 0;
 uint64_t g_bytes_sent = 0;
 uint64_t g_pub_bytes_received = 0;
 uint64_t g_pub_bytes_sent = 0;
+int64_t g_out_packet_bytes = 0;
 unsigned long g_msgs_received = 0;
 unsigned long g_msgs_sent = 0;
 unsigned long g_pub_msgs_received = 0;
 unsigned long g_pub_msgs_sent = 0;
 unsigned long g_msgs_dropped = 0;
+long g_out_packet_count = 0;
 unsigned int g_clients_expired = 0;
 unsigned int g_socket_connections = 0;
 unsigned int g_connection_count = 0;
@@ -179,6 +181,8 @@ void sys_tree__update(void)
 	static int subscription_count = INT_MAX;
 	static int shared_subscription_count = INT_MAX;
 	static int retained_count = INT_MAX;
+	static long out_packet_count = LONG_MAX;
+	static long long out_packet_bytes = LLONG_MAX;
 
 	static double msgs_received_load1 = 0;
 	static double msgs_received_load5 = 0;
@@ -389,6 +393,18 @@ void sys_tree__update(void)
 			pub_bytes_sent = g_pub_bytes_sent;
 			len = (uint32_t)snprintf(buf, BUFLEN, "%llu", pub_bytes_sent);
 			db__messages_easy_queue(NULL, "$SYS/broker/publish/bytes/sent", SYS_TREE_QOS, len, buf, 1, 60, NULL);
+		}
+
+		if(out_packet_count != g_out_packet_count){
+			out_packet_count = g_out_packet_count;
+			len = (uint32_t)snprintf(buf, BUFLEN, "%lu", out_packet_count);
+			db__messages_easy_queue(NULL, "$SYS/broker/packet/out/count", SYS_TREE_QOS, len, buf, 1, 60, NULL);
+		}
+
+		if(out_packet_bytes != g_out_packet_bytes){
+			out_packet_bytes = g_out_packet_bytes;
+			len = (uint32_t)snprintf(buf, BUFLEN, "%llu", out_packet_bytes);
+			db__messages_easy_queue(NULL, "$SYS/broker/packet/out/bytes", SYS_TREE_QOS, len, buf, 1, 60, NULL);
 		}
 
 		last_update = db.now_s;

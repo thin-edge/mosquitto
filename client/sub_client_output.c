@@ -426,7 +426,8 @@ static void formatted_print_blank(char pad, int field_width)
 static int formatted_print_float(const unsigned char *payload, int payloadlen, char format, char align, char pad, int field_width, int precision)
 {
 	float float_value;
-	double value;
+	double value = 0.0;
+
 	if (format == 'f'){
 		if (sizeof(float_value) != payloadlen) {
 			return -1;

@@ -31,6 +31,8 @@ Contributors:
 
 #include "persist_sqlite.h"
 
+MOSQUITTO_PLUGIN_DECLARE_VERSION(5);
+
 static mosquitto_plugin_id_t *plg_id = NULL;
 static struct mosquitto_sqlite plg_data;
 
@@ -57,16 +59,32 @@ static void set_defaults(void)
 	plg_data.page_size = 4 * 1024;
 }
 
-int mosquitto_plugin_version(int supported_version_count, const int *supported_versions)
+static int get_db_file(struct mosquitto_opt *options, int option_count)
 {
+	const char *persistence_location;
 	int i;
 
-	for(i=0; i<supported_version_count; i++){
-		if(supported_versions[i] == 5){
-			return 5;
+	persistence_location = mosquitto_persistence_location();
+	if(persistence_location){
+		mkdir(persistence_location, 0770);
+		plg_data.db_file = malloc(strlen(persistence_location) + 1 + strlen("/mosquitto.sqlite3"));
+		if(!plg_data.db_file){
+			mosquitto_log_printf(MOSQ_LOG_INFO, "Sqlite persistence: Out of memory.");
+			return MOSQ_ERR_NOMEM;
+		}
+		sprintf(plg_data.db_file, "%s/mosquitto.sqlite3", persistence_location);
+	}else{
+		for(i=0; i<option_count; i++){
+			if(!strcasecmp(options[i].key, "db_file")){
+				plg_data.db_file = mosquitto_strdup(options[i].value);
+				if(plg_data.db_file == NULL){
+					return MOSQ_ERR_NOMEM;
+				}
+			}
 		}
 	}
-	return -1;
+
+	return MOSQ_ERR_SUCCESS;
 }
 
 int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, struct mosquitto_opt *options, int option_count)
@@ -79,13 +97,12 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	memset(&plg_data, 0,sizeof(struct mosquitto_sqlite));
 	set_defaults();
 
+	if(get_db_file(options, option_count)){
+		return MOSQ_ERR_UNKNOWN;
+	}
+
 	for(i=0; i<option_count; i++){
-		if(!strcasecmp(options[i].key, "db_file")){
-			plg_data.db_file = mosquitto_strdup(options[i].value);
-			if(plg_data.db_file == NULL){
-				return MOSQ_ERR_NOMEM;
-			}
-		}else if(!strcasecmp(options[i].key, "sync")){
+		if(!strcasecmp(options[i].key, "sync")){
 			if(!strcasecmp(options[i].value, "extra")){
 				plg_data.synchronous = 3;
 			}else if(!strcasecmp(options[i].value, "full")){

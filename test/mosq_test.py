@@ -1,3 +1,4 @@
+import atexit
 import errno
 import os
 import socket
@@ -6,11 +7,13 @@ import struct
 import sys
 import time
 
+import traceback
+
 import mqtt5_props
 
 import __main__
 
-import atexit
+from pathlib import Path
 vg_index = 1
 vg_logfiles = []
 
@@ -18,23 +21,29 @@ class TestError(Exception):
     def __init__(self, message="Mismatched packets"):
         self.message = message
 
-def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost"):
+def get_build_root():
+    result = os.getenv("BUILD_ROOT")
+    if result is None:
+        result = str(Path(__file__).resolve().parents[1])
+    return result
+
+def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost", env=None):
     global vg_index
     global vg_logfiles
 
     delay = 0.1
 
-    if use_conf == True:
-        cmd = ['../../src/mosquitto', '-v', '-c', filename.replace('.py', '.conf')]
+    if use_conf:
+        cmd = [get_build_root() + '/src/mosquitto', '-v', '-c', filename.replace('.py', '.conf')]
 
         if port == 0:
             port = 1888
     else:
         if cmd is None and port != 0:
-            cmd = ['../../src/mosquitto', '-v', '-p', str(port)]
+            cmd = [get_build_root() + '/src/mosquitto', '-v', '-p', str(port)]
         elif cmd is None and port == 0:
             port = 1888
-            cmd = ['../../src/mosquitto', '-v', '-c', filename.replace('.py', '.conf')]
+            cmd = [get_build_root() + '/src/mosquitto', '-v', '-c', filename.replace('.py', '.conf')]
         elif cmd is not None and port == 0:
             port = 1888
 
@@ -55,9 +64,9 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
     #print(port)
     #print(cmd)
     if nolog == False:
-        broker = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+        broker = subprocess.Popen(cmd, stderr=subprocess.PIPE, env=env)
     else:
-        broker = subprocess.Popen(cmd, stderr=subprocess.DEVNULL)
+        broker = subprocess.Popen(cmd, stderr=subprocess.DEVNULL, env=env)
     for i in range(0, 20):
         time.sleep(delay)
         c = None
@@ -137,7 +146,7 @@ def expect_packet(sock, name, expected):
         while len(packet_recvd) < rlen:
             data = sock.recv(rlen-len(packet_recvd))
             if len(data) == 0:
-                break
+                raise BrokenPipeError(f"when reading {name} from {sock.getpeername()}")
             packet_recvd += data
     except socket.timeout:
         pass
@@ -159,6 +168,7 @@ def packet_matches(name, recvd, expected):
             print("Expected: "+to_string(expected))
         except struct.error:
             print("Expected (not decoded, len=%d): %s" % (len(expected), expected))
+        traceback.print_stack(file=sys.stdout)
 
         return False
     else:
