@@ -959,7 +959,7 @@ libmosq_EXPORT int mosquitto_publish_v5(
  *	       the message id of this particular message. This can be then used
  *	       with the subscribe callback to determine when the message has been
  *	       sent.
- *	sub -  the subscription pattern.
+ *	sub -  the subscription pattern - must not be NULL or an empty string.
  *	qos -  the requested Quality of Service for this subscription.
  *
  * Returns:
@@ -996,7 +996,7 @@ libmosq_EXPORT int mosquitto_subscribe(struct mosquitto *mosq, int *mid, const c
  *	       the message id of this particular message. This can be then used
  *	       with the subscribe callback to determine when the message has been
  *	       sent.
- *	sub -  the subscription pattern.
+ *	sub -  the subscription pattern - must not be NULL or an empty string.
  *	qos -  the requested Quality of Service for this subscription.
  *	options - options to apply to this subscription, OR'd together. Set to 0 to
  *	          use the default options, otherwise choose from list of <mqtt5_sub_options>
@@ -1032,6 +1032,7 @@ libmosq_EXPORT int mosquitto_subscribe_v5(struct mosquitto *mosq, int *mid, cons
  *	       pointers nor the strings that they point to are mutable. If you aren't
  *	       familiar with this, just think of it as a safer "char **",
  *	       equivalent to "const char *" for a simple string pointer.
+ *	       Each string must not be NULL or an empty string.
  *	qos -  the requested Quality of Service for each subscription.
  *	options - options to apply to this subscription, OR'd together. This
  *	          argument is not used for MQTT v3 susbcriptions. Set to 0 to use
@@ -1061,7 +1062,7 @@ libmosq_EXPORT int mosquitto_subscribe_multiple(struct mosquitto *mosq, int *mid
  *	       the message id of this particular message. This can be then used
  *	       with the unsubscribe callback to determine when the message has been
  *	       sent.
- *	sub -  the unsubscription pattern.
+ *	sub -  the unsubscription pattern - must not by NULL or an empty string.
  *
  * Returns:
  *	MOSQ_ERR_SUCCESS -        on success.
@@ -1101,7 +1102,7 @@ libmosq_EXPORT int mosquitto_unsubscribe(struct mosquitto *mosq, int *mid, const
  *	       the message id of this particular message. This can be then used
  *	       with the unsubscribe callback to determine when the message has been
  *	       sent.
- *	sub -  the unsubscription pattern.
+ *	sub -  the unsubscription pattern - must not by NULL or an empty string.
  * 	properties - a valid mosquitto_property list, or NULL. Only used with MQTT
  * 	             v5 clients.
  *
@@ -1135,6 +1136,7 @@ libmosq_EXPORT int mosquitto_unsubscribe_v5(struct mosquitto *mosq, int *mid, co
  *	       pointers nor the strings that they point to are mutable. If you aren't
  *	       familiar with this, just think of it as a safer "char **",
  *	       equivalent to "const char *" for a simple string pointer.
+ *	       Each sub must not be NULL or an empty string.
  * 	properties - a valid mosquitto_property list, or NULL. Only used with MQTT
  * 	             v5 clients.
  *
