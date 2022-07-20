@@ -134,6 +134,10 @@ Client library:
   `%u` patterns for client id / username substitution.
 - Performance: reduce memory allocations when sending packets.
 - Reintroduce threading support for Windows. Closes #1509.
+- `mosquitto_subscribe*()` now returns MOSQ_ERR_INVAL if an empty string is
+  passed as a topic filter.
+- `mosquitto_unsubscribe*()` now returns MOSQ_ERR_INVAL if an empty string is
+  passed as a topic filter.
 
 Clients:
 - Add `-W` timeout support to Windows.

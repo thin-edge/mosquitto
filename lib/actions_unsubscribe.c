@@ -67,6 +67,7 @@ int mosquitto_unsubscribe_multiple(struct mosquitto *mosq, int *mid, int sub_cou
 	for(i=0; i<sub_count; i++){
 		if(mosquitto_sub_topic_check(sub[i])) return MOSQ_ERR_INVAL;
 		slen = (int)strlen(sub[i]);
+		if(slen == 0) return MOSQ_ERR_INVAL;
 		if(mosquitto_validate_utf8(sub[i], slen)) return MOSQ_ERR_MALFORMED_UTF8;
 		remaining_length += 2U + (uint32_t)slen;
 	}
