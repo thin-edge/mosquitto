@@ -26,6 +26,7 @@ Contributors:
 #include <sys/stat.h>
 
 #include "json_help.h"
+#include "misc_mosq.h"
 #include "mosquitto.h"
 #include "mosquitto_broker.h"
 #include "mosquitto_plugin.h"
@@ -194,45 +195,35 @@ char *dynsec__config_to_json(struct dynsec__data *data)
 	return json_str;
 }
 
-void dynsec__config_save(struct dynsec__data *data)
+void dynsec__log_write_error(const char* msg)
 {
-	size_t file_path_len;
-	char *file_path;
-	FILE *fptr;
-	size_t json_str_len;
+	mosquitto_log_printf(MOSQ_LOG_ERR, "Error saving Dynamic security plugin config: %s", msg);
+}
+
+int dynsec__write_json_config(FILE* fptr, void* user_data)
+{
+	struct dynsec__data *data = (struct dynsec__data *)user_data;
 	char *json_str;
+	size_t json_str_len;
+	int rc = MOSQ_ERR_SUCCESS;
 
 	json_str = dynsec__config_to_json(data);
 	if(json_str == NULL){
 		mosquitto_log_printf(MOSQ_LOG_ERR, "Error saving Dynamic security plugin config: Out of memory.\n");
-		return;
+		return MOSQ_ERR_NOMEM;
 	}
 	json_str_len = strlen(json_str);
 
-	/* Save to file */
-	file_path_len = strlen(data->config_file) + 1;
-	file_path = mosquitto_malloc(file_path_len);
-	if(file_path == NULL){
-		mosquitto_free(json_str);
-		mosquitto_log_printf(MOSQ_LOG_ERR, "Error saving Dynamic security plugin config: Out of memory.\n");
-		return;
-	}
-	snprintf(file_path, file_path_len, "%s.new", data->config_file);
+	if (fwrite(json_str, 1, json_str_len, fptr) != json_str_len){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error saving Dynamic security plugin config: Cannot write whole config (%ld) bytes to file %s", json_str_len, data->config_file);
+		rc = MOSQ_ERR_UNKNOWN;
+  }
 
-	fptr = fopen(file_path, "wt");
-	if(fptr == NULL){
-		mosquitto_free(json_str);
-		mosquitto_free(file_path);
-		mosquitto_log_printf(MOSQ_LOG_ERR, "Error saving Dynamic security plugin config: File is not writable - check permissions.\n");
-		return;
-	}
-	fwrite(json_str, 1, json_str_len, fptr);
 	mosquitto_free(json_str);
-	fclose(fptr);
+	return rc;
+}
 
-	/* Everything is ok, so move new file over proper file */
-	if(rename(file_path, data->config_file) < 0){
-		mosquitto_log_printf(MOSQ_LOG_ERR, "Error updating dynsec config file: %s", strerror(errno));
-	}
-	mosquitto_free(file_path);
+void dynsec__config_save(struct dynsec__data *data)
+{
+	mosquitto_write_file(data->config_file, true, &dynsec__write_json_config, data, &dynsec__log_write_error);
 }

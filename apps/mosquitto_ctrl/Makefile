@@ -96,9 +96,6 @@ memory_public.o : ${R}/src/memory_public.c
 options.o : options.c mosquitto_ctrl.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
-misc_mosq.o : ${R}/lib/misc_mosq.c ${R}/lib/misc_mosq.h
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
-
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
 	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 

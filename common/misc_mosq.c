@@ -22,10 +22,13 @@ Contributors:
 #include "config.h"
 
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef WIN32
 #  include <winsock2.h>
@@ -210,3 +213,132 @@ char *fgets_extending(char **buf, int *buflen, FILE *stream)
 		*buf = newbuf;
 	}while(1);
 }
+
+
+#include <string.h>
+
+#define INVOKE_LOG_FN(format,...)													\
+	do {																										\
+	  if (log_fn){																					\
+			int tmp_err_no = errno;															\
+			char msg[2*PATH_MAX];																\
+			snprintf(msg, sizeof(msg), (format), __VA_ARGS__);	\
+			msg[sizeof(msg)-1] = '\0';													\
+			(*log_fn)(msg);																			\
+			errno = tmp_err_no;																	\
+		}																											\
+	} while (0)
+
+int mosquitto_write_file(const char* target_path, bool restrict_read, int (*write_fn)(FILE* fptr, void* user_data), void* user_data, void (*log_fn)(const char* msg))
+{
+	int rc = 0;
+	FILE *fptr = NULL;
+	char tmp_file_path[PATH_MAX];
+
+	if (!target_path || !write_fn){
+		return MOSQ_ERR_INVAL;
+	}
+
+	rc = snprintf(tmp_file_path, PATH_MAX, "%s.new", target_path);
+	if (rc < 0 || rc >= PATH_MAX){
+		return MOSQ_ERR_INVAL;
+	}
+
+#ifndef WIN32
+	/**
+ 	*
+	* If a system lost power during the rename operation at the
+	* end of this file the filesystem could potentially be left
+	* with a directory that looks like this after powerup:
+	*
+	* 24094 -rw-r--r--    2 root     root          4099 May 30 16:27 mosquitto.db
+	* 24094 -rw-r--r--    2 root     root          4099 May 30 16:27 mosquitto.db.new
+	*
+	* The 24094 shows that mosquitto.db.new is hard-linked to the
+	* same file as mosquitto.db.  If fopen(outfile, "wb") is naively
+	* called then mosquitto.db will be truncated and the database
+	* potentially corrupted.
+	*
+	* Any existing mosquitto.db.new file must be removed prior to
+	* opening to guarantee that it is not hard-linked to
+	* mosquitto.db.
+	*
+	*/
+	if (unlink(tmp_file_path) && errno != ENOENT){
+		INVOKE_LOG_FN("unable to remove stale tmp file %s, error %s",tmp_file_path,strerror(errno));
+		return MOSQ_ERR_INVAL;
+	}
+#endif
+
+	fptr = mosquitto__fopen(tmp_file_path, "wb", restrict_read);
+	if(fptr == NULL){
+		INVOKE_LOG_FN("unable to open %s for writing, error %s",tmp_file_path,strerror(errno));
+		return MOSQ_ERR_INVAL;
+	}
+
+	if ((rc = (*write_fn)(fptr,user_data)) != MOSQ_ERR_SUCCESS){
+		goto error;
+	}
+
+	rc = MOSQ_ERR_ERRNO;
+#ifndef WIN32
+	/**
+	*
+	* Closing a file does not guarantee that the contents are
+	* written to disk.  Need to flush to send data from app to OS
+	* buffers, then fsync to deliver data from OS buffers to disk
+	* (as well as disk hardware permits).
+	*
+	* man close (http://linux.die.net/man/2/close, 2016-06-20):
+	*
+	*   "successful close does not guarantee that the data has
+	*   been successfully saved to disk, as the kernel defers
+	*   writes.  It is not common for a filesystem to flush
+	*   the  buffers  when  the stream is closed.  If you need
+	*   to be sure that the data is physically stored, use
+	*   fsync(2).  (It will depend on the disk hardware at this
+	*   point."
+	*
+	* This guarantees that the new state file will not overwrite
+	* the old state file before its contents are valid.
+	*
+	*/
+	if (fflush(fptr) != 0 && errno != EINTR){
+		INVOKE_LOG_FN("unable to flush %s, error %s",tmp_file_path,strerror(errno));
+		goto error;
+	}
+
+	if (fsync(fileno(fptr)) != 0 && errno != EINTR){
+		INVOKE_LOG_FN("unable to sync %s to disk, error %s",tmp_file_path,strerror(errno));
+		goto error;
+	}
+#endif
+
+	if (fclose(fptr) != 0){
+		INVOKE_LOG_FN("unable to close %s on disk, error %s",tmp_file_path,strerror(errno));
+		fptr = NULL;
+		goto error;
+	}
+
+#ifdef WIN32
+	if(remove(target_path) != 0 && errno != ENOENT){
+		INVOKE_LOG_FN("unable to remove %s on disk, error %s",target_path,strerror(errno));
+		goto error;
+	}
+#endif
+
+	if(rename(tmp_file_path, target_path) != 0){
+		INVOKE_LOG_FN("unable to replace %s by tmp file  %s, error %s",target_path,tmp_file_path,strerror(errno));
+		goto error;
+	}
+	return MOSQ_ERR_SUCCESS;
+
+error:
+	if(fptr){
+		fclose(fptr);
+		unlink(tmp_file_path);
+	}
+	return MOSQ_ERR_ERRNO;
+}
+
+
