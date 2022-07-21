@@ -886,18 +886,34 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
  */
 uint64_t db__new_msg_id(void)
 {
+#ifdef WIN32
+	FILETIME ftime;
+	uint64_t ftime64;
+#else
 	struct timespec ts;
+#endif
 	uint64_t id;
 	uint64_t tmp;
+	time_t sec;
+	long nsec;
 
 	id = db.node_id_shifted; /* Top 10-bits */
 
+#ifdef WIN32
+	GetSystemTimePreciseAsFileTime(&ftime);
+	ftime64 = (((uint64_t)ftime.dwHighDateTime)<<32) + ftime.dwLowDateTime;
+	tmp = ftime64 - 116444736000000000LL; /* Convert offset to unix epoch, still in counts of 100ns */
+	sec = tmp / 10000000; /* Convert to seconds */
+	nsec = (long)(tmp - sec)*100; /* Remove seconds, convert to counts of 1ns */
+#else
 	clock_gettime(CLOCK_REALTIME, &ts);
-
-	tmp = (ts.tv_sec - MOSQ_UUID_EPOCH) & 0x7FFFFFFF;
+	sec = ts.tv_sec;
+	ns = ts.tv_nsec;
+#endif
+	tmp = (sec - MOSQ_UUID_EPOCH) & 0x7FFFFFFF;
 	id = id | (tmp << 23); /* Seconds, 31-bits (68 years) */
 
-	tmp = (ts.tv_nsec & 0x7FFFFF80); /* top 23-bits of the bottom 30 bits (1 billion ns), ~100 ns resolution */
+	tmp = (nsec & 0x7FFFFF80); /* top 23-bits of the bottom 30 bits (1 billion ns), ~100 ns resolution */
 	id = id | (tmp >> 7);
 
 	while(id <= db.last_db_id){

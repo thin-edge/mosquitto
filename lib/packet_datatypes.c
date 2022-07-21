@@ -19,9 +19,11 @@ Contributors:
 #include "config.h"
 
 #include <assert.h>
-#include <arpa/inet.h>
 #include <errno.h>
 #include <string.h>
+#ifndef WIN32
+#  include <arpa/inet.h>
+#endif
 
 #ifdef WITH_BROKER
 #  include "mosquitto_broker_internal.h"

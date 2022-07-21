@@ -77,7 +77,7 @@ static time_t last_report = 0;
 
 static int callback_tick(int event, void *event_data, void *userdata)
 {
-	struct timespec ts;
+	time_t sec;
 	char topic[40];
 	char payload[40];
 	int slen;
@@ -87,9 +87,9 @@ static int callback_tick(int event, void *event_data, void *userdata)
 	UNUSED(event_data);
 	UNUSED(userdata);
 
-	clock_gettime(CLOCK_REALTIME, &ts);
-	if(last_report + 10 < ts.tv_sec){
-		last_report = ts.tv_sec;
+	sec = time(NULL);
+	if(last_report + 10 < sec){
+		last_report = sec;
 
 		for(i=0; i<SIZE_COUNT; i++){
 			if(size_counts[i] != last_size_counts[i]){

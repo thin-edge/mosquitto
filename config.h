@@ -45,11 +45,15 @@
 #endif
 
 #ifdef WIN32
-#  ifndef strcasecmp
-#    define strcasecmp strcmpi
-#  endif
+#  define strcasecmp _stricmp
+#  define strncasecmp _strnicmp
 #  define strtok_r strtok_s
 #  define strerror_r(e, b, l) strerror_s(b, l, e)
+
+#  ifdef _MSC_VER
+#    include <basetsd.h>
+typedef SSIZE_T ssize_t;
+#  endif
 #endif
 
 

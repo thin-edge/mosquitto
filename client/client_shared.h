@@ -116,7 +116,9 @@ struct mosq_config {
 	long session_expiry_interval;
 	int random_filter; /* sub */
 	int transport;
+#ifndef WIN32
 	bool watch; /* sub */
+#endif
 #ifdef WITH_SOCKS
 	char *socks5_host;
 	int socks5_port;

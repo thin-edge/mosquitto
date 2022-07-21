@@ -23,6 +23,9 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifdef WIN32
+#  include <direct.h>
+#endif
 
 #include "mosquitto.h"
 #include "mosquitto_broker.h"
@@ -66,7 +69,11 @@ static int get_db_file(struct mosquitto_opt *options, int option_count)
 
 	persistence_location = mosquitto_persistence_location();
 	if(persistence_location){
+#ifdef WIN32
+		(void)mkdir(persistence_location);
+#else
 		mkdir(persistence_location, 0770);
+#endif
 		plg_data.db_file = malloc(strlen(persistence_location) + 1 + strlen("/mosquitto.sqlite3"));
 		if(!plg_data.db_file){
 			mosquitto_log_printf(MOSQ_LOG_INFO, "Sqlite persistence: Out of memory.");

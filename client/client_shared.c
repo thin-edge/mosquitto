@@ -1223,7 +1223,12 @@ int client_config_line_proc(struct mosq_config *cfg, int pub_or_sub, int argc, c
 			if(pub_or_sub != CLIENT_SUB){
 				goto unknown_option;
 			}
+#ifdef WIN32
+			fprintf(stderr, "Error: --watch not supported on Windows.\n\n");
+			return 1;
+#else
 			cfg->watch = true;
+#endif
 		}else if(!strcmp(argv[i], "--will-payload")){
 			if(i==argc-1){
 				fprintf(stderr, "Error: --will-payload argument given but no will payload specified.\n\n");

@@ -852,7 +852,7 @@ static void rand_init(void)
 #endif
 }
 
-
+#ifndef WIN32
 static void watch_print(const struct mosquitto_message *message)
 {
 	struct watch_topic *item = NULL;
@@ -873,6 +873,7 @@ static void watch_print(const struct mosquitto_message *message)
 	}
 	printf("\e[%d;1H", item->line);
 }
+#endif
 
 
 void print_message(struct mosq_config *lcfg, const struct mosquitto_message *message, const mosquitto_property *properties)
@@ -883,9 +884,12 @@ void print_message(struct mosq_config *lcfg, const struct mosquitto_message *mes
 	long r = 0;
 #endif
 
+#ifndef WIN32
 	if(lcfg->watch){
 		watch_print(message);
 	}
+#endif
+
 	if(lcfg->random_filter < 10000){
 #ifdef WIN32
 		rand_s(&r);
@@ -920,20 +924,24 @@ void print_message(struct mosq_config *lcfg, const struct mosquitto_message *mes
 			fflush(stdout);
 		}
 	}
+#ifndef WIN32
 	if(lcfg->watch){
 		printf("\e[%d;1H\n", watch_max-1);
 	}
+#endif
 }
 
 void output_init(struct mosq_config *lcfg)
 {
 	rand_init();
+#ifndef WIN32
 	if(lcfg->watch){
 		printf("\e[2J\e[1;1H");
 		printf("Broker: %s\n", lcfg->host);
 	}
+#endif
 #ifdef WIN32
 	/* Disable text translation so binary payloads aren't modified */
-	_setmode(_fileno(stdout), _O_BINARY);
+	(void)_setmode(_fileno(stdout), _O_BINARY);
 #endif
 }
