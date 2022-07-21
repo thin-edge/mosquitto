@@ -296,67 +296,31 @@ static int persist__retain_save_all(FILE *db_fptr)
 	return MOSQ_ERR_SUCCESS;
 }
 
+static int persist__write_data(FILE* db_fptr, void* user_data);
+
+static void persist__log_write_error(const char* msg)
+{
+	log__printf(NULL, MOSQ_LOG_ERR, "Error saving in-memory database, %s", msg);
+}
+
 int persist__backup(bool shutdown)
 {
-	int rc = 0;
-	FILE *db_fptr = NULL;
-	uint32_t db_version_w = htonl(MOSQ_DB_VERSION);
-	uint32_t crc = 0;
-	char *err;
-	char *outfile = NULL;
-	size_t len;
-	struct PF_cfg cfg_chunk;
-
 	if(db.config == NULL) return MOSQ_ERR_INVAL;
 	if(db.config->persistence == false) return MOSQ_ERR_SUCCESS;
 	if(db.config->persistence_filepath == NULL) return MOSQ_ERR_INVAL;
 
 	log__printf(NULL, MOSQ_LOG_INFO, "Saving in-memory database to %s.", db.config->persistence_filepath);
 
-	len = strlen(db.config->persistence_filepath)+5;
-	outfile = mosquitto__malloc(len+1);
-	if(!outfile){
-		log__printf(NULL, MOSQ_LOG_INFO, "Error saving in-memory database, out of memory.");
-		return MOSQ_ERR_NOMEM;
-	}
-	snprintf(outfile, len, "%s.new", db.config->persistence_filepath);
-	outfile[len] = '\0';
+	return mosquitto_write_file(db.config->persistence_filepath,true,&persist__write_data,&shutdown,&persist__log_write_error);
+}
 
-#ifndef WIN32
-	/**
- 	*
-	* If a system lost power during the rename operation at the
-	* end of this file the filesystem could potentially be left
-	* with a directory that looks like this after powerup:
-	*
-	* 24094 -rw-r--r--    2 root     root          4099 May 30 16:27 mosquitto.db
-	* 24094 -rw-r--r--    2 root     root          4099 May 30 16:27 mosquitto.db.new
-	*
-	* The 24094 shows that mosquitto.db.new is hard-linked to the
-	* same file as mosquitto.db.  If fopen(outfile, "wb") is naively
-	* called then mosquitto.db will be truncated and the database
-	* potentially corrupted.
-	*
-	* Any existing mosquitto.db.new file must be removed prior to
-	* opening to guarantee that it is not hard-linked to
-	* mosquitto.db.
-	*
-	*/
-	rc = unlink(outfile);
-	if (rc != 0) {
-		rc = 0;
-		if (errno != ENOENT) {
-			log__printf(NULL, MOSQ_LOG_INFO, "Error saving in-memory database, unable to remove %s.", outfile);
-			goto error;
-		}
-	}
-#endif
-
-	db_fptr = mosquitto__fopen(outfile, "wb", true);
-	if(db_fptr == NULL){
-		log__printf(NULL, MOSQ_LOG_INFO, "Error saving in-memory database, unable to open %s for writing.", outfile);
-		goto error;
-	}
+static int persist__write_data(FILE* db_fptr, void* user_data)
+{
+	bool shutdown = *(bool*)(user_data);
+	uint32_t db_version_w = htonl(MOSQ_DB_VERSION);
+	uint32_t crc = 0;
+	const char* err;
+	struct PF_cfg cfg_chunk;
 
 	/* Header */
 	write_e(db_fptr, magic, 15);
@@ -375,54 +339,16 @@ int persist__backup(bool shutdown)
 		goto error;
 	}
 
-	persist__client_save(db_fptr);
-	persist__subs_save_all(db_fptr);
-	persist__retain_save_all(db_fptr);
-
-#ifndef WIN32
-	/**
-	*
-	* Closing a file does not guarantee that the contents are
-	* written to disk.  Need to flush to send data from app to OS
-	* buffers, then fsync to deliver data from OS buffers to disk
-	* (as well as disk hardware permits).
-	*
-	* man close (http://linux.die.net/man/2/close, 2016-06-20):
-	*
-	*   "successful close does not guarantee that the data has
-	*   been successfully saved to disk, as the kernel defers
-	*   writes.  It is not common for a filesystem to flush
-	*   the  buffers  when  the stream is closed.  If you need
-	*   to be sure that the data is physically stored, use
-	*   fsync(2).  (It will depend on the disk hardware at this
-	*   point."
-	*
-	* This guarantees that the new state file will not overwrite
-	* the old state file before its contents are valid.
-	*
-	*/
-
-	fflush(db_fptr);
-	fsync(fileno(db_fptr));
-#endif
-	fclose(db_fptr);
-
-#ifdef WIN32
-	if(remove(db.config->persistence_filepath) != 0){
-		if(errno != ENOENT){
-			goto error;
-		}
-	}
-#endif
-	if(rename(outfile, db.config->persistence_filepath) != 0){
+	if (persist__client_save(db_fptr)
+			|| persist__subs_save_all(db_fptr)
+			|| persist__retain_save_all(db_fptr)){
 		goto error;
 	}
-	mosquitto__FREE(outfile);
-	return rc;
+	return MOSQ_ERR_SUCCESS;
+
 error:
-	mosquitto__FREE(outfile);
 	err = strerror(errno);
-	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", err);
+	log__printf(NULL, MOSQ_LOG_ERR, "Error during saving in-memory database %s: %s.", db.config->persistence_filepath, err);
 	if(db_fptr) fclose(db_fptr);
 	return 1;
 }
