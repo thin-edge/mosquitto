@@ -714,7 +714,7 @@ int client_connect(struct mosquitto *mosq, struct mosq_config *cfg)
 /* Convert %25 -> %, %3a, %3A -> :, %40 -> @ */
 static int mosquitto__urldecode(char *str)
 {
-	int i, j;
+	size_t i, j;
 	size_t len;
 	if(!str) return 0;
 

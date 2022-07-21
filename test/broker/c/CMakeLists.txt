@@ -43,5 +43,5 @@ foreach(BINARY ${BINARIES})
     set_property(TARGET ${BINARY}
         PROPERTY SUFFIX .test
     )
-    target_link_libraries(${BINARY} PRIVATE libmosquitto)
+    target_link_libraries(${BINARY} PRIVATE common-options libmosquitto)
 endforeach()

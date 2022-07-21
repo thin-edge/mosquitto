@@ -21,6 +21,7 @@ if(WITH_TLS)
 
     target_link_libraries(mosquitto_passwd
 	  PRIVATE
+	  	common-options
 		OpenSSL::SSL
 	)
 

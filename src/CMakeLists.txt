@@ -243,7 +243,8 @@ endif()
 target_link_libraries(mosquitto
 	PUBLIC
 		config-header
-  	PRIVATE
+	PRIVATE
+		common-options
 		${MOSQ_LIBS}
 )
 

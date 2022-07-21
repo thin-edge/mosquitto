@@ -55,6 +55,7 @@ if(CJSON_FOUND AND WITH_TLS)
 
 	target_link_libraries(mosquitto_dynamic_security
 		PRIVATE
+			common-options
 			cJSON
 			OpenSSL::SSL
 	)
