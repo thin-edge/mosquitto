@@ -27,7 +27,9 @@ if(APPLE)
 endif()
 
 add_library(common-options INTERFACE)
-target_compile_options(common-options INTERFACE -Wall -Wextra -Wconversion)
+if(NOT WIN32)
+	target_compile_options(common-options INTERFACE -Wall -Wextra -Wconversion)
+endif()
 
 include(GNUInstallDirs)
 include(CheckIncludeFiles)
