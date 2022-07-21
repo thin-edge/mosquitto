@@ -26,6 +26,9 @@ if(APPLE)
 	set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 endif()
 
+add_library(common-options INTERFACE)
+target_compile_options(common-options INTERFACE -Wall -Wextra -Wconversion)
+
 include(GNUInstallDirs)
 include(CheckIncludeFiles)
 
@@ -88,7 +91,6 @@ option(WITH_CJSON "Build with cJSON support (required for dynamic security plugi
 if(WITH_CJSON)
 	FIND_PACKAGE(cJSON)
 	if(CJSON_FOUND)
-		message(STATUS ${CJSON_FOUND})
 		target_compile_definitions(cJSON INTERFACE WITH_CJSON)
 	else()
 		message(STATUS "Optional dependency cJSON not found. Some features will be disabled.")
