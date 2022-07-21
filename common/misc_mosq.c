@@ -28,7 +28,6 @@ Contributors:
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 #ifdef WIN32
 #  include <winsock2.h>
@@ -36,8 +35,10 @@ Contributors:
 #  include <io.h>
 #  include <lmcons.h>
 #  include <fcntl.h>
+#  define PATH_MAX MAX_PATH
 #else
 #  include <sys/stat.h>
+#  include <unistd.h>
 #endif
 
 #include "misc_mosq.h"
