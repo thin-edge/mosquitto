@@ -882,7 +882,7 @@ mosq_EXPORT int mosquitto_broker_node_id_set(uint16_t id);
  *          client with the same ID already exists.
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-int mosquitto_persist_client_add(struct mosquitto_evt_persist_client *client);
+mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_client *client);
 
 
 /* Function: mosquitto_persist_client_update
@@ -916,7 +916,7 @@ int mosquitto_persist_client_add(struct mosquitto_evt_persist_client *client);
  *   MOSQ_ERR_INVAL - if client or client->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-int mosquitto_persist_client_update(struct mosquitto_evt_persist_client *client);
+mosq_EXPORT int mosquitto_persist_client_update(struct mosquitto_evt_persist_client *client);
 
 
 /* Function: mosquitto_persist_client_delete
@@ -931,7 +931,7 @@ int mosquitto_persist_client_update(struct mosquitto_evt_persist_client *client)
  *   MOSQ_ERR_INVAL - if client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the referenced client is not found
  */
-int mosquitto_persist_client_delete(const char *client_id);
+mosq_EXPORT int mosquitto_persist_client_delete(const char *client_id);
 
 
 /* Function: mosquitto_persist_client_msg_add
@@ -959,7 +959,7 @@ int mosquitto_persist_client_delete(const char *client_id);
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client or base message is not found
  */
-int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_client_msg *client_msg);
 
 
 /* Function: mosquitto_persist_client_msg_delete
@@ -982,7 +982,7 @@ int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_client_msg *cl
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persist_client_msg *client_msg);
 
 
 /* Function: mosquitto_persist_client_msg_update
@@ -1006,7 +1006,7 @@ int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persist_client_msg 
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-int mosquitto_persist_client_msg_update(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_evt_persist_client_msg *client_msg);
 
 
 /* Function: mosquitto_persist_client_msg_clear
@@ -1027,7 +1027,7 @@ int mosquitto_persist_client_msg_update(struct mosquitto_evt_persist_client_msg 
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persist_client_msg *client_msg);
 
 /* Function: mosquitto_persist_base_msg_add
  *
@@ -1064,7 +1064,7 @@ int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persist_client_msg *
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_base_msg *msg);
+mosq_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_base_msg *msg);
 
 
 /* Function: mosquitto_persist_base_msg_delete
@@ -1077,7 +1077,7 @@ int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_base_msg *msg);
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
  */
-int mosquitto_persist_base_msg_delete(uint64_t store_id);
+mosq_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id);
 
 
 /* Function: mosquitto_persist_subscription_add
@@ -1096,7 +1096,7 @@ int mosquitto_persist_base_msg_delete(uint64_t store_id);
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-int mosquitto_subscription_add(const char *client_id, const char *topic, uint8_t subscription_options, uint32_t subscription_identifier);
+mosq_EXPORT int mosquitto_subscription_add(const char *client_id, const char *topic, uint8_t subscription_options, uint32_t subscription_identifier);
 
 
 /* Function: mosquitto_persist_subscription_delete
@@ -1113,7 +1113,7 @@ int mosquitto_subscription_add(const char *client_id, const char *topic, uint8_t
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-int mosquitto_subscription_delete(const char *client_id, const char *topic);
+mosq_EXPORT int mosquitto_subscription_delete(const char *client_id, const char *topic);
 
 
 /* Function: mosquitto_persist_retain_msg_set
@@ -1131,7 +1131,7 @@ int mosquitto_subscription_delete(const char *client_id, const char *topic);
  *   MOSQ_ERR_NOT_FOUND - the referenced base message was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-int mosquitto_persist_retain_msg_set(const char *topic, uint64_t store_id);
+mosq_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t store_id);
 
 
 /* Function: mosquitto_persist_retain_msg_delete
@@ -1146,7 +1146,7 @@ int mosquitto_persist_retain_msg_set(const char *topic, uint64_t store_id);
  *   MOSQ_ERR_INVAL - if msg or msg->plugin_topic are NULL
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-int mosquitto_persist_retain_msg_delete(const char *topic);
+mosq_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic);
 
 /* Function: mosquitto_persistence_location
  *
@@ -1160,7 +1160,7 @@ int mosquitto_persist_retain_msg_delete(const char *topic);
  *   A valid pointer to the persistence location string
  *   A NULL pointer if neither the option nor the variable are set
  */
-const char *mosquitto_persistence_location(void);
+mosq_EXPORT const char *mosquitto_persistence_location(void);
 
 #ifdef __cplusplus
 }
