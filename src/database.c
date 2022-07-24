@@ -908,7 +908,7 @@ uint64_t db__new_msg_id(void)
 #else
 	clock_gettime(CLOCK_REALTIME, &ts);
 	sec = ts.tv_sec;
-	ns = ts.tv_nsec;
+	nsec = ts.tv_nsec;
 #endif
 	tmp = (sec - MOSQ_UUID_EPOCH) & 0x7FFFFFFF;
 	id = id | (tmp << 23); /* Seconds, 31-bits (68 years) */
