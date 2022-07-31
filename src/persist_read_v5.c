@@ -198,7 +198,7 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 	}
 
 	if(chunk->F.payloadlen > 0){
-		chunk->payload = mosquitto__malloc(chunk->F.payloadlen+1);
+		chunk->payload = mosquitto__calloc(chunk->F.payloadlen+1, 1);
 		if(chunk->payload == NULL){
 			mosquitto__FREE(chunk->source.id);
 			mosquitto__FREE(chunk->source.username);
@@ -207,8 +207,6 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 			return MOSQ_ERR_NOMEM;
 		}
 		read_e(db_fptr, chunk->payload, chunk->F.payloadlen);
-		/* Ensure zero terminated regardless of contents */
-		((uint8_t *)chunk->payload)[chunk->F.payloadlen] = 0;
 	}
 
 	if(length > 0){
