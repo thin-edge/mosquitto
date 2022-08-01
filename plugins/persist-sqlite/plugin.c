@@ -72,7 +72,7 @@ static int get_db_file(struct mosquitto_opt *options, int option_count)
 #ifdef WIN32
 		(void)mkdir(persistence_location);
 #else
-		mkdir(persistence_location, 0770);
+		(void)mkdir(persistence_location, 0770);
 #endif
 		plg_data.db_file = malloc(strlen(persistence_location) + 1 + strlen("/mosquitto.sqlite3"));
 		if(!plg_data.db_file){
