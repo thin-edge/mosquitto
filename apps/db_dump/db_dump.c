@@ -86,6 +86,7 @@ static void free__sub(struct P_sub *chunk)
 
 static void free__client(struct P_client *chunk)
 {
+	free(chunk->username);
 	free(chunk->client_id);
 }
 
@@ -373,6 +374,17 @@ static int dump__sub_chunk_process(FILE *db_fd, uint32_t length)
 }
 
 
+static void cleanup_msg_store()
+{
+	struct mosquitto_base_msg *msg, *msg_tmp;
+
+	HASH_ITER(hh, db.msg_store, msg, msg_tmp){
+		HASH_DELETE(hh, db.msg_store, msg);
+		free(msg);
+	}
+}
+
+
 int main(int argc, char *argv[])
 {
 	FILE *fd;
@@ -474,14 +486,18 @@ int main(int argc, char *argv[])
 		HASH_ITER(hh_id, clients_by_id, cc, cc_tmp){
 			printf("SC: %d SS: %d MC: %d MS: %ld   ", cc->subscriptions, cc->subscription_size, cc->messages, cc->message_size);
 			printf("%s\n", cc->id);
+
+			HASH_DELETE(hh_id, clients_by_id, cc);
 			free(cc->id);
+			free(cc);
 		}
 	}
+	cleanup_msg_store();
 
 	return rc;
 error:
+	cleanup_msg_store();
 	fprintf(stderr, "Error: %s.", strerror(errno));
 	if(fd) fclose(fd);
 	return 1;
 }
-
