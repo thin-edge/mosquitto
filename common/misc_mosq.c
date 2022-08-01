@@ -56,7 +56,7 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 	if(rc == 0 || rc > 4096){
 		return NULL;
 	}else{
-		if (restrict_read) {
+		if(restrict_read){
 			HANDLE hfile;
 			SECURITY_ATTRIBUTES sec;
 			EXPLICIT_ACCESS_A ea;
@@ -85,14 +85,14 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 			}
 
 			GetUserNameA(username, &ulen);
-			if (!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION)) {
+			if(!InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION)){
 				return NULL;
 			}
 			BuildExplicitAccessWithNameA(&ea, username, GENERIC_ALL, SET_ACCESS, NO_INHERITANCE);
-			if (SetEntriesInAclA(1, &ea, NULL, &pacl) != ERROR_SUCCESS) {
+			if(SetEntriesInAclA(1, &ea, NULL, &pacl) != ERROR_SUCCESS){
 				return NULL;
 			}
-			if (!SetSecurityDescriptorDacl(&sd, TRUE, pacl, FALSE)) {
+			if(!SetSecurityDescriptorDacl(&sd, TRUE, pacl, FALSE)){
 				LocalFree(pacl);
 				return NULL;
 			}
@@ -111,12 +111,12 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 			LocalFree(pacl);
 
 			fd = _open_osfhandle((intptr_t)hfile, flags);
-			if (fd < 0) {
+			if(fd < 0){
 				return NULL;
 			}
 
 			fptr = _fdopen(fd, mode);
-			if (!fptr) {
+			if(!fptr){
 				_close(fd);
 				return NULL;
 			}
@@ -144,7 +144,7 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 		}
 	}
 
-	if (restrict_read) {
+	if(restrict_read){
 		FILE *fptr;
 		mode_t old_mask;
 
@@ -216,19 +216,17 @@ char *fgets_extending(char **buf, int *buflen, FILE *stream)
 }
 
 
-#include <string.h>
-
-#define INVOKE_LOG_FN(format,...)													\
-	do {																										\
-	  if (log_fn){																					\
-			int tmp_err_no = errno;															\
-			char msg[2*PATH_MAX];																\
-			snprintf(msg, sizeof(msg), (format), __VA_ARGS__);	\
-			msg[sizeof(msg)-1] = '\0';													\
-			(*log_fn)(msg);																			\
-			errno = tmp_err_no;																	\
-		}																											\
-	} while (0)
+#define INVOKE_LOG_FN(format, ...) \
+	do{ \
+	  if(log_fn){ \
+			int tmp_err_no = errno; \
+			char msg[2*PATH_MAX]; \
+			snprintf(msg, sizeof(msg), (format), __VA_ARGS__); \
+			msg[sizeof(msg)-1] = '\0'; \
+			(*log_fn)(msg); \
+			errno = tmp_err_no; \
+		} \
+	}while (0)
 
 int mosquitto_write_file(const char* target_path, bool restrict_read, int (*write_fn)(FILE* fptr, void* user_data), void* user_data, void (*log_fn)(const char* msg))
 {
@@ -236,12 +234,12 @@ int mosquitto_write_file(const char* target_path, bool restrict_read, int (*writ
 	FILE *fptr = NULL;
 	char tmp_file_path[PATH_MAX];
 
-	if (!target_path || !write_fn){
+	if(!target_path || !write_fn){
 		return MOSQ_ERR_INVAL;
 	}
 
 	rc = snprintf(tmp_file_path, PATH_MAX, "%s.new", target_path);
-	if (rc < 0 || rc >= PATH_MAX){
+	if(rc < 0 || rc >= PATH_MAX){
 		return MOSQ_ERR_INVAL;
 	}
 
@@ -265,19 +263,19 @@ int mosquitto_write_file(const char* target_path, bool restrict_read, int (*writ
 	* mosquitto.db.
 	*
 	*/
-	if (unlink(tmp_file_path) && errno != ENOENT){
-		INVOKE_LOG_FN("unable to remove stale tmp file %s, error %s",tmp_file_path,strerror(errno));
+	if(unlink(tmp_file_path) && errno != ENOENT){
+		INVOKE_LOG_FN("unable to remove stale tmp file %s, error %s", tmp_file_path, strerror(errno));
 		return MOSQ_ERR_INVAL;
 	}
 #endif
 
 	fptr = mosquitto__fopen(tmp_file_path, "wb", restrict_read);
 	if(fptr == NULL){
-		INVOKE_LOG_FN("unable to open %s for writing, error %s",tmp_file_path,strerror(errno));
+		INVOKE_LOG_FN("unable to open %s for writing, error %s", tmp_file_path, strerror(errno));
 		return MOSQ_ERR_INVAL;
 	}
 
-	if ((rc = (*write_fn)(fptr,user_data)) != MOSQ_ERR_SUCCESS){
+	if((rc = (*write_fn)(fptr, user_data)) != MOSQ_ERR_SUCCESS){
 		goto error;
 	}
 
@@ -304,32 +302,32 @@ int mosquitto_write_file(const char* target_path, bool restrict_read, int (*writ
 	* the old state file before its contents are valid.
 	*
 	*/
-	if (fflush(fptr) != 0 && errno != EINTR){
-		INVOKE_LOG_FN("unable to flush %s, error %s",tmp_file_path,strerror(errno));
+	if(fflush(fptr) != 0 && errno != EINTR){
+		INVOKE_LOG_FN("unable to flush %s, error %s", tmp_file_path, strerror(errno));
 		goto error;
 	}
 
-	if (fsync(fileno(fptr)) != 0 && errno != EINTR){
-		INVOKE_LOG_FN("unable to sync %s to disk, error %s",tmp_file_path,strerror(errno));
+	if(fsync(fileno(fptr)) != 0 && errno != EINTR){
+		INVOKE_LOG_FN("unable to sync %s to disk, error %s", tmp_file_path, strerror(errno));
 		goto error;
 	}
 #endif
 
-	if (fclose(fptr) != 0){
-		INVOKE_LOG_FN("unable to close %s on disk, error %s",tmp_file_path,strerror(errno));
+	if(fclose(fptr) != 0){
+		INVOKE_LOG_FN("unable to close %s on disk, error %s", tmp_file_path, strerror(errno));
 		fptr = NULL;
 		goto error;
 	}
 
 #ifdef WIN32
 	if(remove(target_path) != 0 && errno != ENOENT){
-		INVOKE_LOG_FN("unable to remove %s on disk, error %s",target_path,strerror(errno));
+		INVOKE_LOG_FN("unable to remove %s on disk, error %s", target_path, strerror(errno));
 		goto error;
 	}
 #endif
 
 	if(rename(tmp_file_path, target_path) != 0){
-		INVOKE_LOG_FN("unable to replace %s by tmp file  %s, error %s",target_path,tmp_file_path,strerror(errno));
+		INVOKE_LOG_FN("unable to replace %s by tmp file  %s, error %s", target_path, tmp_file_path, strerror(errno));
 		goto error;
 	}
 	return MOSQ_ERR_SUCCESS;
@@ -341,5 +339,3 @@ error:
 	}
 	return MOSQ_ERR_ERRNO;
 }
-
-
