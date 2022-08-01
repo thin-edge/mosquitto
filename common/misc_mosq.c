@@ -318,6 +318,7 @@ int mosquitto_write_file(const char* target_path, bool restrict_read, int (*writ
 		fptr = NULL;
 		goto error;
 	}
+	fptr = NULL;
 
 #ifdef WIN32
 	if(remove(target_path) != 0 && errno != ENOENT){
