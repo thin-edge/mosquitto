@@ -17,7 +17,6 @@ from pathlib import Path
 vg_index = 1
 vg_logfiles = []
 
-
 class TestError(Exception):
     def __init__(self, message="Mismatched packets"):
         self.message = message
@@ -95,7 +94,26 @@ def start_client(filename, cmd, env, port=1888):
         cmd = ['valgrind', '-q', '--log-file='+filename+'.vglog'] + cmd
 
     cmd = cmd + [str(port)]
-    return subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+def wait_for_subprocess(client,timeout=10,terminate_timeout=2):
+    rc=0
+    try:
+        client.wait(timeout)
+    except subprocess.TimeoutExpired:
+        rc=1
+        client.terminate()
+        try:
+            client.wait(terminate_timeout)
+        except subprocess.TimeoutExpired:
+            rc=2
+            client.kill()
+            try:
+                client.wait(terminate_timeout)
+            except subprocess.TimeoutExpired:
+                rc=3
+                pass
+    return rc
 
 def pub_helper(port, proto_ver=4):
     connect_packet = gen_connect("pub-helper", proto_ver=proto_ver)
