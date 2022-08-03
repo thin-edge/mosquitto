@@ -4,7 +4,7 @@
 all :
 
 check : test
-test : 02 03
+test : 02 03 04
 	./test.sh
 	#./test-ws.sh
 
@@ -34,6 +34,9 @@ test : 02 03
 	./03-publish-stdin-file.py
 	./03-publish-stdin-line.py
 	./03-publish-url.py
+
+04 :
+	./04-rr-argv-errors.py
 
 ptest :
 	./test.sh

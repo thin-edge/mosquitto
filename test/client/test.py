@@ -29,6 +29,8 @@ tests = [
     (2, './03-publish-socks.py'),
     (1, './03-publish-stdin-file.py'),
     (1, './03-publish-stdin-line.py'),
+
+    (1, './04-rr-argv-errors.py'),
     ]
 
 ptest.run_tests(tests)
