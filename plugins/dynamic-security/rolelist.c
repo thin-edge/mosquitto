@@ -147,7 +147,12 @@ int dynsec_rolelist__client_add(struct dynsec__client *client, struct dynsec__ro
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	return dynsec_clientlist__add(&role->clientlist, client, priority);
+	rc = dynsec_clientlist__add(&role->clientlist, client, priority);
+	if(rc){
+		dynsec_rolelist__remove_role(&client->rolelist, role);
+	}
+
+	return rc;
 }
 
 
@@ -158,7 +163,11 @@ int dynsec_rolelist__group_add(struct dynsec__group *group, struct dynsec__role 
 	rc = dynsec_rolelist__add(&group->rolelist, role, priority);
 	if(rc) return rc;
 
-	return dynsec_grouplist__add(&role->grouplist, group, priority);
+	rc = dynsec_grouplist__add(&role->grouplist, group, priority);
+	if(rc){
+		dynsec_rolelist__remove_role(&group->rolelist, role);
+	}
+	return rc;
 }
 
 
