@@ -26,6 +26,17 @@ port = mosq_test.get_port()
 conf_file = os.path.basename(__file__).replace('.py', '.conf')
 write_config(conf_file, port)
 
+create_role_command = { "commands": [{'command': 'createRole', 'correlationData': '3',
+    "rolename": "basic", "acls":[
+    {"acltype":"publishClientSend", "topic": "out/#", "priority":3, "allow": True}], "textname":"name", "textdescription":"desc"
+    }]}
+create_role_response = {'responses': [{'command': 'createRole', 'correlationData': '3'}]}
+
+add_role_to_group_command = { "commands": [{'command': 'addGroupRole', 'correlationData': '4',
+    "groupname": "group_one", "rolename": "basic"
+    }]}
+add_role_to_group_response = {'responses': [{'command': 'addGroupRole', 'correlationData': '4'}]}
+
 create_client_command = { "commands": [{
             "command": "createClient", "username": "user_one",
             "password": "password", "clientid": "cid",
@@ -61,7 +72,7 @@ list_groups_verbose_command = { "commands": [{
             "command": "listGroups", "verbose": True, "correlationData": "15"}]}
 list_groups_verbose_response = {'responses':[{'command': 'listGroups', 'data': {"totalCount":2, 'groups':[
     {'groupname': 'group_one', 'textname': 'Name', 'textdescription': 'description', 'clients': [
-    {"username":"user_one"}, {"username":"user_two"}], "roles":[]},
+    {"username":"user_one"}, {"username":"user_two"}], "roles":[{'rolename':'basic'}]},
     {'groupname': 'group_two', 'textname': 'Name', 'textdescription': 'description', 'clients': [
     {"username":"user_one"}], "roles":[]}
     ]},
@@ -79,7 +90,8 @@ list_clients_verbose_response = {'responses':[{"command": "listClients", "data":
 
 get_group_command = { "commands": [{"command": "getGroup", "groupname":"group_one"}]}
 get_group_response = {'responses':[{'command': 'getGroup', 'data': {'group': {'groupname': 'group_one',
-    'textname':'Name', 'textdescription':'description', 'clients': [{"username":"user_one"}, {"username":"user_two"}], 'roles': []}}}]}
+    'textname':'Name', 'textdescription':'description', 'clients': [{"username":"user_one"}, {"username":"user_two"}], 'roles': [{'rolename':'basic'}]
+        }}}]}
 
 add_client_to_group_command = {"commands": [{"command":"addGroupClient", "username":"user_one",
             "groupname": "group_one", "correlationData":"1234"}]}
@@ -98,7 +110,7 @@ remove_client_from_group_command = {"commands": [{"command":"removeGroupClient",
             "groupname": "group_one", "correlationData":"4321"}]}
 remove_client_from_group_response = {'responses':[{'command': 'removeGroupClient', 'correlationData': '4321'}]}
 
-delete_group_command = {"commands": [{"command":"deleteGroup", "groupname":"group_one", "correlationData":"5678"}]}
+delete_group_command = {"commands": [{"command":"deleteGroup", "groupname":"group_two", "correlationData":"5678"}]}
 delete_group_response = {'responses':[{"command":"deleteGroup", "correlationData":"5678"}]}
 
 
@@ -122,6 +134,9 @@ try:
     sock = mosq_test.do_client_connect(connect_packet, connack_packet, timeout=5, port=port)
     mosq_test.do_send_receive(sock, subscribe_packet, suback_packet, "suback")
 
+    # Add role
+    command_check(sock, create_role_command, create_role_response)
+
     # Add client
     command_check(sock, create_client_command, create_client_response)
     command_check(sock, create_client2_command, create_client2_response)
@@ -135,6 +150,9 @@ try:
     command_check(sock, add_client_to_group2_command, add_client_to_group2_response)
     command_check(sock, add_client2_to_group_command, add_client2_to_group_response)
     command_check(sock, add_client_to_group_command, add_duplicate_client_to_group_response)
+
+    # Add role to group
+    command_check(sock, add_role_to_group_command, add_role_to_group_response)
 
     # Get group
     command_check(sock, get_group_command, get_group_response)
