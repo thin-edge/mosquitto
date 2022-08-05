@@ -35,24 +35,16 @@ static struct mosquitto__retainhier *retain__add_hier_entry(struct mosquitto__re
 
 	assert(sibling);
 
-	child = mosquitto__calloc(1, sizeof(struct mosquitto__retainhier));
+	child = mosquitto__calloc(1, sizeof(struct mosquitto__retainhier) + len + 1);
 	if(!child){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return NULL;
 	}
 	child->parent = parent;
 	child->topic_len = len;
-	child->topic = mosquitto__malloc((size_t)len+1);
-	if(!child->topic){
-		child->topic_len = 0;
-		mosquitto__FREE(child);
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
-	}else{
-		strncpy(child->topic, topic, (size_t)child->topic_len+1);
-	}
+	strncpy(child->topic, topic, len);
 
-	HASH_ADD_KEYPTR(hh, *sibling, child->topic, child->topic_len, child);
+	HASH_ADD(hh, *sibling, topic, child->topic_len, child);
 
 	return child;
 }
@@ -344,7 +336,6 @@ void retain__clean(struct mosquitto__retainhier **retainhier)
 			db__msg_store_ref_dec(&peer->retained);
 		}
 		retain__clean(&peer->children);
-		mosquitto__FREE(peer->topic);
 
 		HASH_DELETE(hh, *retainhier, peer);
 		mosquitto__FREE(peer);

@@ -229,7 +229,6 @@ static void subhier_clean(struct mosquitto__subhier **subhier)
 			leaf = nextleaf;
 		}
 		subhier_clean(&peer->children);
-		mosquitto__FREE(peer->topic);
 
 		HASH_DELETE(hh, *subhier, peer);
 		mosquitto__FREE(peer);

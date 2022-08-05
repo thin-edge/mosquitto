@@ -369,8 +369,8 @@ struct mosquitto__subleaf {
 
 struct mosquitto__subshared {
 	UT_hash_handle hh;
-	char *name;
 	struct mosquitto__subleaf *subs;
+	char name[];
 };
 
 struct mosquitto__subhier {
@@ -379,8 +379,8 @@ struct mosquitto__subhier {
 	struct mosquitto__subhier *children;
 	struct mosquitto__subleaf *subs;
 	struct mosquitto__subshared *shared;
-	char *topic;
 	uint16_t topic_len;
+	char topic[];
 };
 
 struct mosquitto__client_sub {
@@ -391,8 +391,8 @@ struct mosquitto__client_sub {
 
 struct sub__token {
 	struct sub__token *next;
-	char *topic;
 	uint16_t topic_len;
+	char topic[];
 };
 
 struct mosquitto__retainhier {
@@ -400,8 +400,8 @@ struct mosquitto__retainhier {
 	struct mosquitto__retainhier *parent;
 	struct mosquitto__retainhier *children;
 	struct mosquitto_base_msg *retained;
-	char *topic;
 	uint16_t topic_len;
+	char topic[];
 };
 
 struct mosquitto_base_msg{
