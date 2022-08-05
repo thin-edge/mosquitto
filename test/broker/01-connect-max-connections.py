@@ -46,6 +46,9 @@ def do_test():
 
         ## Now repeat - check it works as before
 
+        if os.environ.get('MOSQ_USE_VALGRIND') is not None:
+            time.sleep(0.5)
+
         # Open all allowed connections, a limit of 10
         for i in range(0, 10):
             socks.append(mosq_test.do_client_connect(connect_packets_ok[i], connack_packets_ok[i], port=port))
