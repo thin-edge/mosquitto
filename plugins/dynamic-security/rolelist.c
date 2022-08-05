@@ -54,7 +54,6 @@ static int rolelist_cmp(void *a, void *b)
 static void dynsec_rolelist__free_item(struct dynsec__rolelist **base_rolelist, struct dynsec__rolelist *rolelist)
 {
 	HASH_DELETE(hh, *base_rolelist, rolelist);
-	mosquitto_free(rolelist->rolename);
 	mosquitto_free(rolelist);
 }
 
@@ -110,24 +109,23 @@ void dynsec_rolelist__group_remove(struct dynsec__group *group, struct dynsec__r
 static int dynsec_rolelist__add(struct dynsec__rolelist **base_rolelist, struct dynsec__role *role, int priority)
 {
 	struct dynsec__rolelist *rolelist;
+	size_t rolename_len;
 
 	if(role == NULL) return MOSQ_ERR_INVAL;
+	rolename_len = strlen(role->rolename);
+	if(rolename_len == 0) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh, *base_rolelist, role->rolename, strlen(role->rolename), rolelist);
+	HASH_FIND(hh, *base_rolelist, role->rolename, rolename_len, rolelist);
 	if(rolelist){
 		return MOSQ_ERR_ALREADY_EXISTS;
 	}else{
-		rolelist = mosquitto_calloc(1, sizeof(struct dynsec__rolelist));
+		rolelist = mosquitto_calloc(1, sizeof(struct dynsec__rolelist) + rolename_len + 1);
 		if(rolelist == NULL) return MOSQ_ERR_NOMEM;
 
 		rolelist->role = role;
 		rolelist->priority = priority;
-		rolelist->rolename = mosquitto_strdup(role->rolename);
-		if(rolelist->rolename == NULL){
-			mosquitto_free(rolelist);
-			return MOSQ_ERR_NOMEM;
-		}
-		HASH_ADD_KEYPTR_INORDER(hh, *base_rolelist, role->rolename, strlen(role->rolename), rolelist, rolelist_cmp);
+		strncpy(rolelist->rolename, role->rolename, rolename_len+1);
+		HASH_ADD_INORDER(hh, *base_rolelist, rolename, rolename_len, rolelist, rolelist_cmp);
 		return MOSQ_ERR_SUCCESS;
 	}
 }

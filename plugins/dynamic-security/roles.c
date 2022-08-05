@@ -51,7 +51,6 @@ static int role_cmp(void *a, void *b)
 static void role__free_acl(struct dynsec__acl **acl, struct dynsec__acl *item)
 {
 	HASH_DELETE(hh, *acl, item);
-	mosquitto_free(item->topic);
 	mosquitto_free(item);
 }
 
@@ -73,7 +72,6 @@ static void role__free_item(struct dynsec__data *data, struct dynsec__role *role
 	dynsec_grouplist__cleanup(&role->grouplist);
 	mosquitto_free(role->text_name);
 	mosquitto_free(role->text_description);
-	mosquitto_free(role->rolename);
 	role__free_all_acls(&role->acls.publish_c_send);
 	role__free_all_acls(&role->acls.publish_c_recv);
 	role__free_all_acls(&role->acls.subscribe_literal);
@@ -204,16 +202,28 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 {
 	cJSON *j_acl, *j_type, *jtmp;
 	struct dynsec__acl *acl;
+	size_t topic_len;
 
 	cJSON_ArrayForEach(j_acl, j_acls){
 		j_type = cJSON_GetObjectItem(j_acl, "acltype");
 		if(j_type == NULL || !cJSON_IsString(j_type) || strcasecmp(j_type->valuestring, key) != 0){
 			continue;
 		}
-		acl = mosquitto_calloc(1, sizeof(struct dynsec__acl));
+		jtmp = cJSON_GetObjectItem(j_acl, "topic");
+		if(!jtmp || !cJSON_IsString(jtmp)){
+			continue;
+		}
+
+		topic_len = strlen(jtmp->valuestring);
+		if(topic_len == 0){
+			continue;
+		}
+
+		acl = mosquitto_calloc(1, sizeof(struct dynsec__acl) + topic_len + 1);
 		if(acl == NULL){
 			return 1;
 		}
+		strncpy(acl->topic, jtmp->valuestring, topic_len+1);
 
 		json_get_int(j_acl, "priority", &acl->priority, true, 0);
 		json_get_bool(j_acl, "allow", &acl->allow, true, false);
@@ -223,17 +233,7 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 			acl->allow = cJSON_IsTrue(jtmp);
 		}
 
-		jtmp = cJSON_GetObjectItem(j_acl, "topic");
-		if(jtmp && cJSON_IsString(jtmp)){
-			acl->topic = mosquitto_strdup(jtmp->valuestring);
-		}
-
-		if(acl->topic == NULL){
-			mosquitto_free(acl);
-			continue;
-		}
-
-		HASH_ADD_KEYPTR_INORDER(hh, *acllist, acl->topic, strlen(acl->topic), acl, insert_acl_cmp);
+		HASH_ADD_INORDER(hh, *acllist, topic, topic_len, acl, insert_acl_cmp);
 	}
 
 	return 0;
@@ -244,6 +244,7 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 {
 	cJSON *j_roles, *j_role, *jtmp, *j_acls;
 	struct dynsec__role *role;
+	size_t rolename_len;
 
 	j_roles = cJSON_GetObjectItem(tree, "roles");
 	if(j_roles == NULL){
@@ -256,22 +257,21 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 
 	cJSON_ArrayForEach(j_role, j_roles){
 		if(cJSON_IsObject(j_role) == true){
-			role = mosquitto_calloc(1, sizeof(struct dynsec__role));
+			/* Role name */
+			jtmp = cJSON_GetObjectItem(j_role, "rolename");
+			if(jtmp == NULL || !cJSON_IsString(jtmp)){
+				continue;
+			}
+			rolename_len = strlen(jtmp->valuestring);
+			if(rolename_len == 0){
+				continue;
+			}
+
+			role = mosquitto_calloc(1, sizeof(struct dynsec__role) + rolename_len + 1);
 			if(role == NULL){
 				return MOSQ_ERR_NOMEM;
 			}
-
-			/* Role name */
-			jtmp = cJSON_GetObjectItem(j_role, "rolename");
-			if(jtmp == NULL){
-				mosquitto_free(role);
-				continue;
-			}
-			role->rolename = mosquitto_strdup(jtmp->valuestring);
-			if(role->rolename == NULL){
-				mosquitto_free(role);
-				continue;
-			}
+			strncpy(role->rolename, jtmp->valuestring, rolename_len+1);
 
 			/* Text name */
 			jtmp = cJSON_GetObjectItem(j_role, "textname");
@@ -315,13 +315,12 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 						|| dynsec_roles__acl_load(j_acls, ACL_TYPE_UNSUB_PATTERN, &role->acls.unsubscribe_pattern) != 0
 						){
 
-					mosquitto_free(role->rolename);
 					mosquitto_free(role);
 					continue;
 				}
 			}
 
-			HASH_ADD_KEYPTR(hh, data->roles, role->rolename, strlen(role->rolename), role);
+			HASH_ADD(hh, data->roles, rolename, rolename_len, role);
 		}
 	}
 	HASH_SORT(data->roles, role_cmp);
@@ -339,12 +338,18 @@ int dynsec_roles__process_create(struct dynsec__data *data, struct plugin_cmd *c
 	int rc = MOSQ_ERR_SUCCESS;
 	cJSON *j_acls;
 	const char *admin_clientid, *admin_username;
+	size_t rolename_len;
 
 	if(json_get_string(cmd->j_command, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Invalid/missing rolename");
 		return MOSQ_ERR_INVAL;
 	}
-	if(mosquitto_validate_utf8(rolename, (int)strlen(rolename)) != MOSQ_ERR_SUCCESS){
+	rolename_len = strlen(rolename);
+	if(rolename_len == 0){
+		plugin__command_reply(cmd, "Empty rolename");
+		return MOSQ_ERR_INVAL;
+	}
+	if(mosquitto_validate_utf8(rolename, (int)rolename_len) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Role name not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
@@ -370,17 +375,12 @@ int dynsec_roles__process_create(struct dynsec__data *data, struct plugin_cmd *c
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	role = mosquitto_calloc(1, sizeof(struct dynsec__role));
+	role = mosquitto_calloc(1, sizeof(struct dynsec__role) + rolename_len + 1);
 	if(role == NULL){
 		plugin__command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
-	role->rolename = mosquitto_strdup(rolename);
-	if(role->rolename == NULL){
-		plugin__command_reply(cmd, "Internal error");
-		rc = MOSQ_ERR_NOMEM;
-		goto error;
-	}
+	strncpy(role->rolename, rolename, rolename_len+1);
 	if(text_name){
 		role->text_name = mosquitto_strdup(text_name);
 		if(role->text_name == NULL){
@@ -417,7 +417,7 @@ int dynsec_roles__process_create(struct dynsec__data *data, struct plugin_cmd *c
 	}
 
 
-	HASH_ADD_KEYPTR_INORDER(hh, data->roles, role->rolename, strlen(role->rolename), role, role_cmp);
+	HASH_ADD_INORDER(hh, data->roles, rolename, rolename_len, role, role_cmp);
 
 	dynsec__config_save(data);
 
@@ -595,12 +595,12 @@ int dynsec_roles__process_list(struct dynsec__data *data, struct plugin_cmd *cmd
 int dynsec_roles__process_add_acl(struct dynsec__data *data, struct plugin_cmd *cmd, struct mosquitto *context)
 {
 	char *rolename;
-	char *topic;
 	struct dynsec__role *role;
-	cJSON *jtmp, *j_acltype;
+	cJSON *j_acltype, *j_topic;
 	struct dynsec__acl **acllist, *acl;
 	int rc;
 	const char *admin_clientid, *admin_username;
+	size_t topic_len;
 
 	if(json_get_string(cmd->j_command, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Invalid/missing rolename");
@@ -639,46 +639,40 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct plugin_cmd *
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	jtmp = cJSON_GetObjectItem(cmd->j_command, "topic");
-	if(jtmp && cJSON_IsString(jtmp)){
-		if(mosquitto_validate_utf8(jtmp->valuestring, (int)strlen(jtmp->valuestring)) != MOSQ_ERR_SUCCESS){
+	j_topic = cJSON_GetObjectItem(cmd->j_command, "topic");
+	if(j_topic && cJSON_IsString(j_topic)){
+		topic_len = strlen(j_topic->valuestring);
+		if(mosquitto_validate_utf8(j_topic->valuestring, (int)topic_len) != MOSQ_ERR_SUCCESS){
 			plugin__command_reply(cmd, "Topic not valid UTF-8");
 			return MOSQ_ERR_INVAL;
 		}
-		rc = mosquitto_sub_topic_check(jtmp->valuestring);
+		rc = mosquitto_sub_topic_check(j_topic->valuestring);
 		if(rc != MOSQ_ERR_SUCCESS){
 			plugin__command_reply(cmd, "Invalid ACL topic");
 			return MOSQ_ERR_INVAL;
-		}
-		topic = mosquitto_strdup(jtmp->valuestring);
-		if(topic == NULL){
-			plugin__command_reply(cmd, "Internal error");
-			return MOSQ_ERR_SUCCESS;
 		}
 	}else{
 		plugin__command_reply(cmd, "Invalid/missing topic");
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	HASH_FIND(hh, *acllist, topic, strlen(topic), acl);
+	HASH_FIND(hh, *acllist, j_topic->valuestring, topic_len, acl);
 	if(acl){
-		mosquitto_free(topic);
 		plugin__command_reply(cmd, "ACL with this topic already exists");
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	acl = mosquitto_calloc(1, sizeof(struct dynsec__acl));
+	acl = mosquitto_calloc(1, sizeof(struct dynsec__acl) + topic_len + 1);
 	if(acl == NULL){
-		mosquitto_free(topic);
 		plugin__command_reply(cmd, "Internal error");
 		return MOSQ_ERR_SUCCESS;
 	}
-	acl->topic = topic;
+	strncpy(acl->topic, j_topic->valuestring, topic_len+1);
 
 	json_get_int(cmd->j_command, "priority", &acl->priority, true, 0);
 	json_get_bool(cmd->j_command, "allow", &acl->allow, true, false);
 
-	HASH_ADD_KEYPTR_INORDER(hh, *acllist, acl->topic, strlen(acl->topic), acl, insert_acl_cmp);
+	HASH_ADD_INORDER(hh, *acllist, topic, topic_len, acl, insert_acl_cmp);
 	dynsec__config_save(data);
 	plugin__command_reply(cmd, NULL);
 
@@ -687,7 +681,7 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct plugin_cmd *
 	admin_clientid = mosquitto_client_id(context);
 	admin_username = mosquitto_client_username(context);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | addRoleACL | rolename=%s | acltype=%s | topic=%s | priority=%d | allow=%s",
-			admin_clientid, admin_username, rolename, j_acltype->valuestring, topic, acl->priority, acl->allow?"true":"false");
+			admin_clientid, admin_username, rolename, j_acltype->valuestring, j_topic->valuestring, acl->priority, acl->allow?"true":"false");
 
 	return MOSQ_ERR_SUCCESS;
 }

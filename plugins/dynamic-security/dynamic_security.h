@@ -70,9 +70,9 @@ struct dynsec__grouplist{
 
 struct dynsec__rolelist{
 	UT_hash_handle hh;
-	char *rolename;
 	struct dynsec__role *role;
 	int priority;
+	char rolename[];
 };
 
 struct dynsec__kicklist{
@@ -85,28 +85,28 @@ struct dynsec__client{
 	struct mosquitto_pw pw;
 	struct dynsec__rolelist *rolelist;
 	struct dynsec__grouplist *grouplist;
-	char *username;
 	char *clientid;
 	char *text_name;
 	char *text_description;
 	bool disabled;
+	char username[];
 };
 
 struct dynsec__group{
 	UT_hash_handle hh;
 	struct dynsec__rolelist *rolelist;
 	struct dynsec__clientlist *clientlist;
-	char *groupname;
 	char *text_name;
 	char *text_description;
+	char groupname[];
 };
 
 
 struct dynsec__acl{
 	UT_hash_handle hh;
-	char *topic;
 	int priority;
 	bool allow;
+	char topic[];
 };
 
 struct dynsec__acls{
@@ -123,10 +123,10 @@ struct dynsec__role{
 	struct dynsec__acls acls;
 	struct dynsec__clientlist *clientlist;
 	struct dynsec__grouplist *grouplist;
-	char *rolename;
 	char *text_name;
 	char *text_description;
 	bool allow_wildcard_subs;
+	char rolename[];
 };
 
 struct dynsec__acl_default_access{

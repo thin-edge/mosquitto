@@ -87,7 +87,6 @@ static void client__free_item(struct dynsec__data *data, struct dynsec__client *
 	mosquitto_free(client->text_name);
 	mosquitto_free(client->text_description);
 	mosquitto_free(client->clientid);
-	mosquitto_free(client->username);
 	mosquitto_free(client);
 }
 
@@ -116,6 +115,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 	unsigned int buf_len;
 	int priority;
 	int iterations;
+	size_t username_len;
 
 	j_clients = cJSON_GetObjectItem(tree, "clients");
 	if(j_clients == NULL){
@@ -128,22 +128,21 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 
 	cJSON_ArrayForEach(j_client, j_clients){
 		if(cJSON_IsObject(j_client) == true){
-			client = mosquitto_calloc(1, sizeof(struct dynsec__client));
-			if(client == NULL){
-				return MOSQ_ERR_NOMEM;
-			}
-
 			/* Username */
 			jtmp = cJSON_GetObjectItem(j_client, "username");
 			if(jtmp == NULL || !cJSON_IsString(jtmp)){
-				mosquitto_free(client);
 				continue;
 			}
-			client->username = mosquitto_strdup(jtmp->valuestring);
-			if(client->username == NULL){
-				mosquitto_free(client);
+			username_len = strlen(jtmp->valuestring);
+			if(username_len == 0){
 				continue;
 			}
+
+			client = mosquitto_calloc(1, sizeof(struct dynsec__client) + username_len + 1);
+			if(client == NULL){
+				return MOSQ_ERR_NOMEM;
+			}
+			strncpy(client->username, jtmp->valuestring, username_len);
 
 			jtmp = cJSON_GetObjectItem(j_client, "disabled");
 			if(jtmp && cJSON_IsBool(jtmp)){
@@ -244,7 +243,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				}
 			}
 
-			HASH_ADD_KEYPTR(hh, data->clients, client->username, strlen(client->username), client);
+			HASH_ADD(hh, data->clients, username, username_len, client);
 		}
 	}
 	HASH_SORT(data->clients, client_cmp);
@@ -332,12 +331,18 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct plugin_cmd 
 	cJSON *j_groups, *j_group, *jtmp;
 	int priority;
 	const char *admin_clientid, *admin_username;
+	size_t username_len;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
-	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
+	username_len = strlen(username);
+	if(username_len == 0){
+		plugin__command_reply(cmd, "Empty username");
+		return MOSQ_ERR_INVAL;
+	}
+	if(mosquitto_validate_utf8(username, (int)username_len) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
@@ -373,17 +378,13 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct plugin_cmd 
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	client = mosquitto_calloc(1, sizeof(struct dynsec__client));
+	client = mosquitto_calloc(1, sizeof(struct dynsec__client) + username_len + 1);
 	if(client == NULL){
 		plugin__command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
-	client->username = mosquitto_strdup(username);
-	if(client->username == NULL){
-		plugin__command_reply(cmd, "Internal error");
-		client__free_item(data, client);
-		return MOSQ_ERR_NOMEM;
-	}
+	strncpy(client->username, username, username_len);
+
 	if(text_name){
 		client->text_name = mosquitto_strdup(text_name);
 		if(client->text_name == NULL){
@@ -435,7 +436,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct plugin_cmd 
 	}
 
 	/* Must add user before groups, otherwise adding groups will fail */
-	HASH_ADD_KEYPTR_INORDER(hh, data->clients, client->username, strlen(client->username), client, client_cmp);
+	HASH_ADD_INORDER(hh, data->clients, username, username_len, client, client_cmp);
 
 	j_groups = cJSON_GetObjectItem(cmd->j_command, "groups");
 	if(j_groups && cJSON_IsArray(j_groups)){

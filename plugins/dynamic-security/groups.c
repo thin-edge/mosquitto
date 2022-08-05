@@ -98,7 +98,6 @@ static void group__free_item(struct dynsec__data *data, struct dynsec__group *gr
 	dynsec__remove_all_clients_from_group(group);
 	mosquitto_free(group->text_name);
 	mosquitto_free(group->text_description);
-	mosquitto_free(group->groupname);
 	dynsec_rolelist__cleanup(&group->rolelist);
 	mosquitto_free(group);
 }
@@ -197,6 +196,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	struct dynsec__role *role;
 	char *str;
 	int priority;
+	size_t groupname_len;
 
 	j_groups = cJSON_GetObjectItem(tree, "groups");
 	if(j_groups == NULL){
@@ -209,21 +209,20 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 
 	cJSON_ArrayForEach(j_group, j_groups){
 		if(cJSON_IsObject(j_group) == true){
-			group = mosquitto_calloc(1, sizeof(struct dynsec__group));
+			/* Group name */
+			if(json_get_string(j_group, "groupname", &str, false) != MOSQ_ERR_SUCCESS){
+				continue;
+			}
+			groupname_len = strlen(str);
+			if(groupname_len == 0){
+				continue;
+			}
+
+			group = mosquitto_calloc(1, sizeof(struct dynsec__group) + groupname_len + 1);
 			if(group == NULL){
 				return MOSQ_ERR_NOMEM;
 			}
-
-			/* Group name */
-			if(json_get_string(j_group, "groupname", &str, false) != MOSQ_ERR_SUCCESS){
-				mosquitto_free(group);
-				continue;
-			}
-			group->groupname = strdup(str);
-			if(group->groupname == NULL){
-				mosquitto_free(group);
-				continue;
-			}
+			strncpy(group->groupname, str, groupname_len+1);
 
 			/* Text name */
 			if(json_get_string(j_group, "textname", &str, false) == MOSQ_ERR_SUCCESS){
@@ -266,7 +265,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			}
 
 			/* This must go before clients are loaded, otherwise the group won't be found */
-			HASH_ADD_KEYPTR(hh, data->groups, group->groupname, strlen(group->groupname), group);
+			HASH_ADD(hh, data->groups, groupname, groupname_len, group);
 
 			/* Clients */
 			j_clientlist = cJSON_GetObjectItem(j_group, "clients");
@@ -365,12 +364,18 @@ int dynsec_groups__process_create(struct dynsec__data *data, struct plugin_cmd *
 	struct dynsec__group *group = NULL;
 	int rc = MOSQ_ERR_SUCCESS;
 	const char *admin_clientid, *admin_username;
+	size_t groupname_len;
 
 	if(json_get_string(cmd->j_command, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Invalid/missing groupname");
 		return MOSQ_ERR_INVAL;
 	}
-	if(mosquitto_validate_utf8(groupname, (int)strlen(groupname)) != MOSQ_ERR_SUCCESS){
+	groupname_len = strlen(groupname);
+	if(groupname_len == 0){
+		plugin__command_reply(cmd, "Empty groupname");
+		return MOSQ_ERR_INVAL;
+	}
+	if(mosquitto_validate_utf8(groupname, (int)groupname_len) != MOSQ_ERR_SUCCESS){
 		plugin__command_reply(cmd, "Group name not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
@@ -391,17 +396,12 @@ int dynsec_groups__process_create(struct dynsec__data *data, struct plugin_cmd *
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	group = mosquitto_calloc(1, sizeof(struct dynsec__group));
+	group = mosquitto_calloc(1, sizeof(struct dynsec__group) + groupname_len + 1);
 	if(group == NULL){
 		plugin__command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
-	group->groupname = strdup(groupname);
-	if(group->groupname == NULL){
-		plugin__command_reply(cmd, "Internal error");
-		group__free_item(data, group);
-		return MOSQ_ERR_NOMEM;
-	}
+	strncpy(group->groupname, groupname, groupname_len+1);
 	if(text_name){
 		group->text_name = strdup(text_name);
 		if(group->text_name == NULL){
@@ -431,7 +431,7 @@ int dynsec_groups__process_create(struct dynsec__data *data, struct plugin_cmd *
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_ADD_KEYPTR_INORDER(hh, data->groups, group->groupname, strlen(group->groupname), group, group_cmp);
+	HASH_ADD_INORDER(hh, data->groups, groupname, groupname_len, group, group_cmp);
 
 	admin_clientid = mosquitto_client_id(context);
 	admin_username = mosquitto_client_username(context);
