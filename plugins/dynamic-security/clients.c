@@ -160,7 +160,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 
 				iterations = (int)j_iterations->valuedouble;
 				if(iterations < 1){
-					mosquitto_free(client->username);
 					mosquitto_free(client);
 					continue;
 				}else{
@@ -170,7 +169,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				if(base64__decode(j_salt->valuestring, &buf, &buf_len) != MOSQ_ERR_SUCCESS
 						|| buf_len > sizeof(client->pw.salt)){
 
-					mosquitto_free(client->username);
 					mosquitto_free(client);
 					continue;
 				}
@@ -181,7 +179,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				if(base64__decode(j_password->valuestring, &buf, &buf_len) != MOSQ_ERR_SUCCESS
 						|| buf_len != sizeof(client->pw.password_hash)){
 
-					mosquitto_free(client->username);
 					mosquitto_free(client);
 					continue;
 				}
@@ -197,7 +194,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 			if(jtmp != NULL && cJSON_IsString(jtmp)){
 				client->clientid = mosquitto_strdup(jtmp->valuestring);
 				if(client->clientid == NULL){
-					mosquitto_free(client->username);
 					mosquitto_free(client);
 					continue;
 				}
@@ -209,7 +205,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				client->text_name = mosquitto_strdup(jtmp->valuestring);
 				if(client->text_name == NULL){
 					mosquitto_free(client->clientid);
-					mosquitto_free(client->username);
 					mosquitto_free(client);
 					continue;
 				}
@@ -222,7 +217,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				if(client->text_description == NULL){
 					mosquitto_free(client->text_name);
 					mosquitto_free(client->clientid);
-					mosquitto_free(client->username);
 					mosquitto_free(client);
 					continue;
 				}

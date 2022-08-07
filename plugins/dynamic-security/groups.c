@@ -229,7 +229,6 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 				if(str){
 					group->text_name = strdup(str);
 					if(group->text_name == NULL){
-						mosquitto_free(group->groupname);
 						mosquitto_free(group);
 						continue;
 					}
@@ -242,7 +241,6 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 					group->text_description = strdup(str);
 					if(group->text_description == NULL){
 						mosquitto_free(group->text_name);
-						mosquitto_free(group->groupname);
 						mosquitto_free(group);
 						continue;
 					}

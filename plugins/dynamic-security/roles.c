@@ -278,7 +278,6 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 			if(jtmp != NULL){
 				role->text_name = mosquitto_strdup(jtmp->valuestring);
 				if(role->text_name == NULL){
-					mosquitto_free(role->rolename);
 					mosquitto_free(role);
 					continue;
 				}
@@ -290,7 +289,6 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 				role->text_description = mosquitto_strdup(jtmp->valuestring);
 				if(role->text_description == NULL){
 					mosquitto_free(role->text_name);
-					mosquitto_free(role->rolename);
 					mosquitto_free(role);
 					continue;
 				}
