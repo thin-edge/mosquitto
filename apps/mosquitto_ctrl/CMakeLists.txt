@@ -17,8 +17,6 @@ if(WITH_TLS AND CJSON_FOUND)
 	)
 
 	target_include_directories(mosquitto_ctrl PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/apps/mosquitto_passwd"
 		"${mosquitto_SOURCE_DIR}/common"

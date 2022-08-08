@@ -2,8 +2,6 @@ set(shared_src client_shared.c client_shared.h client_props.c)
 
 set(CLIENT_INC
 	"${OPENSSL_INCLUDE_DIR}"
-	"${STDBOOL_H_PATH}"
-	"${STDINT_H_PATH}"
 	"${mosquitto_SOURCE_DIR}"
 	"${mosquitto_SOURCE_DIR}/include"
 )

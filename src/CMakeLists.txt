@@ -228,8 +228,6 @@ target_include_directories(mosquitto
 	PUBLIC
 		"${mosquitto_SOURCE_DIR}/include"
 	PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}/common"
 		"${mosquitto_SOURCE_DIR}/lib"
 		"${mosquitto_SOURCE_DIR}/src"
