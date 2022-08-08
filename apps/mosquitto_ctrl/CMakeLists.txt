@@ -20,11 +20,8 @@ if(WITH_TLS AND CJSON_FOUND)
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/apps/mosquitto_passwd"
 		"${mosquitto_SOURCE_DIR}/common"
-		"${mosquitto_SOURCE_DIR}/include"
-		"${mosquitto_SOURCE_DIR}/lib"
 		"${mosquitto_SOURCE_DIR}/plugins/common"
 		"${mosquitto_SOURCE_DIR}/plugins/dynamic-security"
-		"${mosquitto_SOURCE_DIR}/src"
 	)
 	if(WITH_BUNDLED_DEPS)
 		target_include_directories(mosquitto_ctrl PRIVATE

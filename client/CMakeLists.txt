@@ -1,14 +1,11 @@
 set(shared_src client_shared.c client_shared.h client_props.c)
 
-set(CLIENT_INC
-	"${OPENSSL_INCLUDE_DIR}"
-	"${mosquitto_SOURCE_DIR}"
-	"${mosquitto_SOURCE_DIR}/include"
-)
-
 add_library(client-common INTERFACE)
 target_link_libraries(client-common INTERFACE common-options)
-target_include_directories(client-common INTERFACE ${CLIENT_INC})
+target_include_directories(client-common INTERFACE
+	"${OPENSSL_INCLUDE_DIR}"
+	"${mosquitto_SOURCE_DIR}"
+)
 target_sources(client-common INTERFACE ${shared_src})
 
 if(WITH_SRV)

@@ -108,10 +108,10 @@ endif()
 target_include_directories(libmosquitto
 	PUBLIC
 		"${mosquitto_SOURCE_DIR}/include"
+		"${mosquitto_SOURCE_DIR}/lib"
 	PRIVATE
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
-		"${mosquitto_SOURCE_DIR}/lib"
 )
 
 if(WITH_BUNDLED_DEPS)
