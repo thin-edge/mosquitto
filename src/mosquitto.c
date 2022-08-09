@@ -365,8 +365,6 @@ int main(int argc, char *argv[])
 	}
 	will_delay__send_all();
 
-	plugin_persist__process_retain_events(true);
-
 	/* Set to true only after persistence events have been processed */
 	db.shutdown = true;
 	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
