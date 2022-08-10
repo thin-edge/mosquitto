@@ -31,20 +31,14 @@ if __name__ == '__main__':
 
     # Usage, ignore actual text though.
     do_test(['--help'], None, 1)
-
+    
     # Missing args
     do_test(['-A'], "Error: -A argument given but no address specified.\n\n" + helps, 1)
-    do_test(['--cafile'], "Error: --cafile argument given but no file specified.\n\n" + helps, 1)
-    do_test(['--capath'], "Error: --capath argument given but no directory specified.\n\n" + helps, 1)
-    do_test(['--cert'], "Error: --cert argument given but no file specified.\n\n" + helps, 1)
-    do_test(['--ciphers'], "Error: --ciphers argument given but no ciphers specified.\n\n" + helps, 1)
     do_test(['-f'], "Error: -f argument given but no file specified.\n\n" + helps, 1)
     do_test(['-h'], "Error: -h argument given but no host specified.\n\n" + helps, 1)
     do_test(['-i'], "Error: -i argument given but no id specified.\n\n" + helps, 1)
     do_test(['-I'], "Error: -I argument given but no id prefix specified.\n\n" + helps, 1)
     do_test(['-k'], "Error: -k argument given but no keepalive specified.\n\n" + helps, 1)
-    do_test(['--key'], "Error: --key argument given but no file specified.\n\n" + helps, 1)
-    do_test(['--keyform'], "Error: --keyform argument given but no keyform specified.\n\n" + helps, 1)
     do_test(['-L'], "Error: -L argument given but no URL specified.\n\n" + helps, 1)
     do_test(['-M'], "Error: -M argument given but max_inflight not specified.\n\n" + helps, 1)
     do_test(['-m'], "Error: -m argument given but no message specified.\n\n" + helps, 1)
@@ -52,16 +46,10 @@ if __name__ == '__main__':
     do_test(['-p'], "Error: -p argument given but no port specified.\n\n" + helps, 1)
     do_test(['-P'], "Error: -P argument given but no password specified.\n\n" + helps, 1)
     do_test(['--proxy'], "Error: --proxy argument given but no proxy url specified.\n\n" + helps, 1)
-    do_test(['--psk'], "Error: --psk argument given but no key specified.\n\n" + helps, 1)
-    do_test(['--psk-identity'], "Error: --psk-identity argument given but no identity specified.\n\n" + helps, 1)
     do_test(['-q'], "Error: -q argument given but no QoS specified.\n\n" + helps, 1)
     do_test(['--repeat'], "Error: --repeat argument given but no count specified.\n\n" + helps, 1)
     do_test(['--repeat-delay'], "Error: --repeat-delay argument given but no time specified.\n\n" + helps, 1)
     do_test(['-t'], "Error: -t argument given but no topic specified.\n\n" + helps, 1)
-    do_test(['--tls-alpn'], "Error: --tls-alpn argument given but no protocol specified.\n\n" + helps, 1)
-    do_test(['--tls-engine'], "Error: --tls-engine argument given but no engine_id specified.\n\n" + helps, 1)
-    do_test(['--tls-engine-kpass-sha1'], "Error: --tls-engine-kpass-sha1 argument given but no kpass sha1 specified.\n\n" + helps, 1)
-    do_test(['--tls-version'], "Error: --tls-version argument given but no version specified.\n\n" + helps, 1)
     do_test(['-u'], "Error: -u argument given but no username specified.\n\n" + helps, 1)
     do_test(['--unix'], "Error: --unix argument given but no socket path specified.\n\n" + helps, 1)
     do_test(['-V'], "Error: --protocol-version argument given but no version specified.\n\n" + helps, 1)
@@ -83,13 +71,6 @@ if __name__ == '__main__':
     do_test(['-I', 'id-prefix', '-i', 'id'], "Error: -i and -I argument cannot be used together.\n\n" + helps, 1)
     do_test(['--will-payload', 'payload'], "Error: Will payload given, but no will topic given.\n" + helps, 1)
     do_test(['--will-retain'], "Error: Will retain given, but no will topic given.\n" + helps, 1)
-    do_test(['--cert', 'file'], "Error: Both certfile and keyfile must be provided if one of them is set.\n" + helps, 1)
-    do_test(['--key', 'file'], "Error: Both certfile and keyfile must be provided if one of them is set.\n" + helps, 1)
-    do_test(['--keyform', 'file'], "Error: If keyform is set, keyfile must be also specified.\n" + helps, 1)
-    do_test(['--tls-engine-kpass-sha1', 'hash'], "Error: when using tls-engine-kpass-sha1, both tls-engine and keyform must also be provided.\n" + helps, 1)
-    do_test(['--cafile', 'file', '--psk', 'key'], "Error: Only one of --psk or --cafile/--capath may be used at once.\n" + helps, 1)
-    do_test(['--capath', 'dir', '--psk', 'key'], "Error: Only one of --psk or --cafile/--capath may be used at once.\n" + helps, 1)
-    do_test(['--psk', 'key'], "Error: --psk-identity required if --psk used.\n" + helps, 1)
     do_test(['-V', 'mqttv5', '-x', '-1'], "Error: You must provide a client id if you are using an infinite session expiry interval.\n" + helps, 1)
     do_test(['-V', 'mqttv311', '-c'], "Error: You must provide a client id if you are using the -c option.\n" + helps, 1)
 
@@ -120,7 +101,6 @@ if __name__ == '__main__':
     do_test(['-V', '5', '-D', 'connect', 'session-expiry-interval', '-1'], "Error: Property value (-1) out of range for property session-expiry-interval.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect', 'session-expiry-interval', '4294967296'], "Error: Property value (4294967296) out of range for property session-expiry-interval.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'publish', 'subscription-identifier', '1'], "Error: subscription-identifier property not supported for publish in --property argument.\n\n" + helps, 1)
-    do_test(['-t','topic','-m','1', '--cafile', 'missing'], "Error: Problem setting TLS options: File not found.\n", 1)
 
     # Unknown options
     do_test(['--unknown'], "Error: Unknown option '--unknown'.\n" + helps, 1)

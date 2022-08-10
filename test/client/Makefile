@@ -9,7 +9,13 @@ test : 02 03 04
 	#./test-ws.sh
 
 02 :
-	./02-subscribe-argv-errors.py
+	./02-subscribe-argv-errors-without-tls.py
+ifeq ($(WITH_TLS),yes)
+	./02-subscribe-argv-errors-tls.py
+ifeq ($(WITH_TLS_PSK),yes)
+	./02-subscribe-argv-errors-tls-psk.py
+endif
+endif
 	./02-subscribe-filter-out.py
 	./02-subscribe-format.py
 	./02-subscribe-format-json-qos0.py
@@ -22,7 +28,13 @@ test : 02 03 04
 	./02-subscribe-verbose.py
 
 03 :
-	./03-publish-argv-errors.py
+	./03-publish-argv-errors-without-tls.py
+ifeq ($(WITH_TLS),yes)
+	./03-publish-argv-errors-tls.py
+ifeq ($(WITH_TLS_PSK),yes)
+	./03-publish-argv-errors-tls-psk.py
+endif
+endif
 	./03-publish-file-empty.py
 	./03-publish-file.py
 	./03-publish-options-file.py
@@ -36,7 +48,13 @@ test : 02 03 04
 	./03-publish-url.py
 
 04 :
-	./04-rr-argv-errors.py
+	./04-rr-argv-errors-without-tls.py
+ifeq ($(WITH_TLS),yes)
+	./04-rr-argv-errors-tls.py
+ifeq ($(WITH_TLS_PSK),yes)
+	./04-rr-argv-errors-tls-psk.py
+endif
+endif
 
 ptest :
 	./test.sh
