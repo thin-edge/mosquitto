@@ -73,7 +73,7 @@ int deny_severity = LOG_INFO;
  * Note that setting config->user to "root" does not produce an error, but it
  * strongly discouraged.
  */
-int drop_privileges(struct mosquitto__config *config)
+static int drop_privileges(struct mosquitto__config *config)
 {
 #if !defined(__CYGWIN__) && !defined(WIN32)
 	struct passwd *pwd;
