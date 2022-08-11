@@ -7,6 +7,7 @@ DISTFILES= \
 	apps/ \
 	client/ \
 	cmake/ \
+	common/ \
 	deps/ \
 	examples/ \
 	include/ \
