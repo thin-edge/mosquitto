@@ -98,7 +98,7 @@ static int callback_tick(int event, void *event_data, void *userdata)
 
 		for(int i=1; i<MAX_EVT+1; i++){
 			if(evt_counts[i] != last_evt_counts[i]){
-				slen = snprintf(payload, sizeof(payload), "%lld", evt_counts[i]);
+				slen = snprintf(payload, sizeof(payload), "%ld", evt_counts[i]);
 				mosquitto_broker_publish_copy(NULL, evt_topics[i], slen, payload, 0, 1, NULL);
 				last_evt_counts[i] = evt_counts[i];
 			}
