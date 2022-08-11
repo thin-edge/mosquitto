@@ -61,6 +61,18 @@ int http__write(struct mosquitto *mosq)
 }
 
 
+static int first_entry(const char *s, int len)
+{
+	int i;
+
+	for(i=0; i<len; i++){
+		if(s[i] == '\0' || s[i] == ','){
+			return i;
+		}
+	}
+	return len;
+}
+
 int http__read(struct mosquitto *mosq)
 {
 	ssize_t read_length;
@@ -81,6 +93,8 @@ int http__read(struct mosquitto *mosq)
 	int rc;
 	const char *subprotocol = NULL;
 	int subprotocol_len;
+	const char *forwarded_for = NULL;
+	int forwarded_for_len;
 
 	if(!mosq){
 		return MOSQ_ERR_INVAL;
@@ -188,6 +202,17 @@ int http__read(struct mosquitto *mosq)
 				subprotocol = http_headers[i].value;
 				subprotocol_len = (int)http_headers[i].value_len;
 			}
+		}else if(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
+			forwarded_for = http_headers[i].value;
+			forwarded_for_len = first_entry(forwarded_for, (int)http_headers[i].value_len);
+
+			mosquitto__FREE(mosq->address);
+			mosq->address = mosquitto__malloc((size_t)forwarded_for_len+1);
+			if(!mosq->address){
+				return MOSQ_ERR_NOMEM;
+			}
+			strncpy(mosq->address, forwarded_for, (size_t)forwarded_for_len);
+			mosq->address[forwarded_for_len] = '\0';
 		}else{
 			/* Unknown header */
 		}

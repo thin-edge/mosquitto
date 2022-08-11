@@ -61,6 +61,7 @@ Broker:
   Closes #2544.
 - Add support for PUID/PGID environment variables for setting the user/group
   to drop privileges to. Closes #2441.
+- Add support for X-Forwarded-For header for built in websockets.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.
