@@ -10,8 +10,6 @@ if(WITH_TLS)
 	)
 
 	target_include_directories(mosquitto_passwd PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
 		"${mosquitto_SOURCE_DIR}/include"

@@ -1,8 +1,6 @@
 if(CJSON_FOUND AND WITH_TLS)
 	set(CLIENT_INC
 		"${CJSON_INCLUDE_DIRS}"
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
 		"${mosquitto_SOURCE_DIR}/deps"
