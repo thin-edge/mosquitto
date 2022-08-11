@@ -10,15 +10,13 @@ set_target_properties(mosquittopp PROPERTIES
 
 target_include_directories(mosquittopp
 	PUBLIC
-		"${mosquitto_SOURCE_DIR}/include"
-	PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
-		"${mosquitto_SOURCE_DIR}/lib"
 		"${mosquitto_SOURCE_DIR}/lib/cpp"
 )
 
-target_link_libraries(mosquittopp PRIVATE libmosquitto common-options)
+target_link_libraries(mosquittopp
+	PUBLIC libmosquitto
+	PRIVATE common-options
+)
 
 if (WITH_THREADING AND NOT WIN32)
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -49,8 +47,6 @@ if(WITH_STATIC_LIBRARIES)
 	endif()
 
 	target_include_directories(mosquittopp_static PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}/include"
 		"${mosquitto_SOURCE_DIR}/lib"
 		"${mosquitto_SOURCE_DIR}/lib/cpp"

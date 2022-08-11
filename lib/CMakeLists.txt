@@ -108,12 +108,10 @@ endif()
 target_include_directories(libmosquitto
 	PUBLIC
 		"${mosquitto_SOURCE_DIR}/include"
+		"${mosquitto_SOURCE_DIR}/lib"
 	PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
-		"${mosquitto_SOURCE_DIR}/lib"
 )
 
 if(WITH_BUNDLED_DEPS)
@@ -155,8 +153,6 @@ if(WITH_STATIC_LIBRARIES)
 	target_link_libraries(libmosquitto_static PRIVATE ${LIBRARIES})
 
 	target_include_directories(libmosquitto_static PRIVATE
-		"${STDBOOL_H_PATH}"
-		"${STDINT_H_PATH}"
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/include"
 		"${mosquitto_SOURCE_DIR}/lib"

@@ -5,8 +5,6 @@ add_library(${PLUGIN_NAME} MODULE
 )
 
 target_include_directories(${PLUGIN_NAME} PRIVATE
-	"${STDBOOL_H_PATH}"
-	"${STDINT_H_PATH}"
 	"${mosquitto_SOURCE_DIR}/include"
 )
 
