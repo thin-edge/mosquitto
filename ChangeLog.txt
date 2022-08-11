@@ -59,6 +59,8 @@ Broker:
   before trying to use it in a live broker. Closes #2521.
 - Print messages in mosquitto_passwd when adding/updating passwords.
   Closes #2544.
+- Add support for PUID/PGID environment variables for setting the user/group
+  to drop privileges to. Closes #2441.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.

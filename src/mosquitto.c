@@ -23,6 +23,8 @@ Contributors:
 #  include <unistd.h>
 #  include <grp.h>
 #  include <assert.h>
+/* For umask() */
+#  include <sys/stat.h>
 #endif
 
 #ifndef WIN32
@@ -65,6 +67,35 @@ int allow_severity = LOG_INFO;
 int deny_severity = LOG_INFO;
 #endif
 
+static int set_umask(void)
+{
+#if !defined(__CYGWIN__) && !defined(WIN32)
+	/* This affects files that are written to, apart from those that are
+	 * created using mosquitto_fopen(..., restrict_read=true), which sets a
+	 * umask of 077. */
+	const char *mask_s;
+	char *endptr = NULL;
+	long mask;
+
+
+	mask_s = getenv("UMASK_SET");
+	if(mask_s){
+		errno = 0;
+		mask = strtol(mask_s, &endptr, 8);
+		if(errno || endptr == mask_s || *endptr != '\0'){
+			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable not a valid octal number.");
+			return MOSQ_ERR_INVAL;
+		}
+		if(mask < 000 || mask > 0777){
+			log__printf(NULL, MOSQ_LOG_ERR, "Error: UMASK_SET environment variable out of range.");
+			return MOSQ_ERR_INVAL;
+		}
+		umask((mode_t)mask);
+	}
+#endif
+	return MOSQ_ERR_SUCCESS;
+}
+
 /* mosquitto shouldn't run as root.
  * This function will attempt to change to an unprivileged user and group if
  * running as root. The user is given in config->user.
@@ -79,6 +110,9 @@ static int drop_privileges(struct mosquitto__config *config)
 	struct passwd *pwd;
 	char *err;
 	int rc;
+	const char *puid_s, *pgid_s;
+	uid_t puid;
+	gid_t pgid;
 
 	const char *snap = getenv("SNAP_NAME");
 	if(snap && !strcmp(snap, "mosquitto")){
@@ -86,8 +120,33 @@ static int drop_privileges(struct mosquitto__config *config)
 		return MOSQ_ERR_SUCCESS;
 	}
 
+	/* PUID and PGID are docker custom user mappings */
+	puid_s = getenv("PUID");
+	pgid_s = getenv("PGID");
+
 	if(geteuid() == 0){
-		if(config->user && strcmp(config->user, "root")){
+		if(puid_s || pgid_s){
+			if(pgid_s){
+				pgid = (gid_t)atoi(pgid_s);
+
+				rc = setgid(pgid);
+				if(rc == -1){
+					err = strerror(errno);
+					log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+					return 1;
+				}
+			}
+			if(puid_s){
+				puid = (uid_t)atoi(puid_s);
+
+				rc = setuid(puid);
+				if(rc == -1){
+					err = strerror(errno);
+					log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+					return 1;
+				}
+			}
+		}else if(config->user && strcmp(config->user, "root")){
 			pwd = getpwnam(config->user);
 			if(!pwd){
 				if(strcmp(config->user, "mosquitto")){
@@ -283,6 +342,10 @@ int main(int argc, char *argv[])
 	 */
 	rc = drop_privileges(&config);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
+	/* Set umask based on environment variable */
+	rc = set_umask();
+	if(rc != MOSQ_ERR_SUCCESS) return rc;
+
 
 	if(config.daemon){
 		mosquitto__daemonise();
