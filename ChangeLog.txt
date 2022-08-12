@@ -153,6 +153,7 @@ Clients:
 - Add float printing option to mosquitto_sub.
 - Fix `-f` and `-s` options in mosquitto_rr.
 - Add websockets support.
+- Using `-x` now sets the clients to use MQTT v5.0.
 
 Build:
 - Increased CMake minimal required version to 3.14, which is required for the
