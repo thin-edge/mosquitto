@@ -61,6 +61,8 @@ Broker:
   Closes #2544.
 - Add support for PUID/PGID environment variables for setting the user/group
   to drop privileges to. Closes #2441.
+- Add built-in websockets support that doesn't use libwebsockets. This is the
+  preferred websockets implementation.
 - Add support for X-Forwarded-For header for built in websockets.
 
 Plugins / plugin interface:
@@ -141,6 +143,7 @@ Client library:
   passed as a topic filter.
 - `mosquitto_unsubscribe*()` now returns MOSQ_ERR_INVAL if an empty string is
   passed as a topic filter.
+- Add websockets support.
 
 Clients:
 - Add `-W` timeout support to Windows.
@@ -149,10 +152,12 @@ Clients:
   with `%x` and `%X` for printing the payload in hex.
 - Add float printing option to mosquitto_sub.
 - Fix `-f` and `-s` options in mosquitto_rr.
+- Add websockets support.
 
 Build:
 - Increased CMake minimal required version to 3.14, which is required for the
   preinstalled SQLite3 find module.
+
 
 2.0.14 - 2021-11-17
 ===================
