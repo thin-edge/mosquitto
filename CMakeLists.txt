@@ -99,6 +99,17 @@ if(WITH_CJSON)
 	endif()
 endif()
 
+option(WITH_LTO "Build with link time optimizations (IPO) / interprocedural optimization (IPO) enabled." ON)
+if(WITH_LTO)
+	include(CheckIPOSupported)
+	check_ipo_supported(RESULT is_ipo_supported OUTPUT output)
+	if(is_ipo_supported)
+		set_property(TARGET common-options PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+	else()
+		message(WARNING "LTO/IPO is not supported: ${output}")
+	endif()
+endif()
+
 # ========================================
 # Include projects
 # ========================================

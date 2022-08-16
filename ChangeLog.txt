@@ -158,6 +158,7 @@ Clients:
 Build:
 - Increased CMake minimal required version to 3.14, which is required for the
   preinstalled SQLite3 find module.
+- Add an CMake option `WITH_LTO` to enable/disable link time optimization.
 
 
 2.0.14 - 2021-11-17
