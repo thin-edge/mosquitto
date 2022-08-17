@@ -459,6 +459,11 @@ int dynsec_groups__process_delete(struct dynsec__data *data, struct plugin_cmd *
 
 	group = dynsec_groups__find(data, groupname);
 	if(group){
+		if(group == data->anonymous_group){
+			plugin__command_reply(cmd, "Deleting the anonymous group is forbidden");
+			return MOSQ_ERR_INVAL;
+		}
+
 		/* Enforce any changes */
 		group__kick_all(data, group);
 
