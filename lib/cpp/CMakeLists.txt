@@ -10,7 +10,7 @@ set_target_properties(mosquittopp PROPERTIES
 
 target_include_directories(mosquittopp
 	PUBLIC
-		"${mosquitto_SOURCE_DIR}/lib/cpp"
+		"${mosquitto_SOURCE_DIR}/include"
 )
 
 target_link_libraries(mosquittopp
