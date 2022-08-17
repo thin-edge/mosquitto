@@ -305,5 +305,6 @@ cJSON *dynsec_rolelist__all_to_json(struct dynsec__rolelist *base_rolelist);
 int dynsec_kicklist__add(struct dynsec__data *data, const char *username);
 void dynsec_kicklist__kick(struct dynsec__data *data);
 int dynsec__tick_callback(int event, void *event_data, void *userdata);
+void dynsec_kicklist__cleanup(struct dynsec__data *data);
 
 #endif

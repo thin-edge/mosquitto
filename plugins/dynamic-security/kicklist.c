@@ -64,3 +64,13 @@ void dynsec_kicklist__kick(struct dynsec__data *data)
 		free(kick);
 	}
 }
+
+void dynsec_kicklist__cleanup(struct dynsec__data *data)
+{
+	struct dynsec__kicklist *kick, *tmp;
+
+	DL_FOREACH_SAFE(data->kicklist, kick, tmp){
+		DL_DELETE(data->kicklist, kick);
+		free(kick);
+	}
+}

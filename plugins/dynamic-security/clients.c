@@ -718,10 +718,12 @@ static void client__remove_all_roles(struct dynsec__client *client)
 int dynsec_clients__process_modify(struct dynsec__data *data, struct plugin_cmd *cmd, struct mosquitto *context)
 {
 	char *username;
-	char *clientid;
-	char *password;
-	char *text_name, *text_description;
+	char *clientid = NULL;
+	char *password = NULL;
+	char *text_name = NULL, *text_description = NULL;
+	bool have_clientid = false, have_text_name = false, have_text_description = false, have_rolelist = false, have_password = false;
 	struct dynsec__client *client;
+	struct dynsec__group *group;
 	struct dynsec__rolelist *rolelist = NULL;
 	char *str;
 	int rc;
@@ -744,81 +746,87 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct plugin_cmd 
 		return MOSQ_ERR_INVAL;
 	}
 
-	if(json_get_string(cmd->j_command, "clientid", &clientid, false) == MOSQ_ERR_SUCCESS){
-		if(clientid && strlen(clientid) > 0){
-			str = mosquitto_strdup(clientid);
-			if(str == NULL){
+	if(json_get_string(cmd->j_command, "clientid", &str, false) == MOSQ_ERR_SUCCESS){
+		have_clientid = true;
+		if(str && strlen(str) > 0){
+			clientid = mosquitto_strdup(str);
+			if(clientid == NULL){
 				plugin__command_reply(cmd, "Internal error");
-				return MOSQ_ERR_NOMEM;
+				rc = MOSQ_ERR_NOMEM;
+				goto error;
 			}
 		}else{
-			str = NULL;
+			clientid = NULL;
 		}
-		mosquitto_free(client->clientid);
-		client->clientid = str;
 	}
 
 	if(json_get_string(cmd->j_command, "password", &password, false) == MOSQ_ERR_SUCCESS){
 		if(strlen(password) > 0){
-			/* If password == "", we just ignore it */
-			rc = client__set_password(client, password);
-			if(rc != MOSQ_ERR_SUCCESS){
-				plugin__command_reply(cmd, "Internal error");
-				dynsec_kicklist__add(data, username);
-				return MOSQ_ERR_NOMEM;
-			}
+			have_password = true;
 		}
 	}
 
-	if(json_get_string(cmd->j_command, "textname", &text_name, false) == MOSQ_ERR_SUCCESS){
-		str = mosquitto_strdup(text_name);
-		if(str == NULL){
+	if(json_get_string(cmd->j_command, "textname", &str, false) == MOSQ_ERR_SUCCESS){
+		have_text_name = true;
+		text_name = mosquitto_strdup(str);
+		if(text_name == NULL){
 			plugin__command_reply(cmd, "Internal error");
-			dynsec_kicklist__add(data, username);
-			return MOSQ_ERR_NOMEM;
+			rc = MOSQ_ERR_NOMEM;
+			goto error;
 		}
-		mosquitto_free(client->text_name);
-		client->text_name = str;
 	}
 
-	if(json_get_string(cmd->j_command, "textdescription", &text_description, false) == MOSQ_ERR_SUCCESS){
-		str = mosquitto_strdup(text_description);
-		if(str == NULL){
+	if(json_get_string(cmd->j_command, "textdescription", &str, false) == MOSQ_ERR_SUCCESS){
+		have_text_description = true;
+		text_description = mosquitto_strdup(str);
+		if(text_description == NULL){
 			plugin__command_reply(cmd, "Internal error");
-			dynsec_kicklist__add(data, username);
-			return MOSQ_ERR_NOMEM;
+			rc = MOSQ_ERR_NOMEM;
+			goto error;
 		}
-		mosquitto_free(client->text_description);
-		client->text_description = str;
 	}
 
 	rc = dynsec_rolelist__load_from_json(data, cmd->j_command, &rolelist);
 	if(rc == MOSQ_ERR_SUCCESS){
-		client__remove_all_roles(client);
-		client__add_new_roles(client, rolelist);
-		dynsec_rolelist__cleanup(&rolelist);
+		have_rolelist = true;
 	}else if(rc == ERR_LIST_NOT_FOUND){
 		/* There was no list in the JSON, so no modification */
 	}else if(rc == MOSQ_ERR_NOT_FOUND){
 		plugin__command_reply(cmd, "Role not found");
-		dynsec_rolelist__cleanup(&rolelist);
-		dynsec_kicklist__add(data, username);
-		return MOSQ_ERR_INVAL;
+		rc = MOSQ_ERR_INVAL;
+		goto error;
 	}else{
 		if(rc == MOSQ_ERR_INVAL){
 			plugin__command_reply(cmd, "'roles' not an array or missing/invalid rolename");
 		}else{
 			plugin__command_reply(cmd, "Internal error");
 		}
-		dynsec_rolelist__cleanup(&rolelist);
-		dynsec_kicklist__add(data, username);
-		return MOSQ_ERR_INVAL;
+		rc = MOSQ_ERR_INVAL;
+		goto error;
 	}
 
 	j_groups = cJSON_GetObjectItem(cmd->j_command, "groups");
 	if(j_groups && cJSON_IsArray(j_groups)){
-		dynsec__remove_client_from_all_groups(data, username);
+		/* Iterate through list to check all groups are valid */
+		cJSON_ArrayForEach(j_group, j_groups){
+			if(cJSON_IsObject(j_group)){
+				jtmp = cJSON_GetObjectItem(j_group, "groupname");
+				if(jtmp && cJSON_IsString(jtmp)){
+					group = dynsec_groups__find(data, jtmp->valuestring);
+					if(group == NULL){
+						plugin__command_reply(cmd, "'groups' contains an object with a 'groupname' that does not exist");
+						rc = MOSQ_ERR_INVAL;
+						goto error;
+					}
+				}else{
+					plugin__command_reply(cmd, "'groups' contains an object with an invalid 'groupname'");
+					rc = MOSQ_ERR_INVAL;
+					goto error;
+				}
+			}
+		}
 
+		dynsec__remove_client_from_all_groups(data, username);
 		cJSON_ArrayForEach(j_group, j_groups){
 			if(cJSON_IsObject(j_group)){
 				jtmp = cJSON_GetObjectItem(j_group, "groupname");
@@ -828,6 +836,44 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct plugin_cmd 
 				}
 			}
 		}
+	}
+
+	if(have_password){
+		/* FIXME - This is the one call that will result in modification on internal error - note that groups have already been modified */
+		rc = client__set_password(client, password);
+		if(rc != MOSQ_ERR_SUCCESS){
+			plugin__command_reply(cmd, "Internal error");
+			mosquitto_kick_client_by_username(username, false);
+			/* If this fails we have the situation that the password is set as
+			 * invalid, but the config isn't saved, so restarting the broker
+			 * *now* will mean the client can log in again. This might be
+			 * "good", but is inconsistent, so save the config to be
+			 * consistent. */
+			dynsec__config_save(data);
+			rc = MOSQ_ERR_NOMEM;
+			goto error;
+		}
+	}
+
+	if(have_clientid){
+		mosquitto_free(client->clientid);
+		client->clientid = clientid;
+	}
+
+	if(have_text_name){
+		mosquitto_free(client->text_name);
+		client->text_name = text_name;
+	}
+
+	if(have_text_description){
+		mosquitto_free(client->text_description);
+		client->text_description = text_description;
+	}
+
+	if(have_rolelist){
+		client__remove_all_roles(client);
+		client__add_new_roles(client, rolelist);
+		dynsec_rolelist__cleanup(&rolelist);
 	}
 
 	dynsec__config_save(data);
@@ -841,6 +887,12 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct plugin_cmd 
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | modifyClient | username=%s",
 			admin_clientid, admin_username, username);
 	return MOSQ_ERR_SUCCESS;
+error:
+	mosquitto_free(clientid);
+	mosquitto_free(text_name);
+	mosquitto_free(text_description);
+	dynsec_rolelist__cleanup(&rolelist);
+	return rc;
 }
 
 

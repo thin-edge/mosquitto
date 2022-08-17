@@ -78,6 +78,15 @@ delete_anon_group_response = {'responses': [
     {'command': 'deleteGroup', "error":'Deleting the anonymous group is forbidden', 'correlationData': '40'}
     ]}
 
+delete_anon_group_command = { "commands": [
+    { "command": "deleteGroup", "groupname": "anon-clients", "correlationData": "40" }
+    ]
+}
+delete_anon_group_response = {'responses': [
+    {'command': 'deleteGroup', "error":'Deleting the anonymous group is forbidden', 'correlationData': '40'}
+    ]}
+
+
 
 rc = 1
 

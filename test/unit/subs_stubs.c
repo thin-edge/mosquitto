@@ -231,3 +231,9 @@ void plugin_persist__handle_subscription_delete(struct mosquitto *context, const
 	UNUSED(context);
 	UNUSED(sub);
 }
+int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time)
+{
+	UNUSED(context);
+	UNUSED(expiry_time);
+	return 0;
+}

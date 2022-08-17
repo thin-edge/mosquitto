@@ -250,3 +250,9 @@ void plugin_persist__queue_retain_event(struct mosquitto_base_msg *msg, int even
 	UNUSED(msg);
 	UNUSED(event);
 }
+int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time)
+{
+	UNUSED(context);
+	UNUSED(expiry_time);
+	return 0;
+}

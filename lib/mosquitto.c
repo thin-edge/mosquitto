@@ -109,10 +109,6 @@ struct mosquitto *mosquitto_new(const char *id, bool clean_start, void *userdata
 		return NULL;
 	}
 
-#ifndef WIN32
-	signal(SIGPIPE, SIG_IGN);
-#endif
-
 	mosq = (struct mosquitto *)mosquitto__calloc(1, sizeof(struct mosquitto));
 	if(mosq){
 		mosq->sock = INVALID_SOCKET;
@@ -179,6 +175,9 @@ int mosquitto_reinitialise(struct mosquitto *mosq, const char *id, bool clean_st
 			return MOSQ_ERR_MALFORMED_UTF8;
 		}
 		mosq->id = mosquitto__strdup(id);
+		if(!mosq->id){
+			return MOSQ_ERR_NOMEM;
+		}
 	}
 	packet__cleanup(&mosq->in_packet);
 	mosq->out_packet = NULL;

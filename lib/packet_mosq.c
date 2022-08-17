@@ -558,7 +558,7 @@ int packet__read(struct mosquitto *mosq)
 	mosq->in_packet.pos = 0;
 #ifdef WITH_BROKER
 	G_MSGS_RECEIVED_INC(1);
-	if(((mosq->in_packet.command)&0xF5) == CMD_PUBLISH){
+	if(((mosq->in_packet.command)&0xF0) == CMD_PUBLISH){
 		G_PUB_MSGS_RECEIVED_INC(1);
 	}
 #endif

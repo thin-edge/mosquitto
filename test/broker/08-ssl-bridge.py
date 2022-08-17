@@ -36,13 +36,9 @@ publish_packet = mosq_test.gen_publish("bridge/ssl/test", qos=0, payload="messag
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-ssock = ssl.wrap_socket(
-    sock,
-    ca_certs=ssl_dir / "all-ca.crt",
-    keyfile=ssl_dir / "server.key",
-    certfile=ssl_dir / "server.crt",
-    server_side=True
-)
+context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=f"{ssl_dir}/all-ca.crt")
+context.load_cert_chain(certfile=f"{ssl_dir}/server.crt", keyfile=f"{ssl_dir}/server.key")
+ssock = context.wrap_socket(sock, server_side=True)
 ssock.settimeout(20)
 ssock.bind(('', port1))
 ssock.listen(5)

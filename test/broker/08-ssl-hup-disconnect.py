@@ -42,7 +42,9 @@ def do_test(option):
 
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        ssock = ssl.wrap_socket(sock, ca_certs=f"{ssl_dir}/test-root-ca.crt", certfile=f"{ssl_dir}/client.crt", keyfile=f"{ssl_dir}/client.key", cert_reqs=ssl.CERT_REQUIRED)
+        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=f"{ssl_dir}/test-root-ca.crt")
+        context.load_cert_chain(certfile=f"{ssl_dir}/client.crt", keyfile=f"{ssl_dir}/client.key")
+        ssock = context.wrap_socket(sock, server_hostname="localhost")
         ssock.settimeout(20)
         ssock.connect(("localhost", port))
         mosq_test.do_send_receive(ssock, connect_packet, connack_packet, "connack")

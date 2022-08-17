@@ -1223,6 +1223,40 @@ int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
 	}
 }
 
+
+void db__expire_all_messages(struct mosquitto *context)
+{
+	struct mosquitto_client_msg *msg, *tmp;
+
+	DL_FOREACH_SAFE(context->msgs_out.inflight, msg, tmp){
+		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+			if(msg->qos > 0){
+				util__increment_send_quota(context);
+			}
+			db__message_remove_inflight(context, &context->msgs_out, msg);
+		}
+	}
+	DL_FOREACH_SAFE(context->msgs_out.queued, msg, tmp){
+		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+			db__message_remove_queued(context, &context->msgs_out, msg);
+		}
+	}
+	DL_FOREACH_SAFE(context->msgs_in.inflight, msg, tmp){
+		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+			if(msg->qos > 0){
+				util__increment_receive_quota(context);
+			}
+			db__message_remove_inflight(context, &context->msgs_in, msg);
+		}
+	}
+	DL_FOREACH_SAFE(context->msgs_in.queued, msg, tmp){
+		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+			db__message_remove_queued(context, &context->msgs_in, msg);
+		}
+	}
+}
+
+
 static int db__message_write_inflight_out_single(struct mosquitto *context, struct mosquitto_client_msg *msg)
 {
 	mosquitto_property *base_msg_props = NULL;
@@ -1392,7 +1426,7 @@ int db__message_write_queued_in(struct mosquitto *context)
 	}
 
 	DL_FOREACH_SAFE(context->msgs_in.queued, tail, tmp){
-		if(context->msgs_out.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
+		if(context->msgs_in.inflight_maximum != 0 && context->msgs_in.inflight_quota == 0){
 			break;
 		}
 

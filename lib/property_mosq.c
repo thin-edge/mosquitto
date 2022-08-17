@@ -1206,6 +1206,7 @@ BROKER_EXPORT int mosquitto_property_copy_all(mosquitto_property **dest, const m
 		}
 		plast = pnew;
 
+		pnew->client_generated = src->client_generated;
 		pnew->identifier = src->identifier;
 		switch(pnew->identifier){
 			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:

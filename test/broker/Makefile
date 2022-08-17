@@ -203,6 +203,7 @@ endif
 	./09-plugin-change-id.py
 	./09-plugin-delayed-auth.py
 	./09-plugin-publish.py
+	./09-plugin-tick.py
 	./09-pwfile-parse-invalid.py
 
 10 :

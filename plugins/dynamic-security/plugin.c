@@ -24,6 +24,11 @@ Contributors:
 #include <string.h>
 #include <sys/stat.h>
 
+#ifndef WIN32
+#  include <strings.h>
+#endif
+
+#include "json_help.h"
 #include "mosquitto.h"
 #include "mosquitto_broker.h"
 #include "mosquitto_plugin.h"
@@ -39,6 +44,7 @@ static mosquitto_plugin_id_t *plg_id = NULL;
 int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, struct mosquitto_opt *options, int option_count)
 {
 	int i;
+	int rc;
 
 	UNUSED(user_data);
 
@@ -66,12 +72,54 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	mosquitto_plugin_set_info(identifier, "dynamic-security", NULL);
 
 	dynsec__config_load(&dynsec_data);
-	mosquitto_callback_register(plg_id, MOSQ_EVT_CONTROL, dynsec_control_callback, "$CONTROL/dynamic-security/v1", &dynsec_data);
-	mosquitto_callback_register(plg_id, MOSQ_EVT_BASIC_AUTH, dynsec_auth__basic_auth_callback, NULL, &dynsec_data);
-	mosquitto_callback_register(plg_id, MOSQ_EVT_ACL_CHECK, dynsec__acl_check_callback, NULL, &dynsec_data);
-	mosquitto_callback_register(plg_id, MOSQ_EVT_TICK, dynsec__tick_callback, NULL, &dynsec_data);
+
+	rc = mosquitto_callback_register(plg_id, MOSQ_EVT_CONTROL, dynsec_control_callback, "$CONTROL/dynamic-security/v1", &dynsec_data);
+	if(rc == MOSQ_ERR_ALREADY_EXISTS){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Dynamic security plugin can currently only be loaded once.");
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Note that this was previously incorrectly allowed but could cause problems with duplicate entries in the config.");
+		goto error;
+	}else if(rc == MOSQ_ERR_NOMEM){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Out of memory.");
+		goto error;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		goto error;
+	}
+
+	rc = mosquitto_callback_register(plg_id, MOSQ_EVT_BASIC_AUTH, dynsec_auth__basic_auth_callback, NULL, &dynsec_data);
+	if(rc == MOSQ_ERR_ALREADY_EXISTS){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Dynamic security plugin can only be loaded once.");
+		goto error;
+	}else if(rc == MOSQ_ERR_NOMEM){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Out of memory.");
+		goto error;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		goto error;
+	}
+
+	rc = mosquitto_callback_register(plg_id, MOSQ_EVT_ACL_CHECK, dynsec__acl_check_callback, NULL, &dynsec_data);
+	if(rc == MOSQ_ERR_ALREADY_EXISTS){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Dynamic security plugin can only be loaded once.");
+		goto error;
+	}else if(rc == MOSQ_ERR_NOMEM){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Out of memory.");
+		goto error;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		goto error;
+	}
+
+	rc = mosquitto_callback_register(plg_id, MOSQ_EVT_TICK, dynsec__tick_callback, NULL, &dynsec_data);
+	if(rc == MOSQ_ERR_NOMEM){
+		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Out of memory.");
+		goto error;
+	}else if(rc != MOSQ_ERR_SUCCESS){
+		goto error;
+	}
 
 	return MOSQ_ERR_SUCCESS;
+error:
+	mosquitto_free(dynsec_data.config_file);
+	dynsec_data.config_file = NULL;
+	return rc;
 }
 
 int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *options, int option_count)
@@ -83,6 +131,7 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *options, int
 	dynsec_groups__cleanup(&dynsec_data);
 	dynsec_clients__cleanup(&dynsec_data);
 	dynsec_roles__cleanup(&dynsec_data);
+	dynsec_kicklist__cleanup(&dynsec_data);
 
 	mosquitto_free(dynsec_data.config_file);
 	dynsec_data.config_file = NULL;

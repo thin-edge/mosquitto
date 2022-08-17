@@ -404,8 +404,9 @@ struct mosquitto {
 	unsigned int reconnect_delay_max;
 	int callback_depth;
 	uint16_t port;
-	bool reconnect_exponential_backoff;
 	bool disable_socketpair;
+	bool reconnect_exponential_backoff;
+	bool request_disconnect;
 	char threaded;
 	struct mosquitto__packet *out_packet_last;
 	mosquitto_property *connect_properties;

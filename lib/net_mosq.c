@@ -674,8 +674,8 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 	 * has not been set, or if both of MOSQ_OPT_SSL_CTX and
 	 * MOSQ_OPT_SSL_CTX_WITH_DEFAULTS are set. */
 	if(mosq->tls_cafile || mosq->tls_capath || mosq->tls_psk || mosq->tls_use_os_certs){
+		net__init_tls();
 		if(!mosq->ssl_ctx){
-			net__init_tls();
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 			mosq->ssl_ctx = SSL_CTX_new(SSLv23_client_method());
@@ -1042,11 +1042,7 @@ ssize_t net__write(struct mosquitto *mosq, const void *buf, size_t count)
 		/* Call normal write/send */
 #endif
 
-#ifndef WIN32
-	return write(mosq->sock, buf, count);
-#else
-	return send(mosq->sock, buf, count, 0);
-#endif
+	return send(mosq->sock, buf, count, MSG_NOSIGNAL);
 
 #ifdef WITH_TLS
 	}

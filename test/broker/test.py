@@ -172,6 +172,7 @@ tests = [
     (1, './09-plugin-change-id.py'),
     (1, './09-plugin-delayed-auth.py'),
     (1, './09-plugin-publish.py'),
+    (1, './09-plugin-tick.py'),
     (1, './09-pwfile-parse-invalid.py'),
 
     (2, './10-listener-mount-point.py'),
