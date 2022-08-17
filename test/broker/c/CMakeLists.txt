@@ -18,6 +18,7 @@ set(PLUGINS
     auth_plugin_v5
     auth_plugin_v5_control
     auth_plugin_v5_handle_message
+    auth_plugin_v5_handle_tick
     plugin_control
 )
 
