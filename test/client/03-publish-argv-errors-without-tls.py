@@ -29,9 +29,10 @@ def do_test(args, stderr_expected, rc_expected):
 if __name__ == '__main__':
     helps = "\nUse 'mosquitto_pub --help' to see usage.\n"
 
-    # Usage, ignore actual text though.
+    # Usage, version, ignore actual text though.
     do_test(['--help'], None, 1)
-    
+    do_test(['--version'], None, 1)
+
     # Missing args
     do_test(['-A'], "Error: -A argument given but no address specified.\n\n" + helps, 1)
     do_test(['-f'], "Error: -f argument given but no file specified.\n\n" + helps, 1)
