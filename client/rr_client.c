@@ -138,11 +138,7 @@ void my_connect_callback(struct mosquitto *mosq, void *obj, int result, int flag
 	}else{
 		client_state = rr_s_disconnect;
 		if(result){
-			if(result == MQTT_RC_UNSUPPORTED_PROTOCOL_VERSION){
-				err_printf(&cfg, "Connection error: %s. mosquitto_rr only supports connecting to an MQTT v5 broker\n", mosquitto_reason_string(result));
-			}else{
-				err_printf(&cfg, "Connection error: %s\n", mosquitto_reason_string(result));
-			}
+			err_printf(&cfg, "Connection error: %s\n", mosquitto_reason_string(result));
 		}
 		mosquitto_disconnect_v5(mosq, 0, cfg.disconnect_props);
 	}
