@@ -18,6 +18,7 @@ def write_config(filename, port1, port2, protocol_version):
         f.write("topic bridge/# out\n")
         f.write("bridge_protocol_version %s\n" % (protocol_version))
         f.write("bridge_max_topic_alias 0\n")
+        f.write("cleansession false\n")
 
 
 def do_test(proto_ver):
