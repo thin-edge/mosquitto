@@ -68,6 +68,9 @@ if __name__ == '__main__':
     do_test(['-i', 'id', '-I', 'id-prefix'], "Error: -i and -I argument cannot be used together.\n\n" + helps, 1)
     do_test(['-I', 'id-prefix', '-i', 'id'], "Error: -i and -I argument cannot be used together.\n\n" + helps, 1)
 
+    # Duplicate options
+    do_test(['-o', 'file1', '-o', 'file2'], "Error: Duplicate -o argument given.\n\n" + helps, 1)
+
     # Invalid output format
     do_test(['-F', '%'], "Error: Incomplete format specifier.\n" + helps, 1)
     do_test(['-F', '%0'], "Error: Incomplete format specifier.\n" + helps, 1)

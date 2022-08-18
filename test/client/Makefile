@@ -1,3 +1,6 @@
+R=../..
+include ${R}/config.mk
+
 .PHONY: all check test ptest clean
 .NOTPARALLEL:
 
@@ -16,6 +19,7 @@ ifeq ($(WITH_TLS_PSK),yes)
 	./02-subscribe-argv-errors-tls-psk.py
 endif
 endif
+	./02-subscribe-env.py
 	./02-subscribe-filter-out.py
 	./02-subscribe-format.py
 	./02-subscribe-format-json-qos0.py
@@ -35,6 +39,7 @@ ifeq ($(WITH_TLS_PSK),yes)
 	./03-publish-argv-errors-tls-psk.py
 endif
 endif
+	./03-publish-env.py
 	./03-publish-file-empty.py
 	./03-publish-file.py
 	./03-publish-options-file.py
@@ -55,6 +60,8 @@ ifeq ($(WITH_TLS_PSK),yes)
 	./04-rr-argv-errors-tls-psk.py
 endif
 endif
+	./04-rr-env.py
+	./04-rr-qos1.py
 
 ptest :
 	./test.sh
