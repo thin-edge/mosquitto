@@ -17,17 +17,19 @@ jobs:
     steps:
     -
       name: Install third party dependencies
-      run: sudo apt-get install -y \
-        docbook-xsl \
-        libc-ares-dev \
-        libcjson-dev \
-        libcjson1 \
-        libcunit1-dev \
-        libssl-dev \
-        libwrap0-dev \
-        python-all \
-        python3-all \
-        xsltproc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          docbook-xsl \
+          libc-ares-dev \
+          libcjson-dev \
+          libcjson1 \
+          libcunit1-dev \
+          libssl-dev \
+          libwrap0-dev \
+          python-all \
+          python3-all \
+          xsltproc
     -
       uses: actions/checkout@v3
       with:
