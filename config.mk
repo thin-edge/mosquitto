@@ -397,6 +397,8 @@ ifeq ($(WITH_BUNDLED_DEPS),yes)
 endif
 
 ifeq ($(WITH_COVERAGE),yes)
+	APP_CFLAGS:=$(APP_CFLAGS) -coverage
+	APP_LDFLAGS:=$(APP_LDFLAGS) -coverage
 	BROKER_CFLAGS:=$(BROKER_CFLAGS) -coverage
 	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -coverage
 	PLUGIN_CFLAGS:=$(PLUGIN_CFLAGS) -coverage

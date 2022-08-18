@@ -1,7 +1,7 @@
 R=../..
 include ${R}/config.mk
 
-CFLAGS_FINAL=${CFLAGS} -I${R}/include -I${R}/ -I${R}/lib -I${R}/src -I${R}/deps -I${R}/common -DWITH_BROKER -DWITH_PERSISTENCE
+CFLAGS_FINAL=${CFLAGS} ${APP_CFLAGS} -I${R}/include -I${R}/ -I${R}/lib -I${R}/src -I${R}/deps -I${R}/common -DWITH_BROKER -DWITH_PERSISTENCE
 
 OBJS = \
 	   db_dump.o \
@@ -26,7 +26,7 @@ OBJS = \
 all : mosquitto_db_dump
 
 mosquitto_db_dump : ${OBJS}
-	${CROSS_COMPILE}${CC} $^ -o $@ ${LDFLAGS} ${LIBS}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LDFLAGS} ${LIBS} ${APP_LDFLAGS}
 
 db_dump.o : db_dump.c db_dump.h ${R}/src/persist.h
 	${CROSS_COMPILE}${CC} $(CFLAGS_FINAL) -c $< -o $@
