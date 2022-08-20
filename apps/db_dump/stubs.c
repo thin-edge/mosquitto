@@ -159,3 +159,9 @@ int session_expiry__add_from_persistence(struct mosquitto *context, time_t expir
 	UNUSED(expiry_time);
 	return 0;
 }
+
+void mosquitto_log_printf(int level, const char *fmt, ...)
+{
+	UNUSED(level);
+	UNUSED(fmt);
+}

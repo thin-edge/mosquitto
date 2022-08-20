@@ -64,6 +64,7 @@ Broker:
 - Add built-in websockets support that doesn't use libwebsockets. This is the
   preferred websockets implementation.
 - Add support for X-Forwarded-For header for built in websockets.
+- Report persistence stats when starting.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.

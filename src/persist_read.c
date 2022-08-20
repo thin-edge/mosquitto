@@ -42,6 +42,11 @@ Contributors:
 uint32_t db_version;
 
 const unsigned char magic[15] = {0x00, 0xB5, 0x00, 'm','o','s','q','u','i','t','t','o',' ','d','b'};
+static long base_msg_count = 0;
+static long retained_count = 0;
+static long client_count = 0;
+static long subscription_count = 0;
+static long client_msg_count = 0;
 
 static int persist__restore_sub(const char *client_id, const char *sub, uint8_t qos, uint32_t identifier, int options);
 
@@ -215,6 +220,7 @@ static int persist__client_chunk_restore(FILE *db_fptr)
 
 	mosquitto__FREE(chunk.client_id);
 	mosquitto__FREE(chunk.username);
+	if(rc == 0) client_count++;
 	return rc;
 }
 
@@ -238,6 +244,7 @@ static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	rc = persist__client_msg_restore(&chunk);
 	mosquitto__FREE(chunk.client_id);
 
+	if(rc == 0) client_msg_count++;
 	return rc;
 }
 
@@ -313,6 +320,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	mosquitto__FREE(chunk.source.username);
 
 	if(rc == MOSQ_ERR_SUCCESS){
+		base_msg_count++;
 		return MOSQ_ERR_SUCCESS;
 	}else{
 		mosquitto__FREE(base_msg);
@@ -345,6 +353,7 @@ static int persist__retain_chunk_restore(FILE *db_fptr)
 		retain__store(msg->topic, msg, split_topics, true);
 		mosquitto__FREE(local_topic);
 		mosquitto__FREE(split_topics);
+		retained_count++;
 	}else{
 		/* Can't find the message - probably expired */
 	}
@@ -371,6 +380,7 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 
 	mosquitto__FREE(chunk.client_id);
 	mosquitto__FREE(chunk.topic);
+	if(rc == 0) subscription_count++;
 
 	return rc;
 }
@@ -405,6 +415,11 @@ int persist__restore(void)
 	}
 
 	db.msg_store = NULL;
+	base_msg_count = 0;
+	retained_count = 0;
+	client_count = 0;
+	subscription_count = 0;
+	client_msg_count = 0;
 
 	fptr = mosquitto__fopen(db.config->persistence_filepath, "rb", false);
 	if(fptr == NULL) return MOSQ_ERR_SUCCESS;
@@ -509,6 +524,12 @@ int persist__restore(void)
 	}
 
 	fclose(fptr);
+
+	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld base messages", base_msg_count);
+	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld retained messages", retained_count);
+	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld clients", client_count);
+	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
+	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
 
 	return rc;
 error:
