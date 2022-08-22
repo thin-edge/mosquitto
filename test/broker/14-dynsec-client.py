@@ -67,6 +67,9 @@ rc = 1
 connect_packet = mosq_test.gen_connect("ctrl-test", username="admin", password="admin")
 connack_packet = mosq_test.gen_connack(rc=0)
 
+anon_connect_packet = mosq_test.gen_connect("anon-helper")
+anon_connack_packet = mosq_test.gen_connack(rc=0)
+
 mid = 2
 subscribe_packet = mosq_test.gen_subscribe(mid, "$CONTROL/dynamic-security/#", 1)
 suback_packet = mosq_test.gen_suback(mid, 1)
@@ -80,6 +83,9 @@ except FileExistsError:
 broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
 
 try:
+    # The anon user is used to ensure that when the commands are run they are also valid if an anon user is present.
+    anon_sock = mosq_test.do_client_connect(anon_connect_packet, anon_connack_packet, timeout=5, port=port)
+
     sock = mosq_test.do_client_connect(connect_packet, connack_packet, timeout=5, port=port)
     mosq_test.do_send_receive(sock, subscribe_packet, suback_packet, "suback")
 
@@ -124,6 +130,7 @@ try:
     rc = broker_terminate_rc
 
     sock.close()
+    anon_sock.close()
 except mosq_test.TestError:
     pass
 finally:
