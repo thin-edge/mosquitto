@@ -28,6 +28,7 @@ Contributors:
 #include "utlist.h"
 #include "lib_load.h"
 #include "will_mosq.h"
+#include <stdint.h>
 
 
 void plugin_persist__handle_restore(void)
@@ -206,8 +207,8 @@ void plugin_persist__handle_client_msg_add(struct mosquitto *context, const stru
 	event_data.qos = cmsg->qos;
 	event_data.retain = cmsg->retain;
 	event_data.dup = cmsg->dup;
-	event_data.direction = cmsg->direction;
-	event_data.state = cmsg->state;
+	event_data.direction = (uint8_t)cmsg->direction;
+	event_data.state = (uint8_t)cmsg->state;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_add, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_ADD, &event_data, cb_base->userdata);
@@ -234,10 +235,10 @@ void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const s
 	event_data.client_id = context->id;
 	event_data.cmsg_id = cmsg->cmsg_id;
 	event_data.mid = cmsg->mid;
-	event_data.state = cmsg->state;
+	event_data.state = (uint8_t)cmsg->state;
 	event_data.qos = cmsg->qos;
 	event_data.store_id = cmsg->base_msg->db_id;
-	event_data.direction = cmsg->direction;
+	event_data.direction = (uint8_t)cmsg->direction;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE, &event_data, cb_base->userdata);
@@ -265,9 +266,9 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 	event_data.cmsg_id = cmsg->cmsg_id;
 	event_data.mid = cmsg->mid;
 	event_data.store_id = cmsg->base_msg->db_id;
-	event_data.state = cmsg->state;
+	event_data.state = (uint8_t)cmsg->state;
 	event_data.dup = cmsg->dup;
-	event_data.direction = cmsg->direction;
+	event_data.direction = (uint8_t)cmsg->direction;
 	event_data.qos = cmsg->qos;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_update, cb_base){
