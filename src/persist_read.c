@@ -524,11 +524,11 @@ int persist__restore(void)
 
 	fclose(fptr);
 
-	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld base messages", base_msg_count);
-	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld retained messages", retained_count);
-	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld clients", client_count);
-	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
-	mosquitto_log_printf(MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld base messages", base_msg_count);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld retained messages", retained_count);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld clients", client_count);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld subscriptions", subscription_count);
+	log__printf(NULL, MOSQ_LOG_INFO, "Restored %ld client messages", client_msg_count);
 
 	return rc;
 error:

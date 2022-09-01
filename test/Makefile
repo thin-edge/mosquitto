@@ -14,11 +14,13 @@ test-compile:
 check : test
 
 test : utest
+	$(MAKE) -C apps test
 	$(MAKE) -C broker test
 	$(MAKE) -C lib test
 	$(MAKE) -C client test
 
 ptest : utest
+	$(MAKE) -C apps ptest
 	$(MAKE) -C broker ptest
 	$(MAKE) -C lib ptest
 	$(MAKE) -C client ptest
