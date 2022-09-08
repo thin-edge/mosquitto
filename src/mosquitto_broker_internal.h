@@ -916,7 +916,7 @@ int mosquitto_security_module_cleanup(void);
 int mosquitto_security_init(bool reload);
 int mosquitto_security_cleanup(bool reload);
 int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void* payload, uint8_t qos, bool retain, int access);
-int mosquitto_unpwd_check(struct mosquitto *context);
+int mosquitto_basic_auth(struct mosquitto *context);
 int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len);
 
 int mosquitto_security_init_default(bool reload);

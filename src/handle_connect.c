@@ -977,7 +977,7 @@ int handle__connect(struct mosquitto *context)
 		}else
 #endif
 		{
-			rc = mosquitto_unpwd_check(context);
+			rc = mosquitto_basic_auth(context);
 			switch(rc){
 				case MOSQ_ERR_SUCCESS:
 					break;

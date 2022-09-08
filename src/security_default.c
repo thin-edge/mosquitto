@@ -38,7 +38,7 @@ static int psk__file_parse(struct mosquitto__unpwd **psk_id, const char *psk_fil
 #ifdef WITH_TLS
 static int pw__digest(const char *password, const unsigned char *salt, unsigned int salt_len, unsigned char *hash, unsigned int *hash_len, enum mosquitto_pwhash_type hashtype, int iterations);
 #endif
-static int mosquitto_unpwd_check_default(int event, void *event_data, void *userdata);
+static int mosquitto_basic_auth_default(int event, void *event_data, void *userdata);
 static int mosquitto_acl_check_default(int event, void *event_data, void *userdata);
 
 
@@ -81,7 +81,7 @@ int mosquitto_security_init_default(bool reload)
 					return rc;
 				}
 				mosquitto_callback_register(db.config->listeners[i].security_options.pid,
-						MOSQ_EVT_BASIC_AUTH, mosquitto_unpwd_check_default, NULL, NULL);
+						MOSQ_EVT_BASIC_AUTH, mosquitto_basic_auth_default, NULL, NULL);
 			}
 		}
 	}else{
@@ -95,7 +95,7 @@ int mosquitto_security_init_default(bool reload)
 				}
 			}
 			mosquitto_callback_register(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, mosquitto_unpwd_check_default, NULL, NULL);
+					MOSQ_EVT_BASIC_AUTH, mosquitto_basic_auth_default, NULL, NULL);
 		}
 	}
 
@@ -182,7 +182,7 @@ int mosquitto_security_cleanup_default(bool reload)
 		for(i=0; i<db.config->listener_count; i++){
 			if(db.config->listeners[i].security_options.pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options.pid,
-						MOSQ_EVT_BASIC_AUTH, mosquitto_unpwd_check_default, NULL);
+						MOSQ_EVT_BASIC_AUTH, mosquitto_basic_auth_default, NULL);
 				mosquitto_callback_unregister(db.config->listeners[i].security_options.pid,
 						MOSQ_EVT_ACL_CHECK, mosquitto_acl_check_default, NULL);
 
@@ -192,7 +192,7 @@ int mosquitto_security_cleanup_default(bool reload)
 	}else{
 		if(db.config->security_options.pid){
 			mosquitto_callback_unregister(db.config->security_options.pid,
-					MOSQ_EVT_BASIC_AUTH, mosquitto_unpwd_check_default, NULL);
+					MOSQ_EVT_BASIC_AUTH, mosquitto_basic_auth_default, NULL);
 			mosquitto_callback_unregister(db.config->security_options.pid,
 					MOSQ_EVT_ACL_CHECK, mosquitto_acl_check_default, NULL);
 
@@ -935,7 +935,7 @@ static int psk__file_parse(struct mosquitto__unpwd **psk_id, const char *psk_fil
 }
 
 
-static int mosquitto_unpwd_check_default(int event, void *event_data, void *userdata)
+static int mosquitto_basic_auth_default(int event, void *event_data, void *userdata)
 {
 	struct mosquitto_evt_basic_auth *ed = event_data;
 	struct mosquitto__unpwd *u;
@@ -1195,7 +1195,7 @@ int mosquitto_security_apply_default(void)
 #endif
 		{
 			/* Username/password check only if the identity/subject check not used */
-			if(mosquitto_unpwd_check(context) != MOSQ_ERR_SUCCESS){
+			if(mosquitto_basic_auth(context) != MOSQ_ERR_SUCCESS){
 				mosquitto__set_state(context, mosq_cs_disconnecting);
 				do_disconnect(context, MOSQ_ERR_AUTH);
 				continue;

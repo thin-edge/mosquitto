@@ -28,7 +28,7 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-static int plugin__unpwd_check(struct mosquitto__security_options *opts, struct mosquitto *context)
+static int plugin__basic_auth(struct mosquitto__security_options *opts, struct mosquitto *context)
 {
 	struct mosquitto_evt_basic_auth event_data;
 	struct mosquitto__callback *cb_base;
@@ -53,14 +53,14 @@ static int plugin__unpwd_check(struct mosquitto__security_options *opts, struct 
 }
 
 
-int mosquitto_unpwd_check(struct mosquitto *context)
+int mosquitto_basic_auth(struct mosquitto *context)
 {
 	int rc;
 	bool plugin_used = false;
 
 	/* Global plugins */
 	if(db.config->security_options.plugin_callbacks.basic_auth){
-		rc = plugin__unpwd_check(&db.config->security_options, context);
+		rc = plugin__basic_auth(&db.config->security_options, context);
 
 		if(rc == MOSQ_ERR_PLUGIN_IGNORE){
 			/* Do nothing */
@@ -77,7 +77,7 @@ int mosquitto_unpwd_check(struct mosquitto *context)
 			return MOSQ_ERR_AUTH;
 		}
 		if(context->listener->security_options.plugin_callbacks.basic_auth){
-			rc = plugin__unpwd_check(&context->listener->security_options, context);
+			rc = plugin__basic_auth(&context->listener->security_options, context);
 
 			if(rc == MOSQ_ERR_PLUGIN_IGNORE){
 				/* Do nothing */
