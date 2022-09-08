@@ -504,7 +504,6 @@ struct mosquitto_db{
 	unsigned long msg_store_bytes;
 	char *config_file;
 	struct mosquitto__config *config;
-	int plugin_count;
 	bool verbose;
 #ifdef WITH_SYS_TREE
 	int subscription_count;
