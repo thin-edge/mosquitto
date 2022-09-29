@@ -58,7 +58,7 @@ static void TEST_sub_add_single(void)
 
 	db__open(&config);
 
-	rc = sub__add(&context, "a/b/c/d/e", 0, 0, 0, &db.subs);
+	rc = sub__add(&context, "a/b/c/d/e", 0, 0, 0);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	CU_ASSERT_PTR_NOT_NULL(db.subs);
 	if(db.subs){

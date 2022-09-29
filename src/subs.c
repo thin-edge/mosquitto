@@ -559,7 +559,7 @@ struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent
 }
 
 
-int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options, struct mosquitto__subhier **root)
+int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options)
 {
 	int rc = 0;
 	struct mosquitto__subhier *subhier;
@@ -568,8 +568,6 @@ int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t i
 	char **topics;
 	size_t topiclen;
 
-	assert(root);
-	assert(*root);
 	assert(sub);
 
 	rc = sub__topic_tokenise(sub, &local_sub, &topics, &sharename);
@@ -581,9 +579,9 @@ int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t i
 		mosquitto__FREE(topics);
 		return MOSQ_ERR_INVAL;
 	}
-	HASH_FIND(hh, *root, topics[0], topiclen, subhier);
+	HASH_FIND(hh, db.subs, topics[0], topiclen, subhier);
 	if(!subhier){
-		subhier = sub__add_hier_entry(NULL, root, topics[0], (uint16_t)topiclen);
+		subhier = sub__add_hier_entry(NULL, &db.subs, topics[0], (uint16_t)topiclen);
 		if(!subhier){
 			mosquitto__FREE(local_sub);
 			mosquitto__FREE(topics);
@@ -600,7 +598,7 @@ int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t i
 	return rc;
 }
 
-int sub__remove(struct mosquitto *context, const char *sub, struct mosquitto__subhier *root, uint8_t *reason)
+int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
 {
 	int rc = 0;
 	struct mosquitto__subhier *subhier;
@@ -608,13 +606,12 @@ int sub__remove(struct mosquitto *context, const char *sub, struct mosquitto__su
 	char *local_sub = NULL;
 	char **topics = NULL;
 
-	assert(root);
 	assert(sub);
 
 	rc = sub__topic_tokenise(sub, &local_sub, &topics, &sharename);
 	if(rc) return rc;
 
-	HASH_FIND(hh, root, topics[0], strlen(topics[0]), subhier);
+	HASH_FIND(hh, db.subs, topics[0], strlen(topics[0]), subhier);
 	if(subhier){
 		*reason = MQTT_RC_NO_SUBSCRIPTION_EXISTED;
 		rc = sub__remove_recurse(context, subhier, topics, reason, sharename);

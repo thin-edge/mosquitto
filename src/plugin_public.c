@@ -384,7 +384,7 @@ static void check_subscription_acls(struct mosquitto *context)
 				MOSQ_ACL_SUBSCRIBE);
 
 		if(rc != MOSQ_ERR_SUCCESS){
-			sub__remove(context, context->subs[i]->topic_filter, db.subs, &reason);
+			sub__remove(context, context->subs[i]->topic_filter, &reason);
 		}
 	}
 }
@@ -718,7 +718,7 @@ BROKER_EXPORT int mosquitto_subscription_add(const char *client_id, const char *
 	HASH_FIND(hh_id, db.contexts_by_id, client_id, strlen(client_id), context);
 
 	if(context){
-		return sub__add(context, topic, subscription_options&0x03, subscription_identifier, subscription_options, &db.subs);
+		return sub__add(context, topic, subscription_options&0x03, subscription_identifier, subscription_options);
 	}else{
 		return MOSQ_ERR_NOT_FOUND;
 	}
@@ -737,7 +737,7 @@ BROKER_EXPORT int mosquitto_subscription_delete(const char *client_id, const cha
 	HASH_FIND(hh_id, db.contexts_by_id, client_id, strlen(client_id), context);
 
 	if(context){
-		return sub__remove(context, topic, db.subs, &reason);
+		return sub__remove(context, topic, &reason);
 	}else{
 		return MOSQ_ERR_NOT_FOUND;
 	}

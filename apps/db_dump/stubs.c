@@ -114,14 +114,13 @@ int retain__store(const char *topic, struct mosquitto_base_msg *base_msg, char *
 	return 0;
 }
 
-int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options, struct mosquitto__subhier **root)
+int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options)
 {
 	UNUSED(context);
 	UNUSED(sub);
 	UNUSED(qos);
 	UNUSED(identifier);
 	UNUSED(options);
-	UNUSED(root);
 	return 0;
 }
 
