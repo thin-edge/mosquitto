@@ -15,7 +15,7 @@ test : utest
 ptest : utest
 	$(MAKE) -C broker ptest
 	$(MAKE) -C lib ptest
-	$(MAKE) -C client test
+	$(MAKE) -C client ptest
 
 utest :
 	$(MAKE) -C unit test

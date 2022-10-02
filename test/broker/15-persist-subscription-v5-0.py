@@ -4,7 +4,7 @@
 # message with a different client, check it is received.
 
 from mosq_test_helper import *
-import persist_help
+persist_help = persist_module()
 
 def helper(port, packets):
     helper_id = "persist-subscription-v5-0-helper"

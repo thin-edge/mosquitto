@@ -1,35 +1,35 @@
 #!/usr/bin/env python3
 
+# Connect a client, add a subscription, disconnect, send a message with a
+# different client, restore, reconnect, check it is received.
+
 from mosq_test_helper import *
-import sqlite3
-import sqlite_help
+persist_help = persist_module()
 
 port = mosq_test.get_port()
 conf_file = os.path.basename(__file__).replace('.py', '.conf')
-sqlite_help.write_config(conf_file, port)
+persist_help.write_config(conf_file, port)
 
 rc = 1
-keepalive = 10
 
-sqlite_help.init(port)
+persist_help.init(port)
 
-client_id = "sqlite-cmsg-v3-1-1"
+client_id = "persist-cmsg-v3-1-1"
 payload = "queued message 1"
 payload_b = payload.encode("UTF-8")
 qos = 1
 topic = "client-msg/test"
-source_id = "sqlite-cmsg-v3-1-1-helper"
+source_id = "persist-cmsg-v3-1-1-helper"
 proto_ver = 4
 
-keepalive = 10
-connect_packet = mosq_test.gen_connect(client_id, keepalive=keepalive, proto_ver=proto_ver, clean_session=False)
+connect_packet = mosq_test.gen_connect(client_id, proto_ver=proto_ver, clean_session=False)
 connack_packet = mosq_test.gen_connack(rc=0, proto_ver=proto_ver)
 
 mid = 1
 subscribe_packet = mosq_test.gen_subscribe(mid, topic, qos, proto_ver=proto_ver)
 suback_packet = mosq_test.gen_suback(mid, qos=qos, proto_ver=proto_ver)
 
-connect2_packet = mosq_test.gen_connect(source_id, keepalive=keepalive, proto_ver=proto_ver)
+connect2_packet = mosq_test.gen_connect(source_id, proto_ver=proto_ver)
 connack2_packet = mosq_test.gen_connack(rc=0, proto_ver=proto_ver)
 
 mid = 18
@@ -56,23 +56,20 @@ try:
     (stdo, stde) = broker.communicate()
     broker = None
 
-    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
-    cur = con.cursor()
-    sqlite_help.check_counts(cur, clients=1, client_msgs=1, base_msgs=1, retains=0, subscriptions=1)
+    persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, retains=0, subscriptions=1)
 
     # Check client
-    sqlite_help.check_client(cur, client_id, None, 0, 0, port, 0, 2, 1, -1, 0)
+    persist_help.check_client(port, client_id, None, 0, 0, port, 0, 2, 1, -1, 0)
 
     # Check subscription
-    sqlite_help.check_subscription(cur, client_id, topic, qos, 0)
+    persist_help.check_subscription(port, client_id, topic, qos, 0)
 
     # Check stored message
-    store_id = sqlite_help.check_store_msg(cur, 0, topic, payload_b, source_id, None, len(payload_b), mid, port, qos, 0)
+    store_id = persist_help.check_store_msg(port, 0, topic, payload_b, source_id, None, len(payload_b), mid, port, qos, 0)
 
     # Check client msg
-    sqlite_help.check_client_msg(cur, client_id, store_id, 0, sqlite_help.dir_out, 1, qos, 0, sqlite_help.ms_queued)
+    persist_help.check_client_msg(port, client_id, store_id, 0, persist_help.dir_out, 1, qos, 0, persist_help.ms_queued)
 
-    con.close()
     rc = broker_terminate_rc
 finally:
     if broker is not None:
@@ -81,10 +78,8 @@ finally:
             print("broker not terminated (2)")
             if rc == 0: rc=1
         (stdo, stde) = broker.communicate()
-    if con is not None:
-        con.close()
     os.remove(conf_file)
-    rc += sqlite_help.cleanup(port)
+    rc += persist_help.cleanup(port)
 
     if rc:
         print(stde.decode('utf-8'))

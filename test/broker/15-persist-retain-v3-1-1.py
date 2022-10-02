@@ -3,7 +3,7 @@
 # Publish a retained messages, check they are restored
 
 from mosq_test_helper import *
-import persist_help
+persist_help = persist_module()
 
 port = mosq_test.get_port()
 conf_file = os.path.basename(__file__).replace('.py', '.conf')

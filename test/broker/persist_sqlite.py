@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import sqlite3
 
 dir_in = 0
 dir_out = 1
@@ -47,13 +48,21 @@ def cleanup(port):
             # some versions of sqlite3 do not remove the wal file
             # thus we make sure that the file is at least empty (no pending db transactions)
             rc = 0
-        os.remove(f"{port}/mosquitto.sqlite3-shm")
-        os.remove(f"{port}/mosquitto.sqlite3-wal")
+        try:
+            os.remove(f"{port}/mosquitto.sqlite3-shm")
+        except FileNotFoundError:
+            pass
+        try:
+            os.remove(f"{port}/mosquitto.sqlite3-wal")
+        except FileNotFoundError:
+            pass
         os.rmdir(f"{port}")
     return rc
 
 
-def check_counts(cur, clients, client_msgs, base_msgs, retains, subscriptions):
+def check_counts(port, clients, client_msgs, base_msgs, retains, subscriptions):
+    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
+    cur = con.cursor()
     cur.execute('SELECT COUNT(*) FROM clients')
     row = cur.fetchone()
     if row[0] != clients:
@@ -78,12 +87,15 @@ def check_counts(cur, clients, client_msgs, base_msgs, retains, subscriptions):
     row = cur.fetchone()
     if row[0] != retains:
         raise ValueError("Found %d retains, expected %d" % (row[0], retains))
+    con.close()
 
 
-def check_client(cur, client_id, username, will_delay_time, session_expiry_time,
+def check_client(port, client_id, username, will_delay_time, session_expiry_time,
         listener_port, max_packet_size, max_qos, retain_available,
         session_expiry_interval, will_delay_interval):
 
+    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
+    cur = con.cursor()
     cur.execute('SELECT client_id, username, will_delay_time, session_expiry_time, ' +
             'listener_port, max_packet_size, max_qos, retain_available, ' +
             'session_expiry_interval, will_delay_interval ' +
@@ -119,9 +131,12 @@ def check_client(cur, client_id, username, will_delay_time, session_expiry_time,
 
     if row[9] != will_delay_interval:
         raise ValueError("Invalid will_delay_interval %d / %d" % (row[9], will_delay_interval))
+    con.close()
 
 
-def check_subscription(cur, client_id, topic, subscription_options, subscription_identifier):
+def check_subscription(port, client_id, topic, subscription_options, subscription_identifier):
+    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
+    cur = con.cursor()
     cur.execute('SELECT client_id, topic, subscription_options, subscription_identifier ' +
             'FROM subscriptions')
     row = cur.fetchone()
@@ -137,9 +152,12 @@ def check_subscription(cur, client_id, topic, subscription_options, subscription
 
     if row[3] != subscription_identifier:
         raise ValueError("Invalid subscription_identifier %d / %d" % (row[3], subscription_identifier))
+    con.close()
 
 
-def check_client_msg(cur, client_id, store_id, dup, direction, mid, qos, retain, state):
+def check_client_msg(port, client_id, store_id, dup, direction, mid, qos, retain, state):
+    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
+    cur = con.cursor()
     cur.execute('SELECT client_id,store_id,dup,direction,mid,qos,retain,state ' +
             'FROM client_msgs')
     row = cur.fetchone()
@@ -167,11 +185,14 @@ def check_client_msg(cur, client_id, store_id, dup, direction, mid, qos, retain,
 
     if row[7] != state:
         raise ValueError("Invalid state %d / %d" % (row[7], state))
+    con.close()
 
 
-def check_store_msg(cur, expiry_time, topic, payload, source_id, source_username,
+def check_store_msg(port, expiry_time, topic, payload, source_id, source_username,
         payloadlen, source_mid, source_port, qos, retain, idx=0):
 
+    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
+    cur = con.cursor()
     cur.execute('SELECT store_id,expiry_time,topic,payload,source_id,source_username, ' +
             'payloadlen, source_mid, source_port, qos, retain ' +
             'FROM base_msgs')
@@ -212,12 +233,16 @@ def check_store_msg(cur, expiry_time, topic, payload, source_id, source_username
     if row[10] != retain:
         raise ValueError("Invalid retain %d / %d" % (row[10], retain))
 
+    con.close()
     return row[0]
 
 
-def check_retain(cur, topic, store_id):
+def check_retain(port, topic, store_id):
+    con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
+    cur = con.cursor()
     cur.execute('SELECT store_id FROM retains WHERE topic=?', (topic,))
     row = cur.fetchone()
 
     if row[0] != store_id:
         raise ValueError("Invalid store_id %d / %d" % (row[0], store_id))
+    con.close()

@@ -259,33 +259,21 @@ endif
 endif
 
 15 :
-	#./15-persist-client-msg-in-v5-0.py
-	#./15-persist-client-msg-out-queue-v3-1-1.py
-	#./15-persist-client-msg-out-v3-1-1.py
-	#./15-persist-client-msg-out-v5-0.py
-	#./15-persist-client-v3-1-1.py
-	#./15-persist-client-v5.0.py
-	#./15-persist-publish-properties-v5-0.py
-	#./15-persist-retain-v3-1-1.py
-	#./15-persist-retain-v5-0.py
-	#./15-persist-subscription-v3-1-1.py
-	#./15-persist-subscription-v5-0.py
-	./15-sqlite-client-message-in-v3-1-1.py
-	./15-sqlite-client-message-out-dup-v3-1-1.py
-	./15-sqlite-client-message-out-v3-1-1.py
-	./15-sqlite-client-msg-in-v5-0.py
-	./15-sqlite-client-msg-out-queue-v3-1-1.py
-	./15-sqlite-client-msg-out-v3-1-1.py
-	./15-sqlite-client-msg-out-v5-0.py
-	./15-sqlite-client-v3-1-1.py
-	./15-sqlite-client-v5-0.py
-	./15-sqlite-client-v5.0.py
-	./15-sqlite-publish-properties-v5-0.py
-	./15-sqlite-retain-clear-v5-0.py
-	./15-sqlite-retain-v3-1-1.py
-	./15-sqlite-retain-v5-0.py
-	./15-sqlite-subscription-v3-1-1.py
-	./15-sqlite-subscription-v5-0.py
+	./15-persist-client-msg-in-v3-1-1.py persist_sqlite
+	./15-persist-client-msg-in-v5-0.py persist_sqlite
+	./15-persist-client-msg-out-dup-v3-1-1.py persist_sqlite
+	./15-persist-client-msg-out-queue-v3-1-1.py persist_sqlite
+	./15-persist-client-msg-out-v3-1-1-db.py persist_sqlite
+	./15-persist-client-msg-out-v3-1-1.py persist_sqlite
+	./15-persist-client-msg-out-v5-0.py persist_sqlite
+	./15-persist-client-v3-1-1.py persist_sqlite
+	./15-persist-client-v5-0.py persist_sqlite
+	./15-persist-publish-properties-v5-0.py persist_sqlite
+	./15-persist-retain-clear.py persist_sqlite
+	./15-persist-retain-v3-1-1.py persist_sqlite
+	./15-persist-retain-v5-0.py persist_sqlite
+	./15-persist-subscription-v3-1-1.py persist_sqlite
+	./15-persist-subscription-v5-0.py persist_sqlite
 
 16 :
 	./16-cmd-args.py

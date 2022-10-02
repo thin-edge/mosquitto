@@ -4,7 +4,7 @@
 # different client, restore, reconnect, check it is received.
 
 from mosq_test_helper import *
-import persist_help
+persist_help = persist_module()
 
 port = mosq_test.get_port()
 conf_file = os.path.basename(__file__).replace('.py', '.conf')
@@ -93,7 +93,7 @@ finally:
     if broker is not None:
         broker.terminate()
         if mosq_test.wait_for_subprocess(broker):
-            print("broker not terminated")
+            print("broker not terminated (2)")
             if rc == 0: rc=1
         (stdo, stde) = broker.communicate()
     os.remove(conf_file)

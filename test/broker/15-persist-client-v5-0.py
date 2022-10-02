@@ -3,7 +3,7 @@
 # Connect a client, check it is restored, clear the client, check it is not there.
 
 from mosq_test_helper import *
-import persist_help
+persist_help = persist_module()
 
 port = mosq_test.get_port()
 conf_file = os.path.basename(__file__).replace('.py', '.conf')
@@ -18,6 +18,7 @@ client_id = "persist-client-v5-0"
 proto_ver = 5
 
 connect_props = mqtt5_props.gen_uint32_prop(mqtt5_props.PROP_SESSION_EXPIRY_INTERVAL, 60)
+connect_props += mqtt5_props.gen_uint32_prop(mqtt5_props.PROP_MAXIMUM_PACKET_SIZE, 10000)
 connect_packet = mosq_test.gen_connect(client_id, keepalive=keepalive, proto_ver=proto_ver, clean_session=False, properties=connect_props)
 connack_packet1 = mosq_test.gen_connack(rc=0, proto_ver=proto_ver)
 connack_packet2 = mosq_test.gen_connack(rc=0, flags=1, proto_ver=proto_ver)
@@ -39,6 +40,9 @@ try:
     if mosq_test.wait_for_subprocess(broker):
         print("broker not terminated")
         broker_terminate_rc = 1
+
+    persist_help.check_counts(port, clients=1, client_msgs=0, base_msgs=0, retains=0, subscriptions=0)
+    persist_help.check_client(port, "persist-client-v5-0", None, 0, 1, port, 10000, 2, 1, 60, 0)
 
     # Restart broker
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
@@ -64,6 +68,8 @@ try:
         print("broker not terminated")
         broker_terminate_rc = 1
 
+    persist_help.check_counts(port, clients=0, client_msgs=0, base_msgs=0, retains=0, subscriptions=0)
+
     # Restart broker
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
 
@@ -72,12 +78,13 @@ try:
     mosq_test.do_ping(sock)
     sock.close()
 
+
     rc = broker_terminate_rc
 finally:
     if broker is not None:
         broker.terminate()
         if mosq_test.wait_for_subprocess(broker):
-            print("broker not terminated")
+            print("broker not terminated (2)")
             if rc == 0: rc=1
         (stdo, stde) = broker.communicate()
     os.remove(conf_file)
