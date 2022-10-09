@@ -33,6 +33,8 @@ static char *properties_to_json(const mosquitto_property *properties)
 	uint8_t i8;
 	uint16_t i16;
 	uint32_t i32;
+	void *binval;
+	uint16_t len;
 	int propid;
 
 	if(!properties) return NULL;
@@ -130,6 +132,24 @@ static char *properties_to_json(const mosquitto_property *properties)
 			case MQTT_PROP_CORRELATION_DATA:
 			case MQTT_PROP_AUTHENTICATION_DATA:
 				/* bin */
+				mosquitto_property_read_binary(properties, propid, &binval, &len, false);
+				char *hexval = malloc(2*(size_t)len + 1);
+				if(!hexval){
+					free(binval);
+					cJSON_Delete(array);
+					return NULL;
+				}
+				for(int i=0; i<len; i++){
+					sprintf(&hexval[i*2], "%02X", ((uint8_t *)binval)[i]);
+				}
+				hexval[2*len] = '\0';
+
+				if(cJSON_AddStringToObject(obj, "value", hexval) == NULL){
+					free(hexval);
+					cJSON_Delete(array);
+					return NULL;
+				}
+				free(hexval);
 				break;
 
 			case MQTT_PROP_USER_PROPERTY:
