@@ -291,71 +291,30 @@ static int json_print(const struct mosquitto_message *message, const mosquitto_p
 
 	format_time_8601(ti, ns, buf, sizeof(buf));
 
-	tmp = cJSON_CreateStringReference(buf);
-	if(tmp == NULL){
+	if(cJSON_AddStringToObject(root, "tst", buf) == NULL
+			|| cJSON_AddStringToObject(root, "topic", message->topic) == NULL
+			|| cJSON_AddNumberToObject(root, "qos", message->qos) == NULL
+			|| cJSON_AddBoolToObject(root, "retain", message->retain) == NULL
+			|| cJSON_AddNumberToObject(root, "payloadlen", message->payloadlen) == NULL
+			|| (message->qos > 0 && cJSON_AddNumberToObject(root, "mid", message->mid) == NULL)
+			|| (properties && json_print_properties(root, properties))
+			){
+
 		cJSON_Delete(root);
 		return MOSQ_ERR_NOMEM;
-	}
-	cJSON_AddItemToObject(root, "tst", tmp);
-
-	tmp = cJSON_CreateString(message->topic);
-	if(tmp == NULL){
-		cJSON_Delete(root);
-		return MOSQ_ERR_NOMEM;
-	}
-
-	cJSON_AddItemToObject(root, "topic", tmp);
-
-	tmp = cJSON_CreateNumber(message->qos);
-	if(tmp == NULL){
-		cJSON_Delete(root);
-		return MOSQ_ERR_NOMEM;
-	}
-	cJSON_AddItemToObject(root, "qos", tmp);
-
-	tmp = cJSON_CreateNumber(message->retain);
-	if(tmp == NULL){
-		cJSON_Delete(root);
-		return MOSQ_ERR_NOMEM;
-	}
-	cJSON_AddItemToObject(root, "retain", tmp);
-
-	tmp = cJSON_CreateNumber(message->payloadlen);
-	if(tmp == NULL){
-		cJSON_Delete(root);
-		return MOSQ_ERR_NOMEM;
-	}
-	cJSON_AddItemToObject(root, "payloadlen", tmp);
-
-	if(message->qos > 0){
-		tmp = cJSON_CreateNumber(message->mid);
-		if(tmp == NULL){
-			cJSON_Delete(root);
-			return MOSQ_ERR_NOMEM;
-		}
-		cJSON_AddItemToObject(root, "mid", tmp);
-	}
-
-	/* Properties */
-	if(properties){
-		if(json_print_properties(root, properties)){
-			cJSON_Delete(root);
-			return MOSQ_ERR_NOMEM;
-		}
 	}
 
 	/* Payload */
 	if(escaped){
 		if(message->payload){
-			tmp = cJSON_CreateString(message->payload);
+			tmp = cJSON_AddStringToObject(root, "payload", message->payload);
 		}else{
-			tmp = cJSON_CreateNull();
+			tmp = cJSON_AddNullToObject(root, "payload");
 		}
 		if(tmp == NULL){
 			cJSON_Delete(root);
 			return MOSQ_ERR_NOMEM;
 		}
-		cJSON_AddItemToObject(root, "payload", tmp);
 	}else{
 		return_parse_end = NULL;
 		if(message->payload){
