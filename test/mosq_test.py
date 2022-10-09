@@ -115,6 +115,17 @@ def wait_for_subprocess(client,timeout=10,terminate_timeout=2):
                 pass
     return rc
 
+
+def terminate_broker(broker):
+    broker.terminate()
+    (_, stde) = broker.communicate()
+    if wait_for_subprocess(broker):
+        print("broker not terminated")
+        return (1, stde)
+    else:
+        return (0, stde)
+
+
 def pub_helper(port, proto_ver=4):
     connect_packet = gen_connect("pub-helper", proto_ver=proto_ver)
     connack_packet = gen_connack(rc=0, proto_ver=proto_ver)

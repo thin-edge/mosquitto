@@ -261,6 +261,7 @@ endif
 15 :
 	./15-persist-client-msg-in-v3-1-1.py persist_sqlite
 	./15-persist-client-msg-in-v5-0.py persist_sqlite
+	./15-persist-client-msg-out-clear-v3-1-1.py persist_sqlite
 	./15-persist-client-msg-out-dup-v3-1-1.py persist_sqlite
 	./15-persist-client-msg-out-queue-v3-1-1.py persist_sqlite
 	./15-persist-client-msg-out-v3-1-1-db.py persist_sqlite

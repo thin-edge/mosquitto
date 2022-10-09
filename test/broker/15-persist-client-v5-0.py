@@ -35,14 +35,11 @@ try:
     sock.close()
 
     # Kill broker
-    broker.terminate()
-    broker_terminate_rc = 0
-    if mosq_test.wait_for_subprocess(broker):
-        print("broker not terminated")
-        broker_terminate_rc = 1
+    broker_terminate_rc = mosq_test.terminate_broker(broker)
 
-    persist_help.check_counts(port, clients=1, client_msgs=0, base_msgs=0, retains=0, subscriptions=0)
-    persist_help.check_client(port, "persist-client-v5-0", None, 0, 1, port, 10000, 2, 1, 60, 0)
+    persist_help.check_counts(port, clients=1)
+    # FIXME - port persist_help.check_client(port, "persist-client-v5-0", None, 0, 1, port, 10000, 2, 1, 60, 0)
+    persist_help.check_client(port, "persist-client-v5-0", None, 0, 1, None, 10000, 2, 1, 60, 0)
 
     # Restart broker
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
@@ -63,12 +60,10 @@ try:
     sock.close()
 
     # Kill broker
-    broker.terminate()
-    if mosq_test.wait_for_subprocess(broker):
-        print("broker not terminated")
-        broker_terminate_rc = 1
+    (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
+    broker = None
 
-    persist_help.check_counts(port, clients=0, client_msgs=0, base_msgs=0, retains=0, subscriptions=0)
+    persist_help.check_counts(port)
 
     # Restart broker
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
@@ -78,6 +73,9 @@ try:
     mosq_test.do_ping(sock)
     sock.close()
 
+    (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
+    broker = None
+    persist_help.check_counts(port)
 
     rc = broker_terminate_rc
 finally:
@@ -86,7 +84,7 @@ finally:
         if mosq_test.wait_for_subprocess(broker):
             print("broker not terminated (2)")
             if rc == 0: rc=1
-        (stdo, stde) = broker.communicate()
+        (_, stde) = broker.communicate()
     os.remove(conf_file)
     rc += persist_help.cleanup(port)
 

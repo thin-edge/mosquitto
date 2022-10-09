@@ -51,7 +51,7 @@ try:
     mosq_test.do_send_receive(sock, subscribe_packet, suback_packet, "suback")
     sock.close()
 
-    #persist_help.check_counts(port, clients=1, client_msgs=0, base_msgs=0, retains=0, subscriptions=1)
+    #persist_help.check_counts(port, clients=1, subscriptions=1)
 
     # Helper - send message then disconnect
     sock = mosq_test.do_client_connect(connect2_packet, connack2_packet, timeout=5, port=port)
@@ -59,13 +59,13 @@ try:
     mosq_test.do_send_receive(sock, pubrel_packet, pubcomp_packet, "pubcomp")
     sock.close()
 
-    #persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, retains=0, subscriptions=1)
+    #persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, subscriptions=1)
 
     # Reconnect, receive publish, disconnect
     sock = mosq_test.do_client_connect(connect1_packet, connack1_packet2, timeout=5, port=port)
     mosq_test.expect_packet(sock, "publish 1", publish_packet_r1)
 
-    #persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, retains=0, subscriptions=1)
+    #persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, subscriptions=1)
 
     # Reconnect, receive publish, disconnect - dup should now be set
     sock = mosq_test.do_client_connect(connect1_packet, connack1_packet2, timeout=5, port=port)
@@ -74,24 +74,19 @@ try:
     #con.close()
     #con = None
 
-    broker.terminate()
-    broker_terminate_rc = 0
-    if mosq_test.wait_for_subprocess(broker):
-        print("broker not terminated")
-        broker_terminate_rc = 1
-    (stdo, stde) = broker.communicate()
+    (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
     broker = None
 
-    persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, retains=0, subscriptions=1)
+    persist_help.check_counts(port, clients=1, client_msgs_out=1, base_msgs=1, subscriptions=1)
 
     # Check client
-    persist_help.check_client(port, client_id, None, 0, 0, port, 0, 2, 1, -1, 0)
+    persist_help.check_client(port, client_id, None, 0, 0, port, 0, 2, 1, 4294967295, 0)
 
     # Check subscription
     persist_help.check_subscription(port, client_id, topic, qos, 0)
 
     # Check stored message
-    store_id = persist_help.check_store_msg(port, 0, topic, payload_b, source_id, None, len(payload_b), source_mid, port, qos, 0)
+    store_id = persist_help.check_base_msg(port, 0, topic, payload_b, source_id, None, len(payload_b), source_mid, port, qos, 0)
 
     # Check client msg
     persist_help.check_client_msg(port, client_id, store_id, 1, persist_help.dir_out, 1, qos, 0, persist_help.ms_wait_for_pubrec)
@@ -103,7 +98,7 @@ finally:
         if mosq_test.wait_for_subprocess(broker):
             print("broker not terminated (2)")
             if rc == 0: rc=1
-        (stdo, stde) = broker.communicate()
+        (_, stde) = broker.communicate()
     if con is not None:
         con.close()
     os.remove(conf_file)

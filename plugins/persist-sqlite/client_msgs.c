@@ -111,16 +111,12 @@ int persist_sqlite__client_msg_update_cb(int event, void *event_data, void *user
 }
 
 
-int persist_sqlite__client_msg_clear_cb(int event, void *event_data, void *userdata)
+int persist_sqlite__client_msg_clear(struct mosquitto_sqlite *ms, const char *client_id, int direction)
 {
-	struct mosquitto_evt_persist_client_msg *ed = event_data;
-	struct mosquitto_sqlite *ms = userdata;
-	int rc = 1;
+	int rc = MOSQ_ERR_UNKNOWN;
 
-	UNUSED(event);
-
-	if(ed->direction == mosq_bmd_all){
-		if(sqlite3_bind_text(ms->client_msg_clear_all_stmt, 1, ed->client_id, (int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK){
+	if(direction == mosq_bmd_all){
+		if(sqlite3_bind_text(ms->client_msg_clear_all_stmt, 1, client_id, (int)strlen(client_id), SQLITE_STATIC) == SQLITE_OK){
 			ms->event_count++;
 			rc = sqlite3_step(ms->client_msg_clear_all_stmt);
 			if(rc == SQLITE_DONE){
@@ -131,8 +127,8 @@ int persist_sqlite__client_msg_clear_cb(int event, void *event_data, void *userd
 		}
 		sqlite3_reset(ms->client_msg_clear_all_stmt);
 	}else{
-		if(sqlite3_bind_text(ms->client_msg_clear_stmt, 1, ed->client_id, (int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK
-				&& sqlite3_bind_int64(ms->client_msg_clear_stmt, 2, ed->direction) == SQLITE_OK
+		if(sqlite3_bind_text(ms->client_msg_clear_stmt, 1, client_id, (int)strlen(client_id), SQLITE_STATIC) == SQLITE_OK
+				&& sqlite3_bind_int64(ms->client_msg_clear_stmt, 2, direction) == SQLITE_OK
 				){
 
 			ms->event_count++;

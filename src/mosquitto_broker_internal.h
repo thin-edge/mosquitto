@@ -875,7 +875,6 @@ void plugin_persist__handle_subscription_delete(struct mosquitto *context, const
 void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
 void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
 void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
-void plugin_persist__handle_client_msg_clear(struct mosquitto *context, uint8_t direction);
 void plugin_persist__handle_base_msg_add(struct mosquitto_base_msg *base_msg);
 void plugin_persist__handle_base_msg_delete(struct mosquitto_base_msg *base_msg);
 void plugin_persist__handle_retain_msg_set(struct mosquitto_base_msg *base_msg);

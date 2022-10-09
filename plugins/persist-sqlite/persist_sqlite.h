@@ -61,7 +61,7 @@ int persist_sqlite__client_add_cb(int event, void *event_data, void *userdata);
 int persist_sqlite__client_update_cb(int event, void *event_data, void *userdata);
 int persist_sqlite__client_remove_cb(int event, void *event_data, void *userdata);
 int persist_sqlite__client_msg_add_cb(int event, void *event_data, void *userdata);
-int persist_sqlite__client_msg_clear_cb(int event, void *event_data, void *userdata);
+int persist_sqlite__client_msg_clear(struct mosquitto_sqlite *ms, const char *client_id, int direction);
 int persist_sqlite__client_msg_remove_cb(int event, void *event_data, void *userdata);
 int persist_sqlite__client_msg_update_cb(int event, void *event_data, void *userdata);
 int persist_sqlite__base_msg_add_cb(int event, void *event_data, void *userdata);

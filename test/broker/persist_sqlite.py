@@ -60,7 +60,7 @@ def cleanup(port):
     return rc
 
 
-def check_counts(port, clients, client_msgs, base_msgs, retains, subscriptions):
+def check_counts(port, clients=0, client_msgs_in=0, client_msgs_out=0, base_msgs=0, retain_msgs=0, subscriptions=0):
     con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
     cur = con.cursor()
     cur.execute('SELECT COUNT(*) FROM clients')
@@ -68,10 +68,15 @@ def check_counts(port, clients, client_msgs, base_msgs, retains, subscriptions):
     if row[0] != clients:
         raise ValueError("Found %d clients, expected %d" % (row[0], clients))
 
-    cur.execute('SELECT COUNT(*) FROM client_msgs')
+    cur.execute('SELECT COUNT(*) FROM client_msgs WHERE direction=0')
     row = cur.fetchone()
-    if row[0] != client_msgs:
-        raise ValueError("Found %d client_msgs, expected %d" % (row[0], client_msgs))
+    if row[0] != client_msgs_in:
+        raise ValueError("Found %d client_msgs_in, expected %d" % (row[0], client_msgs_in))
+
+    cur.execute('SELECT COUNT(*) FROM client_msgs WHERE direction=1')
+    row = cur.fetchone()
+    if row[0] != client_msgs_out:
+        raise ValueError("Found %d client_msgs_out, expected %d" % (row[0], client_msgs_out))
 
     cur.execute('SELECT COUNT(*) FROM subscriptions')
     row = cur.fetchone()
@@ -85,14 +90,18 @@ def check_counts(port, clients, client_msgs, base_msgs, retains, subscriptions):
 
     cur.execute('SELECT COUNT(*) FROM retains')
     row = cur.fetchone()
-    if row[0] != retains:
-        raise ValueError("Found %d retains, expected %d" % (row[0], retains))
+    if row[0] != retain_msgs:
+        raise ValueError("Found %d retain_msgs, expected %d" % (row[0], retain_msgs))
     con.close()
 
 
 def check_client(port, client_id, username, will_delay_time, session_expiry_time,
         listener_port, max_packet_size, max_qos, retain_available,
         session_expiry_interval, will_delay_interval):
+
+    # "Fix" the infinite session expiry interval as mangled by an int32 conversion.
+    if session_expiry_interval == 4294967295:
+        session_expiry_interval = -1
 
     con = sqlite3.connect(f"{port}/mosquitto.sqlite3")
     cur = con.cursor()
@@ -105,7 +114,7 @@ def check_client(port, client_id, username, will_delay_time, session_expiry_time
     if row[0] != client_id:
         raise ValueError("Invalid client_id %s / %s" % (row[0], client_id))
 
-    if row[1] != username:
+    if username is not None and row[1] != username:
         raise ValueError("Invalid username %s / %s" % (row[1], username))
 
     if (will_delay_time == 0 and row[2] != 0) or (will_delay_time != 0 and row[2] == 0):
@@ -114,7 +123,7 @@ def check_client(port, client_id, username, will_delay_time, session_expiry_time
     if (session_expiry_time == 0 and row[3] != 0) or (session_expiry_time != 0 and row[3] == 0):
         raise ValueError("Invalid session_expiry_time %d / %d" % (row[3], session_expiry_time))
 
-    if row[4] != listener_port:
+    if listener_port is not None and row[4] != listener_port:
         raise ValueError("Invalid listener_port %d / %d" % (row[4], listener_port))
 
     if row[5] != max_packet_size:
@@ -188,7 +197,7 @@ def check_client_msg(port, client_id, store_id, dup, direction, mid, qos, retain
     con.close()
 
 
-def check_store_msg(port, expiry_time, topic, payload, source_id, source_username,
+def check_base_msg(port, expiry_time, topic, payload, source_id, source_username,
         payloadlen, source_mid, source_port, qos, retain, idx=0):
 
     con = sqlite3.connect(f"{port}/mosquitto.sqlite3")

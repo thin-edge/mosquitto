@@ -79,8 +79,6 @@ static const char *get_event_name(int event)
 			return "persist-client-msg-delete";
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
 			return "persist-client-msg-update";
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_CLEAR:
-			return "persist-client-msg-clear";
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_LOAD:
 			return "persist-client-msg-load";
 		default:
@@ -147,8 +145,6 @@ static struct mosquitto__callback **plugin__get_callback_base(struct mosquitto__
 			return &security_options->plugin_callbacks.persist_client_msg_delete;
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
 			return &security_options->plugin_callbacks.persist_client_msg_update;
-		case MOSQ_EVT_PERSIST_CLIENT_MSG_CLEAR:
-			return &security_options->plugin_callbacks.persist_client_msg_clear;
 		case MOSQ_EVT_PERSIST_BASE_MSG_ADD:
 			return &security_options->plugin_callbacks.persist_base_msg_add;
 		case MOSQ_EVT_PERSIST_BASE_MSG_DELETE:

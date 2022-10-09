@@ -66,11 +66,10 @@ try:
     helper.close()
 
     # Kill broker
-    broker.terminate()
-    broker_terminate_rc = 0
-    if mosq_test.wait_for_subprocess(broker):
-        print("broker not terminated")
-        broker_terminate_rc = 1
+    (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
+    broker = None
+
+    persist_help.check_counts(port, clients=1, client_msgs_out=2, base_msgs=2, subscriptions=3)
 
     # Restart broker
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
@@ -89,6 +88,11 @@ try:
     # If there are messages, the ping will fail
     mosq_test.do_ping(sock)
 
+    (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
+    broker = None
+
+    persist_help.check_counts(port, clients=1, subscriptions=3)
+
     rc = broker_terminate_rc
 finally:
     if broker is not None:
@@ -96,7 +100,7 @@ finally:
         if mosq_test.wait_for_subprocess(broker):
             print("broker not terminated")
             if rc == 0: rc=1
-        (stdo, stde) = broker.communicate()
+        (_, stde) = broker.communicate()
     os.remove(conf_file)
     rc += persist_help.cleanup(port)
 

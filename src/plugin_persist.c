@@ -88,8 +88,6 @@ void plugin_persist__handle_client_update(struct mosquitto *context)
 	struct mosquitto__security_options *opts;
 	struct mosquitto_message_v5 will;
 
-	if(db.shutdown) return;
-
 	UNUSED(will); /* FIXME */
 
 	if(db.shutdown) return;
@@ -272,26 +270,6 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_update, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE, &event_data, cb_base->userdata);
-	}
-}
-
-
-void plugin_persist__handle_client_msg_clear(struct mosquitto *context, uint8_t direction)
-{
-	struct mosquitto_evt_persist_client_msg event_data;
-	struct mosquitto__callback *cb_base;
-	struct mosquitto__security_options *opts;
-
-	if(db.shutdown || context->is_persisted == false) return;
-
-	opts = &db.config->security_options;
-	memset(&event_data, 0, sizeof(event_data));
-
-	event_data.client_id = context->id;
-	event_data.direction = direction;
-
-	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_clear, cb_base){
-		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_CLEAR, &event_data, cb_base->userdata);
 	}
 }
 

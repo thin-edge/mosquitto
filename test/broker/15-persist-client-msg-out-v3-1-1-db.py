@@ -48,24 +48,19 @@ try:
     mosq_test.do_send_receive(sock, publish_packet, puback_packet, "puback")
     sock.close()
 
-    broker.terminate()
-    broker_terminate_rc = 0
-    if mosq_test.wait_for_subprocess(broker):
-        print("broker not terminated")
-        broker_terminate_rc = 1
-    (stdo, stde) = broker.communicate()
+    (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
     broker = None
 
-    persist_help.check_counts(port, clients=1, client_msgs=1, base_msgs=1, retains=0, subscriptions=1)
+    persist_help.check_counts(port, clients=1, client_msgs_out=1, base_msgs=1, subscriptions=1)
 
     # Check client
-    persist_help.check_client(port, client_id, None, 0, 0, port, 0, 2, 1, -1, 0)
+    persist_help.check_client(port, client_id, None, 0, 0, port, 0, 2, 1, 4294967295, 0)
 
     # Check subscription
     persist_help.check_subscription(port, client_id, topic, qos, 0)
 
     # Check stored message
-    store_id = persist_help.check_store_msg(port, 0, topic, payload_b, source_id, None, len(payload_b), mid, port, qos, 0)
+    store_id = persist_help.check_base_msg(port, 0, topic, payload_b, source_id, None, len(payload_b), mid, port, qos, 0)
 
     # Check client msg
     persist_help.check_client_msg(port, client_id, store_id, 0, persist_help.dir_out, 1, qos, 0, persist_help.ms_queued)
@@ -77,7 +72,7 @@ finally:
         if mosq_test.wait_for_subprocess(broker):
             print("broker not terminated (2)")
             if rc == 0: rc=1
-        (stdo, stde) = broker.communicate()
+        (_, stde) = broker.communicate()
     os.remove(conf_file)
     rc += persist_help.cleanup(port)
 
