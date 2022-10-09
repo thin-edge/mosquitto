@@ -535,7 +535,7 @@ mosq_EXPORT const char *mosquitto_client_address(const struct mosquitto *client)
 
 
 /*
- * Function: mosquitto_client_address
+ * Function: mosquitto_client_port
  *
  * Retrieve the network port number the client connected to, or 0 on error.
  */
