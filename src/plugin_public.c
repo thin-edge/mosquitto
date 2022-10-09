@@ -797,6 +797,8 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_ba
 			}
 		}
 	}
+
+	base_msg->stored = true;
 	rc = db__message_store(&context, base_msg, message_expiry_interval, msg->store_id, mosq_mo_broker);
 	return rc;
 
