@@ -91,13 +91,15 @@ static int create_tables(struct mosquitto_sqlite *ms)
 			"CREATE TABLE IF NOT EXISTS client_msgs "
 			"("
 				"client_id TEXT NOT NULL,"
+				"cmsg_id INT64,"
 				"store_id INT64,"
 				"dup INTEGER,"
 				"direction INTEGER,"
 				"mid INTEGER,"
 				"qos INTEGER,"
 				"retain INTEGER,"
-				"state INTEGER"
+				"state INTEGER,"
+				"subscription_identifier INTEGER"
 				//"state INTEGER,"
 				//"FOREIGN KEY (client_id) REFERENCES clients(client_id) "
 				//"ON DELETE CASCADE,"
@@ -178,8 +180,8 @@ static int prepare_statements(struct mosquitto_sqlite *ms)
 	/* Client messages */
 	rc = sqlite3_prepare_v3(ms->db,
 			"INSERT INTO client_msgs "
-				"(client_id,store_id,dup,direction,mid,qos,retain,state) "
-				"VALUES(?,?,?,?,?,?,?,?)",
+				"(client_id,cmsg_id,store_id,dup,direction,mid,qos,retain,state,subscription_identifier) "
+				"VALUES(?,?,?,?,?,?,?,?,?,?)",
 			-1, SQLITE_PREPARE_PERSISTENT,
 			&ms->client_msg_add_stmt, NULL);
 	if(rc) goto fail;

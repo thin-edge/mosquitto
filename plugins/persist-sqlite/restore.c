@@ -296,7 +296,7 @@ static int client_msg_restore(struct mosquitto_sqlite *ms)
 	long count = 0, failed = 0;
 
 	rc = sqlite3_prepare_v2(ms->db,
-			"SELECT client_id, store_id, dup, direction, mid, qos, retain, state "
+			"SELECT client_id, cmsg_id, store_id, dup, direction, mid, qos, retain, state, subscription_identifier "
 			"FROM client_msgs ORDER BY rowid",
 			-1, &stmt, NULL);
 
@@ -308,13 +308,15 @@ static int client_msg_restore(struct mosquitto_sqlite *ms)
 	memset(&msg, 0, sizeof(msg));
 	while(sqlite3_step(stmt) == SQLITE_ROW){
 		msg.client_id = (const char *)sqlite3_column_text(stmt, 0);
-		msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 1);
-		msg.dup = sqlite3_column_int(stmt, 2);
-		msg.direction = (uint8_t)sqlite3_column_int(stmt, 3);
-		msg.mid = (uint16_t)sqlite3_column_int(stmt, 4);
-		msg.qos = (uint8_t)sqlite3_column_int(stmt, 5);
-		msg.retain = sqlite3_column_int(stmt, 6);
-		msg.state = (uint8_t)sqlite3_column_int(stmt, 7);
+		msg.cmsg_id = (uint64_t)sqlite3_column_int64(stmt, 1);
+		msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 2);
+		msg.dup = sqlite3_column_int(stmt, 3);
+		msg.direction = (uint8_t)sqlite3_column_int(stmt, 4);
+		msg.mid = (uint16_t)sqlite3_column_int(stmt, 5);
+		msg.qos = (uint8_t)sqlite3_column_int(stmt, 6);
+		msg.retain = sqlite3_column_int(stmt, 7);
+		msg.state = (uint8_t)sqlite3_column_int(stmt, 8);
+		msg.subscription_identifier = (uint32_t)sqlite3_column_int(stmt, 9);
 
 		rc = mosquitto_persist_client_msg_add(&msg);
 		if(rc == MOSQ_ERR_SUCCESS){

@@ -33,13 +33,16 @@ int persist_sqlite__client_msg_add_cb(int event, void *event_data, void *userdat
 	UNUSED(event);
 
 	if(sqlite3_bind_text(ms->client_msg_add_stmt, 1, ed->client_id, (int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK
-			&& sqlite3_bind_int64(ms->client_msg_add_stmt, 2, (int64_t)ed->store_id) == SQLITE_OK
-			&& sqlite3_bind_int(ms->client_msg_add_stmt, 3, ed->dup) == SQLITE_OK
-			&& sqlite3_bind_int(ms->client_msg_add_stmt, 4, ed->direction) == SQLITE_OK
-			&& sqlite3_bind_int(ms->client_msg_add_stmt, 5, ed->mid) == SQLITE_OK
-			&& sqlite3_bind_int(ms->client_msg_add_stmt, 6, ed->qos) == SQLITE_OK
-			&& sqlite3_bind_int(ms->client_msg_add_stmt, 7, ed->retain) == SQLITE_OK
-			&& sqlite3_bind_int(ms->client_msg_add_stmt, 8, ed->state) == SQLITE_OK
+			&& sqlite3_bind_int64(ms->client_msg_add_stmt, 2, (int64_t)ed->cmsg_id) == SQLITE_OK
+			&& sqlite3_bind_int64(ms->client_msg_add_stmt, 3, (int64_t)ed->store_id) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 4, ed->dup) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 5, ed->direction) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 6, ed->mid) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 7, ed->qos) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 8, ed->retain) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 9, ed->state) == SQLITE_OK
+			&& sqlite3_bind_int(ms->client_msg_add_stmt, 10, (int)ed->subscription_identifier) == SQLITE_OK
+
 			){
 
 		ms->event_count++;
