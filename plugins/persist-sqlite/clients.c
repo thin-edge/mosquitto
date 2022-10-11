@@ -101,7 +101,7 @@ int persist_sqlite__client_remove_cb(int event, void *event_data, void *userdata
 			rc = MOSQ_ERR_UNKNOWN;
 		}
 	}
-	persist_sqlite__client_msg_clear(ms, ed->client_id, mosq_bmd_all);
+	persist_sqlite__client_msg_clear(ms, ed->client_id);
 
 	return rc;
 }
