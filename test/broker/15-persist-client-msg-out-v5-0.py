@@ -27,11 +27,17 @@ connect_packet = mosq_test.gen_connect(client_id, proto_ver=proto_ver, clean_ses
 connack_packet1 = mosq_test.gen_connack(rc=0, proto_ver=proto_ver)
 connack_packet2 = mosq_test.gen_connack(rc=0, flags=1, proto_ver=proto_ver)
 mid = 1
-subscribe_packet0 = mosq_test.gen_subscribe(mid, topic0, qos=0, proto_ver=proto_ver)
+
+sub_props = mqtt5_props.gen_varint_prop(mqtt5_props.PROP_SUBSCRIPTION_IDENTIFIER, 1)
+subscribe_packet0 = mosq_test.gen_subscribe(mid, topic0, qos=0, proto_ver=proto_ver, properties=sub_props)
 suback_packet0 = mosq_test.gen_suback(mid=mid, qos=0, proto_ver=proto_ver)
-subscribe_packet1 = mosq_test.gen_subscribe(mid, topic1, qos=1, proto_ver=proto_ver)
+
+sub_props = mqtt5_props.gen_varint_prop(mqtt5_props.PROP_SUBSCRIPTION_IDENTIFIER, 2)
+subscribe_packet1 = mosq_test.gen_subscribe(mid, topic1, qos=1, proto_ver=proto_ver, properties=sub_props)
 suback_packet1 = mosq_test.gen_suback(mid=mid, qos=1, proto_ver=proto_ver)
-subscribe_packet2 = mosq_test.gen_subscribe(mid, topic2, qos=2, proto_ver=proto_ver)
+
+sub_props = mqtt5_props.gen_varint_prop(mqtt5_props.PROP_SUBSCRIPTION_IDENTIFIER, 3)
+subscribe_packet2 = mosq_test.gen_subscribe(mid, topic2, qos=2, proto_ver=proto_ver, properties=sub_props)
 suback_packet2 = mosq_test.gen_suback(mid=mid, qos=2, proto_ver=proto_ver)
 
 connect_packet_helper = mosq_test.gen_connect(helper_id, proto_ver=proto_ver, clean_session=True)

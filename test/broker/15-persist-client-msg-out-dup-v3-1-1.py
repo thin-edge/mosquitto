@@ -44,7 +44,6 @@ publish_packet_r2 = mosq_test.gen_publish(topic, mid=mid, qos=qos, payload=paylo
 
 broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
 
-con = None
 try:
     # Connect and set up subscription, then disconnect
     sock = mosq_test.do_client_connect(connect1_packet, connack1_packet, timeout=5, port=port)
@@ -71,9 +70,6 @@ try:
     sock = mosq_test.do_client_connect(connect1_packet, connack1_packet2, timeout=5, port=port)
     mosq_test.expect_packet(sock, "publish 2", publish_packet_r2)
 
-    #con.close()
-    #con = None
-
     (broker_terminate_rc, stde) = mosq_test.terminate_broker(broker)
     broker = None
 
@@ -99,8 +95,6 @@ finally:
             print("broker not terminated (2)")
             if rc == 0: rc=1
         (_, stde) = broker.communicate()
-    if con is not None:
-        con.close()
     os.remove(conf_file)
     rc += persist_help.cleanup(port)
 
