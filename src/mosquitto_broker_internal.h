@@ -175,7 +175,7 @@ struct plugin__callbacks{
 	struct mosquitto__callback *persist_client_msg_add;
 	struct mosquitto__callback *persist_client_msg_delete;
 	struct mosquitto__callback *persist_client_msg_update;
-	struct mosquitto__callback *persist_client_msg_clear;
+	struct mosquitto__callback *persist_client_msg_load;
 	struct mosquitto__callback *persist_base_msg_add;
 	struct mosquitto__callback *persist_base_msg_delete;
 	struct mosquitto__callback *persist_base_msg_load;

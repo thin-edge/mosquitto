@@ -143,6 +143,8 @@ static struct mosquitto__callback **plugin__get_callback_base(struct mosquitto__
 			return &security_options->plugin_callbacks.persist_client_msg_add;
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE:
 			return &security_options->plugin_callbacks.persist_client_msg_delete;
+		case MOSQ_EVT_PERSIST_CLIENT_MSG_LOAD:
+			return &security_options->plugin_callbacks.persist_client_msg_load;
 		case MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE:
 			return &security_options->plugin_callbacks.persist_client_msg_update;
 		case MOSQ_EVT_PERSIST_BASE_MSG_ADD:
