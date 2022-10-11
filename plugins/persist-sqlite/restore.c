@@ -222,7 +222,7 @@ static int subscription_restore(struct mosquitto_sqlite *ms)
 }
 
 
-static int msg_restore(struct mosquitto_sqlite *ms)
+static int base_msg_restore(struct mosquitto_sqlite *ms)
 {
 	sqlite3_stmt *stmt;
 	struct mosquitto_evt_persist_base_msg msg;
@@ -376,7 +376,7 @@ int persist_sqlite__restore_cb(int event, void *event_data, void *userdata)
 	UNUSED(event);
 	UNUSED(event_data);
 
-	if(msg_restore(ms)) return MOSQ_ERR_UNKNOWN;
+	if(base_msg_restore(ms)) return MOSQ_ERR_UNKNOWN;
 	if(retain_restore(ms)) return MOSQ_ERR_UNKNOWN;
 	if(client_restore(ms)) return MOSQ_ERR_UNKNOWN;
 	if(subscription_restore(ms)) return MOSQ_ERR_UNKNOWN;
