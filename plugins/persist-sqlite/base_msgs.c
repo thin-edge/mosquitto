@@ -32,8 +32,6 @@ static char *properties_to_json(const mosquitto_property *properties)
 	cJSON *array, *obj;
 	char *json_str, *name, *value;
 	uint8_t i8;
-	uint16_t i16;
-	uint32_t i32;
 	void *binval;
 	uint16_t len;
 	int propid;
@@ -62,13 +60,6 @@ static char *properties_to_json(const mosquitto_property *properties)
 
 		switch(propid){
 			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-			case MQTT_PROP_REQUEST_PROBLEM_INFORMATION:
-			case MQTT_PROP_REQUEST_RESPONSE_INFORMATION:
-			case MQTT_PROP_MAXIMUM_QOS:
-			case MQTT_PROP_RETAIN_AVAILABLE:
-			case MQTT_PROP_WILDCARD_SUB_AVAILABLE:
-			case MQTT_PROP_SUBSCRIPTION_ID_AVAILABLE:
-			case MQTT_PROP_SHARED_SUB_AVAILABLE:
 				/* byte */
 				mosquitto_property_read_byte(properties, propid, &i8, false);
 				if(cJSON_AddNumberToObject(obj, "value", i8) == NULL){
@@ -77,45 +68,8 @@ static char *properties_to_json(const mosquitto_property *properties)
 				}
 				break;
 
-			case MQTT_PROP_SERVER_KEEP_ALIVE:
-			case MQTT_PROP_RECEIVE_MAXIMUM:
-			case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-			case MQTT_PROP_TOPIC_ALIAS:
-				/* 2 byte */
-				mosquitto_property_read_int16(properties, propid, &i16, false);
-				if(cJSON_AddNumberToObject(obj, "value", i16) == NULL){
-					cJSON_Delete(array);
-					return NULL;
-				}
-				break;
-
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-			case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-			case MQTT_PROP_WILL_DELAY_INTERVAL:
-			case MQTT_PROP_MAXIMUM_PACKET_SIZE:
-				/* 4 byte */
-				mosquitto_property_read_int32(properties, propid, &i32, false);
-				if(cJSON_AddNumberToObject(obj, "value", i32) == NULL){
-					cJSON_Delete(array);
-					return NULL;
-				}
-				break;
-
-			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-				/* var byte */
-				mosquitto_property_read_varint(properties, propid, &i32, false);
-				if(cJSON_AddNumberToObject(obj, "value", i32) == NULL){
-					cJSON_Delete(array);
-					return NULL;
-				}
-				break;
-
 			case MQTT_PROP_CONTENT_TYPE:
 			case MQTT_PROP_RESPONSE_TOPIC:
-			case MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER:
-			case MQTT_PROP_AUTHENTICATION_METHOD:
-			case MQTT_PROP_RESPONSE_INFORMATION:
-			case MQTT_PROP_SERVER_REFERENCE:
 			case MQTT_PROP_REASON_STRING:
 				/* str */
 				if(mosquitto_property_read_string(properties, propid, &value, false) == NULL){
@@ -131,7 +85,6 @@ static char *properties_to_json(const mosquitto_property *properties)
 				break;
 
 			case MQTT_PROP_CORRELATION_DATA:
-			case MQTT_PROP_AUTHENTICATION_DATA:
 				/* bin */
 				mosquitto_property_read_binary(properties, propid, &binval, &len, false);
 				char *hexval = malloc(2*(size_t)len + 1);
