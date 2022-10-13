@@ -279,8 +279,15 @@ endif
 16 :
 	./16-cmd-args.py
 	./16-config-includedir.py
-	./16-config-parse-errors.py
+	./16-config-parse-errors-without-tls.py
+ifeq ($(WITH_TLS),yes)
+	./16-config-parse-errors-tls.py
+ifeq ($(WITH_TLS_PSK),yes)
+	./16-config-parse-errors-tls-psk.py
+endif
+endif
 
 17 :
 	./17-control-list-listeners.py
 	./17-control-list-plugins.py
+

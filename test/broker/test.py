@@ -237,7 +237,9 @@ tests = [
 
     (1, './16-cmd-args.py'),
     (1, './16-config-includedir.py'),
-    (1, './16-config-parse-errors.py'),
+    (1, './16-config-parse-errors-tls.py'),
+    (1, './16-config-parse-errors-tls-psk.py'),
+    (1, './16-config-parse-errors-without-tls.py'),
 
     (4, './17-control-list-listeners.py'),
     (1, './17-control-list-plugins.py'),

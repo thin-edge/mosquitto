@@ -85,28 +85,18 @@ do_test("plugin c/auth_plugin.so\nplugin_opt_ string\n", 3) # Incomplete plugin_
 do_test("plugin c/auth_plugin.so\nplugin_opt_test\n", 3) # Empty plugin_opt_
 
 do_test("bridge_attempt_unsubscribe true\n", 3) # Missing bridge config
-do_test("bridge_cafile string\n", 3) # Missing bridge config
-do_test("bridge_alpn string\n", 3) # Missing bridge config
-do_test("bridge_ciphers string\n", 3) # Missing bridge config
-do_test("bridge_ciphers_tls1.3 string\n", 3) # Missing bridge config
 do_test("bridge_bind_address string\n", 3) # Missing bridge config
-do_test("bridge_capath string\n", 3) # Missing bridge config
-do_test("bridge_certfile string\n", 3) # Missing bridge config
-do_test("bridge_identity string\n", 3) # Missing bridge config
 do_test("bridge_insecure true\n", 3) # Missing bridge config
 do_test("bridge_require_oscp true\n", 3) # Missing bridge config
 do_test("bridge_max_packet_size 1000\n", 3) # Missing bridge config
 do_test("bridge_max_topic_alias 1000\n", 3) # Missing bridge config
 do_test("bridge_outgoing_retain false\n", 3) # Missing bridge config
-do_test("bridge_keyfile string\n", 3) # Missing bridge config
 do_test("bridge_protocol_version string\n", 3) # Missing bridge config
-do_test("bridge_psk string\n", 3) # Missing bridge config
 do_test("bridge_receive_maximum 10\n", 3) # Missing bridge config
 do_test("bridge_reload_type string\n", 3) # Missing bridge config
 do_test("bridge_session_expiry_interval 10000\n", 3) # Missing bridge config
 do_test("bridge_tcp_keepalive 10000\n", 3) # Missing bridge config
 do_test("bridge_tcp_user_timeout 10000\n", 3) # Missing bridge config
-do_test("bridge_tls_version string\n", 3) # Missing bridge config
 do_test("local_clientid str\n", 3) # Missing bridge config
 do_test("local_password str\n", 3) # Missing bridge config
 do_test("local_username str\n", 3) # Missing bridge config
@@ -144,22 +134,5 @@ do_test("memory_limit -1\n", 3) # Invalid value
 
 do_test("sys_interval -1\n", 3) # Invalid value
 do_test("sys_interval 65536\n", 3) # Invalid value
-
-do_test("listener 1888\ncertfile\n", 3) # empty certfile
-do_test("listener 1888\nkeyfile\n", 3) # empty keyfile
-
-do_test(f"listener 1888\ncertfile {source_dir}/16-config-parse-errors.py\nkeyfile {ssl_dir}/server.key\n", 1) # invalid certfile
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {source_dir}/16-config-parse-errors.py\n", 1) # invalid keyfile
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/client.key\n", 1) # mismatched certfile / keyfile
-
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/server.key\ntls_version invalid", 1) # invalid tls_version
-
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/server.key\ncrlfile invalid", 1) # missing crl file
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/server.key\ndhparamfile invalid", 1) # missing dh param file
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/server.key\ndhparamfile {source_dir}/16-config-parse-errors.py", 1) # invalid dh param file
-
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/server.key\nciphers invalid", 1) # invalid ciphers
-do_test(f"listener 1888\ncertfile {ssl_dir}/server.crt\nkeyfile {ssl_dir}/server.key\nciphers_tls1.3 invalid", 1) # invalid ciphers_tls1.3
-
 
 exit(0)
