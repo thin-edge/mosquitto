@@ -4,11 +4,13 @@
 #include <string.h>
 #include <mosquitto.h>
 
+#define UNUSED(A) (void)(A)
+
 static int run = -1;
 
 static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
-	(void)obj;
+	UNUSED(obj);
 
 	if(rc){
 		exit(1);
@@ -19,6 +21,10 @@ static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 
 static void on_publish(struct mosquitto *mosq, void *obj, int mid)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	run = 0;
 }
 
