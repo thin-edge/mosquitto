@@ -33,13 +33,19 @@ ssock.settimeout(20)
 try:
     ssock.connect(("localhost", port1))
     mosq_test.do_send_receive(ssock, connect_packet, "", "connack")
+except ssl.SSLEOFError as err:
+    rc = 0
 except ssl.SSLError as err:
     if err.errno == 1:
         rc = 0
+    else:
+        print("unexpected SSLError occurred", err)
 except socket.error as err:
     if err.errno == errno.ECONNRESET:
         rc = 0
-except mosq_test.TestError:
+    else:
+        print("unexpected socket.error occurred", err)
+except mosq_test.TestError as err:
     pass
 finally:
     os.remove(conf_file)
@@ -52,4 +58,3 @@ finally:
         print(stde.decode('utf-8'))
 
 exit(rc)
-
