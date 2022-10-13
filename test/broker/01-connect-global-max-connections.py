@@ -35,14 +35,17 @@ def do_test():
 
         # Try to open an 11th connection
         try:
-            sock_bad = mosq_test.do_client_connect(connect_packet_bad, connack_packet_bad, port=port)
+            mosq_test.do_client_connect(connect_packet_bad, connack_packet_bad, port=port)
+            print("did not throw when trying to open 11th connection (first time)")
+            return rc
         except (ConnectionResetError, BrokenPipeError):
             # Expected behaviour
             pass
-
-        # Close all allowed connections
-        for i in range(0, 10):
-            socks[i].close()
+        finally:
+            # Close all allowed connections
+            for sock in socks:
+                sock.close()
+            socks.clear()
 
         ## Now repeat - check it works as before
 
@@ -55,18 +58,19 @@ def do_test():
 
         # Try to open an 11th connection
         try:
-            sock_bad = mosq_test.do_client_connect(connect_packet_bad, connack_packet_bad, port=port)
+            mosq_test.do_client_connect(connect_packet_bad, connack_packet_bad, port=port)
+            print("did not throw when trying to open 11th connection (second time)")
+            return rc
         except (ConnectionResetError, BrokenPipeError):
             # Expected behaviour
             pass
-
-        # Close all allowed connections
-        for i in range(0, 10):
-            socks[i].close()
+        finally:
+            # Close all allowed connections
+            for sock in socks:
+                sock.close()
+            socks.clear()
 
         rc = 0
-    except mosq_test.TestError:
-        pass
     except Exception as err:
         print(err)
     finally:
@@ -75,7 +79,7 @@ def do_test():
         if mosq_test.wait_for_subprocess(broker):
             print("broker not terminated")
             if rc == 0: rc=1
-        (stdo, stde) = broker.communicate()
+        (_, stde) = broker.communicate()
         if rc:
             print(stde.decode('utf-8'))
     return rc
