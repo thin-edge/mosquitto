@@ -97,6 +97,7 @@ static char *properties_to_json(const mosquitto_property *properties)
 					sprintf(&hexval[i*2], "%02X", ((uint8_t *)binval)[i]);
 				}
 				hexval[2*len] = '\0';
+				free(binval);
 
 				if(cJSON_AddStringToObject(obj, "value", hexval) == NULL){
 					free(hexval);
