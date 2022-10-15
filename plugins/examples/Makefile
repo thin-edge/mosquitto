@@ -7,6 +7,7 @@ DIRS= \
 		delayed-auth \
 		force-retain \
 		message-timestamp \
+		payload-ban \
 		payload-modification \
 		payload-size-stats \
 		plugin-event-stats \

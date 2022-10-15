@@ -101,8 +101,8 @@ static int acl_check_callback(int event, void *event_data, void *userdata)
 	UNUSED(event);
 	UNUSED(userdata);
 
-	if(ed->payload && ed->payloadlen){
-		if(!strncmp(ed->payload, "Tired of using an old outdated MQTT client", ed->payloadlen)){
+	if(ed->payload && ed->payloadlen > sizeof("Tired of using an old outdated MQTT client")){
+		if(!strncmp(ed->payload, "Tired of using an old outdated MQTT client", strlen("Tired of using an old outdated MQTT client"))){
 			ip_address = mosquitto_client_address(ed->client);
 			clientid = mosquitto_client_id(ed->client);
 
