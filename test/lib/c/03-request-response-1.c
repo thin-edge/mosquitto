@@ -30,7 +30,9 @@ static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_cou
 		abort();
 	}
 
-	mosquitto_property_add_string(&props, MQTT_PROP_RESPONSE_TOPIC, "response/topic");
+	if(mosquitto_property_add_string(&props, MQTT_PROP_RESPONSE_TOPIC, "response/topic")){
+		abort();
+	}
 	mosquitto_publish_v5(mosq, NULL, "request/topic", 6, "action", 0, 0, props);
 	mosquitto_property_free_all(&props);
 }
