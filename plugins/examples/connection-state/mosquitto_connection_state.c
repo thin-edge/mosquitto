@@ -86,7 +86,9 @@ static int disconnect_callback(int event, void *event_data, void *userdata)
 	len = snprintf(topic, sizeof(topic), "$SYS/broker/connection/client/%s/state", client_id);
 	if(len < (int)sizeof(topic)){
 		/* Expire our "disconnected" message after a day. */
-		mosquitto_property_add_int32(&proplist, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 86400);
+		rc = mosquitto_property_add_int32(&proplist, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 86400);
+		if(rc) return rc;
+
 		rc = mosquitto_broker_publish_copy(NULL, topic, 1, "0", 0, true, proplist);
 		if(rc){
 			mosquitto_property_free_all(&proplist);
