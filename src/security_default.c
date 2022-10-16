@@ -450,7 +450,9 @@ static int mosquitto_acl_check_default(int event, void *event_data, void *userda
 			continue;
 		}
 
-		mosquitto_topic_matches_sub_with_pattern(acl_root->topic, ed->topic, ed->client->id, ed->client->username, &result);
+		if(mosquitto_topic_matches_sub_with_pattern(acl_root->topic, ed->topic, ed->client->id, ed->client->username, &result)){
+			return MOSQ_ERR_ACL_DENIED;
+		}
 		if(result){
 			if(acl_root->access == MOSQ_ACL_NONE){
 				/* Access was explicitly denied for this topic pattern. */
