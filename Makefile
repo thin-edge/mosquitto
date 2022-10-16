@@ -47,7 +47,7 @@ DISTFILES= \
 
 .PHONY : all mosquitto api docs binary check clean reallyclean test test-compile install uninstall dist sign copy localdocker
 
-all : $(MAKE_ALL) test-compile
+all : $(MAKE_ALL)
 
 api :
 	mkdir -p api p
@@ -58,6 +58,8 @@ docs :
 	set -e; for d in ${DOCDIRS}; do $(MAKE) -C $${d}; done
 
 binary : mosquitto
+
+binary-all : mosquitto test-compile
 
 mosquitto :
 ifeq ($(UNAME),Darwin)

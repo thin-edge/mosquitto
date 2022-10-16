@@ -22,5 +22,4 @@ jobs:
         project: "eclipse/mosquitto"
         token: ${{ secrets.COVERITY_SCAN_TOKEN }}
         email: ${{ secrets.COVERITY_SCAN_EMAIL }}
-        command: "make binary"
-
+        command: "make binary-all"
