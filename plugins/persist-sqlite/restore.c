@@ -77,45 +77,95 @@ static mosquitto_property *json_to_properties(const char *json)
 		j_value = cJSON_GetObjectItem(obj, "value");
 
 		if(!j_id || !cJSON_IsString(j_id) || !j_value){
+			mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring property whilst restoring, invalid identifier / value");
 			continue;
 		}
 		if(mosquitto_string_to_property_info(j_id->valuestring, &propid, &proptype)){
+			mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring property whilst restoring, unknown identifier");
 			continue;
 		}
 		switch(proptype){
 			case MQTT_PROP_TYPE_BYTE:
-				if(!cJSON_IsNumber(j_value)) continue;
-				mosquitto_property_add_byte(&properties, propid, (uint8_t)j_value->valueint);
+				if(!cJSON_IsNumber(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "byte");
+					continue;
+				}
+				if(mosquitto_property_add_byte(&properties, propid, (uint8_t)j_value->valueint)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "byte");
+					continue;
+				}
 				break;
 			case MQTT_PROP_TYPE_INT16:
-				if(!cJSON_IsNumber(j_value)) continue;
-				mosquitto_property_add_int16(&properties, propid, (uint16_t)j_value->valueint);
+				if(!cJSON_IsNumber(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "int16");
+					continue;
+				}
+				if(mosquitto_property_add_int16(&properties, propid, (uint16_t)j_value->valueint)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "int16");
+					continue;
+				}
 				break;
 			case MQTT_PROP_TYPE_INT32:
-				if(!cJSON_IsNumber(j_value)) continue;
-				mosquitto_property_add_int32(&properties, propid, (uint32_t)j_value->valueint);
+				if(!cJSON_IsNumber(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "int32");
+					continue;
+				}
+				if(mosquitto_property_add_int32(&properties, propid, (uint32_t)j_value->valueint)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "int32");
+					continue;
+				}
 				break;
 			case MQTT_PROP_TYPE_VARINT:
-				if(!cJSON_IsNumber(j_value)) continue;
-				mosquitto_property_add_varint(&properties, propid, (uint32_t)j_value->valueint);
+				if(!cJSON_IsNumber(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "varint");
+					continue;
+				}
+				if(mosquitto_property_add_varint(&properties, propid, (uint32_t)j_value->valueint)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "varint");
+					continue;
+				}
 				break;
 			case MQTT_PROP_TYPE_BINARY:
-				if(!cJSON_IsString(j_value)) continue;
+				if(!cJSON_IsString(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "binary");
+					continue;
+				}
 				slen = strlen(j_value->valuestring);
-				if(slen/2 > UINT16_MAX) continue;
+				if(slen/2 > UINT16_MAX){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is too large", "binary");
+					continue;
+				}
 				for(size_t i=0; i<slen; i+=2){
 					((uint8_t *)j_value->valuestring)[i/2] = (uint8_t)(hex2nibble(j_value->valuestring[i])<<4) + hex2nibble(j_value->valuestring[i+1]);
 				}
-				mosquitto_property_add_binary(&properties, propid, (uint8_t *)j_value->valuestring, (uint16_t)(slen/2));
+				if(mosquitto_property_add_binary(&properties, propid, (uint8_t *)j_value->valuestring, (uint16_t)(slen/2))){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "binary");
+					continue;
+				}
 				break;
 			case MQTT_PROP_TYPE_STRING:
-				if(!cJSON_IsString(j_value)) continue;
-				mosquitto_property_add_string(&properties, propid, j_value->valuestring);
+				if(!cJSON_IsString(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "string");
+					continue;
+				}
+				if(mosquitto_property_add_string(&properties, propid, j_value->valuestring)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "string");
+					continue;
+				}
 				break;
 			case MQTT_PROP_TYPE_STRING_PAIR:
-				if(!cJSON_IsString(j_value)) continue;
-				if(!j_name || !cJSON_IsString(j_value)) continue;
-				mosquitto_property_add_string_pair(&properties, propid, j_name->valuestring, j_value->valuestring);
+				if(!cJSON_IsString(j_value)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "string pair");
+					continue;
+				}
+				if(!j_name || !cJSON_IsString(j_name)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring string pair property whilst restoring, name is missing or incorrect type");
+					continue;
+				}
+				if(mosquitto_property_add_string_pair(&properties, propid, j_name->valuestring, j_value->valuestring)){
+					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "string pair");
+					continue;
+				}
 				break;
 		}
 	}
