@@ -280,7 +280,9 @@ void mosquitto_callbacks_set(struct mosquitto *mosq) {
 mosquittopp::mosquittopp(const char *id, bool clean_session)
 {
 	m_mosq = mosquitto_new(id, clean_session, this);
-	mosquitto_callbacks_set(m_mosq);
+	if(m_mosq){
+		mosquitto_callbacks_set(m_mosq);
+	}
 }
 
 mosquittopp::~mosquittopp()
