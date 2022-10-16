@@ -32,8 +32,10 @@ static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_cou
 		abort();
 	}
 
-	mosquitto_property_add_string(&props, MQTT_PROP_RESPONSE_TOPIC, "response/topic");
-	mosquitto_property_add_binary(&props, MQTT_PROP_CORRELATION_DATA, "corridor", 8);
+	if(mosquitto_property_add_string(&props, MQTT_PROP_RESPONSE_TOPIC, "response/topic")
+			|| mosquitto_property_add_binary(&props, MQTT_PROP_CORRELATION_DATA, "corridor", 8)){
+		abort();
+	}
 	rc = mosquitto_publish_v5(mosq, NULL, "request/topic", 6, "action", QOS, 0, props);
 	if(rc != MOSQ_ERR_SUCCESS){
 		abort();
