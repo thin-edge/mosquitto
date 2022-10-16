@@ -1,7 +1,7 @@
 R=../..
 include ${R}/config.mk
 
-.PHONY: all check test test-broker test-lib clean coverage
+.PHONY: all check test test-broker test-compile test-lib clean coverage
 
 CPPFLAGS:=$(CPPFLAGS) -I${R} -I${R}/include -I${R}/lib -I${R}/src -I${R}/common -I${R}/test
 ifeq ($(WITH_BUNDLED_DEPS),yes)
@@ -196,6 +196,8 @@ test-broker : build
 	./subs_test
 
 test : test-broker test-lib
+
+test-compile: build
 
 clean :
 	-rm -rf mosq_test bridge_topic_test keepalive_test persist_read_test persist_write_test subs_test

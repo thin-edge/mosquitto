@@ -1,9 +1,15 @@
 R=..
 include ${R}/config.mk
 
-.PHONY: all check test ptest clean
+.PHONY: all check test test-compile ptest clean
 
 all :
+
+test-compile:
+	$(MAKE) -C broker test-compile
+	$(MAKE) -C client test-compile
+	$(MAKE) -C lib test-compile
+	$(MAKE) -C unit test-compile
 
 check : test
 

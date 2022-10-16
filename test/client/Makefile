@@ -1,7 +1,7 @@
 R=../..
 include ${R}/config.mk
 
-.PHONY: all check test ptest clean
+.PHONY: all check test test-compile ptest clean
 .NOTPARALLEL:
 
 all :
@@ -10,6 +10,8 @@ check : test
 test : 02 03 04
 	./test.sh
 	#./test-ws.sh
+
+test-compile:
 
 02 :
 	./02-subscribe-argv-errors-without-tls.py
