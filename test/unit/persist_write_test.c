@@ -24,12 +24,18 @@ static int file_read(const char *filename, uint8_t **data, size_t *len)
 {
 	FILE *fptr;
 	size_t rc;
+	long llen;
 
 	fptr = fopen(filename, "rb");
 	if(!fptr) return 1;
 
 	fseek(fptr, 0, SEEK_END);
-	*len = (size_t)ftell(fptr);
+	llen = ftell(fptr);
+	if(llen < 0){
+		fclose(fptr);
+		return 1;
+	}
+	*len = (size_t)llen;
 	*data = malloc(*len);
 	if(!(*data)){
 		fclose(fptr);
