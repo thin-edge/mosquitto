@@ -47,7 +47,9 @@ static int acl_check_publish_c_recv(struct dynsec__data *data, struct mosquitto_
 
 	HASH_ITER(hh, base_rolelist, rolelist, rolelist_tmp){
 		HASH_ITER(hh, rolelist->role->acls.publish_c_recv, acl, acl_tmp){
-			mosquitto_topic_matches_sub_with_pattern(acl->topic, ed->topic, clientid, username, &result);
+			if(mosquitto_topic_matches_sub_with_pattern(acl->topic, ed->topic, clientid, username, &result)){
+				return MOSQ_ERR_ACL_DENIED;
+			}
 			if(result){
 				if(acl->allow){
 					return MOSQ_ERR_SUCCESS;
@@ -81,7 +83,9 @@ static int acl_check_publish_c_send(struct dynsec__data *data, struct mosquitto_
 
 	HASH_ITER(hh, base_rolelist, rolelist, rolelist_tmp){
 		HASH_ITER(hh, rolelist->role->acls.publish_c_send, acl, acl_tmp){
-			mosquitto_topic_matches_sub_with_pattern(acl->topic, ed->topic, clientid, username, &result);
+			if(mosquitto_topic_matches_sub_with_pattern(acl->topic, ed->topic, clientid, username, &result)){
+				return MOSQ_ERR_ACL_DENIED;
+			}
 			if(result){
 				if(acl->allow){
 					return MOSQ_ERR_SUCCESS;

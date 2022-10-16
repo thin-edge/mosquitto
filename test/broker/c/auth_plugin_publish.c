@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <mqtt_protocol.h>
 #include <mosquitto.h>
@@ -68,13 +69,13 @@ int mosquitto_auth_acl_check(void *user_data, int access, struct mosquitto *clie
 			mosquitto_broker_publish_copy("test-client", "topic/2", strlen("test-message-2"), "test-message-2", 2, true, NULL);
 			count = 1;
 		}else{
-			mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1);
+			if(mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1)) abort();
 			mosquitto_broker_publish_copy("test-client", "topic/0", strlen("test-message-0"), "test-message-0", 0, true, props);
 			props = NULL;
-			mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1);
+			if(mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1)) abort();
 			mosquitto_broker_publish_copy("test-client", "topic/1", strlen("test-message-1"), "test-message-1", 1, true, props);
 			props = NULL;
-			mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1);
+			if(mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1)) abort();
 			mosquitto_broker_publish_copy("test-client", "topic/2", strlen("test-message-2"), "test-message-2", 2, true, props);
 		}
 	}
