@@ -323,7 +323,6 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		base_msg_count++;
 		return MOSQ_ERR_SUCCESS;
 	}else{
-		mosquitto__FREE(base_msg);
 		return rc;
 	}
 }
