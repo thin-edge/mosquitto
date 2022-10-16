@@ -398,6 +398,9 @@ static void TEST_no_properties(void)
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
 	CU_ASSERT_EQUAL(packet.pos, 1);
+	if(properties){
+		mosquitto_property_free_all(&properties);
+	}
 }
 
 static void TEST_truncated(void)
@@ -439,6 +442,9 @@ static void TEST_truncated(void)
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_MALFORMED_PACKET);
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
 	CU_ASSERT_EQUAL(packet.pos, 2);
+	if(properties){
+		mosquitto_property_free_all(&properties);
+	}
 }
 
 /* ========================================================================
@@ -474,6 +480,9 @@ static void TEST_invalid_property_id(void)
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_MALFORMED_PACKET);
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
 	CU_ASSERT_EQUAL(packet.pos, 2);
+	if(properties){
+		mosquitto_property_free_all(&properties);
+	}
 }
 
 /* ========================================================================
