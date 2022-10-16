@@ -131,6 +131,7 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 	}
 #else
 	FILE *fptr;
+	struct stat statbuf;
 
 	if(restrict_read){
 		mode_t old_mask;
@@ -141,8 +142,8 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 	}else{
 		fptr = fopen(path, mode);
 	}
+	if(!fptr) return NULL;
 
-	struct stat statbuf;
 	if(fstat(fileno(fptr), &statbuf) < 0){
 		fclose(fptr);
 		return NULL;
