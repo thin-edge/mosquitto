@@ -80,7 +80,7 @@ static int basic_auth_callback(int event, void *event_data, void *userdata)
 		}
 	}
 	clientid = mosquitto_client_id(ed->client);
-	if(ip_address){
+	if(clientid){
 		HASH_FIND(hh_by_id, banlist_by_id, clientid, strlen(clientid), entry);
 		if(entry){
 			return MOSQ_ERR_AUTH;
