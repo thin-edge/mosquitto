@@ -100,8 +100,11 @@ SUBS_OBJS = \
 		database.o \
 		memory_mosq.o \
 		memory_public.o \
+		packet_datatypes.o \
+		property_mosq.o \
 		subs.o \
-		topic_tok.o
+		topic_tok.o \
+		utf8_mosq.o \
 
 all : test
 

@@ -100,15 +100,6 @@ uint16_t mosquitto__mid_generate(struct mosquitto *mosq)
 	return ++mid;
 }
 
-int mosquitto_property_add_varint(mosquitto_property **proplist, int identifier, uint32_t value)
-{
-	UNUSED(proplist);
-	UNUSED(identifier);
-	UNUSED(value);
-
-	return MOSQ_ERR_SUCCESS;
-}
-
 int persist__backup(bool shutdown)
 {
 	UNUSED(shutdown);
@@ -119,11 +110,6 @@ int persist__backup(bool shutdown)
 int persist__restore(void)
 {
 	return MOSQ_ERR_SUCCESS;
-}
-
-void mosquitto_property_free_all(mosquitto_property **properties)
-{
-	UNUSED(properties);
 }
 
 int retain__init(void)

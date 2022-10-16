@@ -514,6 +514,8 @@ static void missing_read_helper(mosquitto_property *proplist)
 
 	/* MISSING */
 	prop = mosquitto_property_read_string_pair(proplist, MQTT_PROP_USER_PROPERTY, &key, &value, false);
+	free(key);
+	free(value);
 	CU_ASSERT_PTR_NULL(prop);
 }
 

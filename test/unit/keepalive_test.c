@@ -180,6 +180,7 @@ static void TEST_100k_random_clients(void)
 	db.now_s = 1000;
 	db.config = calloc(1, sizeof(struct mosquitto__config));
 	if(db.config == NULL){
+		free(contexts);
 		return;
 	}
 	CU_ASSERT_PTR_NOT_NULL(db.config);
@@ -194,6 +195,8 @@ static void TEST_100k_random_clients(void)
 	rc = keepalive__init();
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS){
+		free(contexts);
+		free(db.config);
 		return;
 	}
 	CU_ASSERT_EQUAL(keepalive_list_max, 98303);
