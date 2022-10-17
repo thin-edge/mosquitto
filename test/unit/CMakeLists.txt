@@ -130,6 +130,9 @@ add_test(NAME unit-persist-write-test COMMAND persist-write-test)
 # subs-test
 add_library(persistence-obj
     OBJECT
+        ../../lib/property_mosq.c
+        ../../lib/packet_datatypes.c
+        ../../lib/utf8_mosq.c
         ../../src/database.c
         ../../src/subs.c
         ../../src/topic_tok.c
