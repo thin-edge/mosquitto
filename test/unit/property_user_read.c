@@ -2,6 +2,7 @@
 #include <CUnit/Basic.h>
 
 #include "mqtt_protocol.h"
+#include "memory_mosq.h"
 #include "property_mosq.h"
 #include "packet_mosq.h"
 
@@ -203,7 +204,7 @@ static void read_binary_helper(const mosquitto_property *proplist, int identifie
 	if(value){
 		CU_ASSERT_NSTRING_EQUAL(value, expected_value, expected_length);
 	}
-	free(value);
+	SAFE_FREE(value);
 }
 
 static void read_string_helper(const mosquitto_property *proplist, int identifier, const char *expected_value)
@@ -217,7 +218,7 @@ static void read_string_helper(const mosquitto_property *proplist, int identifie
 	if(value){
 		CU_ASSERT_STRING_EQUAL(value, expected_value);
 	}
-	free(value);
+	SAFE_FREE(value);
 }
 
 static void read_string_pair_helper(const mosquitto_property *proplist, int identifier, const char *expected_key, const char *expected_value)
@@ -237,8 +238,8 @@ static void read_string_pair_helper(const mosquitto_property *proplist, int iden
 	if(value){
 		CU_ASSERT_STRING_EQUAL(value, expected_value);
 	}
-	free(key);
-	free(value);
+	SAFE_FREE(key);
+	SAFE_FREE(value);
 }
 
 
@@ -454,7 +455,7 @@ static void missing_read_helper(mosquitto_property *proplist)
 	value = NULL;
 	prop = mosquitto_property_read_string(proplist, MQTT_PROP_CONTENT_TYPE, &value, false);
 	CU_ASSERT_PTR_NULL(prop);
-	free(value);
+	SAFE_FREE(value);
 
 	/* NOT MISSING */
 	value = NULL;
@@ -463,14 +464,14 @@ static void missing_read_helper(mosquitto_property *proplist)
 	CU_ASSERT_PTR_NOT_NULL(value);
 	if(value){
 		CU_ASSERT_STRING_EQUAL(value, "response/topic");
-		free(value);
+		SAFE_FREE(value);
 	}
 
 	/* MISSING */
 	prop = mosquitto_property_read_binary(proplist, MQTT_PROP_CORRELATION_DATA, (void **)&value, &length, false);
 	CU_ASSERT_PTR_NULL(prop);
 	CU_ASSERT_PTR_NULL(value);
-	free(value);
+	SAFE_FREE(value);
 
 	/* NOT MISSING */
 	prop = mosquitto_property_read_byte(proplist, MQTT_PROP_REQUEST_PROBLEM_INFORMATION, &byte_value, false);
@@ -488,7 +489,7 @@ static void missing_read_helper(mosquitto_property *proplist)
 	CU_ASSERT_PTR_NOT_NULL(value);
 	if(value){
 		CU_ASSERT_STRING_EQUAL(value, "localhost");
-		free(value);
+		SAFE_FREE(value);
 	}
 
 	/* MISSING */
@@ -503,7 +504,7 @@ static void missing_read_helper(mosquitto_property *proplist)
 	if(value){
 		CU_ASSERT_NSTRING_EQUAL(value, "password", strlen("password"));
 		CU_ASSERT_EQUAL(length, strlen("password"));
-		free(value);
+		SAFE_FREE(value);
 	}
 
 	/* MISSING */
@@ -517,8 +518,8 @@ static void missing_read_helper(mosquitto_property *proplist)
 
 	/* MISSING */
 	prop = mosquitto_property_read_string_pair(proplist, MQTT_PROP_USER_PROPERTY, &key, &value, false);
-	free(key);
-	free(value);
+	SAFE_FREE(key);
+	SAFE_FREE(value);
 	CU_ASSERT_PTR_NULL(prop);
 }
 
