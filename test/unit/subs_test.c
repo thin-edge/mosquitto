@@ -18,9 +18,7 @@ static void hier_quick_check(struct mosquitto__subhier **sub, struct mosquitto *
 {
 	if(sub != NULL){
 		CU_ASSERT_EQUAL((*sub)->topic_len, strlen(topic));
-		if((*sub)->topic){
-			CU_ASSERT_STRING_EQUAL((*sub)->topic, topic);
-		}
+		CU_ASSERT_STRING_EQUAL((*sub)->topic, topic);
 		if(context){
 			CU_ASSERT_PTR_NOT_NULL((*sub)->subs);
 			if((*sub)->subs){
