@@ -135,7 +135,10 @@ static int acl_check_subscribe(struct dynsec__data *data, struct mosquitto_evt_a
 			}
 		}
 		HASH_ITER(hh, rolelist->role->acls.subscribe_pattern, acl, acl_tmp){
-			mosquitto_sub_matches_acl_with_pattern(acl->topic, ed->topic, clientid, username, &result);
+			if(mosquitto_sub_matches_acl_with_pattern(acl->topic, ed->topic, clientid, username, &result)){
+				/* Invalid input, so deny */
+				return MOSQ_ERR_ACL_DENIED;
+			}
 			if(result){
 				if(acl->allow){
 					return MOSQ_ERR_SUCCESS;
@@ -180,7 +183,10 @@ static int acl_check_unsubscribe(struct dynsec__data *data, struct mosquitto_evt
 			}
 		}
 		HASH_ITER(hh, rolelist->role->acls.unsubscribe_pattern, acl, acl_tmp){
-			mosquitto_sub_matches_acl_with_pattern(acl->topic, ed->topic, clientid, username, &result);
+			if(mosquitto_sub_matches_acl_with_pattern(acl->topic, ed->topic, clientid, username, &result)){
+				/* Invalid input, so deny */
+				return MOSQ_ERR_ACL_DENIED;
+			}
 			if(result){
 				if(acl->allow){
 					return MOSQ_ERR_SUCCESS;
