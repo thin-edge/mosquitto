@@ -5,7 +5,6 @@ add_library(${PLUGIN_NAME} MODULE
 )
 
 target_include_directories(${PLUGIN_NAME} PRIVATE
-	"${OPENSSL_INCLUDE_DIR}"
 	"${mosquitto_SOURCE_DIR}"
 	"${mosquitto_SOURCE_DIR}/include"
 )

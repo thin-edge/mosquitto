@@ -5,6 +5,7 @@ DIRS= \
 		client-properties \
 		connection-state \
 		delayed-auth \
+		deny-protocol-version \
 		force-retain \
 		message-timestamp \
 		payload-ban \

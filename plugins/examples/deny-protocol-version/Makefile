@@ -1,4 +1,4 @@
-R=../..
+R=../../..
 include ${R}/config.mk
 
 .PHONY : all binary check clean reallyclean test install uninstall
