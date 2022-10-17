@@ -96,6 +96,27 @@ static int set_umask(void)
 	return MOSQ_ERR_SUCCESS;
 }
 
+
+/* coverity[ +tainted_string_sanitize_content : arg-0 ] */
+static int check_uid(const char *s, const char *name)
+{
+	char *endptr = NULL;
+	long id = strtol(s, &endptr, 10);
+	if(errno || endptr == s || *endptr != '\0'){
+		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s not a valid ID '%s'", name, s);
+		return -1;
+	}
+	if(id < 0){
+		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be negative", name);
+		return -1;
+	}
+	if(id > INT_MAX){
+		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s must not be less than %d", name, INT_MAX);
+		return -1;
+	}
+	return (int)id;
+}
+
 /* mosquitto shouldn't run as root.
  * This function will attempt to change to an unprivileged user and group if
  * running as root. The user is given in config->user.
@@ -104,6 +125,7 @@ static int set_umask(void)
  * Note that setting config->user to "root" does not produce an error, but it
  * strongly discouraged.
  */
+
 static int drop_privileges(struct mosquitto__config *config)
 {
 #if !defined(__CYGWIN__) && !defined(WIN32)
@@ -111,8 +133,8 @@ static int drop_privileges(struct mosquitto__config *config)
 	char *err;
 	int rc;
 	const char *puid_s, *pgid_s;
-	uid_t puid;
-	gid_t pgid;
+	int puid;
+	int pgid;
 
 	const char *snap = getenv("SNAP_NAME");
 	if(snap && !strcmp(snap, "mosquitto")){
@@ -127,23 +149,29 @@ static int drop_privileges(struct mosquitto__config *config)
 	if(geteuid() == 0){
 		if(puid_s || pgid_s){
 			if(pgid_s){
-				pgid = (gid_t)atoi(pgid_s);
-
-				rc = setgid(pgid);
-				if(rc == -1){
-					err = strerror(errno);
-					log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+				pgid = check_uid(pgid_s, "PGID");
+				if(pgid < 0){
 					return 1;
+				}else if(pgid > 0){
+					rc = setgid((gid_t)pgid);
+					if(rc == -1){
+						err = strerror(errno);
+						log__printf(NULL, MOSQ_LOG_ERR, "Error setting gid whilst dropping privileges: %s.", err);
+						return 1;
+					}
 				}
 			}
 			if(puid_s){
-				puid = (uid_t)atoi(puid_s);
-
-				rc = setuid(puid);
-				if(rc == -1){
-					err = strerror(errno);
-					log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+				puid = check_uid(puid_s, "PUID");
+				if(puid < 0){
 					return 1;
+				}else if(puid > 0){
+					rc = setuid((uid_t)puid);
+					if(rc == -1){
+						err = strerror(errno);
+						log__printf(NULL, MOSQ_LOG_ERR, "Error setting uid whilst dropping privileges: %s.", err);
+						return 1;
+					}
 				}
 			}
 		}else if(config->user && strcmp(config->user, "root")){
