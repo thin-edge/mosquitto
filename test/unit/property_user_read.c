@@ -469,6 +469,8 @@ static void missing_read_helper(mosquitto_property *proplist)
 	/* MISSING */
 	prop = mosquitto_property_read_binary(proplist, MQTT_PROP_CORRELATION_DATA, (void **)&value, &length, false);
 	CU_ASSERT_PTR_NULL(prop);
+	CU_ASSERT_PTR_NULL(value);
+	free(value);
 
 	/* NOT MISSING */
 	prop = mosquitto_property_read_byte(proplist, MQTT_PROP_REQUEST_PROBLEM_INFORMATION, &byte_value, false);
