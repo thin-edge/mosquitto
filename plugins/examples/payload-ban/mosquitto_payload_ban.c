@@ -120,7 +120,7 @@ static int acl_check_callback(int event, void *event_data, void *userdata)
 			HASH_ADD(hh_by_id, banlist_by_id, clientid, strlen(clientid), new_entry);
 			HASH_ADD(hh_by_address, banlist_by_address, ip_address, strlen(ip_address), new_entry);
 			mosquitto_kick_client_by_clientid(clientid, false);
-			fptr = fopen("/tmp/payload-banlist", "wt");
+			fptr = fopen("/tmp/payload-banlist", "at");
 			if(fptr){
 				fprintf(fptr, "%s || %s\n", ip_address, clientid);
 				fclose(fptr);
