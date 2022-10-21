@@ -55,6 +55,9 @@ Contributors:
 #define MQTT3_LOG_STDERR 0x08
 #define MQTT3_LOG_TOPIC 0x10
 #define MQTT3_LOG_DLT 0x20
+#ifdef ANDROID
+#define MQTT3_LOG_ANDROID 0x40
+#endif
 #define MQTT3_LOG_ALL 0xFF
 
 #define CMD_PORT_LIMIT 10
