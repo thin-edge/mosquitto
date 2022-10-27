@@ -366,7 +366,7 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 
 #ifdef SSL_OP_NO_TLSv1_3
 	if(db.config->per_listener_settings){
-		if(listener->security_options.psk_file){
+		if(listener->security_options->psk_file){
 			SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_TLSv1_3);
 		}
 	}else{

@@ -59,7 +59,7 @@ int plugin__handle_subscribe(struct mosquitto *context, const char *topic, uint8
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
-		rc = plugin__handle_subscribe_single(&context->listener->security_options,
+		rc = plugin__handle_subscribe_single(context->listener->security_options,
 				context, topic, qos, subscription_options, subscription_identifier, properties);
 	}
 

@@ -45,6 +45,6 @@ void plugin__handle_disconnect(struct mosquitto *context, int reason)
 
 	/* Per listener plugins */
 	if(db.config->per_listener_settings && context->listener){
-		plugin__handle_disconnect_single(&context->listener->security_options, context, reason);
+		plugin__handle_disconnect_single(context->listener->security_options, context, reason);
 	}
 }

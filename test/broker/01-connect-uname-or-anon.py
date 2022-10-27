@@ -22,7 +22,7 @@ def do_test(allow_anonymous, password_file, username, expect_success):
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
 
     try:
-        for proto_ver in [4, 5]:
+        for proto_ver in [3, 4, 5]:
             rc = 1
             if username:
                 connect_packet = mosq_test.gen_connect("connect-test-%d" % (proto_ver), proto_ver=proto_ver, username="user", password="password")

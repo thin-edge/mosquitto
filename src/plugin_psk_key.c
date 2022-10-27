@@ -79,8 +79,8 @@ int mosquitto_psk_key_get(struct mosquitto *context, const char *hint, const cha
 		if(context->listener == NULL){
 			return MOSQ_ERR_AUTH;
 		}
-		if(context->listener->security_options.plugin_callbacks.psk_key){
-			rc = plugin__psk_key_get(&context->listener->security_options, context,
+		if(context->listener->security_options->plugin_callbacks.psk_key){
+			rc = plugin__psk_key_get(context->listener->security_options, context,
 					hint, identity, key, max_key_len);
 
 			if(rc == MOSQ_ERR_PLUGIN_IGNORE){

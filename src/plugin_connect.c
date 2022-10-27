@@ -43,6 +43,6 @@ void plugin__handle_connect(struct mosquitto *context)
 
 	/* Per listener plugins */
 	if(db.config->per_listener_settings && context->listener){
-		plugin__handle_connect_single(&context->listener->security_options, context);
+		plugin__handle_connect_single(context->listener->security_options, context);
 	}
 }

@@ -56,7 +56,7 @@ int plugin__handle_unsubscribe(struct mosquitto *context, const char *topic, con
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
-		rc = plugin__handle_unsubscribe_single(&context->listener->security_options,
+		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
 				context, topic, properties);
 	}
 

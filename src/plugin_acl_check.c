@@ -28,12 +28,12 @@ Contributors:
 #include "lib_load.h"
 #include "utlist.h"
 
-int acl__pre_check(struct mosquitto__plugin_config *plugin, struct mosquitto *context, int access)
+int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access)
 {
 	const char *username;
 
 	username = mosquitto_client_username(context);
-	if(plugin->deny_special_chars == true){
+	if(plugin->config.deny_special_chars == true){
 		/* Check whether the client id or username contains a +, # or / and if
 		* so deny access.
 		*
@@ -50,15 +50,15 @@ int acl__pre_check(struct mosquitto__plugin_config *plugin, struct mosquitto *co
 		}
 	}
 
-	if(plugin->plugin.version == 4){
+	if(plugin->lib.version == 4){
 		if(access == MOSQ_ACL_UNSUBSCRIBE){
 			return MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->plugin.version == 3){
+	}else if(plugin->lib.version == 3){
 		if(access == MOSQ_ACL_UNSUBSCRIBE){
 			return MOSQ_ERR_SUCCESS;
 		}
-	}else if(plugin->plugin.version == 2){
+	}else if(plugin->lib.version == 2){
 		if(access == MOSQ_ACL_SUBSCRIBE || access == MOSQ_ACL_UNSUBSCRIBE){
 			return MOSQ_ERR_SUCCESS;
 		}
@@ -115,7 +115,6 @@ static int plugin__acl_check(struct mosquitto__security_options *opts, struct mo
 	msg.retain = retain;
 
 	DL_FOREACH(opts->plugin_callbacks.acl_check, cb_base){
-		rc = MOSQ_ERR_PLUGIN_DEFER;
 		/* FIXME - username deny special chars */
 
 		memset(&event_data, 0, sizeof(event_data));
@@ -173,8 +172,8 @@ int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t p
 
 	if(db.config->per_listener_settings){
 		if(context->listener){
-			if(context->listener->security_options.plugin_callbacks.acl_check){
-				rc = plugin__acl_check(&context->listener->security_options, context, topic, payloadlen,
+			if(context->listener->security_options->plugin_callbacks.acl_check){
+				rc = plugin__acl_check(context->listener->security_options, context, topic, payloadlen,
 						payload, qos, retain, access);
 
 				if(rc == MOSQ_ERR_PLUGIN_IGNORE){

@@ -402,7 +402,7 @@ int main(int argc, char *argv[])
 	}
 	report_features();
 
-	rc = mosquitto_security_module_init();
+	rc = plugin__load_all();
 	if(rc) return rc;
 	rc = mosquitto_security_init(false);
 	if(rc) return rc;
@@ -496,7 +496,8 @@ int main(int argc, char *argv[])
 #endif
 	db__close();
 
-	mosquitto_security_module_cleanup();
+	plugin__unload_all();
+	mosquitto_security_cleanup(false);
 
 	if(config.pid_file){
 		(void)remove(config.pid_file);

@@ -44,7 +44,7 @@ int control__process(struct mosquitto *context, struct mosquitto_base_msg *base_
 
 	/* If not found, check for per-listener plugins. */
 	if(cb_found == NULL && db.config->per_listener_settings){
-		opts = &context->listener->security_options;
+		opts = context->listener->security_options;
 		HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->topic, strlen(base_msg->topic), cb_found);
 	}
 	if(cb_found){

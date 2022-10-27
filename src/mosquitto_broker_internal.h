@@ -100,7 +100,7 @@ enum mosquitto_msg_origin{
 	mosq_mo_broker = 1
 };
 
-struct mosquitto__plugin{
+struct mosquitto__plugin_lib{
 	void *lib;
 	void *user_data;
 	int (*plugin_version)(void);
@@ -140,11 +140,12 @@ struct mosquitto__plugin{
 struct mosquitto__plugin_config
 {
 	char *path;
+	char *name;
 	struct mosquitto_opt *options;
+	struct mosquitto__security_options **security_options;
 	int option_count;
+	int security_option_count;
 	bool deny_special_chars;
-
-	struct mosquitto__plugin plugin;
 };
 
 struct mosquitto__callback{
@@ -186,6 +187,8 @@ struct plugin__callbacks{
 	struct mosquitto__callback *persist_retain_msg_delete;
 };
 
+/* This is owned by mosquitto__config or mosquitto__listener, and only referred
+ * to by other structs */
 struct mosquitto__security_options {
 	/* Any options that get added here also need considering
 	 * in config__read() with regards whether allow_anonymous
@@ -198,8 +201,8 @@ struct mosquitto__security_options {
 	char *password_file;
 	char *psk_file;
 	char *acl_file;
-	struct mosquitto__plugin_config **plugin_configs;
-	int plugin_config_count;
+	mosquitto_plugin_id_t **plugins;
+	int plugin_count;
 	int8_t allow_anonymous;
 	bool allow_zero_length_clientid;
 	char *auto_id_prefix;
@@ -262,7 +265,7 @@ struct mosquitto__listener {
 	char **ws_origins;
 	int ws_origin_count;
 #endif
-	struct mosquitto__security_options security_options;
+	struct mosquitto__security_options *security_options;
 #ifdef WITH_UNIX_SOCKETS
 	char *unix_socket_path;
 #endif
@@ -292,6 +295,8 @@ struct plugin_own_callback{
 };
 
 typedef struct mosquitto_plugin_id_t{
+	struct mosquitto__plugin_config config;
+	struct mosquitto__plugin_lib lib;
 	struct mosquitto__listener *listener;
 	char *plugin_name;
 	char *plugin_version;
@@ -313,7 +318,7 @@ struct mosquitto__config {
 	bool enable_control_api;
 	int global_max_clients;
 	int global_max_connections;
-	struct mosquitto__listener default_listener;
+	struct mosquitto__listener *default_listener; /* Points to one of `listeners` */
 	struct mosquitto__listener *listeners;
 	int listener_count;
 	bool local_only;
@@ -489,6 +494,8 @@ struct mosquitto_db{
 	struct mosquitto *contexts_by_sock;
 	struct mosquitto *contexts_by_id_delayed_auth;
 	struct mosquitto *contexts_for_free;
+	mosquitto_plugin_id_t **plugins;
+	int plugin_count;
 #ifdef WITH_BRIDGE
 	struct mosquitto **bridges;
 	int bridge_count;
@@ -851,11 +858,12 @@ void listeners__stop(void);
 /* ============================================================
  * Plugin related functions
  * ============================================================ */
-int plugin__load_v5(struct mosquitto__listener *listener, struct mosquitto__plugin *plugin, struct mosquitto_opt *auth_options, int auth_option_count, void *lib);
-int plugin__load_v4(struct mosquitto__listener *listener, struct mosquitto__plugin_config *plugin_config, void *lib);
-int plugin__load_v3(struct mosquitto__listener *listener, struct mosquitto__plugin_config *plugin_config, void *lib);
-int plugin__load_v2(struct mosquitto__listener *listener, struct mosquitto__plugin_config *plugin_config, void *lib);
-int acl__pre_check(struct mosquitto__plugin_config *plugin, struct mosquitto *context, int access);
+int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
+int plugin__load_v5(mosquitto_plugin_id_t *plugin, void *lib);
+int plugin__load_v4(mosquitto_plugin_id_t *plugin, void *lib);
+int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib);
+int plugin__load_v2(mosquitto_plugin_id_t *plugin, void *lib);
+int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int access);
 
 void plugin__handle_connect(struct mosquitto *context);
 void plugin__handle_disconnect(struct mosquitto *context, int reason);
@@ -908,8 +916,9 @@ int retain__store(const char *topic, struct mosquitto_base_msg *base_msg, char *
  * Security related functions
  * ============================================================ */
 int acl__find_acls(struct mosquitto *context);
-int mosquitto_security_module_init(void);
-int mosquitto_security_module_cleanup(void);
+int plugin__load_all(void);
+int plugin__unload_all(void);
+int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__security_options *security_options);
 
 int mosquitto_security_init(bool reload);
 int mosquitto_security_cleanup(bool reload);

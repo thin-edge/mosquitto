@@ -164,26 +164,33 @@ static struct mosquitto__callback **plugin__get_callback_base(struct mosquitto__
 
 
 
-static int remove_callback(mosquitto_plugin_id_t *identifier, int event, struct mosquitto__callback **cb_base, MOSQ_FUNC_generic_callback cb_func)
+static int remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_callback *own)
 {
+	struct mosquitto__security_options *security_options;
 	struct mosquitto__callback *tail, *tmp;
-	struct plugin_own_callback *own, *own_tmp;
+	struct mosquitto__callback **cb_base = NULL;
 
-	DL_FOREACH_SAFE(*cb_base, tail, tmp){
-		if(tail->cb == cb_func){
-			DL_DELETE(*cb_base, tail);
-			mosquitto__FREE(tail);
-			break;
+	for(int i=0; i<plugin->config.security_option_count; i++){
+		security_options = plugin->config.security_options[i];
+
+		cb_base = plugin__get_callback_base(security_options, own->event);
+		if(cb_base == NULL){
+			return MOSQ_ERR_NOT_SUPPORTED;
+		}
+
+		DL_FOREACH_SAFE(*cb_base, tail, tmp){
+			if(tail->cb == own->cb_func){
+				DL_DELETE(*cb_base, tail);
+				mosquitto__FREE(tail);
+				break;
+			}
 		}
 	}
-	DL_FOREACH_SAFE(identifier->own_callbacks, own, own_tmp){
-		if(own->cb_func == cb_func && own->event == event){
-			DL_DELETE(identifier->own_callbacks, own);
-			mosquitto__FREE(own);
-			return MOSQ_ERR_SUCCESS;
-		}
-	}
-	return MOSQ_ERR_NOT_FOUND;
+
+	DL_DELETE(plugin->own_callbacks, own);
+	mosquitto__FREE(own);
+
+	return MOSQ_ERR_SUCCESS;
 }
 
 
@@ -200,74 +207,66 @@ BROKER_EXPORT int mosquitto_callback_register(
 
 	if(cb_func == NULL) return MOSQ_ERR_INVAL;
 
-	if(identifier->listener == NULL){
-		security_options = &db.config->security_options;
-	}else{
-		security_options = &identifier->listener->security_options;
-	}
-
 	if(event == MOSQ_EVT_CONTROL){
 		return control__register_callback(identifier, cb_func, event_data, userdata);
 	}
 
-	cb_base = plugin__get_callback_base(security_options, event);
-	if(cb_base == NULL){
-		return MOSQ_ERR_NOT_SUPPORTED;
-	}
-
-	if(check_callback_exists(*cb_base, cb_func)){
-		return MOSQ_ERR_ALREADY_EXISTS;
-	}
-
-	cb_new = mosquitto__calloc(1, sizeof(struct mosquitto__callback));
-	if(cb_new == NULL){
-		return MOSQ_ERR_NOMEM;
-	}
 	own_callback = mosquitto__calloc(1, sizeof(struct plugin_own_callback));
 	if(own_callback == NULL){
-		mosquitto__FREE(cb_new);
 		return MOSQ_ERR_NOMEM;
 	}
 	own_callback->event = event;
 	own_callback->cb_func = cb_func;
 	DL_APPEND(identifier->own_callbacks, own_callback);
 
-	DL_APPEND(*cb_base, cb_new);
-	cb_new->cb = cb_func;
-	cb_new->userdata = userdata;
+	for(int i=0; i<identifier->config.security_option_count; i++){
+		security_options = identifier->config.security_options[i];
+
+		cb_base = plugin__get_callback_base(security_options, event);
+		if(cb_base == NULL){
+			return MOSQ_ERR_NOT_SUPPORTED;
+		}
+
+		if(check_callback_exists(*cb_base, cb_func)){
+			return MOSQ_ERR_ALREADY_EXISTS;
+		}
+
+		cb_new = mosquitto__calloc(1, sizeof(struct mosquitto__callback));
+		if(cb_new == NULL){
+			DL_DELETE(identifier->own_callbacks, own_callback);
+			mosquitto__FREE(own_callback);
+			return MOSQ_ERR_NOMEM;
+		}
+
+		DL_APPEND(*cb_base, cb_new);
+		cb_new->cb = cb_func;
+		cb_new->userdata = userdata;
+	}
 
 	if(identifier->plugin_name){
 		log__printf(NULL, MOSQ_LOG_INFO, "Plugin %s has registered to receive '%s' events.",
 				identifier->plugin_name, get_event_name(event));
+	}else{
+		log__printf(NULL, MOSQ_LOG_INFO, "Plugin has registered to receive '%s' events.",
+				get_event_name(event));
 	}
 
 	return MOSQ_ERR_SUCCESS;
 }
 
 
-int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier)
+int plugin__callback_unregister_all(mosquitto_plugin_id_t *plugin)
 {
-	struct mosquitto__callback **cb_base = NULL;
-	struct mosquitto__security_options *security_options;
 	struct plugin_own_callback *own, *own_tmp;
 
-	if(identifier == NULL){
+	if(plugin == NULL){
 		return MOSQ_ERR_INVAL;
 	}
 
-	if(identifier->listener == NULL){
-		security_options = &db.config->security_options;
-	}else{
-		security_options = &identifier->listener->security_options;
-	}
+	control__unregister_all_callbacks(plugin);
 
-	control__unregister_all_callbacks(identifier);
-
-	DL_FOREACH_SAFE(identifier->own_callbacks, own, own_tmp){
-		cb_base = plugin__get_callback_base(security_options, own->event);
-		if(cb_base){
-			remove_callback(identifier, own->event, cb_base, own->cb_func);
-		}
+	DL_FOREACH_SAFE(plugin->own_callbacks, own, own_tmp){
+		remove_callback(plugin, own);
 	}
 	return MOSQ_ERR_SUCCESS;
 }
@@ -279,27 +278,21 @@ BROKER_EXPORT int mosquitto_callback_unregister(
 		MOSQ_FUNC_generic_callback cb_func,
 		const void *event_data)
 {
-	struct mosquitto__callback **cb_base = NULL;
-	struct mosquitto__security_options *security_options;
+	struct plugin_own_callback *own, *own_tmp;
 
 	if(identifier == NULL || cb_func == NULL){
 		return MOSQ_ERR_INVAL;
-	}
-
-	if(identifier->listener == NULL){
-		security_options = &db.config->security_options;
-	}else{
-		security_options = &identifier->listener->security_options;
 	}
 
 	if(event == MOSQ_EVT_CONTROL){
 		return control__unregister_callback(identifier, cb_func, event_data);
 	}
 
-	cb_base = plugin__get_callback_base(security_options, event);
-	if(cb_base){
-		return remove_callback(identifier, event, cb_base, cb_func);
-	}else{
-		return MOSQ_ERR_NOT_SUPPORTED;
+	DL_FOREACH_SAFE(identifier->own_callbacks, own, own_tmp){
+		if(own->event == event && own->cb_func == cb_func){
+			return remove_callback(identifier, own);
+		}
 	}
+
+	return MOSQ_ERR_NOT_FOUND;
 }

@@ -26,13 +26,38 @@ extern int g_run;
 
 void listener__set_defaults(struct mosquitto__listener *listener)
 {
-	listener->security_options.allow_anonymous = -1;
-	listener->security_options.allow_zero_length_clientid = true;
-	listener->protocol = mp_mqtt;
+	listener->disable_protocol_v3 = false;
+	listener->disable_protocol_v4 = false;
+	listener->disable_protocol_v5 = false;
 	listener->max_connections = -1;
 	listener->max_qos = 2;
 	listener->max_topic_alias = 10;
 	listener->max_topic_alias_broker = 10;
+	listener->protocol = mp_mqtt;
+	mosquitto__FREE(listener->mount_point);
+
+	mosquitto__FREE(listener->security_options->acl_file);
+	mosquitto__FREE(listener->security_options->password_file);
+	mosquitto__FREE(listener->security_options->psk_file);
+	listener->security_options->allow_anonymous = -1;
+	listener->security_options->allow_zero_length_clientid = true;
+	mosquitto__FREE(listener->security_options->auto_id_prefix);
+	listener->security_options->auto_id_prefix_len = 0;
+#ifdef WITH_TLS
+	listener->require_certificate = false;
+	listener->use_identity_as_username = false;
+	listener->use_subject_as_username = false;
+	listener->use_username_as_clientid = false;
+	listener->disable_client_cert_date_checks = false;
+#endif
+
+#if defined(WITH_WEBSOCKETS) && (LWS_LIBRARY_VERSION_NUMBER >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN)
+	for(int i=0; i<listener->ws_origin_count; i++){
+		mosquitto__FREE(listener->ws_origins[i]);
+	}
+	mosquitto__FREE(listener->ws_origins);
+	listener->ws_origin_count = 0;
+#endif
 }
 
 
@@ -130,14 +155,21 @@ static int listeners__add_local(const char *host, uint16_t port)
 	struct mosquitto__listener *listeners;
 	listeners = db.config->listeners;
 
+	listeners[db.config->listener_count].security_options = mosquitto__calloc(1, sizeof(struct mosquitto__security_options));
+	if(listeners[db.config->listener_count].security_options == NULL){
+		return MOSQ_ERR_NOMEM;
+	}
+
 	listener__set_defaults(&listeners[db.config->listener_count]);
-	listeners[db.config->listener_count].security_options.allow_anonymous = true;
+	listeners[db.config->listener_count].security_options->allow_anonymous = true;
 	listeners[db.config->listener_count].port = port;
 	listeners[db.config->listener_count].host = mosquitto__strdup(host);
 	if(listeners[db.config->listener_count].host == NULL){
+		mosquitto__FREE(listeners[db.config->listener_count].security_options);
 		return MOSQ_ERR_NOMEM;
 	}
 	if(listeners__start_single_mqtt(&listeners[db.config->listener_count])){
+		mosquitto__FREE(listeners[db.config->listener_count].security_options);
 		mosquitto__FREE(listeners[db.config->listener_count].host);
 		return MOSQ_ERR_UNKNOWN;
 	}

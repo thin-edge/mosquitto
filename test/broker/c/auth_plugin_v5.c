@@ -77,11 +77,11 @@ int mosquitto_auth_unpwd_check_v5(int event, void *event_data, void *user_data)
 		abort();
 	}
 
-	if(!strcmp(ed->username, "test-username") && ed->password && !strcmp(ed->password, "cnwTICONIURW")){
+	if(ed->username && !strcmp(ed->username, "test-username") && ed->password && !strcmp(ed->password, "cnwTICONIURW")){
 		return MOSQ_ERR_SUCCESS;
-	}else if(!strcmp(ed->username, "readonly") || !strcmp(ed->username, "readwrite")){
+	}else if(ed->username && (!strcmp(ed->username, "readonly") || !strcmp(ed->username, "readwrite"))){
 		return MOSQ_ERR_SUCCESS;
-	}else if(!strcmp(ed->username, "test-username@v2")){
+	}else if(ed->username && !strcmp(ed->username, "test-username@v2")){
 		return MOSQ_ERR_PLUGIN_DEFER;
 	}else{
 		return MOSQ_ERR_AUTH;

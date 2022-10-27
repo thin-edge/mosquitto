@@ -205,6 +205,7 @@ endif
 	./09-plugin-change-id.py
 	./09-plugin-delayed-auth.py
 	./09-plugin-evt-psk-key.py
+	./09-plugin-load.py
 	./09-plugin-publish.py
 	./09-plugin-tick.py
 	./09-plugin-unsupported.py

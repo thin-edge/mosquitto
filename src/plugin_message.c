@@ -67,7 +67,7 @@ int plugin__handle_message(struct mosquitto *context, struct mosquitto_base_msg 
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
-		rc = plugin__handle_message_single(&context->listener->security_options,
+		rc = plugin__handle_message_single(context->listener->security_options,
 			context, stored);
 	}
 

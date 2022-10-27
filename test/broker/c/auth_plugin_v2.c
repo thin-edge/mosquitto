@@ -84,11 +84,11 @@ int mosquitto_auth_unpwd_check(void *user_data, const char *username, const char
 {
 	(void)user_data;
 
-	if(!strcmp(username, "test-username") && password && !strcmp(password, "cnwTICONIURW")){
+	if(username && !strcmp(username, "test-username") && password && !strcmp(password, "cnwTICONIURW")){
 		return MOSQ_ERR_SUCCESS;
-	}else if(!strcmp(username, "readonly") || !strcmp(username, "readwrite")){
+	}else if(username && (!strcmp(username, "readonly") || !strcmp(username, "readwrite"))){
 		return MOSQ_ERR_SUCCESS;
-	}else if(!strcmp(username, "test-username@v2")){
+	}else if(username && !strcmp(username, "test-username@v2")){
 		return MOSQ_ERR_SUCCESS;
 	}else{
 		return MOSQ_ERR_AUTH;
