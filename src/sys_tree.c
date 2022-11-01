@@ -226,9 +226,10 @@ void sys_tree__update(void)
 	uint32_t len;
 	bool initial_publish;
 	time_t next_event;
+	static time_t last_update_real = 0;
 
 	if(db.config->sys_interval){
-		next_event = last_update - db.now_s + db.config->sys_interval;
+		next_event = db.config->sys_interval - db.now_real_s % db.config->sys_interval - 1;
 		if(next_event <= 0){
 			next_event = db.config->sys_interval;
 		}
@@ -236,7 +237,7 @@ void sys_tree__update(void)
 	}
 
 	if(db.config->sys_interval
-			&& db.now_s - db.config->sys_interval >= last_update){
+			&& db.now_real_s % db.config->sys_interval == 0 && last_update_real != db.now_real_s){
 
 		uptime = db.now_s - start_time;
 		len = (uint32_t)snprintf(buf, BUFLEN, "%" PRIu64 " seconds", (uint64_t)uptime);
@@ -408,6 +409,7 @@ void sys_tree__update(void)
 		}
 
 		last_update = db.now_s;
+		last_update_real = db.now_real_s;
 	}
 }
 
