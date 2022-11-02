@@ -362,6 +362,7 @@ struct mosquitto {
 	struct mosquitto__client_sub **subs;
 	char *auth_method;
 	int subs_capacity; /* allocated size of the subs instance */
+	int subs_count; /* number of currently active subscriptions */
 #  ifndef WITH_EPOLL
 	int pollfd_index;
 #  endif

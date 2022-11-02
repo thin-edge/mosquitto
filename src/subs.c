@@ -238,6 +238,7 @@ static int sub__add_shared(struct mosquitto *context, const char *sub, uint8_t q
 		for(i=0; i<context->subs_capacity; i++){
 			if(!context->subs[i]){
 				context->subs[i] = csub;
+				context->subs_count++;
 				assigned = true;
 				break;
 			}
@@ -252,6 +253,7 @@ static int sub__add_shared(struct mosquitto *context, const char *sub, uint8_t q
 			}
 			context->subs = subs;
 			context->subs_capacity++;
+			context->subs_count++;
 			context->subs[context->subs_capacity-1] = csub;
 		}
 #ifdef WITH_SYS_TREE
@@ -295,6 +297,7 @@ static int sub__add_normal(struct mosquitto *context, const char *sub, uint8_t q
 		for(i=0; i<context->subs_capacity; i++){
 			if(!context->subs[i]){
 				context->subs[i] = csub;
+				context->subs_count++;
 				assigned = true;
 				break;
 			}
@@ -309,6 +312,7 @@ static int sub__add_normal(struct mosquitto *context, const char *sub, uint8_t q
 			}
 			context->subs = subs;
 			context->subs_capacity++;
+			context->subs_count++;
 			context->subs[context->subs_capacity-1] = csub;
 		}
 #ifdef WITH_SYS_TREE
@@ -381,6 +385,7 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			 * each subleaf. Might be worth considering though. */
 			for(i=0; i<context->subs_capacity; i++){
 				if(context->subs[i] && context->subs[i]->hier == subhier){
+					context->subs_count--;
 					mosquitto__FREE(context->subs[i]);
 					break;
 				}
@@ -419,7 +424,7 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 					if(context->subs[i]
 							&& context->subs[i]->hier == subhier
 							&& context->subs[i]->shared == shared){
-
+						context->subs_count--;
 						mosquitto__FREE(context->subs[i]);
 						break;
 					}
@@ -744,6 +749,7 @@ int sub__clean_session(struct mosquitto *context)
 	}
 	mosquitto__FREE(context->subs);
 	context->subs_capacity = 0;
+	context->subs_count = 0;
 
 	return MOSQ_ERR_SUCCESS;
 }

@@ -172,7 +172,7 @@ BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *clie
 BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
 {
 	if(client){
-		return client->subs_capacity;
+		return client->subs_count;
 	}else{
 		return 0;
 	}

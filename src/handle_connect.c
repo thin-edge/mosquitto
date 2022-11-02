@@ -165,7 +165,9 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 			context->subs = found_context->subs;
 			found_context->subs = NULL;
 			context->subs_capacity = found_context->subs_capacity;
+			context->subs_count = found_context->subs_count;
 			found_context->subs_capacity = 0;
+			found_context->subs_count = 0;
 			context->last_mid = found_context->last_mid;
 
 			for(i=0; i<context->subs_capacity; i++){
