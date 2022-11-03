@@ -195,6 +195,10 @@ if(WITH_WEBSOCKETS)
 	endif()
 endif()
 
+if (ANDROID)
+	set (MOSQ_LIBS ${MOSQ_LIBS} log)
+endif (ANDROID)
+
 add_executable(mosquitto ${MOSQ_SRCS})
 
 if(WITH_WEBSOCKETS)

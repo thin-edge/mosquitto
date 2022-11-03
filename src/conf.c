@@ -1810,6 +1810,10 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							cr->log_dest |= MQTT3_LOG_TOPIC;
 						}else if(!strcmp(token, "dlt")){
 							cr->log_dest |= MQTT3_LOG_DLT;
+#ifdef ANDROID
+						}else if(!strcmp(token, "android")){
+							cr->log_dest |= MQTT3_LOG_ANDROID;
+#endif
 						}else if(!strcmp(token, "file")){
 							cr->log_dest |= MQTT3_LOG_FILE;
 							if(config->log_fptr || config->log_file){

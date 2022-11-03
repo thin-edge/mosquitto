@@ -44,6 +44,11 @@ Contributors:
 HANDLE syslog_h;
 #endif
 
+#ifdef ANDROID
+#include <android/log.h>
+static const char* LOG_TAG = "mosquitto";
+#endif
+
 static char log_fptr_buffer[BUFSIZ];
 
 /* Options for logging should be:
@@ -183,6 +188,28 @@ DltLogLevelType get_dlt_level(unsigned int priority)
 			return DLT_LOG_VERBOSE;
 		default:
 			return DLT_LOG_DEFAULT;
+	}
+}
+#endif
+
+#ifdef ANDROID
+android_LogPriority get_android_level(unsigned int priority)
+{
+	switch (priority) {
+		case MOSQ_LOG_ERR:
+			return ANDROID_LOG_ERROR;
+		case MOSQ_LOG_WARNING:
+			return ANDROID_LOG_WARN;
+		case MOSQ_LOG_INFO:
+			return ANDROID_LOG_INFO;
+		case MOSQ_LOG_DEBUG:
+			return ANDROID_LOG_DEBUG;
+		case MOSQ_LOG_NOTICE:
+		case MOSQ_LOG_SUBSCRIBE:
+		case MOSQ_LOG_UNSUBSCRIBE:
+			return ANDROID_LOG_VERBOSE;
+		default:
+			return ANDROID_LOG_DEBUG;
 	}
 }
 #endif
@@ -332,6 +359,11 @@ static int log__vprintf(unsigned int priority, const char *fmt, va_list va)
 #ifdef WITH_DLT
 		if(log_destinations & MQTT3_LOG_DLT && priority != MOSQ_LOG_INTERNAL){
 			DLT_LOG_STRING(dltContext, get_dlt_level(priority), log_line);
+		}
+#endif
+#ifdef ANDROID
+		if(log_destinations & MQTT3_LOG_ANDROID && priority != MOSQ_LOG_INTERNAL){
+			__android_log_write(get_android_level(priority), LOG_TAG, log_line);
 		}
 #endif
 	}
