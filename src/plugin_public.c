@@ -172,7 +172,7 @@ BROKER_EXPORT int mosquitto_client_protocol_version(const struct mosquitto *clie
 BROKER_EXPORT int mosquitto_client_sub_count(const struct mosquitto *client)
 {
 	if(client){
-		return client->sub_count;
+		return client->subs_capacity;
 	}else{
 		return 0;
 	}
@@ -371,7 +371,7 @@ static void check_subscription_acls(struct mosquitto *context)
 	int rc;
 	uint8_t reason;
 
-	for(i=0; i<context->sub_count; i++){
+	for(i=0; i<context->subs_capacity; i++){
 		if(context->subs[i] == NULL){
 			continue;
 		}
