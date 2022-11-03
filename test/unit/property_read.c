@@ -248,7 +248,7 @@ static void binary_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->value.bin.len, len_expected);
 		CU_ASSERT_EQUAL(memcmp(properties->value.bin.v, value_expected, (size_t)len_expected), 0);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+len_expected);
+		CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+(unsigned int)len_expected);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);

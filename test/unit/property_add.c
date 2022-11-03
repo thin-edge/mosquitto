@@ -579,8 +579,8 @@ static void TEST_check_length(void)
 	mosquitto_property *proplist = NULL;
 	int rc;
 	unsigned int len;
-	int varbytes;
-	int i;
+	unsigned int varbytes;
+	unsigned int i;
 
 	len = property__get_remaining_length(proplist);
 	CU_ASSERT_EQUAL(len, 1);
