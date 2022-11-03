@@ -5,9 +5,14 @@ add_library(${PLUGIN_NAME} MODULE
 )
 
 target_include_directories(${PLUGIN_NAME} PRIVATE
-	"${mosquitto_SOURCE_DIR}/deps"
 	"${mosquitto_SOURCE_DIR}/include"
 )
+
+if(WITH_BUNDLED_DEPS)
+	target_include_directories(${PLUGIN_NAME} PRIVATE
+		"${mosquitto_SOURCE_DIR}/deps"
+	)
+endif()
 
 set_target_properties(${PLUGIN_NAME} PROPERTIES
 	PREFIX ""

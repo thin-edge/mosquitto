@@ -6,13 +6,12 @@ add_library(${PLUGIN_NAME} MODULE
 
 target_include_directories(${PLUGIN_NAME} PRIVATE
 	"${mosquitto_SOURCE_DIR}"
-	"${mosquitto_SOURCE_DIR}/deps"
 	"${mosquitto_SOURCE_DIR}/include"
 )
 
 if(WITH_BUNDLED_DEPS)
 	target_include_directories(${PLUGIN_NAME} PRIVATE
-		"${${PLUGIN_NAME}}/deps"
+		"${mosquitto_SOURCE_DIR}/deps"
 	)
 endif()
 
