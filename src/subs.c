@@ -232,23 +232,25 @@ static int sub__add_shared(struct mosquitto *context, const char *sub, uint8_t q
 		newleaf->shared = shared;
 
 		bool assigned = false;
-		for(i=0; i<context->sub_count; i++){
+		for(i=0; i<context->subs_capacity; i++){
 			if(!context->subs[i]){
 				context->subs[i] = newleaf;
+				context->subs_count++;
 				assigned = true;
 				break;
 			}
 		}
 		if(assigned == false){
-			subs = mosquitto__realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->sub_count + 1));
+			subs = mosquitto__realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
 			if(!subs){
 				sub__remove_shared_leaf(subhier, shared, newleaf);
 				mosquitto__FREE(newleaf);
 				return MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
-			context->sub_count++;
-			context->subs[context->sub_count-1] = newleaf;
+			context->subs_capacity++;
+			context->subs_count++;
+			context->subs[context->subs_capacity-1] = newleaf;
 		}
 #ifdef WITH_SYS_TREE
 		db.shared_subscription_count++;
@@ -282,23 +284,25 @@ static int sub__add_normal(struct mosquitto *context, const char *sub, uint8_t q
 		newleaf->shared = NULL;
 
 		bool assigned = false;
-		for(i=0; i<context->sub_count; i++){
+		for(i=0; i<context->subs_capacity; i++){
 			if(!context->subs[i]){
 				context->subs[i] = newleaf;
+				context->subs_count++;
 				assigned = true;
 				break;
 			}
 		}
 		if(assigned == false){
-			subs = mosquitto__realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->sub_count + 1));
+			subs = mosquitto__realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
 			if(!subs){
 				DL_DELETE(subhier->subs, newleaf);
 				mosquitto__FREE(newleaf);
 				return MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
-			context->sub_count++;
-			context->subs[context->sub_count-1] = newleaf;
+			context->subs_capacity++;
+			context->subs_count++;
+			context->subs[context->subs_capacity-1] = newleaf;
 		}
 #ifdef WITH_SYS_TREE
 		db.subscription_count++;
@@ -367,8 +371,9 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			 * It would be nice to be able to use the reference directly,
 			 * but that would involve keeping a copy of the topic string in
 			 * each subleaf. Might be worth considering though. */
-			for(i=0; i<context->sub_count; i++){
+			for(i=0; i<context->subs_capacity; i++){
 				if(context->subs[i] == leaf){
+					context->subs_count--;
 					mosquitto__FREE(context->subs[i]);
 					break;
 				}
@@ -402,8 +407,9 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 				* It would be nice to be able to use the reference directly,
 				* but that would involve keeping a copy of the topic string in
 				* each subleaf. Might be worth considering though. */
-				for(i=0; i<context->sub_count; i++){
+				for(i=0; i<context->subs_capacity; i++){
 					if(context->subs[i] == leaf){
+						context->subs_count--;
 						mosquitto__FREE(context->subs[i]);
 						break;
 					}
@@ -680,7 +686,7 @@ int sub__clean_session(struct mosquitto *context)
 	struct mosquitto__subleaf *leaf;
 	struct mosquitto__subhier *hier;
 
-	for(i=0; i<context->sub_count; i++){
+	for(i=0; i<context->subs_capacity; i++){
 		if(context->subs[i] == NULL || context->subs[i]->hier == NULL){
 			continue;
 		}
@@ -726,7 +732,8 @@ int sub__clean_session(struct mosquitto *context)
 		}
 	}
 	mosquitto__FREE(context->subs);
-	context->sub_count = 0;
+	context->subs_capacity = 0;
+	context->subs_count = 0;
 
 	return MOSQ_ERR_SUCCESS;
 }

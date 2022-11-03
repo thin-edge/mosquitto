@@ -361,7 +361,8 @@ struct mosquitto {
 	struct mosquitto__packet *out_packet_last;
 	struct mosquitto__subleaf **subs;
 	char *auth_method;
-	int sub_count;
+	int subs_capacity; /* allocated size of the subs instance */
+	int subs_count; /* number of currently active subscriptions */
 #  ifndef WITH_EPOLL
 	int pollfd_index;
 #  endif
@@ -447,4 +448,3 @@ struct mosquitto {
 void do_client_disconnect(struct mosquitto *mosq, int reason_code, const mosquitto_property *properties);
 
 #endif
-
