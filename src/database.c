@@ -383,20 +383,17 @@ void db__message_dequeue_first(struct mosquitto *context, struct mosquitto_msg_d
 int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mosquitto_msg_state expect_state, int qos)
 {
 	struct mosquitto_client_msg *tail, *tmp;
-	int msg_index = 0;
 	bool deleted = false;
 
 	if(!context) return MOSQ_ERR_INVAL;
 
 	DL_FOREACH_SAFE(context->msgs_out.inflight, tail, tmp){
-		msg_index++;
 		if(tail->mid == mid){
 			if(tail->qos != qos){
 				return MOSQ_ERR_PROTOCOL;
 			}else if(qos == 2 && tail->state != expect_state){
 				return MOSQ_ERR_PROTOCOL;
 			}
-			msg_index--;
 			db__message_remove_inflight(context, &context->msgs_out, tail);
 			deleted = true;
 			break;
@@ -422,7 +419,6 @@ int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mo
 			break;
 		}
 
-		msg_index++;
 		switch(tail->qos){
 			case 0:
 				tail->state = mosq_ms_publish_qos0;
@@ -1156,14 +1152,12 @@ int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
 	int retain;
 	char *topic;
 	char *source_id;
-	int msg_index = 0;
 	bool deleted = false;
 	int rc;
 
 	if(!context) return MOSQ_ERR_INVAL;
 
 	DL_FOREACH_SAFE(context->msgs_in.inflight, tail, tmp){
-		msg_index++;
 		if(tail->mid == mid){
 			if(tail->base_msg->qos != 2){
 				return MOSQ_ERR_PROTOCOL;
@@ -1195,8 +1189,6 @@ int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
 		if(db__ready_for_flight(context, mosq_md_in, tail->qos)){
 			break;
 		}
-
-		msg_index++;
 
 		if(tail->qos == 2){
 			send__pubrec(context, tail->mid, 0, NULL);

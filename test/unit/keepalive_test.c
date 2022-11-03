@@ -167,7 +167,7 @@ static void TEST_100k_random_clients(void)
 	struct mosquitto *contexts;
 	int rc;
 	const int client_count = 100000;
-	int client_total, cur_count;
+	int /*client_total,*/ cur_count;
 
 	/* This is a very crude test, adding 100k clients with random keepalive and
 	 * random last message in. */
@@ -176,7 +176,7 @@ static void TEST_100k_random_clients(void)
 
 	memset(&db, 0, sizeof(db));
 
-	contexts = calloc(client_count, sizeof(struct mosquitto));
+	contexts = calloc((size_t)client_count, sizeof(struct mosquitto));
 	db.now_s = 1000;
 	db.config = calloc(1, sizeof(struct mosquitto__config));
 	if(db.config == NULL){
@@ -208,12 +208,12 @@ static void TEST_100k_random_clients(void)
 	}
 
 	/* Count clients */
-	client_total = 0;
+	/* client_total = 0; */
 	for(int i=0; i<keepalive_list_max; i++){
 		struct mosquitto *ctx;
 
 		DL_COUNT2(keepalive_list[i], ctx, cur_count, keepalive_next);
-		client_total += cur_count;
+		/* client_total += cur_count; */
 	}
 	/* FIXME
 	CU_ASSERT_EQUAL(client_total, client_count);

@@ -62,6 +62,8 @@ static const char* loglevel_as_str(int level)
 
 static void on_log(struct mosquitto *mosq, void *user_data, int level, const char *msg)
 {
+	(void)mosq;
+	(void)user_data;
 	fprintf(stderr, "%s: %s\n", loglevel_as_str(level), msg);
 }
 
