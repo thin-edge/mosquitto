@@ -106,7 +106,7 @@ SUBS_OBJS = \
 		topic_tok.o \
 		utf8_mosq.o \
 
-all : test
+all : test-compile
 
 check : test
 

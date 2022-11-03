@@ -3246,6 +3246,7 @@ libmosq_EXPORT const mosquitto_property *mosquitto_property_read_varint(
  *	property - property to read
  *	identifier - property identifier (e.g. MQTT_PROP_PAYLOAD_FORMAT_INDICATOR)
  *	value - pointer to store the value, or NULL if the value is not required.
+ *	        Will be set to NULL if the value has zero length.
  *	skip_first - boolean that indicates whether the first item in the list
  *	             should be ignored or not. Should usually be set to false.
  *
@@ -3275,6 +3276,7 @@ libmosq_EXPORT const mosquitto_property *mosquitto_property_read_binary(
  *	identifier - property identifier (e.g. MQTT_PROP_PAYLOAD_FORMAT_INDICATOR)
  *	value - pointer to char*, for the property data to be stored in, or NULL if
  *	        the value is not required.
+ *	        Will be set to NULL if the value has zero length.
  *	skip_first - boolean that indicates whether the first item in the list
  *	             should be ignored or not. Should usually be set to false.
  *
@@ -3303,8 +3305,10 @@ libmosq_EXPORT const mosquitto_property *mosquitto_property_read_string(
  *	identifier - property identifier (e.g. MQTT_PROP_PAYLOAD_FORMAT_INDICATOR)
  *	name - pointer to char* for the name property data to be stored in, or NULL
  *	       if the name is not required.
+ *	       Will be set to NULL if the name has zero length.
  *	value - pointer to char*, for the property data to be stored in, or NULL if
  *	        the value is not required.
+ *	        Will be set to NULL if the value has zero length.
  *	skip_first - boolean that indicates whether the first item in the list
  *	             should be ignored or not. Should usually be set to false.
  *

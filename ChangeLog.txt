@@ -149,6 +149,9 @@ Client library:
 - `mosquitto_unsubscribe*()` now returns MOSQ_ERR_INVAL if an empty string is
   passed as a topic filter.
 - Add websockets support.
+- `mosquitto_property_read_binary/string/string_pair` will now set the
+  name/value parameter to NULL if the binary/string is empty. This aligns the
+  behaviour with other property functions. Closes #2648.
 
 Clients:
 - Add `-W` timeout support to Windows.

@@ -200,9 +200,13 @@ static void read_binary_helper(const mosquitto_property *proplist, int identifie
 	prop = mosquitto_property_read_binary(proplist, identifier, &value, &length, false);
 	CU_ASSERT_PTR_NOT_NULL(prop);
 	CU_ASSERT_EQUAL(length, expected_length);
-	CU_ASSERT_PTR_NOT_NULL(value);
-	if(value){
-		CU_ASSERT_NSTRING_EQUAL(value, expected_value, expected_length);
+	if(expected_value){
+		CU_ASSERT_PTR_NOT_NULL(value);
+		if(value){
+			CU_ASSERT_NSTRING_EQUAL(value, expected_value, expected_length);
+		}
+	}else{
+		CU_ASSERT_PTR_NULL(value);
 	}
 	SAFE_FREE(value);
 }
@@ -214,9 +218,13 @@ static void read_string_helper(const mosquitto_property *proplist, int identifie
 
 	prop = mosquitto_property_read_string(proplist, identifier, &value, false);
 	CU_ASSERT_PTR_NOT_NULL(prop);
-	CU_ASSERT_PTR_NOT_NULL(value);
-	if(value){
-		CU_ASSERT_STRING_EQUAL(value, expected_value);
+	if(expected_value){
+		CU_ASSERT_PTR_NOT_NULL(value);
+		if(value){
+			CU_ASSERT_STRING_EQUAL(value, expected_value);
+		}
+	}else{
+		CU_ASSERT_PTR_NULL(value);
 	}
 	SAFE_FREE(value);
 }
@@ -229,19 +237,90 @@ static void read_string_pair_helper(const mosquitto_property *proplist, int iden
 	prop = mosquitto_property_read_string_pair(proplist, identifier, &key, &value, false);
 	CU_ASSERT_PTR_NOT_NULL(prop);
 
-	CU_ASSERT_PTR_NOT_NULL(key);
-	if(key){
-		CU_ASSERT_STRING_EQUAL(key, expected_key);
+	if(expected_key){
+		CU_ASSERT_PTR_NOT_NULL(key);
+		if(key){
+			CU_ASSERT_STRING_EQUAL(key, expected_key);
+		}
+	}else{
+		CU_ASSERT_PTR_NULL(key);
 	}
 
-	CU_ASSERT_PTR_NOT_NULL(value);
-	if(value){
-		CU_ASSERT_STRING_EQUAL(value, expected_value);
+	if(expected_value){
+		CU_ASSERT_PTR_NOT_NULL(value);
+		if(value){
+			CU_ASSERT_STRING_EQUAL(value, expected_value);
+		}
+	}else{
+		CU_ASSERT_PTR_NULL(value);
 	}
 	SAFE_FREE(key);
 	SAFE_FREE(value);
 }
 
+
+static void TEST_read_null_binary(void)
+{
+	int rc;
+	mosquitto_property *proplist = NULL, *proplist_copy = NULL;
+
+	rc = mosquitto_property_add_binary(&proplist, MQTT_PROP_CORRELATION_DATA, NULL, 0);
+	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	if(rc != MOSQ_ERR_SUCCESS) return;
+
+	read_binary_helper(proplist, MQTT_PROP_CORRELATION_DATA, NULL, 0);
+
+	rc = mosquitto_property_copy_all(&proplist_copy, proplist);
+	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(proplist_copy);
+
+	read_binary_helper(proplist_copy, MQTT_PROP_CORRELATION_DATA, NULL, 0);
+
+	mosquitto_property_free_all(&proplist);
+	mosquitto_property_free_all(&proplist_copy);
+}
+
+static void TEST_read_null_string(void)
+{
+	int rc;
+	mosquitto_property *proplist = NULL, *proplist_copy = NULL;
+
+	rc = mosquitto_property_add_string(&proplist, MQTT_PROP_CONTENT_TYPE, NULL);
+	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	if(rc != MOSQ_ERR_SUCCESS) return;
+
+	read_string_helper(proplist, MQTT_PROP_CONTENT_TYPE, NULL);
+
+	rc = mosquitto_property_copy_all(&proplist_copy, proplist);
+	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(proplist_copy);
+
+	read_string_helper(proplist_copy, MQTT_PROP_CONTENT_TYPE, NULL);
+
+	mosquitto_property_free_all(&proplist);
+	mosquitto_property_free_all(&proplist_copy);
+}
+
+static void TEST_read_null_string_pair(void)
+{
+	int rc;
+	mosquitto_property *proplist = NULL, *proplist_copy = NULL;
+
+	rc = mosquitto_property_add_string_pair(&proplist, MQTT_PROP_USER_PROPERTY, NULL, NULL);
+	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	if(rc != MOSQ_ERR_SUCCESS) return;
+
+	read_string_pair_helper(proplist, MQTT_PROP_USER_PROPERTY, NULL, NULL);
+
+	rc = mosquitto_property_copy_all(&proplist_copy, proplist);
+	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	CU_ASSERT_PTR_NOT_NULL(proplist_copy);
+
+	read_string_pair_helper(proplist_copy, MQTT_PROP_USER_PROPERTY, NULL, NULL);
+
+	mosquitto_property_free_all(&proplist);
+	mosquitto_property_free_all(&proplist_copy);
+}
 
 static void TEST_read_single_byte(void)
 {
@@ -621,6 +700,9 @@ int init_property_user_read_tests(void)
 			|| !CU_add_test(test_suite, "Read single string", TEST_read_single_string)
 			|| !CU_add_test(test_suite, "Read single string pair", TEST_read_single_string_pair)
 			|| !CU_add_test(test_suite, "Read missing", TEST_read_missing)
+			|| !CU_add_test(test_suite, "Read NULL binary", TEST_read_null_binary)
+			|| !CU_add_test(test_suite, "Read NULL string", TEST_read_null_string)
+			|| !CU_add_test(test_suite, "Read NULL string pair", TEST_read_null_string_pair)
 			|| !CU_add_test(test_suite, "String to property info", TEST_string_to_property_info)
 			){
 
