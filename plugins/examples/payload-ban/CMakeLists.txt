@@ -8,6 +8,7 @@ target_include_directories(${PLUGIN_NAME} PRIVATE
 	"${OPENSSL_INCLUDE_DIR}"
 	"${mosquitto_SOURCE_DIR}"
 	"${mosquitto_SOURCE_DIR}/include"
+	"${mosquitto_SOURCE_DIR}/deps"
 )
 
 set_target_properties(${PLUGIN_NAME} PROPERTIES
