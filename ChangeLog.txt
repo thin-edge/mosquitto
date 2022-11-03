@@ -68,6 +68,7 @@ Broker:
 - $SYS updates are now aligned to `sys_interval` seconds, meaning that if set
   to 10, for example, updates will be sent at times matching x0 seconds.
   Previously update intervals were aligned to the time the broker was started.
+- Add `log_dest android` for logging to the Android logd daemon.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.

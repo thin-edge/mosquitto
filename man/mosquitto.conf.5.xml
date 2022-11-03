@@ -540,7 +540,7 @@ D.conf
 						Possible destinations are: <option>stdout</option>
 						<option>stderr</option> <option>syslog</option>
 						<option>topic</option> <option>file</option>
-						<option>dlt</option>.</para>
+						<option>dlt</option> <option>android</option>.</para>
 					<para><option>stdout</option> and
 						<option>stderr</option> log to the console on the
 						named output.</para>
@@ -566,6 +566,8 @@ D.conf
 						automotive `Diagnostic Log and Trace` tool. This
 						requires that Mosquitto has been compiled with DLT
 						support.</para>
+					<para>The <option>android</option> destination is for
+						Android only, and will output to the logd daemon.</para>
 					<para>Use "log_dest none" if you wish to disable logging.
 						Defaults to stderr. This option may be specified
 						multiple times.</para>
