@@ -106,7 +106,7 @@ OBJS=	mosquitto.o \
 		xtreport.o
 
 ifeq ($(WITH_WEBSOCKETS),yes)
-	OBJS+=picohttpparser.o
+	OBJS+=${R}/deps/picohttpparser/picohttpparser.o
 endif
 
 mosquitto : ${OBJS}
@@ -259,7 +259,7 @@ packet_datatypes.o : ${R}/lib/packet_datatypes.c ${R}/lib/packet_mosq.h
 packet_mosq.o : ${R}/lib/packet_mosq.c ${R}/lib/packet_mosq.h
 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
-picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c ${R}/deps/picohttpparser/picohttpparser.h
+${R}/deps/picohttpparser/picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c ${R}/deps/picohttpparser/picohttpparser.h
 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
 property_broker.o : property_broker.c mosquitto_broker_internal.h

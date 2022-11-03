@@ -55,7 +55,7 @@ MOSQ_OBJS=mosquitto.o \
 		  will_mosq.o
 
 ifeq ($(WITH_WEBSOCKETS),yes)
-	MOSQ_OBJS+=picohttpparser.o
+	MOSQ_OBJS+=${R}/deps/picohttpparser/picohttpparser.o
 endif
 
 ALL_DEPS:=
@@ -194,7 +194,7 @@ net_mosq.o : net_mosq.c net_mosq.h
 password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
 	${CROSS_COMPILE}$(CC) $(LIB_CPPFLAGS) $(LIB_CFLAGS) -c $< -o $@
 
-picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c ${R}/deps/picohttpparser/picohttpparser.h
+${R}/deps/picohttpparser/picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c ${R}/deps/picohttpparser/picohttpparser.h
 	${CROSS_COMPILE}${CC} $(LIB_CPPFLAGS) $(LIB_CFLAGS) -c $< -o $@
 
 net_ws.o : net_ws.c net_mosq.h
