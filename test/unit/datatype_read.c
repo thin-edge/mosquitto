@@ -157,7 +157,7 @@ static void bytes_read_helper(
 	rc = packet__read_bytes(&packet, value, (uint32_t)count);
 	CU_ASSERT_EQUAL(rc, rc_expected);
 	if(rc == MOSQ_ERR_SUCCESS){
-		CU_ASSERT_EQUAL(packet.pos, count);
+		CU_ASSERT_EQUAL(packet.pos, (uint32_t)count);
 	}
 	if(value_expected){
 		for(i=0; i<count; i++){
