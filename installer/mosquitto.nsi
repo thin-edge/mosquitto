@@ -52,6 +52,7 @@ Section "Files" SecInstall
 	File "..\build\lib\Release\mosquitto.dll"
 	File "..\build\lib\cpp\Release\mosquittopp.dll"
 	File "..\build\plugins\dynamic-security\Release\mosquitto_dynamic_security.dll"
+	File "..\build\plugins\persist-sqlite\Release\mosquitto_persist_sqlite.dll"
 	File "..\aclfile.example"
 	File "..\ChangeLog.txt"
 	File "..\mosquitto.conf"
@@ -61,8 +62,8 @@ Section "Files" SecInstall
 	File "..\README-windows.txt"
 	File "..\README-letsencrypt.md"
 	File "..\SECURITY.md"
-	File "C:\OpenSSL-Win32\bin\libssl-3.dll"
-	File "C:\OpenSSL-Win32\bin\libcrypto-3.dll"
+	File "C:\OpenSSL-Win32\bin\libssl-1_1.dll"
+	File "C:\OpenSSL-Win32\bin\libcrypto-1_1.dll"
 	File "..\edl-v10"
 	File "..\epl-v20"
 
@@ -72,8 +73,8 @@ Section "Files" SecInstall
 	File "..\include\mosquitto.h"
 	File "..\include\mosquitto_broker.h"
 	File "..\include\mosquitto_plugin.h"
+	File "..\include\mosquittopp.h"
 	File "..\include\mqtt_protocol.h"
-	File "..\lib\cpp\mosquittopp.h"
 
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Mosquitto" "DisplayName" "Eclipse Mosquitto MQTT broker"
@@ -111,6 +112,7 @@ Section "Uninstall"
 	Delete "$INSTDIR\mosquitto.dll"
 	Delete "$INSTDIR\mosquittopp.dll"
 	Delete "$INSTDIR\mosquitto_dynamic_security.dll"
+	Delete "$INSTDIR\mosquitto_persist_sqlite.dll"
 	Delete "$INSTDIR\aclfile.example"
 	Delete "$INSTDIR\ChangeLog.txt"
 	Delete "$INSTDIR\mosquitto.conf"
@@ -120,8 +122,8 @@ Section "Uninstall"
 	Delete "$INSTDIR\README-windows.txt"
 	Delete "$INSTDIR\README-letsencrypt.md"
 	Delete "$INSTDIR\SECURITY.md"
-	Delete "$INSTDIR\libssl-3.dll"
-	Delete "$INSTDIR\libcrypto-3.dll"
+	Delete "$INSTDIR\libssl-1_1.dll"
+	Delete "$INSTDIR\libcrypto-1_1.dll"
 	Delete "$INSTDIR\edl-v10"
 	Delete "$INSTDIR\epl-v20"
 
@@ -150,4 +152,3 @@ LangString DESC_SecService ${LANG_ENGLISH} "Install mosquitto as a Windows servi
 	!insertmacro MUI_DESCRIPTION_TEXT ${SecInstall} $(DESC_SecInstall)
 	!insertmacro MUI_DESCRIPTION_TEXT ${SecService} $(DESC_SecService)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
-
