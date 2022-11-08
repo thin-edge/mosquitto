@@ -39,14 +39,6 @@ Contributors:
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "read_handle.h"
-#ifdef WITH_BROKER
-#  include "sys_tree.h"
-#else
-#  define G_BYTES_RECEIVED_INC(A)
-#  define G_BYTES_SENT_INC(A)
-#  define G_MSGS_SENT_INC(A)
-#  define G_PUB_MSGS_SENT_INC(A)
-#endif
 
 
 int packet__read_byte(struct mosquitto__packet_in *packet, uint8_t *byte)
