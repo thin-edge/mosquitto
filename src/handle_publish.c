@@ -164,6 +164,11 @@ int handle__publish(struct mosquitto *context)
 					break;
 
 				case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+					if(p->value.varint == 0){
+						mosquitto_property_free_all(&properties);
+						db__msg_store_free(msg);
+						return MOSQ_ERR_PROTOCOL;
+					}
 					p_prev = p;
 					p = p->next;
 					break;

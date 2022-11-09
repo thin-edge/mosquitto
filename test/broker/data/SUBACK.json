@@ -117,7 +117,7 @@
 		]
 	},
 	{
-		"group": "v5.0   SUBACK PROPERTIES",
+		"group": "v5.0   SUBACK ALLOWED PROPERTIES",
 		"tests": [
 			{ "name": "90 with reason-string property", "ver":5, "msgs": [
 				{"type":"send", "payload":"90 08 0001 04 1F000170 00"},
@@ -137,14 +137,30 @@
 				{"type":"recv", "payload":"E0 01 82"}
 			]},
 			{ "name": "90 with user-property missing value", "ver":5, "msgs": [
-				{"type":"send", "payload":"90 08 0001 04 23000170 00"},
+				{"type":"send", "payload":"90 08 0001 04 26000170 00"},
 				{"type":"recv", "payload":"E0 01 82"}
 			]},
 			{ "name": "90 with user-property missing key,value", "ver":5, "msgs": [
-				{"type":"send", "payload":"90 05 0001 01 23 00"},
+				{"type":"send", "payload":"90 05 0001 01 26 00"},
 				{"type":"recv", "payload":"E0 01 82"}
 			]},
-
+			{ "name": "90 with user-property empty key", "ver":5, "msgs": [
+				{"type":"send", "payload":"90 0A 0001 06 26 0000 0001 70 00"},
+				{"type":"recv", "payload":"E0 01 82"}
+			]},
+			{ "name": "90 with user-property empty value", "ver":5, "msgs": [
+				{"type":"send", "payload":"90 0A 0001 06 26 0001 70 0000 00"},
+				{"type":"recv", "payload":"E0 01 82"}
+			]},
+			{ "name": "90 with user-property empty key,value", "ver":5, "msgs": [
+				{"type":"send", "payload":"90 09 0001 05 26 0000 0000 00"},
+				{"type":"recv", "payload":"E0 01 82"}
+			]}
+		]
+	},
+	{
+		"group": "v5.0   SUBACK DISALLOWED PROPERTIES",
+		"tests": [
 			{ "name": "90 with payload-format-indicator (byte)", "ver":5, "msgs": [
 				{"type":"send", "payload":"90 06 0001 02 0100 00"},
 				{"type":"recv", "payload":"E0 01 82"}

@@ -99,6 +99,10 @@
 				{"type":"send", "payload":"62 05 0001 00 01 1F"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
+			{ "name": "62 with reason-string property empty", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"62 07 0001 00 03 1F 0000"},
+				{"type":"recv", "payload":"70 02 0001"}
+			]},
 
 			{ "name": "62 with user-property", "ver":5, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"62 0B 0001 00 07 26000170000171"},
@@ -109,12 +113,24 @@
 				{"type":"recv", "payload":"70 02 0001"}
 			]},
 			{ "name": "62 with user-property missing value", "ver":5, "msgs": [
-				{"type":"send", "payload":"62 08 0001 00 04 23000170"},
+				{"type":"send", "payload":"62 08 0001 00 04 26000170"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
 			{ "name": "62 with user-property missing key,value", "ver":5, "msgs": [
-				{"type":"send", "payload":"62 05 0001 00 01 23"},
+				{"type":"send", "payload":"62 05 0001 00 01 26"},
 				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "62 with user-property empty key", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"62 0A 0001 00 06 26 0000 0001 70"},
+				{"type":"recv", "payload":"70 02 0001"}
+			]},
+			{ "name": "62 with user-property empty value", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"62 0A 0001 00 06 26 0001 70 0000"},
+				{"type":"recv", "payload":"70 02 0001"}
+			]},
+			{ "name": "62 with user-property empty key,value", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"62 09 0001 00 05 26 0000 0000"},
+				{"type":"recv", "payload":"70 02 0001"}
 			]}
 		]
 	},

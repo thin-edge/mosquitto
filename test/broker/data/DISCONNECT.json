@@ -110,14 +110,26 @@
 				{"type":"send", "payload":"E0 03 00 01 1F"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
+			{ "name": "E0 with reason-string property empty", "ver":5, "msgs": [
+				{"type":"send", "payload":"E0 05 00 03 1F 0000"}
+			]},
 			{ "name": "E0 with user-property", "ver":5, "msgs": [{"type":"send", "payload":"E0 09 00 07 26000170000171"}]},
 			{ "name": "E0 with user-property missing value", "ver":5, "msgs": [
-				{"type":"send", "payload":"E0 06 00 04 23000170"},
+				{"type":"send", "payload":"E0 06 00 04 26000170"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
 			{ "name": "E0 with user-property missing key,value", "ver":5, "msgs": [
-				{"type":"send", "payload":"E0 03 00 01 23"},
+				{"type":"send", "payload":"E0 03 00 01 26"},
 				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "E0 with user-property empty key", "ver":5, "msgs": [
+				{"type":"send", "payload":"E0 08 00 06 26 0000 0001 70"}
+			]},
+			{ "name": "E0 with user-property empty key,value", "ver":5, "msgs": [
+				{"type":"send", "payload":"E0 08 00 06 26 0001 70 0000"}
+			]},
+			{ "name": "E0 with user-property empty key,value", "ver":5, "msgs": [
+				{"type":"send", "payload":"E0 07 00 05 26 0000 0000"}
 			]},
 			{ "name": "E0 with session-expiry-interval (four byte integer)", "ver":5, "msgs": [{"type":"send", "payload":"E0 07 00 05 1100000000"}]},
 			{ "name": "E0 with 2*session-expiry-interval (four byte integer)", "ver":5, "msgs": [
@@ -136,6 +148,9 @@
 			{ "name": "E0 with server-reference (UTF-8 string) missing", "ver":5, "msgs": [
 				{"type":"send", "payload":"E0 03 00 01 1C"},
 				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "E0 with server-reference (UTF-8 string) empty", "ver":5, "msgs": [
+				{"type":"send", "payload":"E0 05 00 03 1C 0000"}
 			]}
 		]
 	},

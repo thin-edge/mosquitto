@@ -736,9 +736,18 @@ int handle__connect(struct mosquitto *context)
 
 	if(protocol_version == PROTOCOL_VERSION_v5){
 		rc = property__read_all(CMD_CONNECT, &context->in_packet, &properties);
+		if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
+			send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
+		}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
+			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		}
 		if(rc) goto handle_connect_error;
 	}
-	property__process_connect(context, &properties);
+	rc = property__process_connect(context, &properties);
+	if(rc == MOSQ_ERR_PROTOCOL){
+		send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
+		goto handle_connect_error;
+	}
 
 	if(will && will_qos > context->listener->max_qos){
 		if(protocol_version == mosq_p_mqtt5){
@@ -748,11 +757,16 @@ int handle__connect(struct mosquitto *context)
 		goto handle_connect_error;
 	}
 
-	if(mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &context->auth_method, false)){
-		mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+	mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &context->auth_method, false);
+	mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+	mosquitto_property_free_all(&properties);
+
+	if(auth_data && !context->auth_method){
+		send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
+		rc = MOSQ_ERR_PROTOCOL;
+		goto handle_connect_error;
 	}
 
-	mosquitto_property_free_all(&properties); /* FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED */
 
 	if(packet__read_string(&context->in_packet, &client_id, &slen)){
 		rc = MOSQ_ERR_PROTOCOL;
@@ -817,7 +831,16 @@ int handle__connect(struct mosquitto *context)
 
 	if(will){
 		rc = will__read(context, client_id, &will_struct, will_qos, will_retain);
-		if(rc) goto handle_connect_error;
+		if(rc){
+			if(context->protocol == mosq_p_mqtt5){
+				if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
+					send__connack(context, 0, MQTT_RC_PROTOCOL_ERROR, NULL);
+				}else if(rc == MOSQ_ERR_MALFORMED_PACKET){
+					send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+				}
+			}
+			goto handle_connect_error;
+		}
 	}else{
 		if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt5){
 			if(will_qos != 0 || will_retain != 0){
@@ -868,6 +891,9 @@ int handle__connect(struct mosquitto *context)
 
 	if(context->in_packet.pos != context->in_packet.remaining_length){
 		/* Surplus data at end of packet, this must be an error. */
+		if(protocol_version == PROTOCOL_VERSION_v5){
+			send__connack(context, 0, MQTT_RC_MALFORMED_PACKET, NULL);
+		}
 		rc = MOSQ_ERR_PROTOCOL;
 		goto handle_connect_error;
 	}

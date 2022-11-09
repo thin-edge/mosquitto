@@ -148,6 +148,26 @@
 			{ "name": "A2 with 2*user-property", "ver":5, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"A2 14 0001 0E 26000170000171 26000170000171 0001 70"},
 				{"type":"recv", "payload":"B0 04 0001 00 11"}
+			]},
+			{ "name": "A2 with user-property missing value", "ver":5, "msgs": [
+				{"type":"send", "payload":"A2 0A 0001 04 26000170 0001 70"},
+				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "A2 with user-property missing key,value", "ver":5, "msgs": [
+				{"type":"send", "payload":"A2 07 0001 01 26 0001 70"},
+				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "A2 with user-property empty key", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"A2 0C 0001 06 26 0000 0001 70 0001 70"},
+				{"type":"recv", "payload":"B0 04 0001 00 11"}
+			]},
+			{ "name": "A2 with user-property empty value", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"A2 0C 0001 06 26 0001 70 0000 0001 70"},
+				{"type":"recv", "payload":"B0 04 0001 00 11"}
+			]},
+			{ "name": "A2 with user-property empty key,value", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"A2 0B 0001 05 26 0000 0000 0001 70"},
+				{"type":"recv", "payload":"B0 04 0001 00 11"}
 			]}
 		]
 	},

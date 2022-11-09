@@ -148,6 +148,7 @@
 				{"type":"send", "payload":"30 0F 0005 746F706963 00 7061796C6F6164", "comment":"PUBLISH with size < 20"},
 				{"type":"recv", "payload":"30 0F 0005 746F706963 00 7061796C6F6164", "comment":"PUBLISH with size < 20, returned"}
 			]},
+
 			{ "name": "payload-format-indicator=0 (byte)", "expect_disconnect":false, "ver":5, "msgs": [
 				{"type":"send", "payload":"32 13 0005 746F706963 1234 02 0100 7061796C6F6164"},
 				{"type":"recv", "payload":"40 03 1234 10"}
@@ -168,6 +169,7 @@
 				{"type":"send", "payload":"32 12 0005 746F706963 1234 01 01 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
+
 			{ "name": "message-expiry-interval=0 (four byte integer)", "expect_disconnect":false, "ver":5, "msgs": [
 				{"type":"send", "payload":"32 16 0005 746F706963 1234 05 0200000000 7061796C6F6164"},
 				{"type":"recv", "payload":"40 03 1234 10"}
@@ -176,7 +178,6 @@
 				{"type":"send", "payload":"32 16 0005 746F706963 1234 05 0200000001 7061796C6F6164"},
 				{"type":"recv", "payload":"40 03 1234 10"}
 			]},
-
 			{ "name": "2*message-expiry-interval=1 (four byte integer)", "ver":5, "msgs": [
 				{"type":"send", "payload":"32 1A 0005 746F706963 1234 0A 0200000001 0200000001 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 82"}
@@ -219,6 +220,10 @@
 				{"type":"send", "payload":"32 12 0005 746F706963 1234 01 08 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
+			{ "name": "response-topic (UTF-8 string) empty", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"32 14 0005 746F706963 1234 03 080000 7061796C6F6164"},
+				{"type":"recv", "payload":"40 03 1234 10"}
+			]},
 
 			{ "name": "correlation-data (binary data)", "ver":5, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"32 15 0005 746F706963 1234 04 09000170 7061796C6F6164"},
@@ -231,6 +236,10 @@
 			{ "name": "correlation-data (binary data) missing", "ver":5, "msgs": [
 				{"type":"send", "payload":"32 12 0005 746F706963 1234 01 09 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "correlation-data (binary data) empty", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"32 14 0005 746F706963 1234 03 090000 7061796C6F6164"},
+				{"type":"recv", "payload":"40 03 1234 10"}
 			]},
 
 			{ "name": "user-property", "ver":5, "expect_disconnect":false, "msgs": [
@@ -249,10 +258,22 @@
 				{"type":"send", "payload":"32 12 0005 746F706963 1234 01 26 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
-
-			{ "name": "subscription-identifier=1 (variable byte integer)", "ver":5, "expect_disconnect":false, "msgs": [
-				{"type":"send", "payload":"32 13 0005 746F706963 1234 02 0B01 7061796C6F6164"},
+			{ "name": "user-property empty key", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"32 17 0005 746F706963 1234 06 26 0000 0001 70 7061796C6F6164"},
 				{"type":"recv", "payload":"40 03 1234 10"}
+			]},
+			{ "name": "user-property empty value", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"32 17 0005 746F706963 1234 06 26 0001 70 0000 7061796C6F6164"},
+				{"type":"recv", "payload":"40 03 1234 10"}
+			]},
+			{ "name": "user-property empty key,value", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"32 16 0005 746F706963 1234 05 26 0000 0000 7061796C6F6164"},
+				{"type":"recv", "payload":"40 03 1234 10"}
+			]},
+
+			{ "name": "subscription-identifier=0 (variable byte integer)", "ver":5, "msgs": [
+				{"type":"send", "payload":"32 13 0005 746F706963 1234 02 0B00 7061796C6F6164"},
+				{"type":"recv", "payload":"E0 01 82"}
 			]},
 			{ "name": "subscription-identifier=0x7F (variable byte integer)", "ver":5, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"32 13 0005 746F706963 1234 02 0B7F 7061796C6F6164"},
@@ -311,6 +332,10 @@
 			{ "name": "content-type (UTF-8 string) missing", "ver":5, "msgs": [
 				{"type":"send", "payload":"32 12 0005 746F706963 1234 01 03 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 81"}
+			]},
+			{ "name": "content-type (UTF-8 string) empty", "ver":5, "expect_disconnect":false, "msgs": [
+				{"type":"send", "payload":"32 14 0005 746F706963 1234 03 030000 7061796C6F6164"},
+				{"type":"recv", "payload":"40 03 1234 10"}
 			]}
 		]
 	},
