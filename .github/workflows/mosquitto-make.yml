@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     -
@@ -27,6 +27,7 @@ jobs:
           libcunit1-dev \
           libssl-dev \
           libwrap0-dev \
+          microsocks \
           python-all \
           python3-all \
           xsltproc

@@ -13,7 +13,7 @@ on:
 
 jobs:
   coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - run: |
@@ -24,6 +24,7 @@ jobs:
             libcjson-dev \
             libcunit1-dev \
             libwrap0-dev \
+            microsocks \
             python3-paho-mqtt \
             uthash-dev
 
