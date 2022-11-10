@@ -29,6 +29,9 @@ endif
 	./02-subscribe-format-json-properties.py
 	./02-subscribe-format-json-retain.py
 	./02-subscribe-qos1.py
+ifeq ($(WITH_WEBSOCKETS),yes)
+	./02-subscribe-qos1-ws.py
+endif
 	./02-subscribe-format.py
 	./02-subscribe-null.py
 	./02-subscribe-verbose.py
@@ -48,6 +51,9 @@ endif
 	./03-publish-qos0-empty.py
 	./03-publish-qos1-properties.py
 	./03-publish-qos1.py
+ifeq ($(WITH_WEBSOCKETS),yes)
+	./03-publish-qos1-ws.py
+endif
 	./03-publish-repeat.py
 	./03-publish-socks.py
 	./03-publish-stdin-file.py
@@ -64,6 +70,9 @@ endif
 endif
 	./04-rr-env.py
 	./04-rr-qos1.py
+ifeq ($(WITH_WEBSOCKETS),yes)
+	./04-rr-qos1-ws.py
+endif
 
 ptest :
 	./test.sh
