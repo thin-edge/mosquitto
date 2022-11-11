@@ -125,7 +125,7 @@ copy : sign
 	scp ChangeLog.txt mosquitto:site/mosquitto.org/
 
 coverage :
-	lcov --capture --directory . --output-file coverage.info --no-external
+	lcov --capture -d apps -d client -d common -d lib -d plugins -d src --output-file coverage.info --no-external
 	genhtml coverage.info --output-directory out
 
 localdocker : reallyclean

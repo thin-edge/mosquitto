@@ -1,7 +1,5 @@
 #include <time.h>
 
-#define WITH_BROKER
-
 #include <logging_mosq.h>
 #include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
@@ -9,6 +7,21 @@
 #include <send_mosq.h>
 #include <time_mosq.h>
 #include <callbacks.h>
+
+uint64_t g_bytes_received;
+uint64_t g_bytes_sent;
+uint64_t g_pub_bytes_received;
+uint64_t g_pub_bytes_sent;
+int64_t g_out_packet_bytes;
+unsigned long g_msgs_received;
+unsigned long g_msgs_sent;
+unsigned long g_pub_msgs_received;
+unsigned long g_pub_msgs_sent;
+unsigned long g_msgs_dropped;
+long g_out_packet_count;
+unsigned int g_clients_expired;
+unsigned int g_socket_connections;
+unsigned int g_connection_count;
 
 extern uint64_t last_retained;
 extern char *last_sub;
@@ -170,6 +183,12 @@ void context__add_to_by_id(struct mosquitto *context)
 		HASH_ADD_KEYPTR(hh_id, db.contexts_by_id, context->id, strlen(context->id), context);
 	}
 }
+
+void context__send_will(struct mosquitto *context)
+{
+	UNUSED(context);
+}
+
 void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto_client_msg *cmsg)
 {
 	UNUSED(context);
@@ -234,4 +253,42 @@ void mosquitto_log_printf(int level, const char *fmt, ...)
 {
 	UNUSED(level);
 	UNUSED(fmt);
+}
+
+int keepalive__update(struct mosquitto *context)
+{
+	UNUSED(context);
+	return 0;
+}
+
+int mux__add_out(struct mosquitto *context)
+{
+	UNUSED(context);
+	return 0;
+}
+int mux__remove_out(struct mosquitto *context)
+{
+	UNUSED(context);
+	return 0;
+}
+ssize_t net__read_ws(struct mosquitto *mosq, void *buf, size_t count)
+{
+	UNUSED(mosq);
+	UNUSED(buf);
+	UNUSED(count);
+	return 0;
+}
+
+void ws__prepare_packet(struct mosquitto *mosq, struct mosquitto__packet *packet)
+{
+	UNUSED(mosq);
+	UNUSED(packet);
+}
+
+int send__disconnect(struct mosquitto *mosq, uint8_t reason_code, const mosquitto_property *properties)
+{
+	UNUSED(mosq);
+	UNUSED(reason_code);
+	UNUSED(properties);
+	return 0;
 }

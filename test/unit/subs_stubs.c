@@ -1,8 +1,5 @@
 #include <time.h>
 
-#define WITH_BROKER
-#define WITH_PERSISTENCE
-
 #include <logging_mosq.h>
 #include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
@@ -12,6 +9,21 @@
 #include <util_mosq.h>
 #include <logging_mosq.h>
 #include <persist.h>
+
+uint64_t g_bytes_received;
+uint64_t g_bytes_sent;
+uint64_t g_pub_bytes_received;
+uint64_t g_pub_bytes_sent;
+int64_t g_out_packet_bytes;
+unsigned long g_msgs_received;
+unsigned long g_msgs_sent;
+unsigned long g_pub_msgs_received;
+unsigned long g_pub_msgs_sent;
+unsigned long g_msgs_dropped;
+long g_out_packet_count;
+unsigned int g_clients_expired;
+unsigned int g_socket_connections;
+unsigned int g_connection_count;
 
 int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
 {

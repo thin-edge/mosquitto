@@ -56,6 +56,7 @@ add_executable(bridge-topic-test
     ../../src/memory_public.c
     ../../lib/util_topic.c
 )
+target_compile_definitions(bridge-topic-test PRIVATE WITH_BRIDGE WITH_BROKER)
 target_link_libraries(bridge-topic-test PRIVATE bridge-topic-obj common-unit-test-header)
 add_test(NAME unit-bridge-topic-test COMMAND bridge-topic-test)
 
@@ -91,7 +92,7 @@ add_executable(persist-read-test
     ../../lib/util_mosq.c
     ../../src/memory_public.c
 )
-target_compile_definitions(persist-read-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(persist-read-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(persist-read-test PRIVATE persistence-read-obj)
 add_test(NAME unit-persist-read-test COMMAND persist-read-test)
 
@@ -123,7 +124,7 @@ add_executable(persist-write-test
     ../../src/memory_public.c
     ../../lib/packet_mosq.c
 )
-target_compile_definitions(persist-write-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(persist-write-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(persist-write-test PRIVATE persistence-write-obj OpenSSL::SSL)
 add_test(NAME unit-persist-write-test COMMAND persist-write-test)
 
@@ -147,5 +148,6 @@ add_executable(subs-test
     ../../src/memory_public.c
 )
 
+target_compile_definitions(subs-test PRIVATE WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(subs-test PRIVATE common-unit-test-header persistence-obj)
 add_test(NAME unit-subs-test COMMAND subs-test)

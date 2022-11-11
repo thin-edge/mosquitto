@@ -1,7 +1,5 @@
 #include <time.h>
 
-#define WITH_BROKER
-
 #include <logging_mosq.h>
 #include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
@@ -224,6 +222,11 @@ void context__add_to_by_id(struct mosquitto *context)
 		context->in_by_id = true;
 		HASH_ADD_KEYPTR(hh_id, db.contexts_by_id, context->id, strlen(context->id), context);
 	}
+}
+
+void context__send_will(struct mosquitto *context)
+{
+	UNUSED(context);
 }
 
 void plugin_persist__handle_retain_msg_set(struct mosquitto_base_msg *msg)

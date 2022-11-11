@@ -7,9 +7,6 @@
 #include <CUnit/Basic.h>
 #include "path_helper.h"
 
-#define WITH_BROKER
-#define WITH_PERSISTENCE
-
 #include "mosquitto_broker_internal.h"
 #include "persist.h"
 #include "property_mosq.h"

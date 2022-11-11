@@ -4,9 +4,6 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#define WITH_BRIDGE
-#define WITH_BROKER
-
 #include "mosquitto_broker_internal.h"
 #include "property_mosq.h"
 #include "packet_mosq.h"

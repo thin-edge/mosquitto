@@ -6,9 +6,6 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#define WITH_BROKER
-#define WITH_PERSISTENCE
-
 #include "mosquitto_broker_internal.h"
 #include "memory_mosq.h"
 

@@ -115,3 +115,15 @@ void plugin_persist__queue_retain_event(struct mosquitto_base_msg *msg, int even
 	UNUSED(msg);
 	UNUSED(event);
 }
+void ws__prepare_packet(struct mosquitto *mosq, struct mosquitto__packet *packet)
+{
+	UNUSED(mosq);
+	UNUSED(packet);
+}
+ssize_t net__read_ws(struct mosquitto *mosq, void *buf, size_t count)
+{
+	UNUSED(mosq);
+	UNUSED(buf);
+	UNUSED(count);
+	return 0;
+}
