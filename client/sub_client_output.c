@@ -240,7 +240,11 @@ static int json_print_properties(cJSON *root, const mosquitto_property *properti
 				}
 				cJSON_AddItemToArray(user_props, user_json);
 				mosquitto_property_read_string_pair(prop, MQTT_PROP_USER_PROPERTY, &strname, &strvalue, false);
-				if(strname == NULL || strvalue == NULL) return MOSQ_ERR_NOMEM;
+				if(strname == NULL || strvalue == NULL){
+					free(strname);
+					free(strvalue);
+					return MOSQ_ERR_NOMEM;
+				}
 
 				tmp = cJSON_CreateString(strvalue);
 				free(strvalue);
