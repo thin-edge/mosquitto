@@ -13,6 +13,7 @@ if(WITH_TLS AND CJSON_FOUND)
 		../../lib/memory_mosq.c ../../lib/memory_mosq.h
 		../../src/memory_public.c
 		options.c
+		../../common/json_help.c ../../common/json_help.h
 		../../common/password_mosq.c ../../common/password_mosq.h
 	)
 

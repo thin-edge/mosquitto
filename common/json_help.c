@@ -96,11 +96,11 @@ int json_get_string(cJSON *json, const char *name, char **value, bool optional)
 }
 
 
-cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, int number)
+cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, long long number)
 {
 	char buf[30];
 
-	snprintf(buf, sizeof(buf), "%d", number);
+	snprintf(buf, sizeof(buf), "%lld", number);
 	return cJSON_AddRawToObject(object, name, buf);
 }
 #endif

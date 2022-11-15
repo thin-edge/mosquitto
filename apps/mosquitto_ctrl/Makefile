@@ -28,6 +28,7 @@ OBJS=	mosquitto_ctrl.o \
 		dynsec_hash.o \
 		dynsec_role.o \
 		get_password.o \
+		json_help.o \
 		memory_mosq.o \
 		memory_public.o \
 		options.o \
@@ -86,6 +87,9 @@ example.o : example.c mosquitto_ctrl.h
 
 get_password.o : ${R}/apps/mosquitto_passwd/get_password.c ${R}/apps/mosquitto_passwd/get_password.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+
+json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
+	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -DWITH_CJSON=yes -c $< -o $@
 
 memory_mosq.o : ${R}/lib/memory_mosq.c
 	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@

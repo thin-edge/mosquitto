@@ -87,8 +87,6 @@ int client_request_response(struct mosq_ctrl *ctrl);
 int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg);
 int client_connect(struct mosquitto *mosq, struct mosq_config *cfg);
 
-cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, int number);
-
 void broker__print_usage(void);
 int broker__main(int argc, char *argv[], struct mosq_ctrl *ctrl);
 

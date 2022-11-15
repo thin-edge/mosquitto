@@ -23,6 +23,7 @@ Contributors:
 #include "mosquitto.h"
 #include "mosquitto_ctrl.h"
 #include "get_password.h"
+#include "json_help.h"
 #include "password_mosq.h"
 #include "dynamic_security.h"
 

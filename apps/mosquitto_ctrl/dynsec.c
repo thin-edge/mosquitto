@@ -92,14 +92,6 @@ void dynsec__print_usage(void)
 	printf("    https://mosquitto.org/documentation/dynamic-security/\n\n");
 }
 
-cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, int number)
-{
-	char buf[30];
-
-	snprintf(buf, sizeof(buf), "%d", number);
-	return cJSON_AddRawToObject(object, name, buf);
-}
-
 /* ################################################################
  * #
  * # Payload callback

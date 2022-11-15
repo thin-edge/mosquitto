@@ -27,7 +27,7 @@ int json_get_bool(cJSON *json, const char *name, bool *value, bool optional, boo
 int json_get_int(cJSON *json, const char *name, int *value, bool optional, int default_value);
 int json_get_string(cJSON *json, const char *name, char **value, bool optional);
 
-cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, int number);
+cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, long long number);
 cJSON *cJSON_CreateInt(int num);
 
 #endif
