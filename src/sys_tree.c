@@ -22,6 +22,7 @@ Contributors:
 
 #include <math.h>
 #include <stdio.h>
+#include <inttypes.h>
 #include <limits.h>
 
 #include "mosquitto_broker_internal.h"

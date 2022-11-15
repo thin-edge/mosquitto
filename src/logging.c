@@ -17,6 +17,7 @@ Contributors:
 */
 #include "config.h"
 
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
