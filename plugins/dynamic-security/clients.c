@@ -939,6 +939,10 @@ static cJSON *dynsec_connections__all_to_json(const char *username, const char *
 {
 	struct connection_array_context functor_context = { username, cJSON_CreateArray()};
 
+	if(functor_context.j_connections == NULL){
+		return NULL;
+	}
+
 	if(clientid){
 		const struct mosquitto *client = mosquitto_client(clientid);
 		if(client && dynsec__add_client_address(client, &functor_context) != MOSQ_ERR_SUCCESS){
