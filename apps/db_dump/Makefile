@@ -33,7 +33,7 @@ print.o : print.c db_dump.h ${R}/src/persist.h
 	${CROSS_COMPILE}${CC} $(CFLAGS_FINAL) -c $< -o $@
 
 ${BROKER_OBJS} :
-	make ${MAKEFLAGS} -C ${R}/src $(notdir $@)
+	$(MAKE) -C ${R}/src $(notdir $@)
 
 stubs.o : stubs.c
 	${CROSS_COMPILE}${CC} $(CFLAGS_FINAL) -c $< -o $@
