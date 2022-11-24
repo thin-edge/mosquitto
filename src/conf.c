@@ -63,6 +63,32 @@ struct config_recurse {
 extern SERVICE_STATUS_HANDLE service_handle;
 #endif
 
+
+#define REQUIRE_LISTENER(A) \
+	do{ \
+		if(cur_listener == NULL){ \
+			log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", (A)); \
+			return MOSQ_ERR_INVAL; \
+		} \
+	}while(0)
+
+#define REQUIRE_LISTENER_IF_PER_LISTENER(A) \
+	do{ \
+		if(config->per_listener_settings == true && cur_listener == NULL){ \
+			log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", (A)); \
+			return MOSQ_ERR_INVAL; \
+		} \
+	}while(0)
+
+#define REQUIRE_BRIDGE(A) \
+	do{ \
+		if(cur_bridge == NULL){ \
+			log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a bridge to be defined.", (A)); \
+			return MOSQ_ERR_INVAL; \
+		} \
+	}while(0)
+
+
 static struct mosquitto__security_options *cur_security_options = NULL;
 
 static int conf__parse_bool(char **token, const char *name, bool *value, char **saveptr);
@@ -895,10 +921,8 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						token = strtok_r(NULL, ", \t", &saveptr);
 					}
 				}else if(!strcmp(token, "acl_file")){
-					if(config->per_listener_settings == true && cur_listener == NULL){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_LISTENER_IF_PER_LISTENER(token);
+
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					mosquitto__FREE(cur_security_options->acl_file);
 					if(conf__parse_string(&token, "acl_file", &cur_security_options->acl_file, &saveptr)) return MOSQ_ERR_INVAL;
@@ -957,20 +981,14 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "allow_anonymous")){
-					if(config->per_listener_settings == true && cur_listener == NULL){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					if(conf__parse_bool(&token, "allow_anonymous", (bool *)&cur_security_options->allow_anonymous, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "allow_duplicate_messages")){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "The 'allow_duplicate_messages' option is now deprecated and will be removed in a future version. The behaviour will default to true.");
 					if(conf__parse_bool(&token, "allow_duplicate_messages", &config->allow_duplicate_messages, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "allow_zero_length_clientid")){
-					if(config->per_listener_settings == true && cur_listener == NULL){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					if(conf__parse_bool(&token, "allow_zero_length_clientid", &cur_security_options->allow_zero_length_clientid, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strncmp(token, "auth_opt_", strlen("auth_opt_")) || !strncmp(token, "plugin_opt_", strlen("plugin_opt_"))){
@@ -1026,10 +1044,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(!strcmp(token, "global_plugin")){
 						cur_security_options = &db.config->security_options;
 					}else{
-						if(config->per_listener_settings == true && cur_listener == NULL){
-							log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-							return MOSQ_ERR_INVAL;
-						}
+						REQUIRE_LISTENER_IF_PER_LISTENER(token);
 						conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					}
 
@@ -1081,10 +1096,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					mosquitto__FREE(name);
 					if(config__plugin_add_secopt(cur_plugin, cur_listener->security_options)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "auto_id_prefix")){
-					if(config->per_listener_settings == true && cur_listener == NULL){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					if(conf__parse_string(&token, "auto_id_prefix", &cur_security_options->auto_id_prefix, &saveptr)) return MOSQ_ERR_INVAL;
 					if(cur_security_options->auto_id_prefix){
@@ -1119,20 +1131,14 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_attempt_unsubscribe")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "bridge_attempt_unsubscribe", &cur_bridge->attempt_unsubscribe, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_cafile")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 #ifdef FINAL_WITH_TLS_PSK
 					if(cur_bridge->tls_psk_identity || cur_bridge->tls_psk){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single bridge.");
@@ -1145,50 +1151,35 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_alpn")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge_alpn", &cur_bridge->tls_alpn, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_ciphers")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge_ciphers", &cur_bridge->tls_ciphers, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_ciphers_tls1.3")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge_ciphers_tls1.3", &cur_bridge->tls_13_ciphers, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_bind_address")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge_bind_address", &cur_bridge->bind_address, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_capath")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 #ifdef FINAL_WITH_TLS_PSK
 					if(cur_bridge->tls_psk_identity || cur_bridge->tls_psk){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single bridge.");
@@ -1201,10 +1192,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_certfile")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 #ifdef FINAL_WITH_TLS_PSK
 					if(cur_bridge->tls_psk_identity || cur_bridge->tls_psk){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single bridge.");
@@ -1217,10 +1205,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_identity")){
 #if defined(WITH_BRIDGE) && defined(FINAL_WITH_TLS_PSK)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(cur_bridge->tls_cafile || cur_bridge->tls_capath || cur_bridge->tls_certfile || cur_bridge->tls_keyfile){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and identity encryption in a single bridge.");
 						return MOSQ_ERR_INVAL;
@@ -1231,10 +1216,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_insecure")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "bridge_insecure", &cur_bridge->tls_insecure, &saveptr)) return MOSQ_ERR_INVAL;
 					if(cur_bridge->tls_insecure){
 						log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge %s using insecure mode.", cur_bridge->name);
@@ -1244,20 +1226,14 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_require_ocsp")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "bridge_require_ocsp", &cur_bridge->tls_ocsp_required, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_max_packet_size")){
 #if defined(WITH_BRIDGE)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "bridge_max_packet_size", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int < 0) tmp_int = 0;
 					cur_bridge->maximum_packet_size = (uint32_t)tmp_int;
@@ -1266,10 +1242,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_max_topic_alias")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "bridge_max_topic_alias", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 
 					if(tmp_int < 0 || tmp_int > UINT16_MAX){
@@ -1282,20 +1255,14 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_outgoing_retain")){
 #if defined(WITH_BRIDGE)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "bridge_outgoing_retain", &cur_bridge->outgoing_retain, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_keyfile")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 #ifdef FINAL_WITH_TLS_PSK
 					if(cur_bridge->tls_psk_identity || cur_bridge->tls_psk){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single bridge.");
@@ -1308,10 +1275,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_protocol_version")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					token = strtok_r(NULL, "", &saveptr);
 					if(token){
 						if(!strcmp(token, "mqttv31")){
@@ -1333,10 +1297,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_psk")){
 #if defined(WITH_BRIDGE) && defined(FINAL_WITH_TLS_PSK)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(cur_bridge->tls_cafile || cur_bridge->tls_capath || cur_bridge->tls_certfile || cur_bridge->tls_keyfile){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single bridge.");
 						return MOSQ_ERR_INVAL;
@@ -1347,10 +1308,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_receive_maximum")){
 #if defined(WITH_BRIDGE)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "bridge_receive_maximum", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int <= 0){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: bridge_receive_maximum must be greater than 0.");
@@ -1365,10 +1323,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_reload_type")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					token = strtok_r(NULL, " ", &saveptr);
 					if(token){
 						if(!strcmp(token, "lazy")){
@@ -1388,10 +1343,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_session_expiry_interval")){
 #if defined(WITH_BRIDGE)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "bridge_session_expiry_interval", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int < 0){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: bridge_session_expiry_interval must not be negative.");
@@ -1406,10 +1358,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_tcp_keepalive")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 
 					if(conf__parse_int(&token, "bridge_tcp_keepalive_idle", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int <= 0) {
@@ -1436,10 +1385,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_tcp_user_timeout")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 #ifdef TCP_USER_TIMEOUT
 					if(conf__parse_int(&token, "bridge_tcp_user_timeout", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int < 0) {
@@ -1455,26 +1401,21 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "bridge_tls_use_os_certs")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "bridge_tls_use_os_certs", &cur_bridge->tls_use_os_certs, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
 #endif
 				}else if(!strcmp(token, "bridge_tls_version")){
 #if defined(WITH_BRIDGE) && defined(WITH_TLS)
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge_tls_version", &cur_bridge->tls_version, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
 #endif
 				}else if(!strcmp(token, "cafile")){
 #if defined(WITH_TLS)
+					REQUIRE_LISTENER(token);
 					if(cur_listener->psk_hint){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single listener.");
 						return MOSQ_ERR_INVAL;
@@ -1486,6 +1427,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "capath")){
 #ifdef WITH_TLS
+					REQUIRE_LISTENER(token);
 					mosquitto__FREE(cur_listener->capath);
 					if(conf__parse_string(&token, "capath", &cur_listener->capath, &saveptr)) return MOSQ_ERR_INVAL;
 #else
@@ -1493,6 +1435,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "certfile")){
 #ifdef WITH_TLS
+					REQUIRE_LISTENER(token);
 					if(cur_listener->psk_hint){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single listener.");
 						return MOSQ_ERR_INVAL;
@@ -1506,6 +1449,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(conf__parse_bool(&token, "check_retain_source", &config->check_retain_source, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "ciphers")){
 #ifdef WITH_TLS
+					REQUIRE_LISTENER(token);
 					mosquitto__FREE(cur_listener->ciphers);
 					if(conf__parse_string(&token, "ciphers", &cur_listener->ciphers, &saveptr)) return MOSQ_ERR_INVAL;
 #else
@@ -1513,6 +1457,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "ciphers_tls1.3")){
 #if defined(WITH_TLS) && (!defined(LIBRESSL_VERSION_NUMBER) || LIBRESSL_VERSION_NUMBER > 0x3040000FL)
+					REQUIRE_LISTENER(token);
 					mosquitto__FREE(cur_listener->ciphers_tls13);
 					if(conf__parse_string(&token, "ciphers_tls1.3", &cur_listener->ciphers_tls13, &saveptr)) return MOSQ_ERR_INVAL;
 #else
@@ -1520,30 +1465,21 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "clientid") || !strcmp(token, "remote_clientid")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge remote clientid", &cur_bridge->remote_clientid, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "cleansession")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "cleansession", &cur_bridge->clean_start, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "local_cleansession")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "local_cleansession", (bool *) &cur_bridge->clean_start_local, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
@@ -1659,10 +1595,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "idle_timeout")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "idle_timeout", &cur_bridge->idle_timeout, &saveptr)) return MOSQ_ERR_INVAL;
 					if(cur_bridge->idle_timeout < 1){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "idle_timeout interval too low, using 1 second.");
@@ -1706,10 +1639,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "keepalive_interval")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "keepalive_interval", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int > UINT16_MAX){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Bridge keepalive value too high.");
@@ -1829,30 +1759,21 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "local_clientid")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge local clientd", &cur_bridge->local_clientid, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "local_password")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge local_password", &cur_bridge->local_password, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "local_username")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge local_username", &cur_bridge->local_username, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
@@ -2070,49 +1991,34 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "notifications")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "notifications", &cur_bridge->notifications, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "notifications_local_only")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "notifications_local_only", &cur_bridge->notifications_local_only, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "notification_topic")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "notification_topic", &cur_bridge->notification_topic, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "password") || !strcmp(token, "remote_password")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge remote_password", &cur_bridge->remote_password, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
 #endif
 				}else if(!strcmp(token, "password_file")){
-					if(config->per_listener_settings == true && cur_listener == NULL){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					mosquitto__FREE(cur_security_options->password_file);
 					if(conf__parse_string(&token, "password_file", &cur_security_options->password_file, &saveptr)) return MOSQ_ERR_INVAL;
@@ -2210,10 +2116,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "psk_file")){
 #ifdef FINAL_WITH_TLS_PSK
-					if(config->per_listener_settings == true && cur_listener == NULL){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: The %s option requires a listener to be defined.", token);
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					mosquitto__FREE(cur_security_options->psk_file);
 					if(conf__parse_string(&token, "psk_file", &cur_security_options->psk_file, &saveptr)) return MOSQ_ERR_INVAL;
@@ -2237,10 +2140,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "restart_timeout")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					cur_bridge->backoff_cap = 0; /* set backoff to constant mode, unless cap is specified further down */
 					token = strtok_r(NULL, " ", &saveptr);
 					if(!token){
@@ -2284,10 +2184,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: The retry_interval option is no longer available.");
 				}else if(!strcmp(token, "round_robin")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "round_robin", &cur_bridge->round_robin, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
@@ -2296,10 +2193,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(conf__parse_bool(&token, "set_tcp_nodelay", &config->set_tcp_nodelay, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "start_type")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					token = strtok_r(NULL, " ", &saveptr);
 					if(token){
 						if(!strcmp(token, "automatic")){
@@ -2346,10 +2240,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "threshold")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_int(&token, "threshold", &cur_bridge->threshold, &saveptr)) return MOSQ_ERR_INVAL;
 					if(cur_bridge->threshold < 1){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "threshold too low, using 1 message.");
@@ -2403,10 +2294,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					uint8_t qos = 0;
 					char *local_prefix = NULL, *remote_prefix = NULL;
 
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 
 					token = strtok_r(NULL, " ", &saveptr);
 					if(token){
@@ -2495,10 +2383,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "try_private")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_bool(&token, "try_private", &cur_bridge->try_private, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
@@ -2525,10 +2410,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(conf__parse_bool(&token, "use_username_as_clientid", &cur_listener->use_username_as_clientid, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "username") || !strcmp(token, "remote_username")){
 #ifdef WITH_BRIDGE
-					if(!cur_bridge){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid bridge configuration.");
-						return MOSQ_ERR_INVAL;
-					}
+					REQUIRE_BRIDGE(token);
 					if(conf__parse_string(&token, "bridge remote_username", &cur_bridge->remote_username, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge support not available.");
