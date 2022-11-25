@@ -894,9 +894,9 @@ log_timestamp_format %Y-%m-%dT%H:%M:%S
 						<option>acl_file</option>, <option>psk_file</option>,
 						<option>allow_anonymous</option>,
 						<option>allow_zero_length_clientid</option>,
-						<option>auto_id_prefix</option>.</para>
+						<option>auto_id_prefix</option>,
 						<option>plugin</option>,
-						<option>plugin_opt_*</option>,
+						<option>plugin_opt_*</option></para>
 					<para>Note that if set to true, then a durable client (i.e.
 						with clean session set to false) that has disconnected
 						will use the ACL settings defined for the listener that
