@@ -17,7 +17,7 @@ tests = [
     (1, './02-subscribe-format-json-retain.py'),
     (1, './02-subscribe-null.py'),
     (1, './02-subscribe-qos1.py'),
-    (1, './02-subscribe-qos1-ws.py'),
+    (2, './02-subscribe-qos1-ws.py'),
     (1, './02-subscribe-verbose.py'),
 
     (1, './03-publish-argv-errors-tls-psk.py'),
@@ -30,7 +30,7 @@ tests = [
     (1, './03-publish-qos0-empty.py'),
     (1, './03-publish-qos1-properties.py'),
     (1, './03-publish-qos1.py'),
-    (1, './03-publish-qos1-ws.py'),
+    (2, './03-publish-qos1-ws.py'),
     (1, './03-publish-repeat.py'),
     (1, './03-publish-url.py'),
 
@@ -43,7 +43,7 @@ tests = [
     (1, './04-rr-argv-errors-without-tls.py'),
     (1, './04-rr-env.py'),
     (1, './04-rr-qos1.py'),
-    (1, './04-rr-qos1-ws.py'),
+    (2, './04-rr-qos1-ws.py'),
     ]
 
 ptest.run_tests(tests)

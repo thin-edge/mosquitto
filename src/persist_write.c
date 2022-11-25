@@ -320,7 +320,7 @@ int persist__backup(bool shutdown)
 
 	log__printf(NULL, MOSQ_LOG_INFO, "Saving in-memory database to %s.", db.config->persistence_filepath);
 
-	return mosquitto_write_file(db.config->persistence_filepath,true,&persist__write_data,&shutdown,&persist__log_write_error);
+	return mosquitto_write_file(db.config->persistence_filepath, true, &persist__write_data, &shutdown, &persist__log_write_error);
 }
 
 static int persist__write_data(FILE* db_fptr, void* user_data)

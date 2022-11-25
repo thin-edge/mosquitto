@@ -13,7 +13,7 @@ mosq_test.wait_for_subprocess(broker)
 assert(broker.returncode == 3)
 (_, stde) = broker.communicate()
 error_message = stde.decode('utf-8')
-if not error_message.endswith(f"Error: Unable to open config file {conf_file}.\n"):
+if not error_message.endswith(f"Error: Unable to open config file '{conf_file}'.\n"):
     print(f"Got wrong error message: '{error_message}'")
     exit(1)
 

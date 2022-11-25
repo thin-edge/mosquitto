@@ -166,6 +166,7 @@ static int config__create_default_listener(struct mosquitto__config *config, con
 {
 	if(config->default_listener) return MOSQ_ERR_SUCCESS;
 	log__printf(NULL, MOSQ_LOG_INFO, "Creating default listener due to '%s' option.", option_name);
+	log__printf(NULL, MOSQ_LOG_INFO, "It is best practice to define a 'listener' first. Using the '%s' option without a listener will be disabled in the future.", option_name);
 	if(config__add_listener(config)){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -440,6 +441,7 @@ void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 		}
 		mosquitto__FREE(bridge->addresses);
 	}
+	mosquitto__FREE(bridge->bind_address);
 	mosquitto__FREE(bridge->remote_clientid);
 	mosquitto__FREE(bridge->remote_username);
 	mosquitto__FREE(bridge->remote_password);
@@ -460,9 +462,14 @@ void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 	}
 	mosquitto__FREE(bridge->notification_topic);
 #ifdef WITH_TLS
+	mosquitto__FREE(bridge->tls_certfile);
+	mosquitto__FREE(bridge->tls_keyfile);
 	mosquitto__FREE(bridge->tls_version);
 	mosquitto__FREE(bridge->tls_cafile);
+	mosquitto__FREE(bridge->tls_capath);
 	mosquitto__FREE(bridge->tls_alpn);
+	mosquitto__FREE(bridge->tls_ciphers);
+	mosquitto__FREE(bridge->tls_13_ciphers);
 #ifdef FINAL_WITH_TLS_PSK
 	mosquitto__FREE(bridge->tls_psk_identity);
 	mosquitto__FREE(bridge->tls_psk);
@@ -1298,6 +1305,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_INVAL;
 					}
 #endif
+					mosquitto__FREE(cur_bridge->tls_keyfile);
 					if(conf__parse_string(&token, "bridge_keyfile", &cur_bridge->tls_keyfile, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
@@ -1929,7 +1937,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
 					if(conf__parse_int(&token, token, &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int < 0 || tmp_int > 2){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: max_qos must be between 0 and 2 inclusive.");
+						log__printf(NULL, MOSQ_LOG_ERR, "Error: 'max_qos' must be between 0 and 2 inclusive.");
 						return MOSQ_ERR_INVAL;
 					}
 					cur_listener->max_qos = (uint8_t)tmp_int;
@@ -1942,7 +1950,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(tmp_int < 0 || tmp_int == UINT16_MAX){
 						tmp_int = 0;
 					}else if(tmp_int > UINT16_MAX){
-						log__printf(NULL, MOSQ_LOG_ERR, "Error: max_inflight_messages must be <= 65535.");
+						log__printf(NULL, MOSQ_LOG_ERR, "Error: 'max_inflight_messages' must be <= 65535.");
 						return MOSQ_ERR_INVAL;
 					}
 					config->max_inflight_messages = (uint16_t)tmp_int;
@@ -1984,12 +1992,12 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_INVAL;
 					}
 				}else if(!strcmp(token, "mount_point")){
-					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
+					REQUIRE_LISTENER(token);
 					mosquitto__FREE(cur_listener->mount_point);
 					if(conf__parse_string(&token, "mount_point", &cur_listener->mount_point, &saveptr)) return MOSQ_ERR_INVAL;
 					if(mosquitto_pub_topic_check(cur_listener->mount_point) != MOSQ_ERR_SUCCESS){
 						log__printf(NULL, MOSQ_LOG_ERR,
-								"Error: Invalid 'mount_point' (%s). Does it contain a wildcard character?",
+								"Error: Invalid 'mount_point' value (%s). Does it contain a wildcard character?",
 								cur_listener->mount_point);
 						return MOSQ_ERR_INVAL;
 					}
