@@ -1191,7 +1191,7 @@ log_timestamp_format %Y-%m-%dT%H:%M:%S
 			<title>General Options</title>
 			<variablelist>
 				<varlistentry>
-					<term><option>accepted_protocol_versions</option> <replaceable>versions</replaceable></term>
+					<term><option>accept_protocol_versions</option> <replaceable>versions</replaceable></term>
 					<listitem>
 						<para>
                             Accepted protocol versions. This sets what versions
