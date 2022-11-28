@@ -87,9 +87,12 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
     else:
         return None
 
-def start_client(filename, cmd, env, port=1888):
+def start_client(filename, cmd, env=None, port=1888):
     if cmd is None:
         raise ValueError
+    if env is None:
+        env = dict(os.environ)
+        env['LD_LIBRARY_PATH'] = get_build_root() + '/lib:' + get_build_root() + '/lib/cpp'
     if os.environ.get('MOSQ_USE_VALGRIND') is not None:
         cmd = ['valgrind', '-q', '--log-file='+filename+'.vglog'] + cmd
 
