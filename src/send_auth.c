@@ -40,34 +40,27 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	remaining_length = 1;
 
 	rc = mosquitto_property_add_string(&properties, MQTT_PROP_AUTHENTICATION_METHOD, context->auth_method);
-	if(rc){
-		mosquitto_property_free_all(&properties);
-		return rc;
-	}
+	if(rc) goto error;
 
 	if(auth_data != NULL && auth_data_len > 0){
 		rc = mosquitto_property_add_binary(&properties, MQTT_PROP_AUTHENTICATION_DATA, auth_data, auth_data_len);
-		if(rc){
-			mosquitto_property_free_all(&properties);
-			return rc;
-		}
+		if(rc) goto error;
 	}
 
 	remaining_length += property__get_remaining_length(properties);
 
-	if(packet__check_oversize(context, remaining_length)){
-		mosquitto_property_free_all(&properties);
-		return MOSQ_ERR_OVERSIZE_PACKET;
-	}
+	rc = packet__check_oversize(context, remaining_length);
+	if(rc) goto error;
 
 	rc = packet__alloc(&packet, CMD_AUTH, remaining_length);
-	if(rc){
-		mosquitto_property_free_all(&properties);
-		return rc;
-	}
+	if(rc) goto error;
+
 	packet__write_byte(packet, reason_code);
 	property__write_all(packet, properties, true);
 	mosquitto_property_free_all(&properties);
 
 	return packet__queue(context, packet);
+error:
+	mosquitto_property_free_all(&properties);
+	return rc;
 }
