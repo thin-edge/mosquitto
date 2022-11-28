@@ -24,6 +24,28 @@ PLUGIN_SRC = \
 	auth_plugin_v5_control.c \
 	auth_plugin_v5_handle_message.c \
 	auth_plugin_v5_handle_tick.c \
+	bad_vnone_1.c \
+	bad_v1.c \
+	bad_v2_1.c \
+	bad_v2_2.c \
+	bad_v2_3.c \
+	bad_v2_4.c \
+	bad_v2_5.c \
+	bad_v2_6.c \
+	bad_v2_7.c \
+	bad_v3_1.c \
+	bad_v3_2.c \
+	bad_v3_3.c \
+	bad_v3_4.c \
+	bad_v3_5.c \
+	bad_v3_6.c \
+	bad_v3_7.c \
+	bad_v4_1.c \
+	bad_v4_2.c \
+	bad_v4_3.c \
+	bad_v4_4.c \
+	bad_v5_1.c \
+	bad_v6.c \
 	plugin_control.c \
 	plugin_evt_psk_key.c
 

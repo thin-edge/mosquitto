@@ -27,7 +27,7 @@ def get_build_root():
         result = str(Path(__file__).resolve().parents[1])
     return result
 
-def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost", env=None):
+def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost", env=None, check_port=True):
     global vg_index
     global vg_logfiles
 
@@ -67,6 +67,10 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
         broker = subprocess.Popen(cmd, stderr=subprocess.PIPE, env=env)
     else:
         broker = subprocess.Popen(cmd, stderr=subprocess.DEVNULL, env=env)
+
+    if check_port == False:
+        return broker
+
     for i in range(0, 20):
         time.sleep(delay)
         c = None

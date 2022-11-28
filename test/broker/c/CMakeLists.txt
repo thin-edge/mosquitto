@@ -19,7 +19,30 @@ set(PLUGINS
     auth_plugin_v5_control
     auth_plugin_v5_handle_message
     auth_plugin_v5_handle_tick
+	bad_vnone_1
+    bad_v1
+    bad_v2_1
+    bad_v2_2
+    bad_v2_3
+    bad_v2_4
+    bad_v2_5
+    bad_v2_6
+    bad_v2_7
+    bad_v3_1
+    bad_v3_2
+    bad_v3_3
+    bad_v3_4
+    bad_v3_5
+    bad_v3_6
+    bad_v3_7
+    bad_v4_1
+    bad_v4_2
+    bad_v4_3
+    bad_v4_4
+    bad_v5_1
+    bad_v6
     plugin_control
+    plugin_evt_psk_key
 )
 
 foreach(PLUGIN ${PLUGINS})

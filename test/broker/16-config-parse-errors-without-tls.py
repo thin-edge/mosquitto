@@ -6,23 +6,6 @@ from mosq_test_helper import *
 
 vg_index = 0
 
-def start_broker(filename):
-    global vg_index
-    cmd = [mosq_test.get_build_root() + '/src/mosquitto', '-v', '-c', filename]
-
-    if os.environ.get('MOSQ_USE_VALGRIND') is not None:
-        logfile = os.path.basename(__file__)+'.'+str(vg_index)+'.vglog'
-        if os.environ.get('MOSQ_USE_VALGRIND') == 'callgrind':
-            cmd = ['valgrind', '-q', '--tool=callgrind', '--log-file='+logfile] + cmd
-        elif os.environ.get('MOSQ_USE_VALGRIND') == 'massif':
-            cmd = ['valgrind', '-q', '--tool=massif', '--log-file='+logfile] + cmd
-        else:
-            cmd = ['valgrind', '-q', '--trace-children=yes', '--leak-check=full', '--show-leak-kinds=all', '--log-file='+logfile] + cmd
-
-    vg_index += 1
-    return subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-
-
 def write_config(filename, port, config_str):
     with open(filename, 'w') as f:
         f.write(f"{config_str}")
@@ -36,7 +19,7 @@ def do_test(config_str, rc_expected, error_log_entry):
     write_config(conf_file, port, config_str)
 
     try:
-        broker = start_broker(conf_file)
+        broker = mosq_test.start_broker(conf_file, check_port=False)
         mosq_test.wait_for_subprocess(broker,timeout=1)
 
         if broker.returncode != rc_expected:
