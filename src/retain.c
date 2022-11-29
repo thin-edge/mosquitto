@@ -109,6 +109,22 @@ BROKER_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic)
 }
 
 
+void retain__clean_empty_hierarchy(struct mosquitto__retainhier *retainhier)
+{
+	while(retainhier){
+		if(retainhier->children || retainhier->retained || retainhier->parent == NULL){
+			/* Entry is being used */
+			return;
+		}else{
+			HASH_DELETE(hh, retainhier->parent->children, retainhier);
+
+			struct mosquitto__retainhier *parent = retainhier->parent;
+			mosquitto__FREE(retainhier);
+			retainhier = parent;
+		}
+	}
+}
+
 
 int retain__store(const char *topic, struct mosquitto_base_msg *base_msg, char **split_topics, bool persist)
 {
@@ -159,6 +175,7 @@ int retain__store(const char *topic, struct mosquitto_base_msg *base_msg, char *
 #endif
 		if(base_msg->payloadlen == 0){
 			retainhier->retained = NULL;
+			retain__clean_empty_hierarchy(retainhier);
 		}
 	}
 	if(base_msg->payloadlen){

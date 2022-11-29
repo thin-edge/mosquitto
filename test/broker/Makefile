@@ -99,6 +99,7 @@ msg_sequence_test:
 	./04-retain-check-source-persist-diff-port.py
 	./04-retain-check-source-persist.py
 	./04-retain-check-source.py
+	./04-retain-clear-multiple.py
 	./04-retain-qos0-clear.py
 	./04-retain-qos0-fresh.py
 	./04-retain-qos0-repeated.py
