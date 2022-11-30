@@ -828,18 +828,12 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 	}
 
 	plugin = mosquitto__calloc(1, sizeof(mosquitto_plugin_id_t));
-	if(!plugin){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		return NULL;
-	}
+	if(!plugin) goto error;
+
 	if(name) plugin->config.name = mosquitto__strdup(name);
 	plugin->config.path = mosquitto__strdup(path);
 	if((name && !plugin->config.name) || !plugin->config.path){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		mosquitto__FREE(plugin->config.name);
-		mosquitto__FREE(plugin->config.path);
-		mosquitto__FREE(plugin);
-		return NULL;
+		goto error;
 	}
 	plugin->config.options = NULL;
 	plugin->config.option_count = 0;
@@ -847,18 +841,19 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 
 	/* Add to db list */
 	plugins = mosquitto__realloc(db.plugins, (size_t)(db.plugin_count+1)*sizeof(struct mosquitto__plugin_config *));
-	if(!plugins){
-		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-		mosquitto__FREE(plugin->config.name);
-		mosquitto__FREE(plugin->config.path);
-		mosquitto__FREE(plugin);
-		return NULL;
-	}
+	if(!plugins) goto error;
+
 	plugins[db.plugin_count] = plugin;
 	db.plugins = plugins;
 	db.plugin_count++;
 
 	return plugin;
+error:
+	log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+	mosquitto__FREE(plugin->config.name);
+	mosquitto__FREE(plugin->config.path);
+	mosquitto__FREE(plugin);
+	return NULL;
 }
 
 
@@ -887,8 +882,6 @@ int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__s
 
 	return MOSQ_ERR_SUCCESS;
 }
-
-
 
 
 static int config__read_file_core(struct mosquitto__config *config, bool reload, struct config_recurse *cr, int level, int *lineno, FILE *fptr, char **buf, int *buflen)

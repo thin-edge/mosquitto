@@ -344,6 +344,7 @@ int main(int argc, char *argv[])
 	memset(&db, 0, sizeof(struct mosquitto_db));
 	db.now_s = mosquitto_time();
 	db.now_real_s = time(NULL);
+	mosquitto_broker_node_id_set(0);
 
 	net__broker_init();
 

@@ -125,4 +125,6 @@ do_test("memory_limit -1\n", 3, "Error: Invalid 'memory_limit' value (-1).") # I
 do_test("sys_interval -1\n", 3, "Error: Invalid 'sys_interval' value (-1).") # Invalid value
 do_test("sys_interval 65536\n", 3, "Error: Invalid 'sys_interval' value (65536).") # Invalid value
 
+do_test(f"listener {port}\naccept_protocol_versions\n", 3, "Error: Empty 'accept_protocol_versions' value in configuration.")
+
 exit(0)
