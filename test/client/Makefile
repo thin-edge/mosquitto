@@ -9,7 +9,7 @@ all :
 check : test
 test : 02 03 04
 	./test.sh
-	#./test-ws.sh
+	./test-ws.sh
 
 test-compile:
 
