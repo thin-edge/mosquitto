@@ -7,12 +7,18 @@ static int run = -1;
 
 static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
+	int rc2;
+	mosquitto_property *proplist;
 	(void)obj;
 
 	if(rc){
 		exit(1);
 	}else{
-		mosquitto_unsubscribe(mosq, NULL, "unsubscribe/test");
+		rc2 = mosquitto_property_add_string_pair(&proplist, MQTT_PROP_USER_PROPERTY, "key", "value");
+		if(rc2 != MOSQ_ERR_SUCCESS){
+			abort();
+		}
+		mosquitto_unsubscribe_v5(mosq, NULL, "unsubscribe/test", proplist);
 	}
 }
 
