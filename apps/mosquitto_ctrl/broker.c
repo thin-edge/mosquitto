@@ -110,11 +110,11 @@ static void print_plugin_info(cJSON *j_response)
 			fprintf(stderr, "Error: Invalid response from server.\n");
 			return;
 		}
-		printf("Plugin:            %-20s\n", jtmp->valuestring);
+		printf("Plugin:            %s\n", jtmp->valuestring);
 
 		jtmp = cJSON_GetObjectItem(j_plugin, "version");
 		if(jtmp && cJSON_IsString(jtmp)){
-			printf("Version:           %-20s\n", jtmp->valuestring);
+			printf("Version:           %s\n", jtmp->valuestring);
 		}
 
 		j_eps = cJSON_GetObjectItem(j_plugin, "control-endpoints");
@@ -124,9 +124,9 @@ static void print_plugin_info(cJSON *j_response)
 				if(jtmp && cJSON_IsString(jtmp)){
 					if(first){
 						first = false;
-						printf("Control endpoints: %-20s\n", jtmp->valuestring);
+						printf("Control endpoints: %s\n", jtmp->valuestring);
 					}else{
-						printf("                   %-20s\n", jtmp->valuestring);
+						printf("                   %s\n", jtmp->valuestring);
 					}
 				}
 			}
