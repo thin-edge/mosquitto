@@ -199,7 +199,7 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 			argv++;
 			(*argc)--;
 		}else if(!strcmp(argv[0], "--help")){
-			return 2;
+			return 1;
 		}else if(!strcmp(argv[0], "-h") || !strcmp(argv[0], "--host")){
 			if((*argc) == 1){
 				fprintf(stderr, "Error: -h argument given but no host specified.\n\n");
@@ -258,7 +258,7 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 					url += 8;
 					cfg->port = 8883;
 				} else {
-					fprintf(stderr, "Error: unsupported URL scheme.\n\n");
+					fprintf(stderr, "Error: Unsupported URL scheme.\n\n");
 					return 1;
 				}
 				topic = strchr(url, '/');
@@ -276,6 +276,10 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 						*colon = 0;
 						cfg->password = strdup(colon + 1);
 					}
+					if(strlen(url) == 0){
+						fprintf(stderr, "Error: Empty username in URL.\n");
+						return 1;
+					}
 					cfg->username = strdup(url);
 					url = tmp;
 				}
@@ -284,6 +288,10 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 				tmp = strchr(url, ':');
 				if(tmp) {
 					*tmp++ = 0;
+					if(strlen(tmp) == 0){
+						fprintf(stderr, "Error: Empty port in URL.\n");
+						return 1;
+					}
 					cfg->port = atoi(tmp);
 				}
 				/* Now we've removed the port, time to get the host on the heap */
@@ -448,7 +456,7 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 		}else if(!strcmp(argv[0], "-v") || !strcmp(argv[0], "--verbose")){
 			cfg->verbose = 1;
 		}else if(!strcmp(argv[0], "--version")){
-			return 3;
+			return 1;
 		}else{
 			goto unknown_option;
 		}

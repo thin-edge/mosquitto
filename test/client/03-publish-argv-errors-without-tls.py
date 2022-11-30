@@ -62,8 +62,8 @@ if __name__ == '__main__':
     do_test(['-V', '5', '-D'], "Error: --property argument given but not enough arguments specified.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect'], "Error: --property argument given but not enough arguments specified.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect', 'receive-maximum'], "Error: --property argument given but not enough arguments specified.\n\n" + helps, 1)
-    do_test(['-V', '5', '-D', 'invalid', 'receive-maximum', '1'], "Error: Invalid command given in --property argument.\n\n" + helps, 1)
-    do_test(['-V', '5', '-D', 'connect', 'invalid', '1'], "Error: Invalid property name given in --property argument.\n\n" + helps, 1)
+    do_test(['-V', '5', '-D', 'invalid', 'receive-maximum', '1'], "Error: Invalid command invalid given in --property argument.\n\n" + helps, 1)
+    do_test(['-V', '5', '-D', 'connect', 'invalid', '1'], "Error: Invalid property name invalid given in --property argument.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect', 'will-delay-interval', '1'], "Error: will-delay-interval property not allowed for connect in --property argument.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect', 'user-property', 'key'], "Error: --property argument given but not enough arguments specified.\n\n" + helps, 1)
 

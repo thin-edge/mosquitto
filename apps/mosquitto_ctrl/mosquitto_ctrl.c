@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 	argc--;
 	argv++;
 
-	ctrl_config_parse(&ctrl.cfg, &argc, &argv);
+	rc = ctrl_config_parse(&ctrl.cfg, &argc, &argv);
+	if(rc) return rc;
 
 	if(argc < 2){
 		print_usage();

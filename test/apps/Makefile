@@ -8,7 +8,7 @@ all :
 
 check : test
 ptest : test
-test : 01
+test : 01 02
 
 01 :
 	./01-db-dump-client-stats.py
@@ -18,5 +18,10 @@ test : 01
 	./01-db-dump-print-v6-mqtt-v5-props.py
 	./01-db-dump-stats-current.py
 	./01-db-dump-stats.py
+
+02 :
+	./02-ctrl-args.py
+	./02-ctrl-broker.py
+	./02-ctrl-dynsec.py
 
 clean:
