@@ -158,11 +158,12 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 	FILE *fptr;
 	char *fstr;
 	cJSON *j_tree, *j_clients, *j_client;
-	cJSON *j_username, *j_password, *j_salt, *j_iterations;
+	cJSON *j_username, *j_password = NULL, *j_salt = NULL, *j_iterations = NULL;
 	struct dynsec__client client;
 	char *pw_buf = NULL, *salt_buf = NULL;
 	char *json_str;
 	int i;
+	int rc = MOSQ_ERR_UNKNOWN;
 
 	memset(&client, 0, sizeof(client));
 
@@ -235,56 +236,37 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 				if(!strcmp(j_username->valuestring, username)){
 					if(dynsec_auth__pw_hash(&client, password, client.pw.password_hash, sizeof(client.pw.password_hash), true) != MOSQ_ERR_SUCCESS){
 						fprintf(stderr, "Error: Problem generating password hash.\n");
-						cJSON_Delete(j_tree);
-						return MOSQ_ERR_UNKNOWN;
+						goto error;
 					}
 
 					if(base64__encode(client.pw.password_hash, sizeof(client.pw.password_hash), &pw_buf) != MOSQ_ERR_SUCCESS){
 						fprintf(stderr, "Error: Problem generating password hash.\n");
-						cJSON_Delete(j_tree);
-						free(pw_buf);
-						free(salt_buf);
-						return MOSQ_ERR_UNKNOWN;
+						rc = MOSQ_ERR_NOMEM;
+						goto error;
 					}
 					if(base64__encode(client.pw.salt, client.pw.salt_len, &salt_buf) != MOSQ_ERR_SUCCESS){
 						fprintf(stderr, "Error: Problem generating password hash.\n");
-						cJSON_Delete(j_tree);
-						free(pw_buf);
-						free(salt_buf);
-						return MOSQ_ERR_UNKNOWN;
+						goto error;
 					}
-					j_password = cJSON_CreateString(pw_buf);
-					if(j_password == NULL){
+					if((j_password = cJSON_CreateString(pw_buf)) == NULL
+							|| (j_salt = cJSON_CreateString(salt_buf)) == NULL
+							|| (j_iterations = cJSON_CreateNumber(client.pw.iterations)) == NULL
+							){
+
 						fprintf(stderr, "Error: Out of memory.\n");
-						cJSON_Delete(j_tree);
-						free(pw_buf);
-						free(salt_buf);
-						return MOSQ_ERR_NOMEM;
-					}
-					j_salt = cJSON_CreateString(salt_buf);
-					if(j_salt == NULL){
-						fprintf(stderr, "Error: Out of memory.\n");
-						cJSON_Delete(j_password);
-						cJSON_Delete(j_tree);
-						free(pw_buf);
-						free(salt_buf);
-						return MOSQ_ERR_NOMEM;
-					}
-					j_iterations = cJSON_CreateNumber(client.pw.iterations);
-					if(j_iterations == NULL){
-						fprintf(stderr, "Error: Out of memory.\n");
-						cJSON_Delete(j_password);
-						cJSON_Delete(j_salt);
-						cJSON_Delete(j_tree);
-						free(pw_buf);
-						free(salt_buf);
-						return MOSQ_ERR_NOMEM;
+						rc = MOSQ_ERR_NOMEM;
+						goto error;
 					}
 					cJSON_ReplaceItemInObject(j_client, "password", j_password);
 					cJSON_ReplaceItemInObject(j_client, "salt", j_salt);
 					cJSON_ReplaceItemInObject(j_client, "iterations", j_iterations);
+					j_password = NULL;
+					j_salt = NULL;
+					j_iterations = NULL;
 					free(pw_buf);
+					pw_buf = NULL;
 					free(salt_buf);
+					salt_buf = NULL;
 
 					json_str = cJSON_Print(j_tree);
 					cJSON_Delete(j_tree);
@@ -309,6 +291,13 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 
 	fprintf(stderr, "Error: Client %s not found.\n", username);
 	return MOSQ_ERR_SUCCESS;
+error:
+	cJSON_Delete(j_password);
+	cJSON_Delete(j_salt);
+	cJSON_Delete(j_tree);
+	free(pw_buf);
+	free(salt_buf);
+	return rc;
 }
 
 int dynsec_client__set_password(int argc, char *argv[], cJSON *j_command)
