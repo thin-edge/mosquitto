@@ -70,6 +70,9 @@ Broker:
   Previously update intervals were aligned to the time the broker was started.
 - Add `log_dest android` for logging to the Android logd daemon.
 - Fix some retained topic memory not being cleared immediately after used.
+- TLS v1.1 now not enabled by default. It is still possible to explicitly
+  choose TLS v1.1, but this is not recommended and will be removed in a future
+  version.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.
@@ -153,6 +156,9 @@ Client library:
 - `mosquitto_property_read_binary/string/string_pair` will now set the
   name/value parameter to NULL if the binary/string is empty. This aligns the
   behaviour with other property functions. Closes #2648.
+- TLS v1.1 now not enabled by default. It is still possible to explicitly
+  choose TLS v1.1, but this is not recommended and will be removed in a future
+  version.
 
 Clients:
 - Add `-W` timeout support to Windows.

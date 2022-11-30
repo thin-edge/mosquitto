@@ -1670,7 +1670,7 @@ openssl dhparam -out dhparam.pem 2048</programlisting>
 							<replaceable>tlsv1.3</replaceable>,
 							<replaceable>tlsv1.2</replaceable> and
 							<replaceable>tlsv1.1</replaceable>. If left unset,
-							the default of allowing TLS v1.3 and v1.2.</para>
+							the default is to allow TLS v1.3 and v1.2.</para>
 						<para>In Mosquitto version 1.6.x and earlier, this
 							option set the only TLS protocol version that
 							was allowed, rather than the minimum.</para>
