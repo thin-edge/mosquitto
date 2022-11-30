@@ -109,10 +109,7 @@ static FILE *mpw_tmpfile(void)
 int log__printf(void *mosq, unsigned int level, const char *fmt, ...)
 {
 	/* Stub for misc_mosq.c */
-	UNUSED(mosq);
-	UNUSED(level);
-	UNUSED(fmt);
-	return 0;
+	UNUSED(mosq); UNUSED(level); UNUSED(fmt); return 0;
 }
 
 
@@ -145,35 +142,30 @@ static int output_new_password(FILE *fptr, const char *username, const char *pas
 
 	pw.hashtype = hashtype;
 
-	if(pw__hash(password, &pw, true, iterations)){
+	rc = pw__hash(password, &pw, true, iterations);
+	if(rc){
 		fprintf(stderr, "Error: Unable to hash password.\n");
-		return 1;
-	}
-
-	rc = base64__encode(pw.salt, pw.salt_len, &salt64);
-	if(rc){
-		free(salt64);
-		fprintf(stderr, "Error: Unable to encode salt.\n");
-		return 1;
-	}
-
-	rc = base64__encode(pw.password_hash, sizeof(pw.password_hash), &hash64);
-	if(rc){
-		free(salt64);
-		free(hash64);
-		fprintf(stderr, "Error: Unable to encode hash.\n");
-		return 1;
-	}
-
-	if(pw.hashtype == pw_sha512_pbkdf2){
-		fprintf(fptr, "%s:$%d$%d$%s$%s\n", username, hashtype, iterations, salt64, hash64);
 	}else{
-		fprintf(fptr, "%s:$%d$%s$%s\n", username, hashtype, salt64, hash64);
+		rc = base64__encode(pw.salt, pw.salt_len, &salt64);
+		if(rc){
+			fprintf(stderr, "Error: Unable to encode salt.\n");
+		}else{
+			rc = base64__encode(pw.password_hash, sizeof(pw.password_hash), &hash64);
+			if(rc){
+				fprintf(stderr, "Error: Unable to encode hash.\n");
+			}else{
+				if(pw.hashtype == pw_sha512_pbkdf2){
+					fprintf(fptr, "%s:$%d$%d$%s$%s\n", username, hashtype, iterations, salt64, hash64);
+				}else{
+					fprintf(fptr, "%s:$%d$%s$%s\n", username, hashtype, salt64, hash64);
+				}
+			}
+		}
 	}
 	free(salt64);
 	free(hash64);
 
-	return 0;
+	return rc;
 }
 
 

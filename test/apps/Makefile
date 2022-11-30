@@ -8,7 +8,7 @@ all :
 
 check : test
 ptest : test
-test : 01 02
+test : 01 02 03
 
 01 :
 	./01-db-dump-client-stats.py
@@ -23,5 +23,9 @@ test : 01 02
 	./02-ctrl-args.py
 	./02-ctrl-broker.py
 	./02-ctrl-dynsec.py
+
+03 :
+	./03-passwd-args.py
+	./03-passwd-changes.py
 
 clean:
