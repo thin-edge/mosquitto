@@ -174,6 +174,7 @@ tests = [
     (1, './09-plugin-change-id.py'),
     (1, './09-plugin-evt-psk-key.py'),
     (1, './09-plugin-delayed-auth.py'),
+    (3, './09-plugin-load.py'),
     (1, './09-plugin-publish.py'),
     (1, './09-plugin-tick.py'),
     (1, './09-plugin-unsupported.py'),
@@ -240,6 +241,7 @@ tests = [
 	(1, './15-persist-subscription-v5-0.py', 'persist_sqlite'),
 
     (1, './16-cmd-args.py'),
+    (4, './16-config-huge.py'),
     (1, './16-config-includedir.py'),
     (1, './16-config-parse-errors-tls.py'),
     (1, './16-config-parse-errors-tls-psk.py'),

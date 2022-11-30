@@ -1037,7 +1037,6 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(reload) continue; /* Auth plugin not currently valid for reloading. */
 
 					REQUIRE_PLUGIN(token);
-					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 
 					if(!strncmp(token, "auth_opt_", strlen("auth_opt_"))){
 						prefix_len = strlen("auth_opt_");

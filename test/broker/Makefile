@@ -283,6 +283,7 @@ endif
 
 16 :
 	./16-cmd-args.py
+	./16-config-huge.py
 	./16-config-includedir.py
 	./16-config-missing.py
 	./16-config-parse-errors-without-tls.py
