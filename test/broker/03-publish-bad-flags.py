@@ -42,14 +42,6 @@ write_config(conf_file, port)
 broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port)
 
 try:
-    # mid == 0
-    publish_packet = mosq_test.gen_publish(topic="test/topic", qos=1, mid=0, proto_ver=5)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_PROTOCOL_ERROR, "mid == 0")
-
-    # qos > 2
-    publish_packet = mosq_test.gen_publish(topic="test/topic", qos=3, mid=1, proto_ver=5)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "qos > 2")
-
     # qos > maximum qos
     publish_packet = mosq_test.gen_publish(topic="test/topic", qos=2, mid=1, proto_ver=5)
     do_test(publish_packet, mqtt5_rc.MQTT_RC_QOS_NOT_SUPPORTED, "qos > maximum qos")
@@ -57,35 +49,6 @@ try:
     # retain not supported
     publish_packet = mosq_test.gen_publish(topic="test/topic", qos=0, retain=True, proto_ver=5, payload="a")
     do_test(publish_packet, mqtt5_rc.MQTT_RC_RETAIN_NOT_SUPPORTED, "retain not supported")
-
-    # Incorrect property
-    props = mqtt5_props.gen_uint32_prop(mqtt5_props.PROP_SESSION_EXPIRY_INTERVAL, 0)
-    publish_packet = mosq_test.gen_publish(topic="test/topic", qos=1, mid=1, proto_ver=5, properties=props)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_PROTOCOL_ERROR, "Incorrect property")
-
-    # Truncated packet, remaining length only
-    publish_packet = struct.pack("!BB", 48, 0)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "Truncated packet, remaining length only")
-
-    # Truncated packet, empty topic
-    publish_packet = struct.pack("!BBH", 48, 2, 0)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "Truncated packet, empty topic")
-
-    # Truncated packet, with topic, no properties
-    publish_packet = struct.pack("!BBH1s", 48, 3, 1, b"a")
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "Truncated packet, with topic, no properties")
-
-    # Truncated packet, with topic, no mid
-    publish_packet = struct.pack("!BBH1s", 48+2, 3, 1, b"a")
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "Truncated packet, with topic, no mid")
-
-    # Truncated packet, with topic, with mid, no properties
-    publish_packet = struct.pack("!BBH1sH", 48+2, 5, 1, b"a", 1)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "Truncated packet, with topic, with mid, no properties")
-
-    # Bad topic
-    publish_packet = mosq_test.gen_publish(topic="#/test/topic", qos=1, mid=1, proto_ver=5)
-    do_test(publish_packet, mqtt5_rc.MQTT_RC_MALFORMED_PACKET, "Bad topic")
 except mosq_test.TestError:
     pass
 finally:

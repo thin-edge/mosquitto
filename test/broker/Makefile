@@ -76,6 +76,7 @@ msg_sequence_test:
 03 :
 	#./03-publish-qos1-queued-bytes.py
 	./03-pattern-matching.py
+	./03-publish-bad-flags.py
 	./03-publish-b2c-disconnect-qos1.py
 	./03-publish-b2c-disconnect-qos2.py
 	./03-publish-b2c-qos1-len.py
@@ -235,9 +236,6 @@ endif
 	./12-prop-subpub-payload-format.py
 
 13 :
-	./13-malformed-publish-v5.py
-	./13-malformed-subscribe-v5.py
-	./13-malformed-unsubscribe-v5.py
 
 14 :
 ifeq ($(WITH_TLS),yes)

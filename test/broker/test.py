@@ -54,6 +54,7 @@ tests = [
 
     #(1, './03-publish-qos1-queued-bytes.py'),
     (1, './03-pattern-matching.py'),
+    (1, './03-publish-bad-flags.py'),
     (1, './03-publish-b2c-disconnect-qos1.py'),
     (1, './03-publish-b2c-disconnect-qos2.py'),
     (1, './03-publish-b2c-qos1-len.py'),
@@ -199,10 +200,6 @@ tests = [
     (1, './12-prop-server-keepalive.py'),
     (1, './12-prop-subpub-content-type.py'),
     (1, './12-prop-subpub-payload-format.py'),
-
-    (1, './13-malformed-publish-v5.py'),
-    (1, './13-malformed-subscribe-v5.py'),
-    (1, './13-malformed-unsubscribe-v5.py'),
 
     (1, './14-dynsec-acl.py'),
     (1, './14-dynsec-allow-wildcard.py'),

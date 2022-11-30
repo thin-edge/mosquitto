@@ -33,6 +33,7 @@
 			{ "name": "82 multiple topic 1 len 0", "ver":4, "msgs": [{"type":"send", "payload":"82 09 1234 0000 00 0001 71 00"}]},
 			{ "name": "82 multiple topic 2 len 0", "ver":4, "msgs": [{"type":"send", "payload":"82 09 1234 0001 71 00 0000 00"}]},
 			{ "name": "82 multiple topic 1,2 len 0", "ver":4, "msgs": [{"type":"send", "payload":"82 08 1234 0000 00 0000 00"}]},
+			{ "name": "82 mid 0", "ver":4, "msgs": [{"type":"send", "payload":"82 06 0000 0001 70 00"}]},
 			{ "name": "82 single ok QoS 0 [MQTT-3.8.4-1]", "ver":4, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"82 06 1234 0001 70 00"},
 				{"type":"recv", "payload":"90 03 1234 00"}
@@ -210,6 +211,10 @@
 			{ "name": "82 multiple ok [MQTT-3.8.4-4]", "ver":5, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"82 0B 1234 00 0001 70 00 0001 71 00"},
 				{"type":"recv", "payload":"90 05 1234 00 00 00"}
+			]},
+			{ "name": "82 mid 0", "ver":5, "msgs": [
+				{"type":"send", "payload":"82 07 0000 00 0001 70 00"},
+				{"type":"recv", "payload":"E0 01 81"}
 			]}
 		]
 	},

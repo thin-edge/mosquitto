@@ -35,7 +35,8 @@
 			{ "name": "A2 topic with U+001F", "ver":4, "msgs": [{"type":"send", "payload":"A2 09 1234 0005 746F701F70"}]},
 			{ "name": "A2 topic with U+007F", "ver":4, "msgs": [{"type":"send", "payload":"A2 09 1234 0005 746F707F70"}]},
 			{ "name": "A2 topic with U+009F", "ver":4, "msgs": [{"type":"send", "payload":"A2 09 1234 0005 746FC29F70"}]},
-			{ "name": "A2 topic with U+FFFF", "ver":4, "msgs": [{"type":"send", "payload":"A2 09 1234 0005 746FEDBFBF"}]}
+			{ "name": "A2 topic with U+FFFF", "ver":4, "msgs": [{"type":"send", "payload":"A2 09 1234 0005 746FEDBFBF"}]},
+			{ "name": "A2 zero mid", "ver":4, "msgs": [ {"type":"send", "payload":"A2 08 0000 0001 70 0001 71"}]}
 		]
 	},
 	{
@@ -135,6 +136,10 @@
 			{ "name": "A2 multiple [MQTT-3.10.4-6]", "ver":5, "expect_disconnect":false, "msgs": [
 				{"type":"send", "payload":"A2 09 1234 00 0001 70 0001 71"},
 				{"type":"recv", "payload":"B0 05 1234 00 11 11"}
+			]},
+			{ "name": "A2 zero mid", "ver":5, "msgs": [
+				{"type":"send", "payload":"A2 06 0000 00 0001 70"},
+				{"type":"recv", "payload":"E0 01 81"}
 			]}
 		]
 	},
