@@ -9,7 +9,7 @@ def do_test(file, counts):
         f"MS: {counts[3]} " + \
         f"  {counts[4]}\n"
 
-    cmd = ['../../apps/db_dump/mosquitto_db_dump',
+    cmd = [mosq_test.get_build_root()+'/apps/db_dump/mosquitto_db_dump',
             '--client-stats',
             f'db_dump/{file}'
             ]

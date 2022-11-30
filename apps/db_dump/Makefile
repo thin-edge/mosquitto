@@ -1,7 +1,7 @@
 R=../..
 include ${R}/config.mk
 
-CFLAGS_FINAL=${CFLAGS} ${APP_CFLAGS} -I${R}/include -I${R}/ -I${R}/lib -I${R}/src -I${R}/deps -I${R}/common -DWITH_BROKER -DWITH_PERSISTENCE
+CFLAGS_FINAL=${CFLAGS} ${BROKER_CFLAGS} ${BROKER_CPPFLAGS} -I${R}/include -I${R}/ -I${R}/lib -I${R}/src -I${R}/deps -I${R}/common
 
 OBJS = \
 	   db_dump.o \

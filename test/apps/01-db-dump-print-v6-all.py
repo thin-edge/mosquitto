@@ -4,12 +4,13 @@ from mosq_test_helper import *
 
 def do_test(file, stdout):
 
-    cmd = ['../../apps/db_dump/mosquitto_db_dump',
+    cmd = [mosq_test.get_build_root()+'/apps/db_dump/mosquitto_db_dump',
             f'db_dump/{file}'
             ]
 
     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=1, encoding='utf-8')
     if res.stdout != stdout:
+        print(res.stdout)
         raise mosq_test.TestError
 
 stdout = """Mosquitto DB dump
@@ -25,7 +26,7 @@ DB_CHUNK_BASE_MSG:
 	Store ID: 208508774941868
 	Source Port: 1883
 	Source MID: 1
-	Topic: (null)
+	Topic: topic
 	QoS: 1
 	Retain: 1
 	Payload Length: 7

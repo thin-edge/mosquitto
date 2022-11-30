@@ -120,7 +120,7 @@ static int dump__cfg_chunk_process(FILE *db_fd, uint32_t length)
 		rc = persist__chunk_cfg_read_v234(db_fd, &chunk);
 	}
 	if(rc){
-		fprintf(stderr, "Error: Corrupt persistent database.");
+		fprintf(stderr, "Error: Corrupt persistent database.\n");
 		fclose(db_fd);
 		return rc;
 	}
@@ -157,7 +157,7 @@ static int dump__client_chunk_process(FILE *db_fd, uint32_t length)
 		rc = persist__chunk_client_read_v234(db_fd, &chunk, db_version);
 	}
 	if(rc){
-		fprintf(stderr, "Error: Corrupt persistent database.");
+		fprintf(stderr, "Error: Corrupt persistent database.\n");
 		return rc;
 	}
 
@@ -198,7 +198,7 @@ static int dump__client_msg_chunk_process(FILE *db_fd, uint32_t length)
 		rc = persist__chunk_client_msg_read_v234(db_fd, &chunk);
 	}
 	if(rc){
-		fprintf(stderr, "Error: Corrupt persistent database.");
+		fprintf(stderr, "Error: Corrupt persistent database.\n");
 		fclose(db_fd);
 		return rc;
 	}
@@ -242,7 +242,7 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 		rc = persist__chunk_base_msg_read_v234(db_fptr, &chunk, db_version);
 	}
 	if(rc){
-		fprintf(stderr, "Error: Corrupt persistent database.");
+		fprintf(stderr, "Error: Corrupt persistent database.\n");
 		fclose(db_fptr);
 		return rc;
 	}
@@ -328,6 +328,7 @@ static int dump__retain_chunk_process(FILE *db_fd, uint32_t length)
 		rc = persist__chunk_retain_read_v234(db_fd, &chunk);
 	}
 	if(rc){
+		fprintf(stderr, "Error: Corrupt persistent database.\n");
 		fclose(db_fd);
 		return rc;
 	}
@@ -352,7 +353,7 @@ static int dump__sub_chunk_process(FILE *db_fd, uint32_t length)
 		rc = persist__chunk_sub_read_v234(db_fd, &chunk);
 	}
 	if(rc){
-		fprintf(stderr, "Error: Corrupt persistent database.");
+		fprintf(stderr, "Error: Corrupt persistent database.\n");
 		fclose(db_fd);
 		return rc;
 	}
@@ -458,16 +459,13 @@ int main(int argc, char *argv[])
 					break;
 
 				default:
-					fprintf(stderr, "Warning: Unsupported chunk \"%d\" in persistent database file. Ignoring.\n", chunk);
-					if(fseek(fd, length, SEEK_CUR) < 0){
-						fprintf(stderr, "Error seeking in file.\n");
-						return 1;
-					}
+					fprintf(stderr, "Warning: Unsupported chunk \"%d\" of length %d in persistent database file at position %ld. Ignoring.\n", chunk, length, ftell(fd));
+					fseek(fd, length, SEEK_CUR);
 					break;
 			}
 		}
 	}else{
-		fprintf(stderr, "Error: Unrecognised file format.");
+		fprintf(stderr, "Error: Unrecognised file format.\n");
 		rc = 1;
 	}
 
@@ -497,7 +495,7 @@ int main(int argc, char *argv[])
 	return rc;
 error:
 	cleanup_msg_store();
-	fprintf(stderr, "Error: %s.", strerror(errno));
+	fprintf(stderr, "Error: Corrupt persistent database.\n");
 	if(fd) fclose(fd);
 	return 1;
 }

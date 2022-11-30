@@ -37,90 +37,19 @@ static void print__properties(mosquitto_property *properties)
 
 	while(properties){
 		switch(properties->identifier){
+			/* Only properties for base messages are valid for saving */
 			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
 				printf("\t\tPayload format indicator: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_REQUEST_PROBLEM_INFORMATION:
-				printf("\t\tRequest problem information: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_REQUEST_RESPONSE_INFORMATION:
-				printf("\t\tRequest response information: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_MAXIMUM_QOS:
-				printf("\t\tMaximum QoS: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_RETAIN_AVAILABLE:
-				printf("\t\tRetain available: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_WILDCARD_SUB_AVAILABLE:
-				printf("\t\tWildcard sub available: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_SUBSCRIPTION_ID_AVAILABLE:
-				printf("\t\tSubscription ID available: %d\n", properties->value.i8);
-				break;
-			case MQTT_PROP_SHARED_SUB_AVAILABLE:
-				printf("\t\tShared subscription available: %d\n", properties->value.i8);
-				break;
-
-			case MQTT_PROP_SERVER_KEEP_ALIVE:
-				printf("\t\tServer keep alive: %d\n", properties->value.i16);
-				break;
-			case MQTT_PROP_RECEIVE_MAXIMUM:
-				printf("\t\tReceive maximum: %d\n", properties->value.i16);
-				break;
-			case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-				printf("\t\tTopic alias maximum: %d\n", properties->value.i16);
-				break;
-			case MQTT_PROP_TOPIC_ALIAS:
-				printf("\t\tTopic alias: %d\n", properties->value.i16);
-				break;
-
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-				printf("\t\tMessage expiry interval: %d\n", properties->value.i32);
-				break;
-			case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-				printf("\t\tSession expiry interval: %d\n", properties->value.i32);
-				break;
-			case MQTT_PROP_WILL_DELAY_INTERVAL:
-				printf("\t\tWill delay interval: %d\n", properties->value.i32);
-				break;
-			case MQTT_PROP_MAXIMUM_PACKET_SIZE:
-				printf("\t\tMaximum packet size: %d\n", properties->value.i32);
-				break;
-
-			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-				printf("\t\tSubscription identifier: %d\n", properties->value.varint);
 				break;
 
 			case MQTT_PROP_CONTENT_TYPE:
 				printf("\t\tContent type: %s\n", properties->value.s.v);
 				break;
+
 			case MQTT_PROP_RESPONSE_TOPIC:
 				printf("\t\tResponse topic: %s\n", properties->value.s.v);
 				break;
-			case MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER:
-				printf("\t\tAssigned client identifier: %s\n", properties->value.s.v);
-				break;
-			case MQTT_PROP_AUTHENTICATION_METHOD:
-				printf("\t\tAuthentication method: %s\n", properties->value.s.v);
-				break;
-			case MQTT_PROP_RESPONSE_INFORMATION:
-				printf("\t\tResponse information: %s\n", properties->value.s.v);
-				break;
-			case MQTT_PROP_SERVER_REFERENCE:
-				printf("\t\tServer reference: %s\n", properties->value.s.v);
-				break;
-			case MQTT_PROP_REASON_STRING:
-				printf("\t\tReason string: %s\n", properties->value.s.v);
-				break;
 
-			case MQTT_PROP_AUTHENTICATION_DATA:
-				printf("\t\tAuthentication data: ");
-				for(i=0; i<properties->value.bin.len; i++){
-					printf("%02X", properties->value.bin.v[i]);
-				}
-				printf("\n");
-				break;
 			case MQTT_PROP_CORRELATION_DATA:
 				printf("\t\tCorrelation data: ");
 				for(i=0; i<properties->value.bin.len; i++){
