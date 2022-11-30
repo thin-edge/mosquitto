@@ -243,6 +243,7 @@ BROKER_EXPORT int mosquitto_broker_publish(
 
 	DL_APPEND(db.plugin_msgs, msg);
 
+	loop__update_next_event(1);
 	return MOSQ_ERR_SUCCESS;
 }
 
