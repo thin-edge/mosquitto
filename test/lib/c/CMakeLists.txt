@@ -11,6 +11,7 @@ set(BINARIES
     01-unpwd-set
     01-will-set
     01-will-unpwd-set
+    02-subscribe-helper-qos2
     02-subscribe-qos0
     02-subscribe-qos1-async1
     02-subscribe-qos1-async2
