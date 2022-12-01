@@ -175,7 +175,7 @@ static void broker__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, co
 
 	j_error = cJSON_GetObjectItem(j_response, "error");
 	if(j_error){
-		fprintf(stderr, "%s: Error: %s\n", j_command->valuestring, j_error->valuestring);
+		fprintf(stderr, "%s: Error: %s.\n", j_command->valuestring, j_error->valuestring);
 	}else{
 		if(!strcasecmp(j_command->valuestring, "listPlugins")){
 			print_plugin_info(j_response);

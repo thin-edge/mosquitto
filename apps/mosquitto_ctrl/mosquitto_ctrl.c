@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 		}else if(rc == MOSQ_ERR_UNKNOWN){
 			/* Message printed already */
 		}else{
-			fprintf(stderr, "Error: %s\n", mosquitto_strerror(rc));
+			fprintf(stderr, "Error: %s.\n", mosquitto_strerror(rc));
 		}
 	}
 

@@ -709,7 +709,7 @@ int client_connect(struct mosquitto *mosq, struct mosq_config *cfg)
 #else
 			FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errno, 0, (LPTSTR)&err, 1024, NULL);
 #endif
-			fprintf(stderr, "Error: %s\n", err);
+			fprintf(stderr, "Error: %s.\n", err);
 		}else{
 			fprintf(stderr, "Unable to connect (%s).\n", mosquitto_strerror(rc));
 		}

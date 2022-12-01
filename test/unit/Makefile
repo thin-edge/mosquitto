@@ -24,6 +24,7 @@ TEST_OBJS = \
 		property_read.o \
 		property_user_read.o \
 		property_write.o \
+		strings_test.o \
 		lib_stubs.o \
 		util_topic_test.o \
 		utf8.o
@@ -34,6 +35,7 @@ LIB_OBJS = \
 		${R}/lib/packet_datatypes.o \
 		${R}/lib/packet_mosq.o \
 		${R}/lib/property_mosq.o \
+		${R}/lib/strings_mosq.o \
 		${R}/lib/util_mosq.o \
 		${R}/lib/util_topic.o \
 		${R}/lib/utf8_mosq.o

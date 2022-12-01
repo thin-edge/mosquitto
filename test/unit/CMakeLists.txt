@@ -26,6 +26,7 @@ add_executable(broker-test
     property_read.c
     property_user_read.c
     property_write.c
+	strings_test.c
     stubs.c
     util_topic_test.c
     utf8.c
@@ -36,6 +37,7 @@ add_executable(broker-test
     ../../lib/property_mosq.c
     ../../lib/memory_mosq.c
     ../../common/misc_mosq.c
+    ../../lib/strings_mosq.c
     ../../lib/util_mosq.c
     ../../lib/util_topic.c
     ../../lib/utf8_mosq.c
