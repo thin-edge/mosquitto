@@ -201,6 +201,8 @@ tests = [
     (1, './12-prop-subpub-content-type.py'),
     (1, './12-prop-subpub-payload-format.py'),
 
+    (1, './13-websocket-bad-origin.py'),
+
     (1, './14-dynsec-acl.py'),
     (1, './14-dynsec-allow-wildcard.py'),
     (1, './14-dynsec-anon-group.py'),

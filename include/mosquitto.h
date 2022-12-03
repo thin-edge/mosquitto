@@ -125,6 +125,7 @@ enum mosq_err_t {
 	/* 28, 29, 30 - was internal only, moved to MQTT v5 section. */
 	MOSQ_ERR_ALREADY_EXISTS = 31,
 	MOSQ_ERR_PLUGIN_IGNORE = 32,
+	MOSQ_ERR_HTTP_BAD_ORIGIN = 33,
 
 	/* MQTT v5 direct equivalents 128-255 */
 	MOSQ_ERR_UNSPECIFIED = 128,

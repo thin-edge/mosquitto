@@ -213,6 +213,19 @@ int http__read(struct mosquitto *mosq)
 			}
 			strncpy(mosq->address, forwarded_for, (size_t)forwarded_for_len);
 			mosq->address[forwarded_for_len] = '\0';
+		}else if(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
+			if(mosq->listener){
+				bool have_match = false;
+				for(int j=0; j<mosq->listener->ws_origin_count; j++){
+					if(!strncmp(mosq->listener->ws_origins[j], http_headers[i].value, http_headers[i].value_len)){
+						have_match = true;
+						break;
+					}
+				}
+				if(!have_match){
+					return MOSQ_ERR_HTTP_BAD_ORIGIN;
+				}
+			}
 		}else{
 			/* Unknown header */
 		}
