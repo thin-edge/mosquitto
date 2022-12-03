@@ -764,7 +764,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 		if(mosq->tls_13_ciphers){
 			ret = SSL_CTX_set_ciphersuites(mosq->ssl_ctx, mosq->tls_13_ciphers);
 			if(ret == 0){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to set TLS 1.3 ciphersuites. Check cipher_tls13 list \"%s\".", mosq->tls_13_ciphers);
+				log__printf(mosq, MOSQ_LOG_ERR, "Error: Unable to set TLS 1.3 ciphersuites. Check cipher_tls13 list \"%s\".", mosq->tls_13_ciphers);
 				return MOSQ_ERR_TLS;
 			}
 		}

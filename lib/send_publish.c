@@ -109,7 +109,7 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 						mosquitto__FREE(mapped_topic);
 						mapped_topic = topic_temp;
 					}
-					log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, mapped_topic, (long)payloadlen);
+					log__printf(mosq, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, mapped_topic, (long)payloadlen);
 					G_PUB_BYTES_SENT_INC(payloadlen);
 					rc =  send__real_publish(mosq, mid, mapped_topic, payloadlen, payload, qos, retain, dup, subscription_identifier, store_props, expiry_interval);
 					mosquitto__FREE(mapped_topic);
@@ -119,7 +119,7 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 		}
 	}
 #endif
-	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, topic, (long)payloadlen);
+	log__printf(mosq, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, topic, (long)payloadlen);
 	G_PUB_BYTES_SENT_INC(payloadlen);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBLISH (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, topic, (long)payloadlen);
@@ -209,9 +209,9 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 	}
 	if(packet__check_oversize(mosq, packetlen)){
 #ifdef WITH_BROKER
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Dropping too large outgoing PUBLISH for %s (%d bytes)", SAFE_PRINT(mosq->id), packetlen);
+		log__printf(mosq, MOSQ_LOG_NOTICE, "Dropping too large outgoing PUBLISH for %s (%d bytes)", SAFE_PRINT(mosq->id), packetlen);
 #else
-		log__printf(NULL, MOSQ_LOG_NOTICE, "Dropping too large outgoing PUBLISH (%d bytes)", packetlen);
+		log__printf(mosq, MOSQ_LOG_NOTICE, "Dropping too large outgoing PUBLISH (%d bytes)", packetlen);
 #endif
 		return MOSQ_ERR_OVERSIZE_PACKET;
 	}

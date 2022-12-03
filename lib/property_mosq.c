@@ -26,7 +26,6 @@ Contributors:
 #  include <strings.h>
 #endif
 
-#include "logging_mosq.h"
 #include "memory_mosq.h"
 #include "mqtt_protocol.h"
 #include "packet_mosq.h"
@@ -141,7 +140,6 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			break;
 
 		default:
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Unsupported property type: %d", property_identifier);
 			return MOSQ_ERR_MALFORMED_PACKET;
 	}
 
@@ -414,7 +412,6 @@ static int property__write(struct mosquitto__packet *packet, const mosquitto_pro
 			break;
 
 		default:
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Unsupported property type: %d", property->identifier);
 			return MOSQ_ERR_INVAL;
 	}
 
