@@ -160,7 +160,6 @@ void net__cleanup(void)
 	is_tls_initialized = false;
 #  endif
 
-	CONF_modules_unload(1);
 	cleanup_ui_method();
 #endif
 
@@ -182,10 +181,6 @@ void net__init_tls(void)
 	SSL_load_error_strings();
 	SSL_library_init();
 	OpenSSL_add_all_algorithms();
-#  else
-	OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS \
-			| OPENSSL_INIT_ADD_ALL_DIGESTS \
-			| OPENSSL_INIT_LOAD_CONFIG, NULL);
 #  endif
 #if !defined(OPENSSL_NO_ENGINE)
 	ENGINE_load_builtin_engines();
