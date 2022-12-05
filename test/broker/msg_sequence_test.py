@@ -152,6 +152,18 @@ def do_test(hostname, port):
                     continue
             except KeyError:
                 pass
+            try:
+                g_proto_ver = g["ver"]
+            except KeyError:
+                g_proto_ver = 4
+            try:
+                g_connect = g["connect"]
+            except KeyError:
+                g_connect = True
+            try:
+                g_expect_disconnect = g["expect_disconnect"]
+            except KeyError:
+                g_expect_disconnect = True
             tests = g["tests"]
 
             for t in tests:
@@ -159,15 +171,15 @@ def do_test(hostname, port):
                 try:
                     proto_ver = t["ver"]
                 except KeyError:
-                    proto_ver = 4
+                    proto_ver = g_proto_ver
                 try:
                     connect = t["connect"]
                 except KeyError:
-                    connect = True
+                    connect = g_connect
                 try:
                     expect_disconnect = t["expect_disconnect"]
                 except KeyError:
-                    expect_disconnect = True
+                    expect_disconnect = g_expect_disconnect
 
                 this_test = MsgSequence(tname,
                         proto_ver=proto_ver,
