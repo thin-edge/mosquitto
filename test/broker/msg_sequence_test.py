@@ -25,11 +25,11 @@ class SingleMsg(object):
         self.comment = comment
 
 class MsgSequence(object):
-    __slots__ = 'name', 'msgs', 'expect_disconnect'
+    __slots__ = 'name', 'msgs', 'msgs_all', 'expect_disconnect'
 
     def __init__(self, name, default_connect=True, proto_ver=4, expect_disconnect=True):
         self.name = name
-        self.msgs = deque()
+        self.msgs_all = deque()
         self.expect_disconnect = expect_disconnect
         if default_connect:
             self.add_default_connect(proto_ver=proto_ver)
@@ -55,7 +55,7 @@ class MsgSequence(object):
 
     def _add(self, action, message, comment=""):
         msg = SingleMsg(action, message, comment)
-        self.msgs.append(msg)
+        self.msgs_all.append(msg)
 
     def _connected_check(self, sock):
         try:
@@ -118,6 +118,7 @@ class MsgSequence(object):
         self._process_message(sock, msg)
 
     def process_all(self, sock):
+        self.msgs = self.msgs_all.copy()
         while len(self.msgs):
             self.process_next(sock)
         if self.expect_disconnect:
@@ -137,6 +138,7 @@ def do_test(hostname, port):
     total = 0
     succeeded = 0
     test = None
+    failed_tests = []
     for seq in sorted(sequences):
         if seq[-5:] != ".json":
             continue
@@ -200,11 +202,13 @@ def do_test(hostname, port):
 
                 total += 1
                 try:
+                    failed_tests.append(this_test)
                     sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2)
                     this_test.process_all(sock)
                     print("\033[32m" + tname + "\033[0m")
                     succeeded += 1
                     sock.close()
+                    failed_tests.pop()
                 except ValueError as e:
                     print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
                     rc = 1
@@ -221,6 +225,31 @@ def do_test(hostname, port):
                     print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
                     rc = 1
                     sock.close()
+
+    # Option to replay failed tests to make them easier to analyse.
+    if False:
+        for t in failed_tests:
+            try:
+                sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2)
+                t.process_all(sock)
+                print("\033[32m" + t.name + "\033[0m")
+                sock.close()
+            except ValueError as e:
+                print("\033[31m" + t.name + " failed: " + str(e) + "\033[0m")
+                rc = 1
+                sock.close()
+            except ConnectionResetError as e:
+                print("\033[31m" + t.name + " failed: " + str(e) + "\033[0m")
+                rc = 1
+                sock.close()
+            except socket.timeout as e:
+                print("\033[31m" + t.name + " failed: " + str(e) + "\033[0m")
+                rc = 1
+                sock.close()
+            except mosq_test.TestError as e:
+                print("\033[31m" + t.name + " failed: " + str(e) + "\033[0m")
+                rc = 1
+                sock.close()
 
     print("%d tests total\n%d tests succeeded" % (total, succeeded))
     return rc
