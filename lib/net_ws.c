@@ -334,7 +334,7 @@ ssize_t net__read_ws(struct mosquitto *mosq, void *buf, size_t count)
 int ws__create_accept_key(const char *client_key, size_t client_key_len, char **encoded)
 {
 	const EVP_MD *digest;
-	EVP_MD_CTX *evp;
+	EVP_MD_CTX *evp = NULL;
 	uint8_t accept_key_hash[EVP_MAX_MD_SIZE];
 	unsigned int accept_key_hash_len;
 
@@ -344,27 +344,20 @@ int ws__create_accept_key(const char *client_key, size_t client_key_len, char **
 	}
 
 	evp = EVP_MD_CTX_new();
-	if(EVP_DigestInit_ex(evp, digest, NULL) == 0){
-		EVP_MD_CTX_free(evp);
-		return MOSQ_ERR_UNKNOWN;
-	}
-	if(EVP_DigestUpdate(evp, client_key, client_key_len) == 0){
-		EVP_MD_CTX_free(evp);
-		return MOSQ_ERR_UNKNOWN;
-	}
-	if(EVP_DigestUpdate(evp, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11",
-				strlen("258EAFA5-E914-47DA-95CA-C5AB0DC85B11")) == 0){
+	if(evp && EVP_DigestInit_ex(evp, digest, NULL) != 0){
+		if(EVP_DigestUpdate(evp, client_key, client_key_len) != 0){
+			if(EVP_DigestUpdate(evp, "258EAFA5-E914-47DA-95CA-C5AB0DC85B11",
+					strlen("258EAFA5-E914-47DA-95CA-C5AB0DC85B11")) != 0){
 
-		EVP_MD_CTX_free(evp);
-		return MOSQ_ERR_UNKNOWN;
-	}
-	if(EVP_DigestFinal_ex(evp, accept_key_hash, &accept_key_hash_len) == 0){
-		EVP_MD_CTX_free(evp);
-		return MOSQ_ERR_UNKNOWN;
+				if(EVP_DigestFinal_ex(evp, accept_key_hash, &accept_key_hash_len) != 0){
+					EVP_MD_CTX_free(evp);
+					return base64__encode(accept_key_hash, accept_key_hash_len, encoded);
+				}
+			}
+		}
 	}
 	EVP_MD_CTX_free(evp);
-
-	return base64__encode(accept_key_hash, accept_key_hash_len, encoded);
+	return MOSQ_ERR_UNKNOWN;
 }
 
 
