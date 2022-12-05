@@ -3,7 +3,7 @@ include ${R}/config.mk
 
 .PHONY: all clean reallyclean
 
-CFLAGS=-I${R}/include -I${R}/test -Werror
+CFLAGS=-I${R}/include -I${R}/test -Werror -ggdb
 LIBS=${R}/lib/libmosquitto.so.1
 
 SRC = \
@@ -62,7 +62,8 @@ SRC = \
 	11-prop-recv-qos1.c \
 	11-prop-recv-qos2.c \
 	11-prop-send-payload-format.c \
-	11-prop-send-content-type.c
+	11-prop-send-content-type.c \
+	fuzzish.c
 
 ifeq ($(WITH_TLS),yes)
 SRC += \

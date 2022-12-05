@@ -30,6 +30,7 @@ Contributors:
 #include "packet_mosq.h"
 #include "property_mosq.h"
 #include "read_handle.h"
+#include "util_mosq.h"
 
 int handle__connack(struct mosquitto *mosq)
 {
@@ -38,14 +39,32 @@ int handle__connack(struct mosquitto *mosq)
 	int rc;
 	mosquitto_property *properties = NULL;
 	char *clientid = NULL;
+	enum mosquitto_client_state state;
 
 	assert(mosq);
-	if(mosq->in_packet.command != CMD_CONNACK){
+	state = mosquitto__get_state(mosq);
+	if(state != mosq_cs_new && state != mosq_cs_connected){
+		log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s received duplicate CONNACK", mosq->id);
+		return MOSQ_ERR_PROTOCOL;
+	}
+
+	if(mosq->in_packet.command != CMD_CONNACK
+			|| ((mosq->protocol == 3 || mosq->protocol == 4) && mosq->in_packet.remaining_length != 2)){
+
 		return MOSQ_ERR_MALFORMED_PACKET;
 	}
 
 	rc = packet__read_byte(&mosq->in_packet, &connect_flags);
 	if(rc) return rc;
+	if((mosq->protocol == mosq_p_mqtt311 || mosq->protocol == mosq_p_mqtt5) && (connect_flags & 0xFE)){
+		log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s received CONNACK with invalid connect flags (%d)", mosq->id, connect_flags);
+		return MOSQ_ERR_PROTOCOL;
+	}
+	if(mosq->clean_start && connect_flags){
+		log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s received CONNACK with session present when clean start was set", mosq->id);
+		return MOSQ_ERR_PROTOCOL;
+	}
+
 	rc = packet__read_byte(&mosq->in_packet, &reason_code);
 	if(rc) return rc;
 

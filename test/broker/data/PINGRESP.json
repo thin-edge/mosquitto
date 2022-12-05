@@ -24,19 +24,19 @@
 			]},
 			{ "name": "D1", "msgs": [
 				{"type":"send", "payload":"D1 00"},
-				{"type":"recv", "payload":"E0 01 82"}
+				{"type":"recv", "payload":"E0 01 81"}
 			]},
 			{ "name": "D2", "msgs": [
 				{"type":"send", "payload":"D2 00"},
-				{"type":"recv", "payload":"E0 01 82"}
+				{"type":"recv", "payload":"E0 01 81"}
 			]},
 			{ "name": "D4", "msgs": [
 				{"type":"send", "payload":"D4 00"},
-				{"type":"recv", "payload":"E0 01 82"}
+				{"type":"recv", "payload":"E0 01 81"}
 			]},
 			{ "name": "D8", "msgs": [
 				{"type":"send", "payload":"D8 00"},
-				{"type":"recv", "payload":"E0 01 82"}
+				{"type":"recv", "payload":"E0 01 81"}
 			]}
 		]
 	}

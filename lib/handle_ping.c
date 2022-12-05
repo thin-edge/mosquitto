@@ -44,7 +44,7 @@ int handle__pingreq(struct mosquitto *mosq)
 	if(mosquitto__get_state(mosq) != mosq_cs_active){
 		return MOSQ_ERR_PROTOCOL;
 	}
-	if(mosq->in_packet.command != CMD_PINGREQ){
+	if(mosq->in_packet.command != CMD_PINGREQ || mosq->in_packet.remaining_length != 0){
 		return MOSQ_ERR_MALFORMED_PACKET;
 	}
 
@@ -62,6 +62,9 @@ int handle__pingresp(struct mosquitto *mosq)
 
 	if(mosquitto__get_state(mosq) != mosq_cs_active){
 		return MOSQ_ERR_PROTOCOL;
+	}
+	if(mosq->in_packet.command != CMD_PINGRESP || mosq->in_packet.remaining_length != 0){
+		return MOSQ_ERR_MALFORMED_PACKET;
 	}
 
 	mosq->ping_t = 0; /* No longer waiting for a PINGRESP. */

@@ -55,6 +55,7 @@ set(BINARIES
     11-prop-recv-qos2
     11-prop-send-payload-format
     11-prop-send-content-type
+	fuzzish
 )
 
 foreach(BINARY ${BINARIES})

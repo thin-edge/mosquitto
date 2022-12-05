@@ -10,10 +10,13 @@ all :
 
 check : test
 
-ptest : test-compile
+ptest : test-compile msg_sequence_test
 	./test.py
 
 test : c cpp
+
+msg_sequence_test: test-compile-c
+	./msg_sequence_test.py
 
 test-compile : test-compile-c test-compile-cpp
 
