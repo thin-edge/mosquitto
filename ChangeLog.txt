@@ -159,6 +159,8 @@ Client library:
 - TLS v1.1 now not enabled by default. It is still possible to explicitly
   choose TLS v1.1, but this is not recommended and will be removed in a future
   version.
+- Add `mosquitto_unsubscribe2_v5_callback_set`, which provides a callback that
+  gives access to reason codes for each of the unsubscription requests.
 
 Clients:
 - Add `-W` timeout support to Windows.

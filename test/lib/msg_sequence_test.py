@@ -2,6 +2,7 @@
 
 # Test whether a valid CONNECT results in the correct CONNACK packet.
 
+import atexit
 from mosq_test_helper import *
 import importlib
 from os import walk
@@ -18,6 +19,17 @@ publish = 5
 
 vg_index = 1
 vg_logfiles = []
+
+@atexit.register
+def test_cleanup():
+    global vg_logfiles
+
+    for f in vg_logfiles:
+        try:
+            if os.stat(f).st_size == 0:
+                os.remove(f)
+        except OSError:
+            pass
 
 class SingleMsg(object):
     __slots__ = 'action', 'message', 'comment'
@@ -45,6 +57,17 @@ class MsgSequence(object):
             properties = mqtt5_props.gen_uint16_prop(mqtt5_props.PROP_RECEIVE_MAXIMUM, 20)
             self.add_send(mosq_test.gen_connack(rc=0, proto_ver=proto_ver, properties=properties, property_helper=False), "default connack")
 
+    def add_msg(self, message):
+        try:
+            c = message["comment"]
+        except KeyError:
+            c = ""
+        if message["type"] == "send":
+            self.add_send(bytes.fromhex(message["payload"].replace(" ", "")), c)
+        elif message["type"] == "recv":
+            self.add_recv(bytes.fromhex(message["payload"].replace(" ", "")), c)
+        elif message["type"] == "publish":
+            self.add_publish(message, c)
 
     def add_send(self, message, comment=""):
         self._add(send, message, comment)
@@ -85,9 +108,9 @@ class MsgSequence(object):
     def kill_client(self):
         self.sock.close()
         self.client.terminate()
-        if self.client.returncode == 139:
+        self.client.wait()
+        if self.client.returncode != 0:
             raise RuntimeError
-
 
     def _add(self, action, message, comment=""):
         msg = SingleMsg(action, message, comment)
@@ -125,8 +148,8 @@ class MsgSequence(object):
 
 
     def _puback_check(self):
-        publish_packet = mosq_test.gen_publish(mid=1, qos=1, topic="alive check", payload="payload", proto_ver=self.proto_ver)
-        puback_packet = mosq_test.gen_puback(mid=1, proto_ver=self.proto_ver)
+        publish_packet = mosq_test.gen_publish(mid=65535, qos=1, topic="alive check", payload="payload", proto_ver=self.proto_ver)
+        puback_packet = mosq_test.gen_puback(mid=65535, proto_ver=self.proto_ver)
         self.sock.send(publish_packet)
         packet = self.sock.recv(len(puback_packet))
         return packet == puback_packet
@@ -220,6 +243,15 @@ def do_test(hostname, port):
                 g_connack = g["connack"]
             except KeyError:
                 g_connack = True
+            try:
+                g_expect_disconnect = g["expect_disconnect"]
+            except KeyError:
+                g_expect_disconnect = True
+
+            try:
+                group_msgs = g["group_msgs"]
+            except KeyError:
+                group_msgs = None
 
             tests = g["tests"]
 
@@ -248,7 +280,7 @@ def do_test(hostname, port):
                 try:
                     expect_disconnect = t["expect_disconnect"]
                 except KeyError:
-                    expect_disconnect = True
+                    expect_disconnect = g_expect_disconnect
 
                 this_test = MsgSequence(tname, port,
                         proto_ver=proto_ver,
@@ -258,39 +290,31 @@ def do_test(hostname, port):
                         default_connack=connack,
                         command=command)
 
+                if group_msgs is not None:
+                    for m in group_msgs:
+                        this_test.add_msg(m)
+
                 for m in t["msgs"]:
-                    try:
-                        c = m["comment"]
-                    except KeyError:
-                        c = ""
-                    if m["type"] == "send":
-                        this_test.add_send(bytes.fromhex(m["payload"].replace(" ", "")), c)
-                    elif m["type"] == "recv":
-                        this_test.add_recv(bytes.fromhex(m["payload"].replace(" ", "")), c)
-                    elif m["type"] == "publish":
-                        this_test.add_publish(m, c)
+                    this_test.add_msg(m)
 
                 this_test.run_client(server_sock, port)
 
                 total += 1
                 try:
                     this_test.process_all()
-                    print("\033[32m" + tname + "\033[0m")
+                    this_test.kill_client()
+                    this_test = None
+                    #print("\033[32m" + tname + "\033[0m")
                     succeeded += 1
-                except ValueError as e:
-                    print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
-                    rc = 1
-                except ConnectionResetError as e:
-                    print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
-                    rc = 1
-                except socket.timeout as e:
-                    print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
-                    rc = 1
-                except mosq_test.TestError as e:
+                except (ValueError, ConnectionResetError, socket.timeout, mosq_test.TestError, RuntimeError) as e:
                     print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
                     rc = 1
                 finally:
-                    this_test.kill_client()
+                    if this_test is not None:
+                        try:
+                            this_test.kill_client()
+                        except RuntimeError:
+                            pass
 
     print("%d tests total\n%d tests succeeded" % (total, succeeded))
     return rc
@@ -300,14 +324,3 @@ port = mosq_test.get_port()
 
 rc = do_test(hostname=hostname, port=port)
 exit(rc)
-
-@atexit.register
-def test_cleanup():
-    global vg_logfiles
-
-    for f in vg_logfiles:
-        try:
-            if os.stat(f).st_size == 0:
-                os.remove(f)
-        except OSError:
-            pass

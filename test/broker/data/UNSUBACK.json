@@ -4,7 +4,7 @@
 		"ver":4,
 		"tests": [
 			{ "name": "B0 [MQTT-3.1.0-1]", "connect":false, "msgs": [{"type":"send", "payload":"B0 02 0001"}]},
-			{ "name": "B0 long", "msgs": [{"type":"send", "payload":"B0 03 0001 00"}]},
+			{ "name": "B0 multi", "msgs": [{"type":"send", "payload":"B0 03 0001 00"}]},
 			{ "name": "B0 short 0", "msgs": [{"type":"send", "payload":"B0 00"}]},
 			{ "name": "B0 short 1", "msgs": [{"type":"send", "payload":"B0 01 01"}]},
 			{ "name": "B0", "msgs": [{"type":"send", "payload":"B0 02 0001"}]},
@@ -19,7 +19,7 @@
 		"ver":5,
 		"tests": [
 			{ "name": "B0 [MQTT-3.1.0-1]", "connect":false, "msgs": [{"type":"send", "payload":"B0 03 0001 00"}]},
-			{ "name": "B0 long", "msgs": [
+			{ "name": "B0 multi", "msgs": [
 				{"type":"send", "payload":"B0 04 0001 00 00"},
 				{"type":"recv", "payload":"E0 01 82"}
 			]},

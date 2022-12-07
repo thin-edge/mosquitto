@@ -91,7 +91,6 @@
 	{
 		"group": "v5.0   SUBSCRIBE ALLOWED PROPERTIES",
 		"ver":5,
-		"disable":true,
 		"tests": [
 			{ "name": "82 with user-property", "msgs": [{"type":"send", "payload":"82 0E 0001 07 26000170000171 0001 70 00"}]},
 			{ "name": "82 with 2*user-property", "msgs": [{"type":"send", "payload":"82 15 0001 0E 26000170000171 26000170000171 0001 70 00"}]},
@@ -118,7 +117,6 @@
 	{
 		"group": "v5.0   SUBSCRIBE DISALLOWED PROPERTIES",
 		"ver":5,
-		"disable":true,
 		"tests": [
 			{ "name": "82 with payload-format-indicator (byte)", "msgs": [{"type":"send", "payload":"82 09 0001 02 0100 0001 70 00"}]},
 			{ "name": "82 with request-problem-information (byte)", "msgs": [{"type":"send", "payload":"82 09 0001 02 1700 0001 70 00"}]},

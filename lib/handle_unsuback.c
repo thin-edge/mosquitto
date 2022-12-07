@@ -72,6 +72,9 @@ int handle__unsuback(struct mosquitto *mosq)
 		rc = property__read_all(CMD_UNSUBACK, &mosq->in_packet, &properties);
 		if(rc) return rc;
 	}
+	if(mosq->in_packet.pos < mosq->in_packet.remaining_length){
+		return MOSQ_ERR_MALFORMED_PACKET;
+	}
 
 #ifdef WITH_BROKER
 	/* Immediately free, we don't do anything with Reason String or User Property at the moment */

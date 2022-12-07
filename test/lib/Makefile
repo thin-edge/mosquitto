@@ -13,7 +13,7 @@ check : test
 ptest : test-compile msg_sequence_test
 	./test.py
 
-test : c cpp
+test : c cpp msg_sequence_test
 
 msg_sequence_test: test-compile-c
 	./msg_sequence_test.py
