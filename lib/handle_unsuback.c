@@ -71,6 +71,9 @@ int handle__unsuback(struct mosquitto *mosq)
 	if(mid == 0) return MOSQ_ERR_PROTOCOL;
 
 	if(mosq->protocol == mosq_p_mqtt5){
+		rc = property__read_all(CMD_UNSUBACK, &mosq->in_packet, &properties);
+		if(rc) return rc;
+
 		uint8_t byte;
 		reason_code_count = (int)(mosq->in_packet.remaining_length - mosq->in_packet.pos);
 		reason_codes = mosquitto__malloc((size_t)reason_code_count*sizeof(int));
