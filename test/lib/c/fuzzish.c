@@ -236,13 +236,26 @@ static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_
 	prop_test(props);
 }
 
-static void on_unsubscribe(struct mosquitto *mosq, void *obj, int reason_code)
+static void on_unsubscribe(struct mosquitto *mosq, void *obj, int mid)
 {
 }
 
-static void on_unsubscribe_v5(struct mosquitto *mosq, void *obj, int reason_code, const mosquitto_property *props)
+static void on_unsubscribe_v5(struct mosquitto *mosq, void *obj, int mid, const mosquitto_property *props)
 {
 	prop_test(props);
+}
+
+static void on_unsubscribe2_v5(struct mosquitto *mosq, void *obj, int mid, int reason_code_count, const int *reason_codes, const mosquitto_property *props)
+{
+	int sum = 0;
+	prop_test(props);
+	for(int i=0; i<reason_code_count; i++){
+		sum += reason_codes[i];
+	}
+	if(sum < 0){
+		/* This is a "fake" condition to stop the above check being optimised out */
+		exit(1);
+	}
 }
 
 static void on_log(struct mosquitto *mosq, void *obj, int level, const char *str)
@@ -313,6 +326,7 @@ int main(int argc, char *argv[])
 
 	mosquitto_unsubscribe_callback_set(mosq, on_unsubscribe);
 	mosquitto_unsubscribe_v5_callback_set(mosq, on_unsubscribe_v5);
+	mosquitto_unsubscribe2_v5_callback_set(mosq, on_unsubscribe2_v5);
 
 	mosquitto_log_callback_set(mosq, on_log);
 

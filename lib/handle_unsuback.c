@@ -45,6 +45,8 @@ int handle__unsuback(struct mosquitto *mosq)
 	uint16_t mid;
 	int rc;
 	mosquitto_property *properties = NULL;
+	int *reason_codes = NULL;
+	int reason_code_count = 0;
 
 	assert(mosq);
 
@@ -69,20 +71,30 @@ int handle__unsuback(struct mosquitto *mosq)
 	if(mid == 0) return MOSQ_ERR_PROTOCOL;
 
 	if(mosq->protocol == mosq_p_mqtt5){
-		rc = property__read_all(CMD_UNSUBACK, &mosq->in_packet, &properties);
-		if(rc) return rc;
-	}
-	if(mosq->in_packet.pos < mosq->in_packet.remaining_length){
-		return MOSQ_ERR_MALFORMED_PACKET;
+		uint8_t byte;
+		reason_code_count = (int)(mosq->in_packet.remaining_length - mosq->in_packet.pos);
+		reason_codes = mosquitto__malloc((size_t)reason_code_count*sizeof(int));
+		if(!reason_codes){
+			mosquitto_property_free_all(&properties);
+			return MOSQ_ERR_NOMEM;
+		}
+		for(int i=0; i<reason_code_count; i++){
+			rc = packet__read_byte(&mosq->in_packet, &byte);
+			if(rc){
+				mosquitto__FREE(reason_codes);
+				mosquitto_property_free_all(&properties);
+				return rc;
+			}
+			reason_codes[i] = (int)byte;
+			i++;
+		}
 	}
 
-#ifdef WITH_BROKER
-	/* Immediately free, we don't do anything with Reason String or User Property at the moment */
-	mosquitto_property_free_all(&properties);
-#else
-	callback__on_unsubscribe(mosq, mid, properties);
-	mosquitto_property_free_all(&properties);
+#ifndef WITH_BROKER
+	callback__on_unsubscribe(mosq, mid, reason_code_count, reason_codes, properties);
 #endif
+	mosquitto_property_free_all(&properties);
+	mosquitto__FREE(reason_codes);
 
 	return MOSQ_ERR_SUCCESS;
 }

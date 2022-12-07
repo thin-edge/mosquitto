@@ -30,12 +30,17 @@ static void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
 	run = rc;
 }
 
-static void on_unsubscribe(struct mosquitto *mosq, void *obj, int mid, const mosquitto_property *props)
+static void on_unsubscribe(struct mosquitto *mosq, void *obj, int mid, int reason_code_count, const int *reason_codes, const mosquitto_property *props)
 {
 	(void)obj;
 	(void)mid;
 	(void)props;
 
+	for(int i=0; i<reason_code_count; i++){
+		if(reason_codes[i] != 0){
+			exit(1);
+		}
+	}
 	mosquitto_disconnect(mosq);
 }
 
@@ -59,7 +64,7 @@ int main(int argc, char *argv[])
 	mosquitto_int_option(mosq, MOSQ_OPT_PROTOCOL_VERSION, MQTT_PROTOCOL_V5);
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_disconnect_callback_set(mosq, on_disconnect);
-	mosquitto_unsubscribe_v5_callback_set(mosq, on_unsubscribe);
+	mosquitto_unsubscribe2_v5_callback_set(mosq, on_unsubscribe);
 
 	rc = mosquitto_connect(mosq, "localhost", port, 60);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;

@@ -19,6 +19,7 @@ set(BINARIES
     02-subscribe-qos2
     02-unsubscribe-multiple-v5
     02-unsubscribe-v5
+    02-unsubscribe2-v5
     02-unsubscribe
     03-publish-b2c-qos1-unexpected-puback
     03-publish-b2c-qos1

@@ -2301,7 +2301,7 @@ libmosq_EXPORT void mosquitto_unsubscribe_callback_set(struct mosquitto *mosq, v
  * Parameters:
  *  mosq -           a valid mosquitto instance.
  *  on_unsubscribe - a callback function in the following form:
- *                   void callback(struct mosquitto *mosq, void *obj, int mid)
+ *                   void callback(struct mosquitto *mosq, void *obj, int mid, const mosquitto_property *props)
  *
  * Callback Parameters:
  *  mosq - the mosquitto instance making the callback.
@@ -2310,6 +2310,34 @@ libmosq_EXPORT void mosquitto_unsubscribe_callback_set(struct mosquitto *mosq, v
  *  props - list of MQTT 5 properties, or NULL
  */
 libmosq_EXPORT void mosquitto_unsubscribe_v5_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int, const mosquitto_property *props));
+
+/*
+ * Function: mosquitto_unsubscribe2_v5_callback_set
+ *
+ * Set the unsubscribe callback. This is called when the library receives a
+ * UNSUBACK message in response to an UNSUBSCRIBE.
+ *
+ * It is valid to set this callback for all MQTT protocol versions. If it is
+ * used with MQTT clients that use MQTT v3.1.1 or earlier, then the `props`
+ * argument will always be NULL.
+ *
+ * Parameters:
+ *  mosq -           a valid mosquitto instance.
+ *  on_unsubscribe - a callback function in the following form:
+ *                   void callback(struct mosquitto *mosq, void *obj, int mid,
+ *                   int reason_code_count, const int *reason_codes, const mosquitto_property *props)
+ *
+ * Callback Parameters:
+ *  mosq -              the mosquitto instance making the callback.
+ *  obj -               the user data provided in <mosquitto_new>
+ *  mid -               the message id of the unsubscribe message.
+ *  reason_code_count - the count of reason code responses
+ *  reason_codes -      an array of integers indicating the reason codes for each of
+ *                      the unsubscription requests.
+ *  mid -               the message id of the unsubscribe message.
+ *  props -             list of MQTT 5 properties, or NULL
+ */
+libmosq_EXPORT void mosquitto_unsubscribe2_v5_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int, int, const int *, const mosquitto_property *props));
 
 /*
  * Function: mosquitto_log_callback_set

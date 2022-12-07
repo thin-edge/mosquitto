@@ -121,6 +121,13 @@ void mosquitto_unsubscribe_v5_callback_set(struct mosquitto *mosq, void (*on_uns
 	pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
+void mosquitto_unsubscribe2_v5_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int, int, const int *, const mosquitto_property *props))
+{
+	pthread_mutex_lock(&mosq->callback_mutex);
+	mosq->on_unsubscribe2_v5 = on_unsubscribe;
+	pthread_mutex_unlock(&mosq->callback_mutex);
+}
+
 void mosquitto_log_callback_set(struct mosquitto *mosq, void (*on_log)(struct mosquitto *, void *, int, const char *))
 {
 	pthread_mutex_lock(&mosq->log_callback_mutex);
@@ -234,14 +241,16 @@ void callback__on_subscribe(struct mosquitto *mosq, int mid, int qos_count, cons
 }
 
 
-void callback__on_unsubscribe(struct mosquitto *mosq, int mid, const mosquitto_property *properties)
+void callback__on_unsubscribe(struct mosquitto *mosq, int mid, int reason_code_count, const int *reason_codes, const mosquitto_property *properties)
 {
 	void (*on_unsubscribe)(struct mosquitto *, void *userdata, int mid) = NULL;
 	void (*on_unsubscribe_v5)(struct mosquitto *, void *userdata, int mid, const mosquitto_property *props) = NULL;
+	void (*on_unsubscribe2_v5)(struct mosquitto *, void *userdata, int mid, int reason_code_count, const int *reason_codes, const mosquitto_property *props) = NULL;
 
 	pthread_mutex_lock(&mosq->callback_mutex);
 	on_unsubscribe = mosq->on_unsubscribe;
 	on_unsubscribe_v5 = mosq->on_unsubscribe_v5;
+	on_unsubscribe2_v5 = mosq->on_unsubscribe2_v5;
 	pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
@@ -250,6 +259,9 @@ void callback__on_unsubscribe(struct mosquitto *mosq, int mid, const mosquitto_p
 	}
 	if(on_unsubscribe_v5){
 		on_unsubscribe_v5(mosq, mosq->userdata, mid, properties);
+	}
+	if(on_unsubscribe2_v5){
+		on_unsubscribe2_v5(mosq, mosq->userdata, mid, reason_code_count, reason_codes, properties);
 	}
 	mosq->callback_depth--;
 }
