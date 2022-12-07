@@ -212,18 +212,20 @@ int mosquitto_tls_opts_set(struct mosquitto *mosq, int cert_reqs, const char *tl
 				|| !strcasecmp(tls_version, "tlsv1.2")
 				|| !strcasecmp(tls_version, "tlsv1.1")){
 
+			mosquitto__FREE(mosq->tls_version);
 			mosq->tls_version = mosquitto__strdup(tls_version);
 			if(!mosq->tls_version) return MOSQ_ERR_NOMEM;
 		}else{
 			return MOSQ_ERR_INVAL;
 		}
 	}else{
+		mosquitto__FREE(mosq->tls_version);
 		mosq->tls_version = mosquitto__strdup("tlsv1.2");
 		if(!mosq->tls_version) return MOSQ_ERR_NOMEM;
 	}
 
-	mosq->tls_ciphers = NULL;
-	mosq->tls_13_ciphers = NULL;
+	mosquitto__FREE(mosq->tls_ciphers);
+	mosquitto__FREE(mosq->tls_13_ciphers);
 
 	if(ciphers){
 		if(!strcasecmp(mosq->tls_version, "tlsv1.3")){
@@ -274,7 +276,7 @@ int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, cons
 	switch(option){
 		case MOSQ_OPT_TLS_ENGINE:
 #if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE)
-			mosquitto__free(mosq->tls_engine);
+			mosquitto__FREE(mosq->tls_engine);
 			if(value){
 				eng = ENGINE_by_id(value);
 				if(!eng){
@@ -311,6 +313,7 @@ int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, cons
 
 		case MOSQ_OPT_TLS_ENGINE_KPASS_SHA1:
 #ifdef WITH_TLS
+			mosquitto__FREE(mosq->tls_engine_kpass_sha1);
 			if(mosquitto__hex2bin_sha1(value, (unsigned char**)&str) != MOSQ_ERR_SUCCESS){
 				return MOSQ_ERR_INVAL;
 			}
@@ -323,6 +326,7 @@ int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, cons
 
 		case MOSQ_OPT_TLS_ALPN:
 #ifdef WITH_TLS
+			mosquitto__FREE(mosq->tls_alpn);
 			mosq->tls_alpn = mosquitto__strdup(value);
 			if(!mosq->tls_alpn){
 				return MOSQ_ERR_NOMEM;
