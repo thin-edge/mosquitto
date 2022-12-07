@@ -86,7 +86,6 @@ int handle__unsuback(struct mosquitto *mosq)
 				return rc;
 			}
 			reason_codes[i] = (int)byte;
-			i++;
 		}
 	}
 
