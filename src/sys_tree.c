@@ -138,21 +138,15 @@ static void sys_tree__update_memory(char *buf)
 }
 #endif
 
-static void calc_load(char *buf, const char *topic, bool initial, double exponent, double interval, double *current)
+static void calc_load(char *buf, const char *topic, double exponent, double interval, double *current)
 {
 	double new_value;
 	uint32_t len;
 
-	if (initial) {
-		new_value = *current;
+	new_value = interval + exponent*((*current) - interval);
+	if(fabs(new_value - (*current)) >= 0.01){
 		len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_value);
 		db__messages_easy_queue(NULL, topic, SYS_TREE_QOS, len, buf, 1, 60, NULL);
-	} else {
-		new_value = interval + exponent*((*current) - interval);
-		if(fabs(new_value - (*current)) >= 0.01){
-			len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_value);
-			db__messages_easy_queue(NULL, topic, SYS_TREE_QOS, len, buf, 1, 60, NULL);
-		}
 	}
 	(*current) = new_value;
 }
@@ -225,7 +219,6 @@ void sys_tree__update(void)
 	double exponent;
 	double i_mult;
 	uint32_t len;
-	bool initial_publish;
 	time_t next_event;
 	static time_t last_update_real = 0;
 
@@ -245,12 +238,7 @@ void sys_tree__update(void)
 		db__messages_easy_queue(NULL, "$SYS/broker/uptime", SYS_TREE_QOS, len, buf, 1, 60, NULL);
 
 		sys_tree__update_clients(buf);
-		initial_publish = false;
-		if(last_update == 0){
-			initial_publish = true;
-			last_update = 1;
-		}
-		if(last_update > 0){
+		if(db.now_s > last_update){
 			i_mult = 60.0/(double)(db.now_s-last_update);
 
 			msgs_received_interval = (double)(g_msgs_received - msgs_received)*i_mult;
@@ -271,41 +259,41 @@ void sys_tree__update(void)
 			/* 1 minute load */
 			exponent = exp(-1.0*(double)(db.now_s-last_update)/60.0);
 
-			calc_load(buf, "$SYS/broker/load/messages/received/1min", initial_publish, exponent, msgs_received_interval, &msgs_received_load1);
-			calc_load(buf, "$SYS/broker/load/messages/sent/1min", initial_publish, exponent, msgs_sent_interval, &msgs_sent_load1);
-			calc_load(buf, "$SYS/broker/load/publish/dropped/1min", initial_publish, exponent, publish_dropped_interval, &publish_dropped_load1);
-			calc_load(buf, "$SYS/broker/load/publish/received/1min", initial_publish, exponent, publish_received_interval, &publish_received_load1);
-			calc_load(buf, "$SYS/broker/load/publish/sent/1min", initial_publish, exponent, publish_sent_interval, &publish_sent_load1);
-			calc_load(buf, "$SYS/broker/load/bytes/received/1min", initial_publish, exponent, bytes_received_interval, &bytes_received_load1);
-			calc_load(buf, "$SYS/broker/load/bytes/sent/1min", initial_publish, exponent, bytes_sent_interval, &bytes_sent_load1);
-			calc_load(buf, "$SYS/broker/load/sockets/1min", initial_publish, exponent, socket_interval, &socket_load1);
-			calc_load(buf, "$SYS/broker/load/connections/1min", initial_publish, exponent, connection_interval, &connection_load1);
+			calc_load(buf, "$SYS/broker/load/messages/received/1min", exponent, msgs_received_interval, &msgs_received_load1);
+			calc_load(buf, "$SYS/broker/load/messages/sent/1min", exponent, msgs_sent_interval, &msgs_sent_load1);
+			calc_load(buf, "$SYS/broker/load/publish/dropped/1min", exponent, publish_dropped_interval, &publish_dropped_load1);
+			calc_load(buf, "$SYS/broker/load/publish/received/1min", exponent, publish_received_interval, &publish_received_load1);
+			calc_load(buf, "$SYS/broker/load/publish/sent/1min", exponent, publish_sent_interval, &publish_sent_load1);
+			calc_load(buf, "$SYS/broker/load/bytes/received/1min", exponent, bytes_received_interval, &bytes_received_load1);
+			calc_load(buf, "$SYS/broker/load/bytes/sent/1min", exponent, bytes_sent_interval, &bytes_sent_load1);
+			calc_load(buf, "$SYS/broker/load/sockets/1min", exponent, socket_interval, &socket_load1);
+			calc_load(buf, "$SYS/broker/load/connections/1min", exponent, connection_interval, &connection_load1);
 
 			/* 5 minute load */
 			exponent = exp(-1.0*(double)(db.now_s-last_update)/300.0);
 
-			calc_load(buf, "$SYS/broker/load/messages/received/5min", initial_publish, exponent, msgs_received_interval, &msgs_received_load5);
-			calc_load(buf, "$SYS/broker/load/messages/sent/5min", initial_publish, exponent, msgs_sent_interval, &msgs_sent_load5);
-			calc_load(buf, "$SYS/broker/load/publish/dropped/5min", initial_publish, exponent, publish_dropped_interval, &publish_dropped_load5);
-			calc_load(buf, "$SYS/broker/load/publish/received/5min", initial_publish, exponent, publish_received_interval, &publish_received_load5);
-			calc_load(buf, "$SYS/broker/load/publish/sent/5min", initial_publish, exponent, publish_sent_interval, &publish_sent_load5);
-			calc_load(buf, "$SYS/broker/load/bytes/received/5min", initial_publish, exponent, bytes_received_interval, &bytes_received_load5);
-			calc_load(buf, "$SYS/broker/load/bytes/sent/5min", initial_publish, exponent, bytes_sent_interval, &bytes_sent_load5);
-			calc_load(buf, "$SYS/broker/load/sockets/5min", initial_publish, exponent, socket_interval, &socket_load5);
-			calc_load(buf, "$SYS/broker/load/connections/5min", initial_publish, exponent, connection_interval, &connection_load5);
+			calc_load(buf, "$SYS/broker/load/messages/received/5min", exponent, msgs_received_interval, &msgs_received_load5);
+			calc_load(buf, "$SYS/broker/load/messages/sent/5min", exponent, msgs_sent_interval, &msgs_sent_load5);
+			calc_load(buf, "$SYS/broker/load/publish/dropped/5min", exponent, publish_dropped_interval, &publish_dropped_load5);
+			calc_load(buf, "$SYS/broker/load/publish/received/5min", exponent, publish_received_interval, &publish_received_load5);
+			calc_load(buf, "$SYS/broker/load/publish/sent/5min", exponent, publish_sent_interval, &publish_sent_load5);
+			calc_load(buf, "$SYS/broker/load/bytes/received/5min", exponent, bytes_received_interval, &bytes_received_load5);
+			calc_load(buf, "$SYS/broker/load/bytes/sent/5min", exponent, bytes_sent_interval, &bytes_sent_load5);
+			calc_load(buf, "$SYS/broker/load/sockets/5min", exponent, socket_interval, &socket_load5);
+			calc_load(buf, "$SYS/broker/load/connections/5min", exponent, connection_interval, &connection_load5);
 
 			/* 15 minute load */
 			exponent = exp(-1.0*(double)(db.now_s-last_update)/900.0);
 
-			calc_load(buf, "$SYS/broker/load/messages/received/15min", initial_publish, exponent, msgs_received_interval, &msgs_received_load15);
-			calc_load(buf, "$SYS/broker/load/messages/sent/15min", initial_publish, exponent, msgs_sent_interval, &msgs_sent_load15);
-			calc_load(buf, "$SYS/broker/load/publish/dropped/15min", initial_publish, exponent, publish_dropped_interval, &publish_dropped_load15);
-			calc_load(buf, "$SYS/broker/load/publish/received/15min", initial_publish, exponent, publish_received_interval, &publish_received_load15);
-			calc_load(buf, "$SYS/broker/load/publish/sent/15min", initial_publish, exponent, publish_sent_interval, &publish_sent_load15);
-			calc_load(buf, "$SYS/broker/load/bytes/received/15min", initial_publish, exponent, bytes_received_interval, &bytes_received_load15);
-			calc_load(buf, "$SYS/broker/load/bytes/sent/15min", initial_publish, exponent, bytes_sent_interval, &bytes_sent_load15);
-			calc_load(buf, "$SYS/broker/load/sockets/15min", initial_publish, exponent, socket_interval, &socket_load15);
-			calc_load(buf, "$SYS/broker/load/connections/15min", initial_publish, exponent, connection_interval, &connection_load15);
+			calc_load(buf, "$SYS/broker/load/messages/received/15min", exponent, msgs_received_interval, &msgs_received_load15);
+			calc_load(buf, "$SYS/broker/load/messages/sent/15min", exponent, msgs_sent_interval, &msgs_sent_load15);
+			calc_load(buf, "$SYS/broker/load/publish/dropped/15min", exponent, publish_dropped_interval, &publish_dropped_load15);
+			calc_load(buf, "$SYS/broker/load/publish/received/15min", exponent, publish_received_interval, &publish_received_load15);
+			calc_load(buf, "$SYS/broker/load/publish/sent/15min", exponent, publish_sent_interval, &publish_sent_load15);
+			calc_load(buf, "$SYS/broker/load/bytes/received/15min", exponent, bytes_received_interval, &bytes_received_load15);
+			calc_load(buf, "$SYS/broker/load/bytes/sent/15min", exponent, bytes_sent_interval, &bytes_sent_load15);
+			calc_load(buf, "$SYS/broker/load/sockets/15min", exponent, socket_interval, &socket_load15);
+			calc_load(buf, "$SYS/broker/load/connections/15min", exponent, connection_interval, &connection_load15);
 		}
 
 		if(db.msg_store_count != msg_store_count){
