@@ -284,7 +284,7 @@ static void config__init_reload(struct mosquitto__config *config)
 	mosquitto__FREE(config->log_timestamp_format);
 	config->global_max_clients = -1;
 	config->global_max_connections = -1;
-	config->max_keepalive = 65535;
+	config->max_keepalive = 0;
 	config->max_packet_size = 0;
 	config->max_inflight_messages = 20;
 	config->max_queued_messages = 1000;
