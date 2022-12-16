@@ -81,11 +81,13 @@ reallyclean :
 
 check : test
 
-test-compile:
+test-compile: mosquitto lib
 	$(MAKE) -C test test-compile
+	$(MAKE) -C plugins test-compile
 
-test : mosquitto
+test : mosquitto lib apps
 	$(MAKE) -C test test
+	$(MAKE) -C plugins test
 
 ptest : mosquitto
 	$(MAKE) -C test ptest

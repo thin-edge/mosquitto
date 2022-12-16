@@ -41,7 +41,7 @@ stubs.o : stubs.c
 reallyclean: clean
 
 clean :
-	-rm -f *.o mosquitto_db_dump *.gcda *.gcno
+	-rm -f $(OBJS) $(BROKER_OBJS)  mosquitto_db_dump *.gcda *.gcno
 
 install:
 
