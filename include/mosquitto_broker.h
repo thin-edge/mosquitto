@@ -242,6 +242,7 @@ struct mosquitto_evt_persist_restore {
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_client {
+	void *future;
 	const char *client_id;
 	const char *username;
 	const char *auth_method;
@@ -259,7 +260,7 @@ struct mosquitto_evt_persist_client {
 	uint8_t max_qos;
 	bool retain_available;
 	uint8_t padding[6];
-	void *future[8];
+	void *future2[8];
 };
 
 
@@ -267,6 +268,7 @@ struct mosquitto_evt_persist_client {
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_subscription {
+	void *future;
 	const char *client_id;
 	const char *topic;
 	char *plugin_client_id;
@@ -274,7 +276,7 @@ struct mosquitto_evt_persist_subscription {
 	uint32_t subscription_identifier;
 	uint8_t subscription_options;
 	uint8_t padding[3];
-	void *future[8];
+	void *future2[8];
 };
 
 
@@ -282,6 +284,7 @@ struct mosquitto_evt_persist_subscription {
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_client_msg {
+	void *future;
 	const char *client_id;
 	uint64_t cmsg_id;
 	uint64_t store_id;
@@ -293,7 +296,7 @@ struct mosquitto_evt_persist_client_msg {
 	uint8_t direction;
 	uint8_t state; /* add, update */
 	uint8_t padding[5];
-	void *future[8];
+	void *future2[8];
 };
 
 
@@ -301,6 +304,7 @@ struct mosquitto_evt_persist_client_msg {
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_base_msg {
+	void *future;
 	uint64_t store_id;
 	int64_t expiry_time;
 	const char *topic;
@@ -317,7 +321,7 @@ struct mosquitto_evt_persist_base_msg {
 	uint8_t qos;
 	bool retain;
 	uint8_t padding[6];
-	void *future[8];
+	void *future2[8];
 };
 
 
@@ -325,9 +329,10 @@ struct mosquitto_evt_persist_base_msg {
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_retain_msg {
+	void *future;
 	const char *topic;
 	uint64_t store_id;
-	void *future[8];
+	void *future2[8];
 };
 
 
