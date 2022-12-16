@@ -1,5 +1,6 @@
 DIRS= \
 		add-properties \
+		auth-by-env \
 		auth-by-ip \
 		client-lifetime-stats \
 		client-properties \

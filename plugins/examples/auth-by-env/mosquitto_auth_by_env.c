@@ -36,8 +36,10 @@ Contributors:
 
 #define ENV_MOSQUITTO_PASSWORD "MOSQUITTO_PASSWORD"
 
+MOSQUITTO_PLUGIN_DECLARE_VERSION(5);
+
 static mosquitto_plugin_id_t *mosq_pid = NULL;
-static char *environment_password;
+static char *environment_password = NULL;
 
 static int basic_auth_callback(int event, void *event_data, void *userdata)
 {
@@ -58,18 +60,6 @@ static int basic_auth_callback(int event, void *event_data, void *userdata)
 	}
 }
 
-int mosquitto_plugin_version(int supported_version_count, const int *supported_versions)
-{
-	int i;
-
-	for(i=0; i<supported_version_count; i++){
-		if(supported_versions[i] == 5){
-			return 5;
-		}
-	}
-	return -1;
-}
-
 int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, struct mosquitto_opt *opts, int opt_count)
 {
 	UNUSED(user_data);
@@ -81,15 +71,17 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	mosq_pid = identifier;
 
 	env_var_content = getenv(ENV_MOSQUITTO_PASSWORD);
-	if(env_var_content){
-		if(strlen(env_var_content) > 0){
-			environment_password = strdup(env_var_content);
-			return mosquitto_callback_register(mosq_pid, MOSQ_EVT_BASIC_AUTH, basic_auth_callback, NULL, NULL);
+	if(env_var_content && strlen(env_var_content) > 0){
+		environment_password = mosquitto_strdup(env_var_content);
+		if(!environment_password){
+			mosquitto_log_printf(MOSQ_LOG_ERR, "Out of memory.");
+			return MOSQ_ERR_NOMEM;
 		}
+		return mosquitto_callback_register(mosq_pid, MOSQ_EVT_BASIC_AUTH, basic_auth_callback, NULL, NULL);
 	}
 
-	log__printf(NULL, MOSQ_LOG_INFO, "Auth-by-env plugin called, but "ENV_MOSQUITTO_PASSWORD" env var is empty\n");
-	return 0;
+	mosquitto_log_printf(MOSQ_LOG_ERR, "auth-by-env plugin called, but " ENV_MOSQUITTO_PASSWORD " environment variable is empty");
+	return MOSQ_ERR_INVAL;
 }
 
 int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int opt_count)
@@ -98,7 +90,7 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int op
 	UNUSED(opts);
 	UNUSED(opt_count);
 
-	free(environment_password);
+	mosquitto_free(environment_password);
 
 	return mosquitto_callback_unregister(mosq_pid, MOSQ_EVT_BASIC_AUTH, basic_auth_callback, NULL);
 }
