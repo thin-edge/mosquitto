@@ -4,15 +4,10 @@
 
 from mosq_test_helper import *
 
-def do_test(proto_ver, ipver):
+def do_test(proto_ver, host):
     rc = 1
 
     (port1, port2) = mosq_test.get_port(2)
-
-    if ipver == 4:
-        host = "localhost"
-    else:
-        host = "ip6-localhost"
 
     cmd = ['microsocks', '-1', '-b', '-i', host, '-u', 'user', '-P', 'password', '-p', str(port1)]
     try:
@@ -82,7 +77,9 @@ def do_test(proto_ver, ipver):
             exit(rc)
 
 
-do_test(proto_ver=3, ipver=4)
-do_test(proto_ver=4, ipver=4)
-do_test(proto_ver=5, ipver=4)
-do_test(proto_ver=5, ipver=6)
+do_test(proto_ver=3, host="localhost")
+do_test(proto_ver=4, host="localhost")
+do_test(proto_ver=5, host="localhost")
+do_test(proto_ver=5, host="ip6-localhost")
+do_test(proto_ver=5, host="127.0.0.1")
+#do_test(proto_ver=5, host="::1")
