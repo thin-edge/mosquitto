@@ -53,6 +53,7 @@ endif
 	./03-publish-qos1.py
 ifeq ($(WITH_WEBSOCKETS),yes)
 	./03-publish-qos1-ws.py
+	./03-publish-qos1-ws-large.py
 endif
 	./03-publish-repeat.py
 	./03-publish-socks.py
