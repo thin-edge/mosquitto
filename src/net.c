@@ -169,7 +169,7 @@ struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock
 	}
 #endif
 
-	if(db.config->set_tcp_nodelay){
+	if(db.config->set_tcp_nodelay && listensock->listener->port){
 		int flag = 1;
 #ifdef WIN32
 			if (setsockopt(new_sock, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(int)) != 0) {

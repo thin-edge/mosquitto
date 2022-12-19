@@ -935,7 +935,7 @@ int net__socket_connect(struct mosquitto *mosq, const char *host, uint16_t port,
 	rc = net__try_connect(host, port, &mosq->sock, bind_address, blocking);
 	if(rc > 0) return rc;
 
-	if(mosq->tcp_nodelay){
+	if(mosq->tcp_nodelay && port){
 		int flag = 1;
 		if(setsockopt(mosq->sock, IPPROTO_TCP, TCP_NODELAY, (const void*)&flag, sizeof(int)) != 0){
 			log__printf(mosq, MOSQ_LOG_WARNING, "Warning: Unable to set TCP_NODELAY.");
