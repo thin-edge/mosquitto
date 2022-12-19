@@ -180,13 +180,3 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int op
 
 	return MOSQ_ERR_SUCCESS;
 }
-
-/* mosquitto_plugin_cleanup() is optional in 2.1 and later. Use it only if you have your own cleanup to do */
-int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int opt_count)
-{
-	UNUSED(user_data);
-	UNUSED(opts);
-	UNUSED(opt_count);
-
-	return MOSQ_ERR_SUCCESS;
-}
