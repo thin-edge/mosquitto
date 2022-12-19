@@ -65,7 +65,7 @@ static int callback_message(int event, void *event_data, void *userdata)
 	if(result){
 		ed->topic[strlen(ed->topic) - strlen("/uplink")] = '\0';
 	}
-	
+
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -77,4 +77,23 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 
 	mosq_pid = identifier;
 	return mosquitto_callback_register(mosq_pid, MOSQ_EVT_MESSAGE, callback_message, NULL, NULL);
+}
+
+int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int opt_count)
+{
+	UNUSED(user_data);
+	UNUSED(opts);
+	UNUSED(opt_count);
+
+	return MOSQ_ERR_SUCCESS;
+}
+
+/* mosquitto_plugin_cleanup() is optional in 2.1 and later. Use it only if you have your own cleanup to do */
+int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int opt_count)
+{
+	UNUSED(user_data);
+	UNUSED(opts);
+	UNUSED(opt_count);
+
+	return MOSQ_ERR_SUCCESS;
 }

@@ -63,7 +63,7 @@ static int callback_message(int event, void *event_data, void *userdata)
 	// Add timestamp in unix epoch (ms)
 	clock_gettime(CLOCK_REALTIME, &ts);
 	snprintf(ts_buf, TS_BUF_LEN, "%li%03lu", ts.tv_sec, ts.tv_nsec / 1000 / 1000);
-	
+
 	result = mosquitto_property_add_string_pair(
 		&ed->properties,
 		MQTT_PROP_USER_PROPERTY,
@@ -100,4 +100,14 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 	mosq_pid = identifier;
 	mosquitto_plugin_set_info(identifier, PLUGIN_NAME, PLUGIN_VERSION);
 	return mosquitto_callback_register(mosq_pid, MOSQ_EVT_MESSAGE, callback_message, NULL, NULL);
+}
+
+/* mosquitto_plugin_cleanup() is optional in 2.1 and later. Use it only if you have your own cleanup to do */
+int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int opt_count)
+{
+	UNUSED(user_data);
+	UNUSED(opts);
+	UNUSED(opt_count);
+
+	return MOSQ_ERR_SUCCESS;
 }
