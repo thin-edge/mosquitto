@@ -56,6 +56,8 @@ SRC = \
 	08-ssl-connect-cert-auth-enc.c \
 	08-ssl-connect-cert-auth.c \
 	08-ssl-connect-no-auth.c \
+	08-ssl-connect-san-dns.c \
+	08-ssl-connect-san-ipv4.c \
 	08-ssl-fake-cacert.c \
 	09-util-topic-tokenise.c \
 	11-prop-oversize-packet.c \

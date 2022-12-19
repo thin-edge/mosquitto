@@ -46,6 +46,12 @@ openssl req -new -key server.key -out server.csr -config openssl.cnf -subj "${SB
 openssl ca -batch -config openssl.cnf -name CA_signing -out server.crt -infiles server.csr
 rm -f server.csr
 
+# Valid server key and certificate, with subjectAltName.
+openssl genrsa -out server-san.key 2048
+openssl req -new -key server-san.key -out server-san.csr -config openssl.cnf -subj "${SBASESUBJ}/CN=san/"
+openssl ca -batch -config openssl.cnf -name CA_signing -out server-san.crt -extensions test_SAN -infiles server-san.csr
+rm -f server-san.csr
+
 # Expired server certificate
 openssl genrsa -out server-expired.key 2048
 openssl req -new -key server-expired.key -out server-expired.csr -config openssl.cnf -subj "${SBASESUBJ}-expired/CN=localhost/"

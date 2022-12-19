@@ -79,6 +79,8 @@ ifeq ($(WITH_TLS),yes)
 	./08-ssl-connect-cert-auth.py $@/08-ssl-connect-cert-auth-custom-ssl-ctx.test
 	./08-ssl-connect-cert-auth.py $@/08-ssl-connect-cert-auth-custom-ssl-ctx-default.test
 	./08-ssl-connect-no-auth.py $@/08-ssl-connect-no-auth.test
+	./08-ssl-connect-san-dns.py $@/08-ssl-connect-san-dns.test
+	./08-ssl-connect-san-ipv4.py $@/08-ssl-connect-san-ipv4.test
 endif
 	./09-util-topic-tokenise.py $@/09-util-topic-tokenise.test
 	./11-prop-oversize-packet.py $@/11-prop-oversize-packet.test

@@ -56,6 +56,8 @@ tests = [
     (1, ['./08-ssl-connect-cert-auth.py', 'c/08-ssl-connect-cert-auth-custom-ssl-ctx.test']),
     (1, ['./08-ssl-connect-cert-auth.py', 'c/08-ssl-connect-cert-auth-custom-ssl-ctx-default.test']),
     (1, ['./08-ssl-connect-no-auth.py', 'c/08-ssl-connect-no-auth.test']),
+    (1, ['./08-ssl-connect-san-dns.py', 'c/08-ssl-connect-san-dns.test']),
+    (1, ['./08-ssl-connect-san-ipv4.py', 'c/08-ssl-connect-san-ipv4.test']),
 
     (1, ['./09-util-topic-tokenise.py', 'c/09-util-topic-tokenise.test']),
 
