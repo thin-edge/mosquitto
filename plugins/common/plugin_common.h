@@ -1,5 +1,5 @@
-#ifndef PLUGIN_SHARED_H
-#define PLUGIN_SHARED_H
+#ifndef PLUGIN_COMMON_H
+#define PLUGIN_COMMON_H
 
 #include <cjson/cJSON.h>
 #include "mosquitto_broker.h"
