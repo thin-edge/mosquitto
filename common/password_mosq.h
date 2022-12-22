@@ -1,5 +1,5 @@
-#ifndef PASSWORD_COMMON_H
-#define PASSWORD_COMMON_H
+#ifndef PASSWORD_MOSQ_H
+#define PASSWORD_MOSQ_H
 /*
 Copyright (c) 2012-2021 Roger Light <roger@atchoo.org>
 

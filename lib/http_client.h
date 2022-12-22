@@ -16,6 +16,9 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
+#ifndef HTTP_CLIENT_H
+#define HTTP_CLIENT_H
+
 #include "config.h"
 
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
@@ -28,3 +31,5 @@ int http_c__context_cleanup(struct mosquitto *context);
 int http_c__read(struct mosquitto *mosq);
 
 #endif
+
+#endif 

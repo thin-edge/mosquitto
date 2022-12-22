@@ -16,8 +16,8 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef CLIENT_CONFIG_H
-#define CLIENT_CONFIG_H
+#ifndef CLIENT_SHARED_H
+#define CLIENT_SHARED_H
 
 #include <stdio.h>
 
