@@ -248,10 +248,12 @@ int db__close(void)
 int db__msg_store_add(struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto__base_msg *found;
+	unsigned hashv;
 
-	HASH_FIND(hh, db.msg_store, &base_msg->msg.store_id, sizeof(base_msg->msg.store_id), found);
+	HASH_VALUE(&base_msg->msg.store_id, sizeof(base_msg->msg.store_id), hashv);
+	HASH_FIND_BYHASHVALUE(hh, db.msg_store, &base_msg->msg.store_id, sizeof(base_msg->msg.store_id), hashv, found);
 	if(found == NULL){
-		HASH_ADD_KEYPTR(hh, db.msg_store, &base_msg->msg.store_id, sizeof(base_msg->msg.store_id), base_msg);
+		HASH_ADD_KEYPTR_BYHASHVALUE(hh, db.msg_store, &base_msg->msg.store_id, sizeof(base_msg->msg.store_id), hashv, base_msg);
 		return MOSQ_ERR_SUCCESS;
 	}else{
 		return MOSQ_ERR_ALREADY_EXISTS;
