@@ -31,12 +31,12 @@ static int plugin__handle_message_single(struct mosquitto__security_options *opt
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
-	event_data.topic = stored->topic;
-	event_data.payloadlen = stored->payloadlen;
-	event_data.payload = stored->payload;
-	event_data.qos = stored->qos;
-	event_data.retain = stored->retain;
-	event_data.properties = stored->properties;
+	event_data.topic = stored->msg.topic;
+	event_data.payloadlen = stored->msg.payloadlen;
+	event_data.payload = stored->msg.payload;
+	event_data.qos = stored->msg.qos;
+	event_data.retain = stored->msg.retain;
+	event_data.properties = stored->msg.properties;
 
 	DL_FOREACH(opts->plugin_callbacks.message, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_MESSAGE, &event_data, cb_base->userdata);
@@ -45,14 +45,14 @@ static int plugin__handle_message_single(struct mosquitto__security_options *opt
 		}
 	}
 
-	stored->topic = event_data.topic;
-	if(stored->payload != event_data.payload){
-		mosquitto__FREE(stored->payload);
-		stored->payload = event_data.payload;
-		stored->payloadlen = event_data.payloadlen;
+	stored->msg.topic = event_data.topic;
+	if(stored->msg.payload != event_data.payload){
+		mosquitto__FREE(stored->msg.payload);
+		stored->msg.payload = event_data.payload;
+		stored->msg.payloadlen = event_data.payloadlen;
 	}
-	stored->retain = event_data.retain;
-	stored->properties = event_data.properties;
+	stored->msg.retain = event_data.retain;
+	stored->msg.properties = event_data.properties;
 
 	return rc;
 }

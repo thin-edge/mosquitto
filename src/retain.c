@@ -165,7 +165,7 @@ int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char 
 #endif
 
 	if(retainhier->retained){
-		if(persist && retainhier->retained->topic[0] != '$' && base_msg->payloadlen == 0){
+		if(persist && retainhier->retained->msg.topic[0] != '$' && base_msg->msg.payloadlen == 0){
 			/* Only delete if another retained message isn't replacing this one */
 			plugin_persist__handle_retain_msg_delete(retainhier->retained);
 		}
@@ -173,15 +173,15 @@ int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char 
 #ifdef WITH_SYS_TREE
 		db.retained_count--;
 #endif
-		if(base_msg->payloadlen == 0){
+		if(base_msg->msg.payloadlen == 0){
 			retainhier->retained = NULL;
 			retain__clean_empty_hierarchy(retainhier);
 		}
 	}
-	if(base_msg->payloadlen){
+	if(base_msg->msg.payloadlen){
 		retainhier->retained = base_msg;
 		db__msg_store_ref_inc(retainhier->retained);
-		if(persist && retainhier->retained->topic[0] != '$'){
+		if(persist && retainhier->retained->msg.topic[0] != '$'){
 			plugin_persist__handle_base_msg_add(retainhier->retained);
 			plugin_persist__handle_retain_msg_set(retainhier->retained);
 		}
@@ -201,7 +201,7 @@ static int retain__process(struct mosquitto__retainhier *branch, struct mosquitt
 	uint16_t mid;
 	struct mosquitto__base_msg *retained;
 
-	if(branch->retained->message_expiry_time > 0 && db.now_real_s >= branch->retained->message_expiry_time){
+	if(branch->retained->msg.expiry_time > 0 && db.now_real_s >= branch->retained->msg.expiry_time){
 		plugin_persist__handle_retain_msg_delete(branch->retained);
 		db__msg_store_ref_dec(&branch->retained);
 		branch->retained = NULL;
@@ -213,8 +213,8 @@ static int retain__process(struct mosquitto__retainhier *branch, struct mosquitt
 
 	retained = branch->retained;
 
-	rc = mosquitto_acl_check(context, retained->topic, retained->payloadlen, retained->payload,
-			retained->qos, retained->retain, MOSQ_ACL_READ);
+	rc = mosquitto_acl_check(context, retained->msg.topic, retained->msg.payloadlen, retained->msg.payload,
+			retained->msg.qos, retained->msg.retain, MOSQ_ACL_READ);
 	if(rc == MOSQ_ERR_ACL_DENIED){
 		return MOSQ_ERR_SUCCESS;
 	}else if(rc != MOSQ_ERR_SUCCESS){
@@ -222,19 +222,19 @@ static int retain__process(struct mosquitto__retainhier *branch, struct mosquitt
 	}
 
 	/* Check for original source access */
-	if(db.config->check_retain_source && retained->origin != mosq_mo_broker && retained->source_id){
+	if(db.config->check_retain_source && retained->origin != mosq_mo_broker && retained->msg.source_id){
 		struct mosquitto retain_ctxt;
 		memset(&retain_ctxt, 0, sizeof(struct mosquitto));
 
-		retain_ctxt.id = retained->source_id;
-		retain_ctxt.username = retained->source_username;
+		retain_ctxt.id = retained->msg.source_id;
+		retain_ctxt.username = retained->msg.source_username;
 		retain_ctxt.listener = retained->source_listener;
 
 		rc = acl__find_acls(&retain_ctxt);
 		if(rc) return rc;
 
-		rc = mosquitto_acl_check(&retain_ctxt, retained->topic, retained->payloadlen, retained->payload,
-				retained->qos, retained->retain, MOSQ_ACL_WRITE);
+		rc = mosquitto_acl_check(&retain_ctxt, retained->msg.topic, retained->msg.payloadlen, retained->msg.payload,
+				retained->msg.qos, retained->msg.retain, MOSQ_ACL_WRITE);
 		if(rc == MOSQ_ERR_ACL_DENIED){
 			return MOSQ_ERR_SUCCESS;
 		}else if(rc != MOSQ_ERR_SUCCESS){
@@ -245,7 +245,7 @@ static int retain__process(struct mosquitto__retainhier *branch, struct mosquitt
 	if (db.config->upgrade_outgoing_qos){
 		qos = sub_qos;
 	} else {
-		qos = retained->qos;
+		qos = retained->msg.qos;
 		if(qos > sub_qos) qos = sub_qos;
 	}
 	if(qos > 0){

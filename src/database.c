@@ -141,20 +141,20 @@ bool db__ready_for_queue(struct mosquitto *context, int qos, struct mosquitto_ms
 void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg)
 {
 	msg_data->inflight_count++;
-	msg_data->inflight_bytes += msg->base_msg->payloadlen;
+	msg_data->inflight_bytes += msg->base_msg->msg.payloadlen;
 	if(msg->qos != 0){
 		msg_data->inflight_count12++;
-		msg_data->inflight_bytes12 += msg->base_msg->payloadlen;
+		msg_data->inflight_bytes12 += msg->base_msg->msg.payloadlen;
 	}
 }
 
 static void db__msg_remove_from_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg)
 {
 	msg_data->inflight_count--;
-	msg_data->inflight_bytes -= msg->base_msg->payloadlen;
+	msg_data->inflight_bytes -= msg->base_msg->msg.payloadlen;
 	if(msg->qos != 0){
 		msg_data->inflight_count12--;
-		msg_data->inflight_bytes12 -= msg->base_msg->payloadlen;
+		msg_data->inflight_bytes12 -= msg->base_msg->msg.payloadlen;
 	}
 }
 
@@ -162,20 +162,20 @@ static void db__msg_remove_from_inflight_stats(struct mosquitto_msg_data *msg_da
 void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg)
 {
 	msg_data->queued_count++;
-	msg_data->queued_bytes += msg->base_msg->payloadlen;
+	msg_data->queued_bytes += msg->base_msg->msg.payloadlen;
 	if(msg->qos != 0){
 		msg_data->queued_count12++;
-		msg_data->queued_bytes12 += msg->base_msg->payloadlen;
+		msg_data->queued_bytes12 += msg->base_msg->msg.payloadlen;
 	}
 }
 
 static void db__msg_remove_from_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg)
 {
 	msg_data->queued_count--;
-	msg_data->queued_bytes -= msg->base_msg->payloadlen;
+	msg_data->queued_bytes -= msg->base_msg->msg.payloadlen;
 	if(msg->qos != 0){
 		msg_data->queued_count12--;
-		msg_data->queued_bytes12 -= msg->base_msg->payloadlen;
+		msg_data->queued_bytes12 -= msg->base_msg->msg.payloadlen;
 	}
 }
 
@@ -249,9 +249,9 @@ int db__msg_store_add(struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto__base_msg *found;
 
-	HASH_FIND(hh, db.msg_store, &base_msg->db_id, sizeof(base_msg->db_id), found);
+	HASH_FIND(hh, db.msg_store, &base_msg->msg.store_id, sizeof(base_msg->msg.store_id), found);
 	if(found == NULL){
-		HASH_ADD(hh, db.msg_store, db_id, sizeof(base_msg->db_id), base_msg);
+		HASH_ADD_KEYPTR(hh, db.msg_store, &base_msg->msg.store_id, sizeof(base_msg->msg.store_id), base_msg);
 		return MOSQ_ERR_SUCCESS;
 	}else{
 		return MOSQ_ERR_ALREADY_EXISTS;
@@ -263,17 +263,17 @@ void db__msg_store_free(struct mosquitto__base_msg *base_msg)
 {
 	int i;
 
-	mosquitto__FREE(base_msg->source_id);
-	mosquitto__FREE(base_msg->source_username);
+	mosquitto__FREE(base_msg->msg.source_id);
+	mosquitto__FREE(base_msg->msg.source_username);
 	if(base_msg->dest_ids){
 		for(i=0; i<base_msg->dest_id_count; i++){
 			mosquitto__FREE(base_msg->dest_ids[i]);
 		}
 		mosquitto__FREE(base_msg->dest_ids);
 	}
-	mosquitto__FREE(base_msg->topic);
-	mosquitto_property_free_all(&base_msg->properties);
-	mosquitto__FREE(base_msg->payload);
+	mosquitto__FREE(base_msg->msg.topic);
+	mosquitto_property_free_all(&base_msg->msg.properties);
+	mosquitto__FREE(base_msg->msg.payload);
 	mosquitto__FREE(base_msg);
 }
 
@@ -282,7 +282,7 @@ void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
 	if(base_msg == NULL) return;
 	HASH_DELETE(hh, db.msg_store, base_msg);
 	db.msg_store_count--;
-	db.msg_store_bytes -= base_msg->payloadlen;
+	db.msg_store_bytes -= base_msg->msg.payloadlen;
 	if(notify == true){
 		plugin_persist__handle_base_msg_delete(base_msg);
 	}
@@ -455,9 +455,9 @@ int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, str
 
 	msg_data = &context->msgs_in;
 
-	if(db__ready_for_flight(context, mosq_md_in, base_msg->qos)){
+	if(db__ready_for_flight(context, mosq_md_in, base_msg->msg.qos)){
 		state = mosq_ms_wait_for_pubrel;
-	}else if(base_msg->qos != 0 && db__ready_for_queue(context, base_msg->qos, msg_data)){
+	}else if(base_msg->msg.qos != 0 && db__ready_for_queue(context, base_msg->msg.qos, msg_data)){
 		state = mosq_ms_queued;
 		rc = 2;
 	}else{
@@ -493,16 +493,16 @@ int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, str
 	}
 	msg->base_msg = base_msg;
 	db__msg_store_ref_inc(msg->base_msg);
-	msg->mid = base_msg->source_mid;
+	msg->mid = base_msg->msg.source_mid;
 	msg->direction = mosq_md_in;
 	msg->state = state;
 	msg->dup = false;
-	if(base_msg->qos > context->max_qos){
+	if(base_msg->msg.qos > context->max_qos){
 		msg->qos = context->max_qos;
 	}else{
-		msg->qos = base_msg->qos;
+		msg->qos = base_msg->msg.qos;
 	}
-	msg->retain = base_msg->retain;
+	msg->retain = base_msg->msg.retain;
 	msg->subscription_identifier = 0;
 
 	if(state == mosq_ms_queued){
@@ -518,7 +518,7 @@ int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, str
 		plugin_persist__handle_client_msg_add(context, msg);
 	}
 
-	if(msg->base_msg->qos > 0){
+	if(msg->base_msg->msg.qos > 0){
 		util__decrement_receive_quota(context);
 	}
 	return rc;
@@ -802,28 +802,28 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
 	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
-	base_msg->topic = mosquitto__strdup(topic);
-	if(base_msg->topic == NULL){
+	base_msg->msg.topic = mosquitto__strdup(topic);
+	if(base_msg->msg.topic == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_INVAL;
 	}
 
-	base_msg->qos = qos;
+	base_msg->msg.qos = qos;
 	if(db.config->retain_available == false){
-		base_msg->retain = 0;
+		base_msg->msg.retain = 0;
 	}else{
-		base_msg->retain = retain;
+		base_msg->msg.retain = retain;
 	}
 
-	base_msg->payloadlen = payloadlen;
-	base_msg->payload = mosquitto__malloc(base_msg->payloadlen+1);
-	if(base_msg->payload == NULL){
+	base_msg->msg.payloadlen = payloadlen;
+	base_msg->msg.payload = mosquitto__malloc(base_msg->msg.payloadlen+1);
+	if(base_msg->msg.payload == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-	((uint8_t *)base_msg->payload)[base_msg->payloadlen] = 0;
-	memcpy(base_msg->payload, payload, base_msg->payloadlen);
+	((uint8_t *)base_msg->msg.payload)[base_msg->msg.payloadlen] = 0;
+	memcpy(base_msg->msg.payload, payload, base_msg->msg.payloadlen);
 
 	if(context && context->id){
 		source_id = context->id;
@@ -831,7 +831,7 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
 		source_id = "";
 	}
 	if(properties){
-		base_msg->properties = *properties;
+		base_msg->msg.properties = *properties;
 		*properties = NULL;
 	}
 
@@ -842,7 +842,7 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
 	}
 	if(db__message_store(context, base_msg, message_expiry_interval, 0, origin)) return 1;
 
-	return sub__messages_queue(source_id, base_msg->topic, base_msg->qos, base_msg->retain, &base_msg);
+	return sub__messages_queue(source_id, base_msg->msg.topic, base_msg->msg.qos, base_msg->msg.retain, &base_msg);
 }
 
 
@@ -917,19 +917,19 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	assert(base_msg);
 
 	if(source && source->id){
-		base_msg->source_id = mosquitto__strdup(source->id);
+		base_msg->msg.source_id = mosquitto__strdup(source->id);
 	}else{
-		base_msg->source_id = mosquitto__strdup("");
+		base_msg->msg.source_id = mosquitto__strdup("");
 	}
-	if(!base_msg->source_id){
+	if(!base_msg->msg.source_id){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_NOMEM;
 	}
 
 	if(source && source->username){
-		base_msg->source_username = mosquitto__strdup(source->username);
-		if(!base_msg->source_username){
+		base_msg->msg.source_username = mosquitto__strdup(source->username);
+		if(!base_msg->msg.source_username){
 			db__msg_store_free(base_msg);
 			return MOSQ_ERR_NOMEM;
 		}
@@ -939,20 +939,20 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	}
 	base_msg->origin = origin;
 	if(message_expiry_interval > 0){
-		base_msg->message_expiry_time = db.now_real_s + message_expiry_interval;
+		base_msg->msg.expiry_time = db.now_real_s + message_expiry_interval;
 	}else{
-		base_msg->message_expiry_time = 0;
+		base_msg->msg.expiry_time = 0;
 	}
 
 	base_msg->dest_ids = NULL;
 	base_msg->dest_id_count = 0;
 	db.msg_store_count++;
-	db.msg_store_bytes += base_msg->payloadlen;
+	db.msg_store_bytes += base_msg->msg.payloadlen;
 
 	if(!base_msg_id){
-		base_msg->db_id = db__new_msg_id();
+		base_msg->msg.store_id = db__new_msg_id();
 	}else{
-		base_msg->db_id = base_msg_id;
+		base_msg->msg.store_id = base_msg_id;
 	}
 
 	rc = db__msg_store_add(base_msg);
@@ -972,14 +972,14 @@ int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosqu
 
 	*base_msg = NULL;
 	DL_FOREACH(context->msgs_in.inflight, tail){
-		if(tail->base_msg->source_mid == mid){
+		if(tail->base_msg->msg.source_mid == mid){
 			*base_msg = tail->base_msg;
 			return MOSQ_ERR_SUCCESS;
 		}
 	}
 
 	DL_FOREACH(context->msgs_in.queued, tail){
-		if(tail->base_msg->source_mid == mid){
+		if(tail->base_msg->msg.source_mid == mid){
 			*base_msg = tail->base_msg;
 			return MOSQ_ERR_SUCCESS;
 		}
@@ -1134,7 +1134,7 @@ int db__message_remove_incoming(struct mosquitto* context, uint16_t mid)
 
 	DL_FOREACH_SAFE(context->msgs_in.inflight, tail, tmp){
 		if(tail->mid == mid) {
-			if(tail->base_msg->qos != 2){
+			if(tail->base_msg->msg.qos != 2){
 				return MOSQ_ERR_PROTOCOL;
 			}
 			db__message_remove_inflight(context, &context->msgs_in, tail);
@@ -1159,12 +1159,12 @@ int db__message_release_incoming(struct mosquitto *context, uint16_t mid)
 
 	DL_FOREACH_SAFE(context->msgs_in.inflight, tail, tmp){
 		if(tail->mid == mid){
-			if(tail->base_msg->qos != 2){
+			if(tail->base_msg->msg.qos != 2){
 				return MOSQ_ERR_PROTOCOL;
 			}
-			topic = tail->base_msg->topic;
+			topic = tail->base_msg->msg.topic;
 			retain = tail->retain;
-			source_id = tail->base_msg->source_id;
+			source_id = tail->base_msg->msg.source_id;
 
 			/* topic==NULL should be a QoS 2 message that was
 			 * denied/dropped and is being processed so the client doesn't
@@ -1210,7 +1210,7 @@ void db__expire_all_messages(struct mosquitto *context)
 	struct mosquitto_client_msg *msg, *tmp;
 
 	DL_FOREACH_SAFE(context->msgs_out.inflight, msg, tmp){
-		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+		if(msg->base_msg->msg.expiry_time && db.now_real_s > msg->base_msg->msg.expiry_time){
 			if(msg->qos > 0){
 				util__increment_send_quota(context);
 			}
@@ -1218,12 +1218,12 @@ void db__expire_all_messages(struct mosquitto *context)
 		}
 	}
 	DL_FOREACH_SAFE(context->msgs_out.queued, msg, tmp){
-		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+		if(msg->base_msg->msg.expiry_time && db.now_real_s > msg->base_msg->msg.expiry_time){
 			db__message_remove_queued(context, &context->msgs_out, msg);
 		}
 	}
 	DL_FOREACH_SAFE(context->msgs_in.inflight, msg, tmp){
-		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+		if(msg->base_msg->msg.expiry_time && db.now_real_s > msg->base_msg->msg.expiry_time){
 			if(msg->qos > 0){
 				util__increment_receive_quota(context);
 			}
@@ -1231,7 +1231,7 @@ void db__expire_all_messages(struct mosquitto *context)
 		}
 	}
 	DL_FOREACH_SAFE(context->msgs_in.queued, msg, tmp){
-		if(msg->base_msg->message_expiry_time && db.now_real_s > msg->base_msg->message_expiry_time){
+		if(msg->base_msg->msg.expiry_time && db.now_real_s > msg->base_msg->msg.expiry_time){
 			db__message_remove_queued(context, &context->msgs_in, msg);
 		}
 	}
@@ -1253,8 +1253,8 @@ static int db__message_write_inflight_out_single(struct mosquitto *context, stru
 	uint32_t subscription_id;
 
 	expiry_interval = 0;
-	if(msg->base_msg->message_expiry_time){
-		if(db.now_real_s > msg->base_msg->message_expiry_time){
+	if(msg->base_msg->msg.expiry_time){
+		if(db.now_real_s > msg->base_msg->msg.expiry_time){
 			/* Message is expired, must not send. */
 			if(msg->direction == mosq_md_out && msg->qos > 0){
 				util__increment_send_quota(context);
@@ -1262,18 +1262,18 @@ static int db__message_write_inflight_out_single(struct mosquitto *context, stru
 			db__message_remove_inflight(context, &context->msgs_out, msg);
 			return MOSQ_ERR_SUCCESS;
 		}else{
-			expiry_interval = (uint32_t)(msg->base_msg->message_expiry_time - db.now_real_s);
+			expiry_interval = (uint32_t)(msg->base_msg->msg.expiry_time - db.now_real_s);
 		}
 	}
 	mid = msg->mid;
 	retries = msg->dup;
 	retain = msg->retain;
-	topic = msg->base_msg->topic;
+	topic = msg->base_msg->msg.topic;
 	qos = (uint8_t)msg->qos;
-	payloadlen = msg->base_msg->payloadlen;
-	payload = msg->base_msg->payload;
+	payloadlen = msg->base_msg->msg.payloadlen;
+	payload = msg->base_msg->msg.payload;
 	subscription_id = msg->subscription_identifier;
-	base_msg_props = msg->base_msg->properties;
+	base_msg_props = msg->base_msg->msg.properties;
 
 	switch(msg->state){
 		case mosq_ms_publish_qos0:

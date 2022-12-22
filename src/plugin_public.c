@@ -745,7 +745,7 @@ BROKER_EXPORT int mosquitto_subscription_delete(const char *client_id, const cha
 }
 
 
-BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_base_msg *msg)
+BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_add)
 {
 	struct mosquitto context;
 	struct mosquitto__base_msg *base_msg;
@@ -758,15 +758,15 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_ba
 
 	/* db__message_store only takes a copy of .id and .username, so it is reasonably safe
 	 * to cast the const char * to char * */
-	context.id = (char *)msg->source_id;
-	context.username = (char *)msg->source_username;
+	context.id = (char *)msg_add->source_id;
+	context.username = (char *)msg_add->source_username;
 
-	if(msg->expiry_time == 0){
+	if(msg_add->expiry_time == 0){
 		message_expiry_interval = 0;
-	}else if(msg->expiry_time <= db.now_real_s){
+	}else if(msg_add->expiry_time <= db.now_real_s){
 		message_expiry_interval = 1;
 	}else{
-		message_expiry_interval_tt = msg->expiry_time - db.now_real_s;
+		message_expiry_interval_tt = msg_add->expiry_time - db.now_real_s;
 		if(message_expiry_interval_tt > UINT32_MAX){
 			message_expiry_interval = UINT32_MAX;
 		}else{
@@ -778,21 +778,22 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_ba
 	if(base_msg == NULL){
 		goto error;
 	}
-	base_msg->payloadlen = msg->payloadlen;
-	base_msg->source_mid = msg->source_mid;
-	base_msg->qos = msg->qos;
-	base_msg->retain = msg->retain;
+	base_msg->msg.store_id = msg_add->store_id;
+	base_msg->msg.payloadlen = msg_add->payloadlen;
+	base_msg->msg.source_mid = msg_add->source_mid;
+	base_msg->msg.qos = msg_add->qos;
+	base_msg->msg.retain = msg_add->retain;
 
-	base_msg->payload = msg->plugin_payload;
-	msg->plugin_payload = NULL;
-	base_msg->topic = msg->plugin_topic;
-	msg->plugin_topic = NULL;
-	base_msg->properties = msg->plugin_properties;
-	msg->plugin_properties = NULL;
+	base_msg->msg.payload = msg_add->payload;
+	msg_add->payload = NULL;
+	base_msg->msg.topic = msg_add->topic;
+	msg_add->topic = NULL;
+	base_msg->msg.properties = msg_add->properties;
+	msg_add->properties = NULL;
 
-	if(msg->source_port){
+	if(msg_add->source_port){
 		for(i=0; i<db.config->listener_count; i++){
-			if(db.config->listeners[i].port == msg->source_port){
+			if(db.config->listeners[i].port == msg_add->source_port){
 				base_msg->source_listener = &db.config->listeners[i];
 				break;
 			}
@@ -800,13 +801,13 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_ba
 	}
 
 	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, message_expiry_interval, msg->store_id, mosq_mo_broker);
+	rc = db__message_store(&context, base_msg, message_expiry_interval, base_msg->msg.store_id, mosq_mo_broker);
 	return rc;
 
 error:
-	mosquitto_property_free_all(&msg->plugin_properties);
-	mosquitto_free(msg->plugin_topic);
-	mosquitto_free(msg->plugin_payload);
+	mosquitto_property_free_all(&msg_add->properties);
+	mosquitto_free(msg_add->topic);
+	mosquitto_free(msg_add->payload);
 	mosquitto_free(base_msg);
 
 	return MOSQ_ERR_NOMEM;

@@ -267,13 +267,13 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 		mosquitto__free(chunk.payload);
 		return MOSQ_ERR_NOMEM;
 	}
-	stored->source_mid = chunk.F.source_mid;
-	stored->topic = chunk.topic;
-	stored->qos = chunk.F.qos;
-	stored->retain = chunk.F.retain;
-	stored->payloadlen = chunk.F.payloadlen;
-	stored->payload =  chunk.payload;
-	stored->properties = chunk.properties;
+	stored->msg.source_mid = chunk.F.source_mid;
+	stored->msg.topic = chunk.topic;
+	stored->msg.qos = chunk.F.qos;
+	stored->msg.retain = chunk.F.retain;
+	stored->msg.payloadlen = chunk.F.payloadlen;
+	stored->msg.payload =  chunk.payload;
+	stored->msg.properties = chunk.properties;
 
 	rc = db__message_store(&chunk.source, stored, message_expiry_interval,
 			chunk.F.store_id, mosq_mo_client);
@@ -285,9 +285,9 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 
 	if(rc == MOSQ_ERR_SUCCESS){
 		stored->source_listener = chunk.source.listener;
-		stored->db_id = chunk.F.store_id;
+		stored->msg.store_id = chunk.F.store_id;
 
-		HASH_ADD(hh, db.msg_store, db_id, sizeof(dbid_t), stored);
+		HASH_ADD(hh, db.msg_store, msg.store_id, sizeof(dbid_t), stored);
 	}else{
 		fclose(db_fptr);
 		return rc;

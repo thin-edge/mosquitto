@@ -275,7 +275,7 @@ static int subscription_restore(struct mosquitto_sqlite *ms)
 static int base_msg_restore(struct mosquitto_sqlite *ms)
 {
 	sqlite3_stmt *stmt;
-	struct mosquitto_evt_persist_base_msg msg;
+	struct mosquitto_base_msg msg;
 	int rc;
 	long count = 0, failed = 0;
 	const char *str;
@@ -297,32 +297,32 @@ static int base_msg_restore(struct mosquitto_sqlite *ms)
 		msg.expiry_time = (time_t)sqlite3_column_int64(stmt, 1);
 		str = (const char *)sqlite3_column_text(stmt, 2);
 		if(str){
-			msg.plugin_topic = strdup(str);
-			if(!msg.plugin_topic){
+			msg.topic = strdup(str);
+			if(!msg.topic){
 				failed++;
 				continue;
 			}
 		}
-		msg.source_id = (const char *)sqlite3_column_text(stmt, 4);
-		msg.source_username = (const char *)sqlite3_column_text(stmt, 5);
+		msg.source_id = (char *)sqlite3_column_text(stmt, 4);
+		msg.source_username = (char *)sqlite3_column_text(stmt, 5);
 		payload = (const void *)sqlite3_column_blob(stmt, 3);
 		msg.payloadlen = (uint32_t)sqlite3_column_int(stmt, 6);
 		if(payload && msg.payloadlen){
-			msg.plugin_payload = malloc(msg.payloadlen+1);
-			if(!msg.plugin_payload){
-				free(msg.plugin_topic);
+			msg.payload = malloc(msg.payloadlen+1);
+			if(!msg.payload){
+				free(msg.topic);
 				failed++;
 				continue;
 			}
-			memcpy(msg.plugin_payload, payload, msg.payloadlen);
-			((uint8_t *)msg.plugin_payload)[msg.payloadlen] = 0;
+			memcpy(msg.payload, payload, msg.payloadlen);
+			((uint8_t *)msg.payload)[msg.payloadlen] = 0;
 		}
 
 		msg.source_mid = (uint16_t)sqlite3_column_int(stmt, 7);
 		msg.source_port = (uint16_t)sqlite3_column_int(stmt, 8);
 		msg.qos = (uint8_t)sqlite3_column_int(stmt, 9);
 		msg.retain = sqlite3_column_int(stmt, 10);
-		msg.plugin_properties = json_to_properties((const char *)sqlite3_column_text(stmt, 11));
+		msg.properties = json_to_properties((const char *)sqlite3_column_text(stmt, 11));
 
 		rc = mosquitto_persist_base_msg_add(&msg);
 		if(rc == MOSQ_ERR_SUCCESS){
@@ -333,7 +333,7 @@ static int base_msg_restore(struct mosquitto_sqlite *ms)
 	}
 	sqlite3_finalize(stmt);
 
-	mosquitto_log_printf(MOSQ_LOG_INFO, "sqlite: Restored %ld messages (%ld failed)", count, failed);
+	mosquitto_log_printf(MOSQ_LOG_INFO, "sqlite: Restored %ld base messages (%ld failed)", count, failed);
 	return MOSQ_ERR_SUCCESS;
 }
 

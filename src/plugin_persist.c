@@ -200,7 +200,7 @@ void plugin_persist__handle_client_msg_add(struct mosquitto *context, const stru
 
 	event_data.client_id = context->id;
 	event_data.cmsg_id = cmsg->cmsg_id;
-	event_data.store_id = cmsg->base_msg->db_id;
+	event_data.store_id = cmsg->base_msg->msg.store_id;
 	event_data.mid = cmsg->mid;
 	event_data.qos = cmsg->qos;
 	event_data.retain = cmsg->retain;
@@ -235,7 +235,7 @@ void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const s
 	event_data.mid = cmsg->mid;
 	event_data.state = (uint8_t)cmsg->state;
 	event_data.qos = cmsg->qos;
-	event_data.store_id = cmsg->base_msg->db_id;
+	event_data.store_id = cmsg->base_msg->msg.store_id;
 	event_data.direction = (uint8_t)cmsg->direction;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_delete, cb_base){
@@ -263,7 +263,7 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 	event_data.client_id = context->id;
 	event_data.cmsg_id = cmsg->cmsg_id;
 	event_data.mid = cmsg->mid;
-	event_data.store_id = cmsg->base_msg->db_id;
+	event_data.store_id = cmsg->base_msg->msg.store_id;
 	event_data.state = (uint8_t)cmsg->state;
 	event_data.dup = cmsg->dup;
 	event_data.direction = (uint8_t)cmsg->direction;
@@ -275,62 +275,62 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 }
 
 
-void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *msg)
+void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto_evt_persist_base_msg event_data;
 	struct mosquitto__callback *cb_base;
 	struct mosquitto__security_options *opts;
 
-	if(msg->stored || db.shutdown) return;
+	if(base_msg->stored || db.shutdown) return;
 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.store_id = msg->db_id;
-	event_data.expiry_time = msg->message_expiry_time;
-	event_data.topic = msg->topic;
-	event_data.payload = msg->payload;
-	event_data.source_id = msg->source_id;
-	event_data.source_username = msg->source_username;
-	event_data.properties = msg->properties;
-	event_data.payloadlen = msg->payloadlen;
-	event_data.source_mid = msg->source_mid;
-	if(msg->source_listener){
-		event_data.source_port = msg->source_listener->port;
+	event_data.msg.store_id = base_msg->msg.store_id;
+	event_data.msg.expiry_time = base_msg->msg.expiry_time;
+	event_data.msg.topic = base_msg->msg.topic;
+	event_data.msg.payload = base_msg->msg.payload;
+	event_data.msg.source_id = base_msg->msg.source_id;
+	event_data.msg.source_username = base_msg->msg.source_username;
+	event_data.msg.properties = base_msg->msg.properties;
+	event_data.msg.payloadlen = base_msg->msg.payloadlen;
+	event_data.msg.source_mid = base_msg->msg.source_mid;
+	if(base_msg->source_listener){
+		event_data.msg.source_port = base_msg->source_listener->port;
 	}else{
-		event_data.source_port = 0;
+		event_data.msg.source_port = 0;
 	}
-	event_data.qos = msg->qos;
-	event_data.retain = msg->retain;
+	event_data.msg.qos = base_msg->msg.qos;
+	event_data.msg.retain = base_msg->msg.retain;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_base_msg_add, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_ADD, &event_data, cb_base->userdata);
 	}
-	msg->stored = true;
+	base_msg->stored = true;
 }
 
 
-void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *msg)
+void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto_evt_persist_base_msg event_data;
 	struct mosquitto__callback *cb_base;
 	struct mosquitto__security_options *opts;
 
-	if(msg->stored == false || db.shutdown) return;
+	if(base_msg->stored == false || db.shutdown) return;
 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.store_id = msg->db_id;
+	event_data.msg.store_id = base_msg->msg.store_id;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_base_msg_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_BASE_MSG_DELETE, &event_data, cb_base->userdata);
 	}
-	msg->stored = false;
+	base_msg->stored = false;
 }
 
 
-void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *msg)
+void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto_evt_persist_retain_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -341,8 +341,8 @@ void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *msg)
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.store_id = msg->db_id;
-	event_data.topic = msg->topic;
+	event_data.store_id = base_msg->msg.store_id;
+	event_data.topic = base_msg->msg.topic;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_retain_msg_set, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_SET, &event_data, cb_base->userdata);
@@ -350,7 +350,7 @@ void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *msg)
 }
 
 
-void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
+void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto_evt_persist_retain_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -361,7 +361,7 @@ void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.topic = msg->topic;
+	event_data.topic = base_msg->msg.topic;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_retain_msg_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE, &event_data, cb_base->userdata);

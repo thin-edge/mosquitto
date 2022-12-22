@@ -65,7 +65,7 @@ void lws__sul_callback(struct lws_sorted_usec_list *l)
 static struct lws_sorted_usec_list sul;
 #endif
 
-static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *msg, uint32_t message_expiry)
+static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *pub_msg, uint32_t message_expiry)
 {
 	struct mosquitto__base_msg *base_msg;
 	uint16_t mid;
@@ -73,32 +73,32 @@ static int single_publish(struct mosquitto *context, struct mosquitto__message_v
 	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
-	base_msg->topic = msg->topic;
-	msg->topic = NULL;
-	base_msg->retain = 0;
-	base_msg->payloadlen = (uint32_t)msg->payloadlen;
-	base_msg->payload = mosquitto__malloc(base_msg->payloadlen+1);
-	if(base_msg->payload == NULL){
+	base_msg->msg.topic = pub_msg->topic;
+	pub_msg->topic = NULL;
+	base_msg->msg.retain = 0;
+	base_msg->msg.payloadlen = (uint32_t)pub_msg->payloadlen;
+	base_msg->msg.payload = mosquitto__malloc(base_msg->msg.payloadlen+1);
+	if(base_msg->msg.payload == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-	((uint8_t *)base_msg->payload)[base_msg->payloadlen] = 0;
-	memcpy(base_msg->payload, msg->payload, base_msg->payloadlen);
+	((uint8_t *)base_msg->msg.payload)[base_msg->msg.payloadlen] = 0;
+	memcpy(base_msg->msg.payload, pub_msg->payload, base_msg->msg.payloadlen);
 
-	if(msg->properties){
-		base_msg->properties = msg->properties;
-		msg->properties = NULL;
+	if(pub_msg->properties){
+		base_msg->msg.properties = pub_msg->properties;
+		pub_msg->properties = NULL;
 	}
 
 	if(db__message_store(context, base_msg, message_expiry, 0, mosq_mo_broker)) return 1;
 
-	if(msg->qos){
+	if(pub_msg->qos){
 		mid = mosquitto__mid_generate(context);
 	}else{
 		mid = 0;
 	}
-	return db__message_insert_outgoing(context, 0, mid, (uint8_t)msg->qos, 0, base_msg, 0, true, true);
+	return db__message_insert_outgoing(context, 0, mid, (uint8_t)pub_msg->qos, 0, base_msg, 0, true, true);
 }
 
 

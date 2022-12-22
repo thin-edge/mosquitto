@@ -296,13 +296,13 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		goto cleanup;
 	}
 
-	base_msg->source_mid = chunk.F.source_mid;
-	base_msg->topic = chunk.topic;
-	base_msg->qos = chunk.F.qos;
-	base_msg->payloadlen = chunk.F.payloadlen;
-	base_msg->retain = chunk.F.retain;
-	base_msg->properties = chunk.properties;
-	base_msg->payload = chunk.payload;
+	base_msg->msg.source_mid = chunk.F.source_mid;
+	base_msg->msg.topic = chunk.topic;
+	base_msg->msg.qos = chunk.F.qos;
+	base_msg->msg.payloadlen = chunk.F.payloadlen;
+	base_msg->msg.retain = chunk.F.retain;
+	base_msg->msg.properties = chunk.properties;
+	base_msg->msg.payload = chunk.payload;
 	base_msg->source_listener = chunk.source.listener;
 
 	rc = db__message_store(&chunk.source, base_msg, message_expiry_interval,
@@ -327,7 +327,7 @@ cleanup:
 
 static int persist__retain_chunk_restore(FILE *db_fptr)
 {
-	struct mosquitto__base_msg *msg;
+	struct mosquitto__base_msg *base_msg;
 	struct P_retain chunk;
 	int rc;
 	char **split_topics;
@@ -344,10 +344,10 @@ static int persist__retain_chunk_restore(FILE *db_fptr)
 		return rc;
 	}
 
-	HASH_FIND(hh, db.msg_store, &chunk.F.store_id, sizeof(chunk.F.store_id), msg);
-	if(msg){
-		if(sub__topic_tokenise(msg->topic, &local_topic, &split_topics, NULL)) return 1;
-		retain__store(msg->topic, msg, split_topics, true);
+	HASH_FIND(hh, db.msg_store, &chunk.F.store_id, sizeof(chunk.F.store_id), base_msg);
+	if(base_msg){
+		if(sub__topic_tokenise(base_msg->msg.topic, &local_topic, &split_topics, NULL)) return 1;
+		retain__store(base_msg->msg.topic, base_msg, split_topics, true);
 		mosquitto__FREE(local_topic);
 		mosquitto__FREE(split_topics);
 		retained_count++;

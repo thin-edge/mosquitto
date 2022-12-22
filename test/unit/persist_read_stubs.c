@@ -30,17 +30,17 @@ void db__msg_store_free(struct mosquitto__base_msg *store)
 {
 	int i;
 
-	mosquitto__free(store->source_id);
-	mosquitto__free(store->source_username);
+	mosquitto__free(store->msg.source_id);
+	mosquitto__free(store->msg.source_username);
 	if(store->dest_ids){
 		for(i=0; i<store->dest_id_count; i++){
 			mosquitto__free(store->dest_ids[i]);
 		}
 		mosquitto__free(store->dest_ids);
 	}
-	mosquitto__free(store->topic);
-	mosquitto_property_free_all(&store->properties);
-	mosquitto__free(store->payload);
+	mosquitto__free(store->msg.topic);
+	mosquitto_property_free_all(&store->msg.properties);
+	mosquitto__free(store->msg.payload);
 	mosquitto__free(store);
 }
 
@@ -51,18 +51,18 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	UNUSED(origin);
 
     if(source && source->id){
-        stored->source_id = mosquitto__strdup(source->id);
+        stored->msg.source_id = mosquitto__strdup(source->id);
     }else{
-        stored->source_id = mosquitto__strdup("");
+        stored->msg.source_id = mosquitto__strdup("");
     }
-    if(!stored->source_id){
+    if(!stored->msg.source_id){
         rc = MOSQ_ERR_NOMEM;
         goto error;
     }
 
     if(source && source->username){
-        stored->source_username = mosquitto__strdup(source->username);
-        if(!stored->source_username){
+        stored->msg.source_username = mosquitto__strdup(source->username);
+        if(!stored->msg.source_username){
             rc = MOSQ_ERR_NOMEM;
             goto error;
         }
@@ -71,23 +71,23 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
         stored->source_listener = source->listener;
     }
     if(message_expiry_interval > 0){
-        stored->message_expiry_time = time(NULL) + message_expiry_interval;
+        stored->msg.expiry_time = time(NULL) + message_expiry_interval;
     }else{
-        stored->message_expiry_time = 0;
+        stored->msg.expiry_time = 0;
     }
 
     stored->dest_ids = NULL;
     stored->dest_id_count = 0;
     db.msg_store_count++;
-    db.msg_store_bytes += stored->payloadlen;
+    db.msg_store_bytes += stored->msg.payloadlen;
 
     if(!store_id){
-        stored->db_id = ++db.last_db_id;
+        stored->msg.store_id = ++db.last_db_id;
     }else{
-        stored->db_id = store_id;
+        stored->msg.store_id = store_id;
     }
 
-	HASH_ADD(hh, db.msg_store, db_id, sizeof(stored->db_id), stored);
+	HASH_ADD(hh, db.msg_store, msg.store_id, sizeof(stored->msg.store_id), stored);
 
     return MOSQ_ERR_SUCCESS;
 error:

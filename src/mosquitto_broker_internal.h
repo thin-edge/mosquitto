@@ -410,22 +410,12 @@ struct mosquitto__retainhier {
 
 struct mosquitto__base_msg{
 	UT_hash_handle hh;
-	dbid_t db_id;
-	char *source_id;
-	char *source_username;
+	struct mosquitto_base_msg msg;
 	struct mosquitto__listener *source_listener;
 	char **dest_ids;
 	int dest_id_count;
 	int ref_count;
-	char* topic;
-	mosquitto_property *properties;
-	void *payload;
-	time_t message_expiry_time;
-	uint32_t payloadlen;
 	enum mosquitto_msg_origin origin;
-	uint16_t source_mid;
-	uint8_t qos;
-	bool retain;
 	bool stored;
 };
 

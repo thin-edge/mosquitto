@@ -40,22 +40,22 @@ int control__process(struct mosquitto *context, struct mosquitto__base_msg *base
 
 	/* Check global plugins and non-per-listener settings first */
 	opts = &db.config->security_options;
-	HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->topic, strlen(base_msg->topic), cb_found);
+	HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->msg.topic, strlen(base_msg->msg.topic), cb_found);
 
 	/* If not found, check for per-listener plugins. */
 	if(cb_found == NULL && db.config->per_listener_settings){
 		opts = context->listener->security_options;
-		HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->topic, strlen(base_msg->topic), cb_found);
+		HASH_FIND(hh, opts->plugin_callbacks.control, base_msg->msg.topic, strlen(base_msg->msg.topic), cb_found);
 	}
 	if(cb_found){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
-		event_data.topic = base_msg->topic;
-		event_data.payload = base_msg->payload;
-		event_data.payloadlen = base_msg->payloadlen;
-		event_data.qos = base_msg->qos;
-		event_data.retain = base_msg->retain;
-		event_data.properties = base_msg->properties;
+		event_data.topic = base_msg->msg.topic;
+		event_data.payload = base_msg->msg.payload;
+		event_data.payloadlen = base_msg->msg.payloadlen;
+		event_data.qos = base_msg->msg.qos;
+		event_data.retain = base_msg->msg.retain;
+		event_data.properties = base_msg->msg.properties;
 		event_data.reason_code = MQTT_RC_SUCCESS;
 		event_data.reason_string = NULL;
 
@@ -68,11 +68,11 @@ int control__process(struct mosquitto *context, struct mosquitto__base_msg *base
 		SAFE_FREE(event_data.reason_string);
 	}
 
-	if(base_msg->qos == 1){
-		rc2 = send__puback(context, base_msg->source_mid, MQTT_RC_SUCCESS, properties);
+	if(base_msg->msg.qos == 1){
+		rc2 = send__puback(context, base_msg->msg.source_mid, MQTT_RC_SUCCESS, properties);
 		if(rc2) rc = rc2;
-	}else if(base_msg->qos == 2){
-		rc2 = send__pubrec(context, base_msg->source_mid, MQTT_RC_SUCCESS, properties);
+	}else if(base_msg->msg.qos == 2){
+		rc2 = send__pubrec(context, base_msg->msg.source_mid, MQTT_RC_SUCCESS, properties);
 		if(rc2) rc = rc2;
 	}
 	mosquitto_property_free_all(&properties);

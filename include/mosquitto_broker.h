@@ -300,27 +300,30 @@ struct mosquitto_evt_persist_client_msg {
 };
 
 
-/* Data for the MOSQ_EVT_PERSIST_BASE_MSG_ADD/_DELETE/_LOAD event */
-/* NOTE: The persistence interface is currently marked as unstable, which means
- * it may change in a future minor release. */
-struct mosquitto_evt_persist_base_msg {
-	void *future;
+struct mosquitto_base_msg {
 	uint64_t store_id;
 	int64_t expiry_time;
-	const char *topic;
-	const void *payload;
-	const char *source_id;
-	const char *source_username;
-	char *plugin_topic;
-	void *plugin_payload;
-	const mosquitto_property *properties;
-	mosquitto_property *plugin_properties;
+	char *topic;
+	void *payload;
+	char *source_id;
+	char *source_username;
+	mosquitto_property *properties;
 	uint32_t payloadlen;
 	uint16_t source_mid;
 	uint16_t source_port;
 	uint8_t qos;
 	bool retain;
 	uint8_t padding[6];
+	void *future2[8];
+};
+
+
+/* Data for the MOSQ_EVT_PERSIST_BASE_MSG_ADD/_DELETE/_LOAD event */
+/* NOTE: The persistence interface is currently marked as unstable, which means
+ * it may change in a future minor release. */
+struct mosquitto_evt_persist_base_msg {
+	void *future;
+	struct mosquitto_base_msg msg;
 	void *future2[8];
 };
 
@@ -1068,7 +1071,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persist_
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-mosq_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_base_msg *msg);
+mosq_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg);
 
 
 /* Function: mosquitto_persist_base_msg_delete
