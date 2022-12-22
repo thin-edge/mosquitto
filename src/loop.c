@@ -67,10 +67,10 @@ static struct lws_sorted_usec_list sul;
 
 static int single_publish(struct mosquitto *context, struct mosquitto__message_v5 *msg, uint32_t message_expiry)
 {
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 	uint16_t mid;
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto_base_msg));
+	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
 	base_msg->topic = msg->topic;

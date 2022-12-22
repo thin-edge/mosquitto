@@ -275,7 +275,7 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 }
 
 
-void plugin_persist__handle_base_msg_add(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *msg)
 {
 	struct mosquitto_evt_persist_base_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -310,7 +310,7 @@ void plugin_persist__handle_base_msg_add(struct mosquitto_base_msg *msg)
 }
 
 
-void plugin_persist__handle_base_msg_delete(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *msg)
 {
 	struct mosquitto_evt_persist_base_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -330,7 +330,7 @@ void plugin_persist__handle_base_msg_delete(struct mosquitto_base_msg *msg)
 }
 
 
-void plugin_persist__handle_retain_msg_set(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *msg)
 {
 	struct mosquitto_evt_persist_retain_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -350,7 +350,7 @@ void plugin_persist__handle_retain_msg_set(struct mosquitto_base_msg *msg)
 }
 
 
-void plugin_persist__handle_retain_msg_delete(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
 {
 	struct mosquitto_evt_persist_retain_msg event_data;
 	struct mosquitto__callback *cb_base;

@@ -13,7 +13,7 @@ struct mosquitto_db{
 
 };
 
-struct mosquitto_base_msg{
+struct mosquitto__base_msg{
 
 };
 
@@ -95,12 +95,12 @@ ssize_t net__write(struct mosquitto *mosq, const void *buf, size_t count)
 	return 1;
 }
 
-void plugin_persist__handle_retain_set(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_set(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
 
-void plugin_persist__handle_retain_remove(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_remove(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
@@ -110,7 +110,7 @@ void plugin_persist__process_retain_events(bool force)
 	UNUSED(force);
 }
 
-void plugin_persist__queue_retain_event(struct mosquitto_base_msg *msg, int event)
+void plugin_persist__queue_retain_event(struct mosquitto__base_msg *msg, int event)
 {
 	UNUSED(msg);
 	UNUSED(event);

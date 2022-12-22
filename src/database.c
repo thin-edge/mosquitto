@@ -245,9 +245,9 @@ int db__close(void)
 }
 
 
-int db__msg_store_add(struct mosquitto_base_msg *base_msg)
+int db__msg_store_add(struct mosquitto__base_msg *base_msg)
 {
-	struct mosquitto_base_msg *found;
+	struct mosquitto__base_msg *found;
 
 	HASH_FIND(hh, db.msg_store, &base_msg->db_id, sizeof(base_msg->db_id), found);
 	if(found == NULL){
@@ -259,7 +259,7 @@ int db__msg_store_add(struct mosquitto_base_msg *base_msg)
 }
 
 
-void db__msg_store_free(struct mosquitto_base_msg *base_msg)
+void db__msg_store_free(struct mosquitto__base_msg *base_msg)
 {
 	int i;
 
@@ -277,7 +277,7 @@ void db__msg_store_free(struct mosquitto_base_msg *base_msg)
 	mosquitto__FREE(base_msg);
 }
 
-void db__msg_store_remove(struct mosquitto_base_msg *base_msg, bool notify)
+void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
 {
 	if(base_msg == NULL) return;
 	HASH_DELETE(hh, db.msg_store, base_msg);
@@ -292,19 +292,19 @@ void db__msg_store_remove(struct mosquitto_base_msg *base_msg, bool notify)
 
 void db__msg_store_clean(void)
 {
-	struct mosquitto_base_msg *base_msg, *base_msg_tmp;
+	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
 		db__msg_store_remove(base_msg, false);
 	}
 }
 
-void db__msg_store_ref_inc(struct mosquitto_base_msg *base_msg)
+void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg)
 {
 	base_msg->ref_count++;
 }
 
-void db__msg_store_ref_dec(struct mosquitto_base_msg **base_msg)
+void db__msg_store_ref_dec(struct mosquitto__base_msg **base_msg)
 {
 	(*base_msg)->ref_count--;
 	if((*base_msg)->ref_count == 0){
@@ -316,7 +316,7 @@ void db__msg_store_ref_dec(struct mosquitto_base_msg **base_msg)
 
 void db__msg_store_compact(void)
 {
-	struct mosquitto_base_msg *base_msg, *base_msg_tmp;
+	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
 		if(base_msg->ref_count < 1){
@@ -442,7 +442,7 @@ int db__message_delete_outgoing(struct mosquitto *context, uint16_t mid, enum mo
 
 
 /* Only for QoS 2 messages */
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto_base_msg *base_msg, bool persist)
+int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *base_msg, bool persist)
 {
 	struct mosquitto_client_msg *msg;
 	struct mosquitto_msg_data *msg_data;
@@ -524,7 +524,7 @@ int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, str
 	return rc;
 }
 
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto_base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist)
+int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *base_msg, uint32_t subscription_identifier, bool update, bool persist)
 {
 	struct mosquitto_client_msg *msg;
 	struct mosquitto_msg_data *msg_data;
@@ -793,13 +793,13 @@ int db__messages_delete(struct mosquitto *context, bool force_free)
 
 int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties)
 {
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 	const char *source_id;
 	enum mosquitto_msg_origin origin;
 
 	if(!topic) return MOSQ_ERR_INVAL;
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto_base_msg));
+	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
 	base_msg->topic = mosquitto__strdup(topic);
@@ -910,7 +910,7 @@ uint64_t db__new_msg_id(void)
 
 
 /* This function requires topic to be allocated on the heap. Once called, it owns topic and will free it on error. Likewise payload and properties. */
-int db__message_store(const struct mosquitto *source, struct mosquitto_base_msg *base_msg, uint32_t message_expiry_interval, dbid_t base_msg_id, enum mosquitto_msg_origin origin)
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, dbid_t base_msg_id, enum mosquitto_msg_origin origin)
 {
 	int rc;
 
@@ -964,7 +964,7 @@ int db__message_store(const struct mosquitto *source, struct mosquitto_base_msg 
 	return MOSQ_ERR_SUCCESS;
 }
 
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto_base_msg **base_msg)
+int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__base_msg **base_msg)
 {
 	struct mosquitto_client_msg *tail;
 

@@ -29,7 +29,7 @@ Contributors:
 #ifdef WITH_CONTROL
 /* Process messages coming in on $CONTROL/<feature>. These messages aren't
  * passed on to other clients. */
-int control__process(struct mosquitto *context, struct mosquitto_base_msg *base_msg)
+int control__process(struct mosquitto *context, struct mosquitto__base_msg *base_msg)
 {
 	struct mosquitto__callback *cb_found;
 	struct mosquitto_evt_control event_data;

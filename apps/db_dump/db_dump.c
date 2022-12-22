@@ -227,7 +227,7 @@ static int dump__client_msg_chunk_process(FILE *db_fd, uint32_t length)
 static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 {
 	struct P_base_msg chunk;
-	struct mosquitto_base_msg *stored = NULL;
+	struct mosquitto__base_msg *stored = NULL;
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
 	int rc = 0;
@@ -258,7 +258,7 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 		message_expiry_interval = 0;
 	}
 
-	stored = mosquitto__calloc(1, sizeof(struct mosquitto_base_msg));
+	stored = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(stored == NULL){
 		fclose(db_fptr);
 		mosquitto__free(chunk.source.id);
@@ -377,7 +377,7 @@ static int dump__sub_chunk_process(FILE *db_fd, uint32_t length)
 
 static void cleanup_msg_store()
 {
-	struct mosquitto_base_msg *msg, *msg_tmp;
+	struct mosquitto__base_msg *msg, *msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, msg, msg_tmp){
 		HASH_DELETE(hh, db.msg_store, msg);

@@ -144,7 +144,7 @@ int retain__queue(struct mosquitto *context, const char *sub, uint8_t sub_qos, u
 	return MOSQ_ERR_SUCCESS;
 }
 
-int retain__store(const char *topic, struct mosquitto_base_msg *stored, char **split_topics, bool persist)
+int retain__store(const char *topic, struct mosquitto__base_msg *stored, char **split_topics, bool persist)
 {
 	UNUSED(topic);
 	UNUSED(stored);
@@ -208,19 +208,19 @@ void plugin_persist__handle_client_msg_clear(struct mosquitto *context, uint8_t 
 	UNUSED(context);
 	UNUSED(direction);
 }
-void plugin_persist__handle_base_msg_add(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_base_msg_delete(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_retain_msg_add(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_msg_add(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_retain_msg_delete(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }

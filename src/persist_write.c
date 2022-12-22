@@ -86,7 +86,7 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 static int persist__message_store_save(FILE *db_fptr)
 {
 	struct P_base_msg chunk;
-	struct mosquitto_base_msg *base_msg, *base_msg_tmp;
+	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
 	int rc;
 
 	assert(db_fptr);

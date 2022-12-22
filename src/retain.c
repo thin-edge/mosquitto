@@ -65,7 +65,7 @@ int retain__init(void)
 
 BROKER_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t base_msg_id)
 {
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 	int rc = MOSQ_ERR_UNKNOWN;
 	char **split_topics = NULL;
 	char *local_topic = NULL;
@@ -88,7 +88,7 @@ BROKER_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t b
 
 BROKER_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic)
 {
-	struct mosquitto_base_msg base_msg;
+	struct mosquitto__base_msg base_msg;
 	int rc = MOSQ_ERR_UNKNOWN;
 	char **split_topics = NULL;
 	char *local_topic = NULL;
@@ -126,7 +126,7 @@ void retain__clean_empty_hierarchy(struct mosquitto__retainhier *retainhier)
 }
 
 
-int retain__store(const char *topic, struct mosquitto_base_msg *base_msg, char **split_topics, bool persist)
+int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist)
 {
 	struct mosquitto__retainhier *retainhier;
 	struct mosquitto__retainhier *branch;
@@ -199,7 +199,7 @@ static int retain__process(struct mosquitto__retainhier *branch, struct mosquitt
 	int rc = 0;
 	uint8_t qos;
 	uint16_t mid;
-	struct mosquitto_base_msg *retained;
+	struct mosquitto__base_msg *retained;
 
 	if(branch->retained->message_expiry_time > 0 && db.now_real_s >= branch->retained->message_expiry_time){
 		plugin_persist__handle_retain_msg_delete(branch->retained);

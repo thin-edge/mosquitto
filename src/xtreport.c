@@ -172,7 +172,7 @@ void xtreport(void)
 	fprintf(fptr, "\nfn=(%d) messages\n", fn_index_max);
 	fprintf(fptr, "1 0 0 0 0 0 0 0 0 0 0 0\n");
 
-	struct mosquitto_base_msg *base_msg, *base_msg_tmp;
+	struct mosquitto__base_msg *base_msg, *base_msg_tmp;
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
 		if(base_msg->ref_count > 1){

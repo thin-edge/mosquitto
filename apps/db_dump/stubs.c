@@ -14,15 +14,15 @@ struct mosquitto *context__init(void) { return NULL; }
 
 void context__add_to_by_id(struct mosquitto *context) { UNUSED(context); }
 
-int db__message_store(const struct mosquitto *source, struct mosquitto_base_msg *base_msg, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin) { UNUSED(source); UNUSED(base_msg); UNUSED(message_expiry_interval); UNUSED(store_id); UNUSED(origin); return 0; }
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin) { UNUSED(source); UNUSED(base_msg); UNUSED(message_expiry_interval); UNUSED(store_id); UNUSED(origin); return 0; }
 
-void db__msg_store_ref_inc(struct mosquitto_base_msg *base_msg) { UNUSED(base_msg); }
+void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg) { UNUSED(base_msg); }
 
 int log__printf(struct mosquitto *mosq, unsigned int level, const char *fmt, ...) { UNUSED(mosq); UNUSED(level); UNUSED(fmt); return 0; }
 
 FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read) { UNUSED(path); UNUSED(mode); UNUSED(restrict_read); return NULL; }
 
-int retain__store(const char *topic, struct mosquitto_base_msg *base_msg, char **split_topics, bool persist) { UNUSED(topic); UNUSED(base_msg); UNUSED(split_topics); UNUSED(persist); return 0; }
+int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist) { UNUSED(topic); UNUSED(base_msg); UNUSED(split_topics); UNUSED(persist); return 0; }
 
 int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options) { UNUSED(context); UNUSED(sub); UNUSED(qos); UNUSED(identifier); UNUSED(options); return 0; }
 

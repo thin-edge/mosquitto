@@ -26,7 +26,7 @@ struct mosquitto *context__init(void)
 	return m;
 }
 
-void db__msg_store_free(struct mosquitto_base_msg *store)
+void db__msg_store_free(struct mosquitto__base_msg *store)
 {
 	int i;
 
@@ -44,7 +44,7 @@ void db__msg_store_free(struct mosquitto_base_msg *store)
 	mosquitto__free(store);
 }
 
-int db__message_store(const struct mosquitto *source, struct mosquitto_base_msg *stored, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin)
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *stored, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin)
 {
     int rc = MOSQ_ERR_SUCCESS;
 
@@ -162,7 +162,7 @@ int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t i
 	return MOSQ_ERR_SUCCESS;
 }
 
-int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto_base_msg *msg, bool persist)
+int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, struct mosquitto__base_msg *msg, bool persist)
 {
 	UNUSED(context);
 	UNUSED(cmsg_id);
@@ -172,7 +172,7 @@ int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, str
 	return MOSQ_ERR_SUCCESS;
 }
 
-int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto_base_msg *stored, uint32_t subscription_identifier, bool update, bool persist)
+int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uint16_t mid, uint8_t qos, bool retain, struct mosquitto__base_msg *stored, uint32_t subscription_identifier, bool update, bool persist)
 {
 	UNUSED(context);
 	UNUSED(cmsg_id);
@@ -187,12 +187,12 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	return MOSQ_ERR_SUCCESS;
 }
 
-void db__msg_store_ref_dec(struct mosquitto_base_msg **store)
+void db__msg_store_ref_dec(struct mosquitto__base_msg **store)
 {
 	UNUSED(store);
 }
 
-void db__msg_store_ref_inc(struct mosquitto_base_msg *store)
+void db__msg_store_ref_inc(struct mosquitto__base_msg *store)
 {
 	store->ref_count++;
 }
@@ -229,15 +229,15 @@ void context__send_will(struct mosquitto *context)
 	UNUSED(context);
 }
 
-void plugin_persist__handle_retain_msg_set(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_retain_msg_delete(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_base_msg_add(struct mosquitto_base_msg *msg)
+void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
@@ -247,7 +247,7 @@ void plugin_persist__process_retain_events(bool force)
 	UNUSED(force);
 }
 
-void plugin_persist__queue_retain_event(struct mosquitto_base_msg *msg, int event)
+void plugin_persist__queue_retain_event(struct mosquitto__base_msg *msg, int event)
 {
 	UNUSED(msg);
 	UNUSED(event);

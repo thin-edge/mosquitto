@@ -603,9 +603,9 @@ BROKER_EXPORT int mosquitto_persist_client_delete(const char *client_id)
 }
 
 
-static struct mosquitto_base_msg *find_store_msg(uint64_t store_id)
+static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
 {
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 
 	HASH_FIND(hh, db.msg_store, &store_id, sizeof(store_id), base_msg);
 	return base_msg;
@@ -614,7 +614,7 @@ static struct mosquitto_base_msg *find_store_msg(uint64_t store_id)
 BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_client_msg *client_msg)
 {
 	struct mosquitto *context;
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 
 	if(client_msg == NULL || client_msg->client_id == NULL){
 		return MOSQ_ERR_INVAL;
@@ -748,7 +748,7 @@ BROKER_EXPORT int mosquitto_subscription_delete(const char *client_id, const cha
 BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_base_msg *msg)
 {
 	struct mosquitto context;
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 	uint32_t message_expiry_interval;
 	time_t message_expiry_interval_tt;
 	int i;
@@ -774,7 +774,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_evt_persist_ba
 		}
 	}
 
-	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto_base_msg));
+	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL){
 		goto error;
 	}
@@ -815,7 +815,7 @@ error:
 
 BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 {
-	struct mosquitto_base_msg *base_msg;
+	struct mosquitto__base_msg *base_msg;
 
 	base_msg = find_store_msg(store_id);
 	if(base_msg && base_msg->ref_count == 0){

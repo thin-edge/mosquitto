@@ -117,7 +117,7 @@ int persist__read_string(FILE *db_fptr, char **str)
 static int persist__client_msg_restore(struct P_client_msg *chunk)
 {
 	struct mosquitto_client_msg *cmsg;
-	struct mosquitto_base_msg *msg;
+	struct mosquitto__base_msg *msg;
 	struct mosquitto *context;
 	struct mosquitto_msg_data *msg_data;
 
@@ -252,7 +252,7 @@ static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 {
 	struct P_base_msg chunk;
-	struct mosquitto_base_msg *base_msg = NULL;
+	struct mosquitto__base_msg *base_msg = NULL;
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
 	int rc = 0;
@@ -289,7 +289,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		message_expiry_interval = 0;
 	}
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto_base_msg));
+	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		rc = MOSQ_ERR_NOMEM;
@@ -327,7 +327,7 @@ cleanup:
 
 static int persist__retain_chunk_restore(FILE *db_fptr)
 {
-	struct mosquitto_base_msg *msg;
+	struct mosquitto__base_msg *msg;
 	struct P_retain chunk;
 	int rc;
 	char **split_topics;
