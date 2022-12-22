@@ -284,11 +284,7 @@ struct mosquitto_evt_persist_subscription {
 };
 
 
-/* Data for the MOSQ_EVT_PERSIST_CLIENT_MSG_ADD/_DELETE/_UPDATE event */
-/* NOTE: The persistence interface is currently marked as unstable, which means
- * it may change in a future minor release. */
-struct mosquitto_evt_persist_client_msg {
-	void *future;
+struct mosquitto_client_msg {
 	const char *client_id;
 	uint64_t cmsg_id;
 	uint64_t store_id;
@@ -300,6 +296,15 @@ struct mosquitto_evt_persist_client_msg {
 	uint8_t direction;
 	uint8_t state; /* add, update */
 	uint8_t padding[5];
+	void *future2[8];
+};
+
+/* Data for the MOSQ_EVT_PERSIST_CLIENT_MSG_ADD/_DELETE/_UPDATE event */
+/* NOTE: The persistence interface is currently marked as unstable, which means
+ * it may change in a future minor release. */
+struct mosquitto_evt_persist_client_msg {
+	void *future;
+	struct mosquitto_client_msg data;
 	void *future2[8];
 };
 

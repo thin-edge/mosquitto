@@ -420,17 +420,10 @@ struct mosquitto__base_msg{
 };
 
 struct mosquitto__client_msg{
+	struct mosquitto_client_msg data;
 	struct mosquitto__client_msg *prev;
 	struct mosquitto__client_msg *next;
 	struct mosquitto__base_msg *base_msg;
-	uint64_t cmsg_id;
-	uint32_t subscription_identifier;
-	uint16_t mid;
-	uint8_t qos;
-	bool retain;
-	enum mosquitto_msg_direction direction;
-	enum mosquitto_msg_state state;
-	bool dup;
 };
 
 

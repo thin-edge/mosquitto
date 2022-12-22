@@ -183,14 +183,14 @@ void plugin_persist__handle_subscription_delete(struct mosquitto *context, char 
 }
 
 
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
+void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
 {
 	struct mosquitto_evt_persist_client_msg event_data;
 	struct mosquitto__callback *cb_base;
 	struct mosquitto__security_options *opts;
 
 	if(context->is_persisted == false
-			|| (cmsg->qos == 0 && db.config->queue_qos0_messages == false)
+			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
 		return;
@@ -199,15 +199,15 @@ void plugin_persist__handle_client_msg_add(struct mosquitto *context, const stru
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.client_id = context->id;
-	event_data.cmsg_id = cmsg->cmsg_id;
-	event_data.store_id = cmsg->base_msg->msg.store_id;
-	event_data.mid = cmsg->mid;
-	event_data.qos = cmsg->qos;
-	event_data.retain = cmsg->retain;
-	event_data.dup = cmsg->dup;
-	event_data.direction = (uint8_t)cmsg->direction;
-	event_data.state = (uint8_t)cmsg->state;
+	event_data.data.client_id = context->id;
+	event_data.data.cmsg_id = client_msg->data.cmsg_id;
+	event_data.data.store_id = client_msg->base_msg->msg.store_id;
+	event_data.data.mid = client_msg->data.mid;
+	event_data.data.qos = client_msg->data.qos;
+	event_data.data.retain = client_msg->data.retain;
+	event_data.data.dup = client_msg->data.dup;
+	event_data.data.direction = (uint8_t)client_msg->data.direction;
+	event_data.data.state = (uint8_t)client_msg->data.state;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_add, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_ADD, &event_data, cb_base->userdata);
@@ -215,14 +215,14 @@ void plugin_persist__handle_client_msg_add(struct mosquitto *context, const stru
 }
 
 
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
+void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
 {
 	struct mosquitto_evt_persist_client_msg event_data;
 	struct mosquitto__callback *cb_base;
 	struct mosquitto__security_options *opts;
 
 	if(context->is_persisted == false
-			|| (cmsg->qos == 0 && db.config->queue_qos0_messages == false)
+			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
 		return;
@@ -231,13 +231,13 @@ void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const s
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.client_id = context->id;
-	event_data.cmsg_id = cmsg->cmsg_id;
-	event_data.mid = cmsg->mid;
-	event_data.state = (uint8_t)cmsg->state;
-	event_data.qos = cmsg->qos;
-	event_data.store_id = cmsg->base_msg->msg.store_id;
-	event_data.direction = (uint8_t)cmsg->direction;
+	event_data.data.client_id = context->id;
+	event_data.data.cmsg_id = client_msg->data.cmsg_id;
+	event_data.data.mid = client_msg->data.mid;
+	event_data.data.state = (uint8_t)client_msg->data.state;
+	event_data.data.qos = client_msg->data.qos;
+	event_data.data.store_id = client_msg->base_msg->msg.store_id;
+	event_data.data.direction = (uint8_t)client_msg->data.direction;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE, &event_data, cb_base->userdata);
@@ -245,14 +245,14 @@ void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const s
 }
 
 
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
+void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *client_msg)
 {
 	struct mosquitto_evt_persist_client_msg event_data;
 	struct mosquitto__callback *cb_base;
 	struct mosquitto__security_options *opts;
 
 	if(context->is_persisted == false
-			|| (cmsg->qos == 0 && db.config->queue_qos0_messages == false)
+			|| (client_msg->data.qos == 0 && db.config->queue_qos0_messages == false)
 			|| db.shutdown){
 
 		return;
@@ -261,14 +261,14 @@ void plugin_persist__handle_client_msg_update(struct mosquitto *context, const s
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 
-	event_data.client_id = context->id;
-	event_data.cmsg_id = cmsg->cmsg_id;
-	event_data.mid = cmsg->mid;
-	event_data.store_id = cmsg->base_msg->msg.store_id;
-	event_data.state = (uint8_t)cmsg->state;
-	event_data.dup = cmsg->dup;
-	event_data.direction = (uint8_t)cmsg->direction;
-	event_data.qos = cmsg->qos;
+	event_data.data.client_id = context->id;
+	event_data.data.cmsg_id = client_msg->data.cmsg_id;
+	event_data.data.mid = client_msg->data.mid;
+	event_data.data.store_id = client_msg->base_msg->msg.store_id;
+	event_data.data.state = (uint8_t)client_msg->data.state;
+	event_data.data.dup = client_msg->data.dup;
+	event_data.data.direction = (uint8_t)client_msg->data.direction;
+	event_data.data.qos = client_msg->data.qos;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_msg_update, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE, &event_data, cb_base->userdata);

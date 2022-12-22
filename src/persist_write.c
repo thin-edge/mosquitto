@@ -62,14 +62,14 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 		}
 
 		chunk.F.store_id = cmsg->base_msg->msg.store_id;
-		chunk.F.mid = cmsg->mid;
+		chunk.F.mid = cmsg->data.mid;
 		chunk.F.id_len = (uint16_t)strlen(context->id);
-		chunk.F.qos = cmsg->qos;
-		chunk.F.retain_dup = (uint8_t)((cmsg->retain&0x0F)<<4 | (cmsg->dup&0x0F));
-		chunk.F.direction = (uint8_t)cmsg->direction;
-		chunk.F.state = (uint8_t)cmsg->state;
+		chunk.F.qos = cmsg->data.qos;
+		chunk.F.retain_dup = (uint8_t)((cmsg->data.retain&0x0F)<<4 | (cmsg->data.dup&0x0F));
+		chunk.F.direction = (uint8_t)cmsg->data.direction;
+		chunk.F.state = (uint8_t)cmsg->data.state;
 		chunk.client_id = context->id;
-		chunk.subscription_identifier = cmsg->subscription_identifier;
+		chunk.subscription_identifier = cmsg->data.subscription_identifier;
 
 		rc = persist__chunk_client_msg_write_v6(db_fptr, &chunk);
 		if(rc){

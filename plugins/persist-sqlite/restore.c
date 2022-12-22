@@ -273,7 +273,7 @@ static int subscription_restore(struct mosquitto_sqlite *ms)
 static int base_msg_restore(struct mosquitto_sqlite *ms)
 {
 	sqlite3_stmt *stmt;
-	struct mosquitto_base_msg msg;
+	struct mosquitto_base_msg base_msg;
 	int rc;
 	long count = 0, failed = 0;
 	const char *str;
@@ -290,39 +290,39 @@ static int base_msg_restore(struct mosquitto_sqlite *ms)
 	}
 
 	while(sqlite3_step(stmt) == SQLITE_ROW){
-		memset(&msg, 0, sizeof(msg));
-		msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 0);
-		msg.expiry_time = (time_t)sqlite3_column_int64(stmt, 1);
+		memset(&base_msg, 0, sizeof(base_msg));
+		base_msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 0);
+		base_msg.expiry_time = (time_t)sqlite3_column_int64(stmt, 1);
 		str = (const char *)sqlite3_column_text(stmt, 2);
 		if(str){
-			msg.topic = strdup(str);
-			if(!msg.topic){
+			base_msg.topic = strdup(str);
+			if(!base_msg.topic){
 				failed++;
 				continue;
 			}
 		}
-		msg.source_id = (char *)sqlite3_column_text(stmt, 4);
-		msg.source_username = (char *)sqlite3_column_text(stmt, 5);
+		base_msg.source_id = (char *)sqlite3_column_text(stmt, 4);
+		base_msg.source_username = (char *)sqlite3_column_text(stmt, 5);
 		payload = (const void *)sqlite3_column_blob(stmt, 3);
-		msg.payloadlen = (uint32_t)sqlite3_column_int(stmt, 6);
-		if(payload && msg.payloadlen){
-			msg.payload = malloc(msg.payloadlen+1);
-			if(!msg.payload){
-				free(msg.topic);
+		base_msg.payloadlen = (uint32_t)sqlite3_column_int(stmt, 6);
+		if(payload && base_msg.payloadlen){
+			base_msg.payload = malloc(base_msg.payloadlen+1);
+			if(!base_msg.payload){
+				free(base_msg.topic);
 				failed++;
 				continue;
 			}
-			memcpy(msg.payload, payload, msg.payloadlen);
-			((uint8_t *)msg.payload)[msg.payloadlen] = 0;
+			memcpy(base_msg.payload, payload, base_msg.payloadlen);
+			((uint8_t *)base_msg.payload)[base_msg.payloadlen] = 0;
 		}
 
-		msg.source_mid = (uint16_t)sqlite3_column_int(stmt, 7);
-		msg.source_port = (uint16_t)sqlite3_column_int(stmt, 8);
-		msg.qos = (uint8_t)sqlite3_column_int(stmt, 9);
-		msg.retain = sqlite3_column_int(stmt, 10);
-		msg.properties = json_to_properties((const char *)sqlite3_column_text(stmt, 11));
+		base_msg.source_mid = (uint16_t)sqlite3_column_int(stmt, 7);
+		base_msg.source_port = (uint16_t)sqlite3_column_int(stmt, 8);
+		base_msg.qos = (uint8_t)sqlite3_column_int(stmt, 9);
+		base_msg.retain = sqlite3_column_int(stmt, 10);
+		base_msg.properties = json_to_properties((const char *)sqlite3_column_text(stmt, 11));
 
-		rc = mosquitto_persist_base_msg_add(&msg);
+		rc = mosquitto_persist_base_msg_add(&base_msg);
 		if(rc == MOSQ_ERR_SUCCESS){
 			count++;
 		}else{
@@ -339,7 +339,7 @@ static int base_msg_restore(struct mosquitto_sqlite *ms)
 static int client_msg_restore(struct mosquitto_sqlite *ms)
 {
 	sqlite3_stmt *stmt;
-	struct mosquitto_evt_persist_client_msg msg;
+	struct mosquitto_evt_persist_client_msg client_msg;
 	int rc;
 	long count = 0, failed = 0;
 
@@ -353,20 +353,20 @@ static int client_msg_restore(struct mosquitto_sqlite *ms)
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	memset(&msg, 0, sizeof(msg));
+	memset(&client_msg, 0, sizeof(client_msg));
 	while(sqlite3_step(stmt) == SQLITE_ROW){
-		msg.client_id = (const char *)sqlite3_column_text(stmt, 0);
-		msg.cmsg_id = (uint64_t)sqlite3_column_int64(stmt, 1);
-		msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 2);
-		msg.dup = sqlite3_column_int(stmt, 3);
-		msg.direction = (uint8_t)sqlite3_column_int(stmt, 4);
-		msg.mid = (uint16_t)sqlite3_column_int(stmt, 5);
-		msg.qos = (uint8_t)sqlite3_column_int(stmt, 6);
-		msg.retain = sqlite3_column_int(stmt, 7);
-		msg.state = (uint8_t)sqlite3_column_int(stmt, 8);
-		msg.subscription_identifier = (uint32_t)sqlite3_column_int(stmt, 9);
+		client_msg.data.client_id = (const char *)sqlite3_column_text(stmt, 0);
+		client_msg.data.cmsg_id = (uint64_t)sqlite3_column_int64(stmt, 1);
+		client_msg.data.store_id = (uint64_t)sqlite3_column_int64(stmt, 2);
+		client_msg.data.dup = sqlite3_column_int(stmt, 3);
+		client_msg.data.direction = (uint8_t)sqlite3_column_int(stmt, 4);
+		client_msg.data.mid = (uint16_t)sqlite3_column_int(stmt, 5);
+		client_msg.data.qos = (uint8_t)sqlite3_column_int(stmt, 6);
+		client_msg.data.retain = sqlite3_column_int(stmt, 7);
+		client_msg.data.state = (uint8_t)sqlite3_column_int(stmt, 8);
+		client_msg.data.subscription_identifier = (uint32_t)sqlite3_column_int(stmt, 9);
 
-		rc = mosquitto_persist_client_msg_add(&msg);
+		rc = mosquitto_persist_client_msg_add(&client_msg);
 		if(rc == MOSQ_ERR_SUCCESS){
 			count++;
 		}else{

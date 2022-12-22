@@ -85,22 +85,24 @@ static char *client_id_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t
  * assuming a possible change of username. */
 static void connection_check_acl(struct mosquitto *context, struct mosquitto__client_msg **head)
 {
-	struct mosquitto__client_msg *msg_tail, *tmp;
+	struct mosquitto__client_msg *client_msg, *tmp;
+	struct mosquitto__base_msg *base_msg;
 	int access;
 
-	DL_FOREACH_SAFE((*head), msg_tail, tmp){
-		if(msg_tail->direction == mosq_md_out){
+	DL_FOREACH_SAFE((*head), client_msg, tmp){
+		base_msg = client_msg->base_msg;
+		if(client_msg->data.direction == mosq_md_out){
 			access = MOSQ_ACL_READ;
 		}else{
 			access = MOSQ_ACL_WRITE;
 		}
-		if(mosquitto_acl_check(context, msg_tail->base_msg->msg.topic,
-							   msg_tail->base_msg->msg.payloadlen, msg_tail->base_msg->msg.payload,
-							   msg_tail->base_msg->msg.qos, msg_tail->base_msg->msg.retain, access) != MOSQ_ERR_SUCCESS){
+		if(mosquitto_acl_check(context, base_msg->msg.topic,
+							   base_msg->msg.payloadlen, base_msg->msg.payload,
+							   base_msg->msg.qos, base_msg->msg.retain, access) != MOSQ_ERR_SUCCESS){
 
-			DL_DELETE((*head), msg_tail);
-			db__msg_store_ref_dec(&msg_tail->base_msg);
-			mosquitto__FREE(msg_tail);
+			DL_DELETE((*head), client_msg);
+			db__msg_store_ref_dec(&client_msg->base_msg);
+			mosquitto__FREE(client_msg);
 		}
 	}
 }

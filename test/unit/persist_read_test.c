@@ -299,13 +299,13 @@ static void TEST_v3_client_message(void)
 					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->msg.payload, "payload", 7);
 				}
 			}
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->mid, 0x73);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->qos, 1);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->retain, 0);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->direction, mosq_md_out);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->state, mosq_ms_wait_for_puback);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->dup, 0);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->subscription_identifier, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.mid, 0x73);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.qos, 1);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.retain, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.direction, mosq_md_out);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.state, mosq_ms_wait_for_puback);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.dup, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.subscription_identifier, 0);
 		}
 	}
 }
@@ -674,13 +674,13 @@ static void TEST_v6_client_message(void)
 					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->msg.payload, "payload", 7);
 				}
 			}
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->mid, 0x73);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->qos, 1);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->retain, 0);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->direction, mosq_md_out);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->state, mosq_ms_wait_for_puback);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->dup, 0);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->subscription_identifier, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.mid, 0x73);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.qos, 1);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.retain, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.direction, mosq_md_out);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.state, mosq_ms_wait_for_puback);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.dup, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.subscription_identifier, 0);
 		}
 	}
 }
@@ -723,13 +723,13 @@ static void TEST_v6_client_message_props(void)
 					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->msg.payload, "payload", 7);
 				}
 			}
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->mid, 0x73);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->qos, 1);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->retain, 0);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->direction, mosq_md_out);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->state, mosq_ms_wait_for_puback);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->dup, 0);
-			CU_ASSERT_EQUAL(context->msgs_out.inflight->subscription_identifier, 1);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.mid, 0x73);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.qos, 1);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.retain, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.direction, mosq_md_out);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.state, mosq_ms_wait_for_puback);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.dup, 0);
+			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.subscription_identifier, 1);
 		}
 	}
 }

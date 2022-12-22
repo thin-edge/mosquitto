@@ -141,19 +141,19 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 
 	cmsg->next = NULL;
 	cmsg->base_msg = NULL;
-	cmsg->cmsg_id = ++context->last_cmsg_id;
-	cmsg->mid = chunk->F.mid;
-	cmsg->qos = chunk->F.qos;
-	cmsg->retain = (chunk->F.retain_dup&0xF0)>>4;
-	cmsg->direction = chunk->F.direction;
-	cmsg->state = chunk->F.state;
-	cmsg->dup = chunk->F.retain_dup&0x0F;
-	cmsg->subscription_identifier = chunk->subscription_identifier;
+	cmsg->data.cmsg_id = ++context->last_cmsg_id;
+	cmsg->data.mid = chunk->F.mid;
+	cmsg->data.qos = chunk->F.qos;
+	cmsg->data.retain = (chunk->F.retain_dup&0xF0)>>4;
+	cmsg->data.direction = chunk->F.direction;
+	cmsg->data.state = chunk->F.state;
+	cmsg->data.dup = chunk->F.retain_dup&0x0F;
+	cmsg->data.subscription_identifier = chunk->subscription_identifier;
 
 	cmsg->base_msg = msg;
 	db__msg_store_ref_inc(cmsg->base_msg);
 
-	if(cmsg->direction == mosq_md_out){
+	if(cmsg->data.direction == mosq_md_out){
 		msg_data = &context->msgs_out;
 	}else{
 		msg_data = &context->msgs_in;
