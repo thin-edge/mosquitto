@@ -44,7 +44,7 @@ void db__msg_store_free(struct mosquitto__base_msg *store)
 	mosquitto__free(store);
 }
 
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *stored, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin)
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *stored, uint32_t message_expiry_interval, enum mosquitto_msg_origin origin)
 {
     int rc = MOSQ_ERR_SUCCESS;
 
@@ -81,10 +81,8 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
     db.msg_store_count++;
     db.msg_store_bytes += stored->msg.payloadlen;
 
-    if(!store_id){
+    if(!stored->msg.store_id){
         stored->msg.store_id = ++db.last_db_id;
-    }else{
-        stored->msg.store_id = store_id;
     }
 
 	HASH_ADD(hh, db.msg_store, msg.store_id, sizeof(stored->msg.store_id), stored);

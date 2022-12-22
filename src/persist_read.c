@@ -296,6 +296,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		goto cleanup;
 	}
 
+	base_msg->msg.store_id = chunk.F.store_id;
 	base_msg->msg.source_mid = chunk.F.source_mid;
 	base_msg->msg.topic = chunk.topic;
 	base_msg->msg.qos = chunk.F.qos;
@@ -306,7 +307,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	base_msg->source_listener = chunk.source.listener;
 
 	rc = db__message_store(&chunk.source, base_msg, message_expiry_interval,
-			chunk.F.store_id, mosq_mo_client);
+			mosq_mo_client);
 
 	mosquitto__FREE(chunk.source.id);
 	mosquitto__FREE(chunk.source.username);

@@ -801,7 +801,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	}
 
 	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, message_expiry_interval, base_msg->msg.store_id, mosq_mo_broker);
+	rc = db__message_store(&context, base_msg, message_expiry_interval, mosq_mo_broker);
 	return rc;
 
 error:

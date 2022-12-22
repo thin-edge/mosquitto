@@ -727,7 +727,7 @@ int db__messages_delete(struct mosquitto *context, bool force_free);
 int db__messages_delete_incoming(struct mosquitto *context);
 int db__messages_delete_outgoing(struct mosquitto *context);
 int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_t qos, uint32_t payloadlen, const void *payload, int retain, uint32_t message_expiry_interval, mosquitto_property **properties);
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin);
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, enum mosquitto_msg_origin origin);
 int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__base_msg **base_msg);
 int db__msg_store_add(struct mosquitto__base_msg *base_msg);
 void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify);

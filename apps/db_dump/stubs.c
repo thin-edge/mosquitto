@@ -14,7 +14,7 @@ struct mosquitto *context__init(void) { return NULL; }
 
 void context__add_to_by_id(struct mosquitto *context) { UNUSED(context); }
 
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, dbid_t store_id, enum mosquitto_msg_origin origin) { UNUSED(source); UNUSED(base_msg); UNUSED(message_expiry_interval); UNUSED(store_id); UNUSED(origin); return 0; }
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, enum mosquitto_msg_origin origin) { UNUSED(source); UNUSED(base_msg); UNUSED(message_expiry_interval); UNUSED(origin); return 0; }
 
 void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg) { UNUSED(base_msg); }
 

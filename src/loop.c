@@ -91,7 +91,7 @@ static int single_publish(struct mosquitto *context, struct mosquitto__message_v
 		pub_msg->properties = NULL;
 	}
 
-	if(db__message_store(context, base_msg, message_expiry, 0, mosq_mo_broker)) return 1;
+	if(db__message_store(context, base_msg, message_expiry, mosq_mo_broker)) return 1;
 
 	if(pub_msg->qos){
 		mid = mosquitto__mid_generate(context);

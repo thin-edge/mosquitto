@@ -267,6 +267,7 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 		mosquitto__free(chunk.payload);
 		return MOSQ_ERR_NOMEM;
 	}
+	stored->msg.store_id = chunk.F.store_id;
 	stored->msg.source_mid = chunk.F.source_mid;
 	stored->msg.topic = chunk.topic;
 	stored->msg.qos = chunk.F.qos;
@@ -276,7 +277,7 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 	stored->msg.properties = chunk.properties;
 
 	rc = db__message_store(&chunk.source, stored, message_expiry_interval,
-			chunk.F.store_id, mosq_mo_client);
+			mosq_mo_client);
 
 	mosquitto__free(chunk.source.id);
 	mosquitto__free(chunk.source.username);
