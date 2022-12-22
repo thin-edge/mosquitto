@@ -38,10 +38,10 @@ Contributors:
 #include "misc_mosq.h"
 #include "util_mosq.h"
 
-static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto_client_msg *queue)
+static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto__client_msg *queue)
 {
 	struct P_client_msg chunk;
-	struct mosquitto_client_msg *cmsg;
+	struct mosquitto__client_msg *cmsg;
 	int rc;
 
 	assert(db_fptr);

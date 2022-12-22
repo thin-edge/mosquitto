@@ -116,7 +116,7 @@ int persist__read_string(FILE *db_fptr, char **str)
 
 static int persist__client_msg_restore(struct P_client_msg *chunk)
 {
-	struct mosquitto_client_msg *cmsg;
+	struct mosquitto__client_msg *cmsg;
 	struct mosquitto__base_msg *msg;
 	struct mosquitto *context;
 	struct mosquitto_msg_data *msg_data;
@@ -133,7 +133,7 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 		return 0;
 	}
 
-	cmsg = mosquitto__calloc(1, sizeof(struct mosquitto_client_msg));
+	cmsg = mosquitto__calloc(1, sizeof(struct mosquitto__client_msg));
 	if(!cmsg){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;

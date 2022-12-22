@@ -201,13 +201,13 @@ void callback__on_disconnect(struct mosquitto *mosq, int rc, const mosquitto_pro
 	UNUSED(props);
 }
 
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg)
+void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg)
 {
 	UNUSED(msg_data);
 	UNUSED(msg);
 }
 
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg)
+void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg)
 {
 	UNUSED(msg_data);
 	UNUSED(msg);

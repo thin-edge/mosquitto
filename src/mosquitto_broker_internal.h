@@ -419,9 +419,9 @@ struct mosquitto__base_msg{
 	bool stored;
 };
 
-struct mosquitto_client_msg{
-	struct mosquitto_client_msg *prev;
-	struct mosquitto_client_msg *next;
+struct mosquitto__client_msg{
+	struct mosquitto__client_msg *prev;
+	struct mosquitto__client_msg *next;
 	struct mosquitto__base_msg *base_msg;
 	uint64_t cmsg_id;
 	uint32_t subscription_identifier;
@@ -745,8 +745,8 @@ int db__message_write_inflight_out_all(struct mosquitto *context);
 int db__message_write_inflight_out_latest(struct mosquitto *context);
 int db__message_write_queued_out(struct mosquitto *context);
 int db__message_write_queued_in(struct mosquitto *context);
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg);
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg);
+void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
+void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg);
 uint64_t db__new_msg_id(void);
 void db__expire_all_messages(struct mosquitto *context);
 
@@ -869,9 +869,9 @@ void plugin_persist__handle_client_delete(struct mosquitto *context);
 void plugin_persist__handle_client_update(struct mosquitto *context);
 void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
 void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
+void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
+void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
+void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg);
 void plugin_persist__handle_base_msg_add(struct mosquitto__base_msg *base_msg);
 void plugin_persist__handle_base_msg_delete(struct mosquitto__base_msg *base_msg);
 void plugin_persist__handle_retain_msg_set(struct mosquitto__base_msg *base_msg);

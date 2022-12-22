@@ -183,7 +183,7 @@ void plugin_persist__handle_subscription_delete(struct mosquitto *context, char 
 }
 
 
-void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto_client_msg *cmsg)
+void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
 {
 	struct mosquitto_evt_persist_client_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -215,7 +215,7 @@ void plugin_persist__handle_client_msg_add(struct mosquitto *context, const stru
 }
 
 
-void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto_client_msg *cmsg)
+void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
 {
 	struct mosquitto_evt_persist_client_msg event_data;
 	struct mosquitto__callback *cb_base;
@@ -245,7 +245,7 @@ void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const s
 }
 
 
-void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto_client_msg *cmsg)
+void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
 {
 	struct mosquitto_evt_persist_client_msg event_data;
 	struct mosquitto__callback *cb_base;

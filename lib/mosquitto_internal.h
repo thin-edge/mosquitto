@@ -67,7 +67,7 @@ Contributors:
 #    include <netdb.h>
 #  endif
 #  include "uthash.h"
-struct mosquitto_client_msg;
+struct mosquitto__client_msg;
 #endif
 
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
@@ -214,8 +214,8 @@ struct will_delay_list {
 
 struct mosquitto_msg_data{
 #ifdef WITH_BROKER
-	struct mosquitto_client_msg *inflight;
-	struct mosquitto_client_msg *queued;
+	struct mosquitto__client_msg *inflight;
+	struct mosquitto__client_msg *queued;
 	long inflight_bytes;
 	long inflight_bytes12;
 	int inflight_count;

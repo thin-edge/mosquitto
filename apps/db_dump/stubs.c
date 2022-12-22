@@ -26,8 +26,8 @@ int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char 
 
 int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub) { UNUSED(context); UNUSED(sub); return 0; }
 
-void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg) { UNUSED(msg_data); UNUSED(msg); }
+void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg) { UNUSED(msg_data); UNUSED(msg); }
 
-void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg) { UNUSED(msg_data); UNUSED(msg); }
+void db__msg_add_to_queued_stats(struct mosquitto_msg_data *msg_data, struct mosquitto__client_msg *msg) { UNUSED(msg_data); UNUSED(msg); }
 
 int session_expiry__add_from_persistence(struct mosquitto *context, time_t expiry_time) { UNUSED(context); UNUSED(expiry_time); return 0; }
