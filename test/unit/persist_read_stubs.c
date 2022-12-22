@@ -148,14 +148,13 @@ int acl__find_acls(struct mosquitto *context)
 }
 
 
-int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options)
+int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	UNUSED(context);
-	UNUSED(options);
 
-	last_sub = strdup(sub);
-	last_qos = qos;
-	last_identifier = identifier;
+	last_sub = strdup(sub->topic);
+	last_qos = sub->options & 0x03;
+	last_identifier = sub->identifier;
 
 	return MOSQ_ERR_SUCCESS;
 }

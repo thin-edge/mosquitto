@@ -753,7 +753,7 @@ void db__expire_all_messages(struct mosquitto *context);
 /* ============================================================
  * Subscription functions
  * ============================================================ */
-int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options);
+int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub);
 struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent, struct mosquitto__subhier **sibling, const char *topic, uint16_t len);
 int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason);
 void sub__tree_print(struct mosquitto__subhier *root, int level);
@@ -858,8 +858,8 @@ int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int
 void plugin__handle_connect(struct mosquitto *context);
 void plugin__handle_disconnect(struct mosquitto *context, int reason);
 int plugin__handle_message(struct mosquitto *context, struct mosquitto__base_msg *base_msg);
-int plugin__handle_subscribe(struct mosquitto *context, const char *topic, uint8_t qos, uint8_t subscription_options, uint32_t subscription_identifier, const mosquitto_property *properties);
-int plugin__handle_unsubscribe(struct mosquitto *context, const char *topic, const mosquitto_property *properties);
+int plugin__handle_subscribe(struct mosquitto *context, const struct mosquitto_subscription *sub);
+int plugin__handle_unsubscribe(struct mosquitto *context, const struct mosquitto_subscription *sub);
 void LIB_ERROR(void);
 void plugin__handle_tick(void);
 int plugin__callback_unregister_all(mosquitto_plugin_id_t *identifier);
@@ -867,8 +867,8 @@ void plugin_persist__handle_restore(void);
 void plugin_persist__handle_client_add(struct mosquitto *context);
 void plugin_persist__handle_client_delete(struct mosquitto *context);
 void plugin_persist__handle_client_update(struct mosquitto *context);
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const char *sub, uint8_t subscription_options, uint32_t subscription_identifier);
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, const char *sub);
+void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub);
+void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub);
 void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
 void plugin_persist__handle_client_msg_delete(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
 void plugin_persist__handle_client_msg_update(struct mosquitto *context, const struct mosquitto_client_msg *cmsg);
@@ -899,7 +899,7 @@ int property__process_disconnect(struct mosquitto *context, mosquitto_property *
  * ============================================================ */
 int retain__init(void);
 void retain__clean(struct mosquitto__retainhier **retainhier);
-int retain__queue(struct mosquitto *context, const char *sub, uint8_t sub_qos, uint32_t subscription_identifier);
+int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub);
 int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist);
 
 /* ============================================================

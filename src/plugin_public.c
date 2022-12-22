@@ -708,18 +708,18 @@ BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persis
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_add(const char *client_id, const char *topic, uint8_t subscription_options, uint32_t subscription_identifier)
+BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub)
 {
 	struct mosquitto *context;
 
-	if(client_id == NULL || topic == NULL || client_id[0] == '\0' || topic[0] == '\0'){
+	if(sub == NULL || sub->client_id == NULL || sub->topic == NULL || sub->client_id[0] == '\0' || sub->topic[0] == '\0'){
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_id, strlen(client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, sub->client_id, strlen(sub->client_id), context);
 
 	if(context){
-		return sub__add(context, topic, subscription_options&0x03, subscription_identifier, subscription_options);
+		return sub__add(context, sub);
 	}else{
 		return MOSQ_ERR_NOT_FOUND;
 	}

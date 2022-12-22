@@ -24,7 +24,7 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read) {
 
 int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist) { UNUSED(topic); UNUSED(base_msg); UNUSED(split_topics); UNUSED(persist); return 0; }
 
-int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options) { UNUSED(context); UNUSED(sub); UNUSED(qos); UNUSED(identifier); UNUSED(options); return 0; }
+int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub) { UNUSED(context); UNUSED(sub); return 0; }
 
 void db__msg_add_to_inflight_stats(struct mosquitto_msg_data *msg_data, struct mosquitto_client_msg *msg) { UNUSED(msg_data); UNUSED(msg); }
 

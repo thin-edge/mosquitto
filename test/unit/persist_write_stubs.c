@@ -225,7 +225,7 @@ void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, const char *sub)
+void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub)
 {
 	UNUSED(context);
 	UNUSED(sub);

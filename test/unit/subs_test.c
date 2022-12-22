@@ -35,13 +35,15 @@ static void TEST_sub_add_single(void)
 	struct mosquitto__config config;
 	struct mosquitto__listener listener;
 	struct mosquitto context;
-	struct mosquitto__subhier *sub;
+	struct mosquitto__subhier *subhier;
+	struct mosquitto_subscription sub;
 	int rc;
 
 	memset(&db, 0, sizeof(struct mosquitto_db));
 	memset(&config, 0, sizeof(struct mosquitto__config));
 	memset(&listener, 0, sizeof(struct mosquitto__listener));
 	memset(&context, 0, sizeof(struct mosquitto));
+	memset(&sub, 0, sizeof(sub));
 
 	context.id = "client";
 
@@ -52,20 +54,21 @@ static void TEST_sub_add_single(void)
 
 	db__open(&config);
 
-	rc = sub__add(&context, "a/b/c/d/e", 0, 0, 0);
+	sub.topic = "a/b/c/d/e";
+	rc = sub__add(&context, &sub);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	CU_ASSERT_PTR_NOT_NULL(db.subs);
 	if(db.subs){
-		sub = db.subs;
+		subhier = db.subs;
 
-		hier_quick_check(&sub, NULL, "");
-		hier_quick_check(&sub, NULL, "");
-		hier_quick_check(&sub, NULL, "a");
-		hier_quick_check(&sub, NULL, "b");
-		hier_quick_check(&sub, NULL, "c");
-		hier_quick_check(&sub, NULL, "d");
-		hier_quick_check(&sub, &context, "e");
-		CU_ASSERT_PTR_NULL(sub);
+		hier_quick_check(&subhier, NULL, "");
+		hier_quick_check(&subhier, NULL, "");
+		hier_quick_check(&subhier, NULL, "a");
+		hier_quick_check(&subhier, NULL, "b");
+		hier_quick_check(&subhier, NULL, "c");
+		hier_quick_check(&subhier, NULL, "d");
+		hier_quick_check(&subhier, &context, "e");
+		CU_ASSERT_PTR_NULL(subhier);
 	}
 	mosquitto__free(context.subs);
 	db__close();

@@ -234,11 +234,8 @@ static int client_restore(struct mosquitto_sqlite *ms)
 static int subscription_restore(struct mosquitto_sqlite *ms)
 {
 	sqlite3_stmt *stmt;
-	uint8_t subscription_options;
-	uint32_t subscription_identifier;
+	struct mosquitto_subscription sub;
 	int rc;
-	const char *client_id;
-	const char *topic;
 	long count = 0, failed = 0;
 
 	rc = sqlite3_prepare_v2(ms->db,
@@ -252,12 +249,13 @@ static int subscription_restore(struct mosquitto_sqlite *ms)
 	}
 
 	while(sqlite3_step(stmt) == SQLITE_ROW){
-		client_id = (const char *)sqlite3_column_text(stmt, 0);
-		topic = (const char *)sqlite3_column_text(stmt, 1);
-		subscription_options = (uint8_t)sqlite3_column_int(stmt, 2);
-		subscription_identifier = (uint32_t)sqlite3_column_int(stmt, 3);
+		memset(&sub, 0, sizeof(sub));
+		sub.client_id = (char *)sqlite3_column_text(stmt, 0);
+		sub.topic = (char *)sqlite3_column_text(stmt, 1);
+		sub.options = (uint8_t)sqlite3_column_int(stmt, 2);
+		sub.identifier = (uint32_t)sqlite3_column_int(stmt, 3);
 
-		rc = mosquitto_subscription_add(client_id, topic, subscription_options, subscription_identifier);
+		rc = mosquitto_subscription_add(&sub);
 		if(rc == MOSQ_ERR_SUCCESS){
 			count++;
 		}else{

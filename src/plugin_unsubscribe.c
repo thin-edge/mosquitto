@@ -24,7 +24,7 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, const mosquitto_property *properties)
+static int plugin__handle_unsubscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_unsubscribe event_data;
 	struct mosquitto__callback *cb_base;
@@ -32,8 +32,8 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
-	event_data.topic = topic;
-	event_data.properties = properties;
+	event_data.topic = sub->topic;
+	event_data.properties = sub->properties;
 
 	DL_FOREACH(opts->plugin_callbacks.unsubscribe, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
@@ -46,18 +46,18 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 }
 
 
-int plugin__handle_unsubscribe(struct mosquitto *context, const char *topic, const mosquitto_property *properties)
+int plugin__handle_unsubscribe(struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_unsubscribe_single(&db.config->security_options,
-			context, topic, properties);
+			context, sub);
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
 		rc = plugin__handle_unsubscribe_single(context->listener->security_options,
-				context, topic, properties);
+				context, sub);
 	}
 
 	return rc;

@@ -150,7 +150,7 @@ static int subs__process(struct mosquitto__subhier *hier, const char *source_id,
 }
 
 
-static int sub__add_leaf(struct mosquitto *context, const char *topic_filter, uint8_t qos, uint32_t identifier, int options, struct mosquitto__subleaf **head, struct mosquitto__subleaf **newleaf)
+static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subleaf **head, struct mosquitto__subleaf **newleaf)
 {
 	struct mosquitto__subleaf *leaf;
 
@@ -162,22 +162,22 @@ static int sub__add_leaf(struct mosquitto *context, const char *topic_filter, ui
 			/* Client making a second subscription to same topic. Only
 			 * need to update QoS. Return MOSQ_ERR_SUB_EXISTS to
 			 * indicate this to the calling function. */
-			leaf->qos = qos;
-			leaf->identifier = identifier;
-			leaf->no_local = ((options & MQTT_SUB_OPT_NO_LOCAL) != 0);
-			leaf->retain_as_published = ((options & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED) != 0);
+			leaf->qos = sub->options & 0x03;
+			leaf->identifier = sub->identifier;
+			leaf->no_local = ((sub->options & MQTT_SUB_OPT_NO_LOCAL) != 0);
+			leaf->retain_as_published = ((sub->options & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED) != 0);
 			return MOSQ_ERR_SUB_EXISTS;
 		}
 		leaf = leaf->next;
 	}
-	leaf = mosquitto__calloc(1, sizeof(struct mosquitto__subleaf) + strlen(topic_filter) + 1);
+	leaf = mosquitto__calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic) + 1);
 	if(!leaf) return MOSQ_ERR_NOMEM;
 	leaf->context = context;
-	leaf->qos = qos;
-	leaf->identifier = identifier;
-	leaf->no_local = ((options & MQTT_SUB_OPT_NO_LOCAL) != 0);
-	leaf->retain_as_published = ((options & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED) != 0);
-	strcpy(leaf->topic_filter, topic_filter);
+	leaf->qos = sub->options & 0x03;
+	leaf->identifier = sub->identifier;
+	leaf->no_local = ((sub->options & MQTT_SUB_OPT_NO_LOCAL) != 0);
+	leaf->retain_as_published = ((sub->options & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED) != 0);
+	strcpy(leaf->topic_filter, sub->topic);
 
 	DL_APPEND(*head, leaf);
 	*newleaf = leaf;
@@ -196,7 +196,7 @@ static void sub__remove_shared_leaf(struct mosquitto__subhier *subhier, struct m
 }
 
 
-static int sub__add_shared(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options, struct mosquitto__subhier *subhier, const char *sharename)
+static int sub__add_shared(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, const char *sharename)
 {
 	struct mosquitto__subleaf *newleaf;
 	struct mosquitto__subshared *shared = NULL;
@@ -218,7 +218,7 @@ static int sub__add_shared(struct mosquitto *context, const char *sub, uint8_t q
 		HASH_ADD(hh, subhier->shared, name, slen, shared);
 	}
 
-	rc = sub__add_leaf(context, sub, qos, identifier, options, &shared->subs, &newleaf);
+	rc = sub__add_leaf(context, sub, &shared->subs, &newleaf);
 	if(rc > 0){
 		if(shared->subs == NULL){
 			HASH_DELETE(hh, subhier->shared, shared);
@@ -267,14 +267,14 @@ static int sub__add_shared(struct mosquitto *context, const char *sub, uint8_t q
 }
 
 
-static int sub__add_normal(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options, struct mosquitto__subhier *subhier)
+static int sub__add_normal(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier)
 {
 	struct mosquitto__subleaf *newleaf = NULL;
 	struct mosquitto__subleaf **subs;
 	int i;
 	int rc;
 
-	rc = sub__add_leaf(context, sub, qos, identifier, options, &subhier->subs, &newleaf);
+	rc = sub__add_leaf(context, sub, &subhier->subs, &newleaf);
 	if(rc > 0){
 		return rc;
 	}
@@ -319,7 +319,7 @@ static int sub__add_normal(struct mosquitto *context, const char *sub, uint8_t q
 }
 
 
-static int sub__add_context(struct mosquitto *context, const char *topic_filter, uint8_t qos, uint32_t identifier, int options, struct mosquitto__subhier *subhier, char *const *const topics, const char *sharename)
+static int sub__add_context(struct mosquitto *context, const struct mosquitto_subscription *sub, struct mosquitto__subhier *subhier, char *const *const topics, const char *sharename)
 {
 	struct mosquitto__subhier *branch;
 	int topic_index = 0;
@@ -344,9 +344,9 @@ static int sub__add_context(struct mosquitto *context, const char *topic_filter,
 	/* Add add our context */
 	if(context && context->id){
 		if(sharename){
-			return sub__add_shared(context, topic_filter, qos, identifier, options, subhier, sharename);
+			return sub__add_shared(context, sub, subhier, sharename);
 		}else{
-			return sub__add_normal(context, topic_filter, qos, identifier, options, subhier);
+			return sub__add_normal(context, sub, subhier);
 		}
 	}else{
 		return MOSQ_ERR_SUCCESS;
@@ -549,7 +549,7 @@ struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent
 }
 
 
-int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t identifier, int options)
+int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	int rc = 0;
 	struct mosquitto__subhier *subhier;
@@ -559,8 +559,9 @@ int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t i
 	size_t topiclen;
 
 	assert(sub);
+	assert(sub->topic);
 
-	rc = sub__topic_tokenise(sub, &local_sub, &topics, &sharename);
+	rc = sub__topic_tokenise(sub->topic, &local_sub, &topics, &sharename);
 	if(rc) return rc;
 
 	topiclen = strlen(topics[0]);
@@ -580,7 +581,7 @@ int sub__add(struct mosquitto *context, const char *sub, uint8_t qos, uint32_t i
 		}
 
 	}
-	rc = sub__add_context(context, sub, qos, identifier, options, subhier, topics, sharename);
+	rc = sub__add_context(context, sub, subhier, topics, sharename);
 
 	mosquitto__FREE(local_sub);
 	mosquitto__FREE(topics);

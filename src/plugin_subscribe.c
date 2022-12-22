@@ -24,7 +24,7 @@ Contributors:
 #include "utlist.h"
 
 
-static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, const char *topic, uint8_t qos, uint8_t subscription_options, uint32_t subscription_identifier, const mosquitto_property *properties)
+static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_subscribe event_data;
 	struct mosquitto__callback *cb_base;
@@ -32,11 +32,11 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
-	event_data.topic = topic;
-	event_data.qos = qos;
-	event_data.subscription_options = subscription_options;
-	event_data.subscription_identifier = subscription_identifier;
-	event_data.properties = properties;
+	event_data.topic = sub->topic;
+	event_data.qos = sub->options & 0x03;
+	event_data.subscription_options = sub->options;
+	event_data.subscription_identifier = sub->identifier;
+	event_data.properties = sub->properties;
 
 	DL_FOREACH(opts->plugin_callbacks.subscribe, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
@@ -49,18 +49,18 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 }
 
 
-int plugin__handle_subscribe(struct mosquitto *context, const char *topic, uint8_t qos, uint8_t subscription_options, uint32_t subscription_identifier, const mosquitto_property *properties)
+int plugin__handle_subscribe(struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
 	/* Global plugins */
 	rc = plugin__handle_subscribe_single(&db.config->security_options,
-			context, topic, qos, subscription_options, subscription_identifier, properties);
+			context, sub);
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
 		rc = plugin__handle_subscribe_single(context->listener->security_options,
-				context, topic, qos, subscription_options, subscription_identifier, properties);
+				context, sub);
 	}
 
 	return rc;

@@ -48,7 +48,7 @@ static long client_count = 0;
 static long subscription_count = 0;
 static long client_msg_count = 0;
 
-static int persist__restore_sub(const char *client_id, const char *sub, uint8_t qos, uint32_t identifier, int options);
+static int persist__restore_sub(const struct mosquitto_subscription *sub);
 
 static struct mosquitto *persist__find_or_add_context(const char *client_id, uint16_t last_mid)
 {
@@ -362,6 +362,7 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 {
 	struct P_sub chunk;
 	int rc;
+	struct mosquitto_subscription sub;
 
 	memset(&chunk, 0, sizeof(struct P_sub));
 
@@ -374,7 +375,11 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 		return rc;
 	}
 
-	rc = persist__restore_sub(chunk.client_id, chunk.topic, chunk.F.qos, chunk.F.identifier, chunk.F.options);
+	sub.client_id = chunk.client_id;
+	sub.topic = chunk.topic;
+	sub.options = chunk.F.qos | chunk.F.options;
+	sub.identifier = chunk.F.identifier;
+	rc = persist__restore_sub(&sub);
 
 	mosquitto__FREE(chunk.client_id);
 	mosquitto__FREE(chunk.topic);
@@ -537,16 +542,17 @@ error:
 	return 1;
 }
 
-static int persist__restore_sub(const char *client_id, const char *sub, uint8_t qos, uint32_t identifier, int options)
+static int persist__restore_sub(const struct mosquitto_subscription *sub)
 {
 	struct mosquitto *context;
 
-	assert(client_id);
 	assert(sub);
+	assert(sub->client_id);
+	assert(sub->topic);
 
-	context = persist__find_or_add_context(client_id, 0);
+	context = persist__find_or_add_context(sub->client_id, 0);
 	if(!context) return 1;
-	return sub__add(context, sub, qos, identifier, options);
+	return sub__add(context, sub);
 }
 
 #endif

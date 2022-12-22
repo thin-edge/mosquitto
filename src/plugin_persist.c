@@ -142,7 +142,7 @@ void plugin_persist__handle_client_delete(struct mosquitto *context)
 }
 
 
-void plugin_persist__handle_subscription_add(struct mosquitto *context, const char *sub, uint8_t subscription_options, uint32_t subscription_identifier)
+void plugin_persist__handle_subscription_add(struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_persist_subscription event_data;
 	struct mosquitto__callback *cb_base;
@@ -152,10 +152,10 @@ void plugin_persist__handle_subscription_add(struct mosquitto *context, const ch
 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
-	event_data.client_id = context->id;
-	event_data.topic = sub;
-	event_data.subscription_identifier = subscription_identifier;
-	event_data.subscription_options = subscription_options;
+	event_data.sub.client_id = context->id;
+	event_data.sub.topic = sub->topic;
+	event_data.sub.identifier = sub->identifier;
+	event_data.sub.options = sub->options;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_subscription_add, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD, &event_data, cb_base->userdata);
@@ -163,18 +163,19 @@ void plugin_persist__handle_subscription_add(struct mosquitto *context, const ch
 }
 
 
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, const char *sub)
+void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub)
 {
 	struct mosquitto_evt_persist_subscription event_data;
 	struct mosquitto__callback *cb_base;
 	struct mosquitto__security_options *opts;
 
 	if(db.shutdown || context->is_persisted == false) return;
+	if(!sub) return;
 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
-	event_data.client_id = context->id;
-	event_data.topic = sub;
+	event_data.sub.client_id = context->id;
+	event_data.sub.topic = sub;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_subscription_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_data, cb_base->userdata);

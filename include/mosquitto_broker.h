@@ -264,18 +264,22 @@ struct mosquitto_evt_persist_client {
 };
 
 
+struct mosquitto_subscription {
+	char *client_id;
+	char *topic;
+	mosquitto_property *properties;
+	uint32_t identifier;
+	uint8_t options;
+	uint8_t padding[3];
+	void *future2[8];
+};
+
 /* Data for the MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD/_DELETE event */
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_subscription {
 	void *future;
-	const char *client_id;
-	const char *topic;
-	char *plugin_client_id;
-	char *plugin_topic;
-	uint32_t subscription_identifier;
-	uint8_t subscription_options;
-	uint8_t padding[3];
+	struct mosquitto_subscription sub;
 	void *future2[8];
 };
 
@@ -1092,18 +1096,18 @@ mosq_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id);
  * Use to add a new subscription for a client
  *
  * Parameters:
- *   client_id - the client id of the client the new subscription is for
- *   topic - the topic filter for the subscription
- *   subscription_options - the QoS and other flags for this subscription
- *   subscription_identifier - the MQTT v5 subscription id, or 0
+ *   sub->client_id - the client id of the client the new subscription is for
+ *   sub->topic - the topic filter for the subscription
+ *   sub->subscription_options - the QoS and other flags for this subscription
+ *   sub->subscription_identifier - the MQTT v5 subscription id, or 0
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_id or topic are NULL, or are zero length
+ *   MOSQ_ERR_INVAL - if sub, client_id, or topic are NULL, or are zero length
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-mosq_EXPORT int mosquitto_subscription_add(const char *client_id, const char *topic, uint8_t subscription_options, uint32_t subscription_identifier);
+mosq_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *sub);
 
 
 /* Function: mosquitto_persist_subscription_delete

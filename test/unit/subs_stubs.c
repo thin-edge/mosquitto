@@ -134,12 +134,10 @@ void retain__clean(struct mosquitto__retainhier **retainhier)
 	UNUSED(retainhier);
 }
 
-int retain__queue(struct mosquitto *context, const char *sub, uint8_t sub_qos, uint32_t subscription_identifier)
+int retain__queue(struct mosquitto *context, const struct mosquitto_subscription *sub)
 {
 	UNUSED(context);
 	UNUSED(sub);
-	UNUSED(sub_qos);
-	UNUSED(subscription_identifier);
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -224,7 +222,7 @@ void plugin_persist__handle_retain_msg_delete(struct mosquitto__base_msg *msg)
 {
 	UNUSED(msg);
 }
-void plugin_persist__handle_subscription_delete(struct mosquitto *context, const char *sub)
+void plugin_persist__handle_subscription_delete(struct mosquitto *context, char *sub)
 {
 	UNUSED(context);
 	UNUSED(sub);
