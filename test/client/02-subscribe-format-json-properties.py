@@ -27,17 +27,19 @@ def do_test(proto_ver):
             '-F', '%j',
             '-t', '02/sub/format/json/properties/test',
             '-V', V,
-            '-C', '1'
+            '-C', '1',
+            '-D', 'subscribe', 'subscription-identifier', '99',
+            '-D', 'connect', 'topic-alias-maximum', '100'
             ]
 
     props = mqtt5_props.gen_byte_prop(mqtt5_props.PROP_PAYLOAD_FORMAT_INDICATOR, 1)
     props += mqtt5_props.gen_string_prop(mqtt5_props.PROP_CONTENT_TYPE, "plain/text")
     props += mqtt5_props.gen_string_prop(mqtt5_props.PROP_RESPONSE_TOPIC, "/dev/null")
-    #props += mqtt5_props.gen_string_prop(mqtt5_props.PROP_CORRELATION_DATA, "2357289375902345")
-    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value")
-    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value")
-    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value")
-    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value")
+    props += mqtt5_props.gen_string_prop(mqtt5_props.PROP_CORRELATION_DATA, "2357289375902345")
+    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value4")
+    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value3")
+    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value1")
+    props += mqtt5_props.gen_string_pair_prop(mqtt5_props.PROP_USER_PROPERTY, "name", "value2")
     publish_packet = mosq_test.gen_publish("02/sub/format/json/properties/test", mid=1, qos=1, payload="message", proto_ver=proto_ver, properties=props)
 
     broker = mosq_test.start_broker(filename=os.path.basename(__file__), port=port)
@@ -53,12 +55,15 @@ def do_test(proto_ver):
             "payload-format-indicator": 1,
             "content-type": "plain/text",
             "response-topic": "/dev/null",
+            "correlation-data": "2357289375902345",
             "user-properties": [
-                {"name": "value"},
-                {"name": "value"},
-                {"name": "value"},
-                {"name": "value"}
-            ]
+                {"name": "value4"},
+                {"name": "value3"},
+                {"name": "value1"},
+                {"name": "value2"}
+            ],
+            "topic-alias": 1,
+            "subscription-identifier": 99
         },
         "payload": "message"
     }

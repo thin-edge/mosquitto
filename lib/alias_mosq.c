@@ -35,7 +35,7 @@ int alias__add_l2r(struct mosquitto *mosq, const char *topic, uint16_t *alias)
 	if(mosq->alias_count_l2r < mosq->alias_max_l2r){
 		aliases_new = mosquitto__realloc(mosq->aliases_l2r, sizeof(struct mosquitto__alias)*(size_t)(mosq->alias_count_l2r+1));
 		if(!aliases_new) return MOSQ_ERR_NOMEM;
-	
+
 		mosq->aliases_l2r = aliases_new;
 		mosq->alias_count_l2r++;
 		*alias = mosq->alias_count_l2r;
