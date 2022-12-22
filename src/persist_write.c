@@ -51,7 +51,7 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 
 	cmsg = queue;
 	while(cmsg){
-		if(!strncmp(cmsg->base_msg->msg.topic, "$SYS", 4)
+		if(!strncmp(cmsg->base_msg->data.topic, "$SYS", 4)
 				&& cmsg->base_msg->ref_count <= 1
 				&& cmsg->base_msg->dest_id_count == 0){
 
@@ -61,7 +61,7 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 			continue;
 		}
 
-		chunk.F.store_id = cmsg->base_msg->msg.store_id;
+		chunk.F.store_id = cmsg->base_msg->data.store_id;
 		chunk.F.mid = cmsg->data.mid;
 		chunk.F.id_len = (uint16_t)strlen(context->id);
 		chunk.F.qos = cmsg->data.qos;
@@ -95,11 +95,11 @@ static int persist__message_store_save(FILE *db_fptr)
 
 	base_msg = db.msg_store;
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
-		if(base_msg->ref_count < 1 || base_msg->msg.topic == NULL){
+		if(base_msg->ref_count < 1 || base_msg->data.topic == NULL){
 			continue;
 		}
 
-		if(!strncmp(base_msg->msg.topic, "$SYS", 4)){
+		if(!strncmp(base_msg->data.topic, "$SYS", 4)){
 			if(base_msg->ref_count <= 1 && base_msg->dest_id_count == 0){
 				/* $SYS messages that are only retained shouldn't be persisted. */
 				continue;
@@ -110,39 +110,39 @@ static int persist__message_store_save(FILE *db_fptr)
 			 * queue. */
 			chunk.F.retain = 0;
 		}else{
-			chunk.F.retain = (uint8_t)base_msg->msg.retain;
+			chunk.F.retain = (uint8_t)base_msg->data.retain;
 		}
 
-		chunk.F.store_id = base_msg->msg.store_id;
-		chunk.F.expiry_time = base_msg->msg.expiry_time;
-		chunk.F.payloadlen = base_msg->msg.payloadlen;
-		chunk.F.source_mid = base_msg->msg.source_mid;
-		if(base_msg->msg.source_id){
-			chunk.F.source_id_len = (uint16_t)strlen(base_msg->msg.source_id);
-			chunk.source.id = base_msg->msg.source_id;
+		chunk.F.store_id = base_msg->data.store_id;
+		chunk.F.expiry_time = base_msg->data.expiry_time;
+		chunk.F.payloadlen = base_msg->data.payloadlen;
+		chunk.F.source_mid = base_msg->data.source_mid;
+		if(base_msg->data.source_id){
+			chunk.F.source_id_len = (uint16_t)strlen(base_msg->data.source_id);
+			chunk.source.id = base_msg->data.source_id;
 		}else{
 			chunk.F.source_id_len = 0;
 			chunk.source.id = NULL;
 		}
-		if(base_msg->msg.source_username){
-			chunk.F.source_username_len = (uint16_t)strlen(base_msg->msg.source_username);
-			chunk.source.username = base_msg->msg.source_username;
+		if(base_msg->data.source_username){
+			chunk.F.source_username_len = (uint16_t)strlen(base_msg->data.source_username);
+			chunk.source.username = base_msg->data.source_username;
 		}else{
 			chunk.F.source_username_len = 0;
 			chunk.source.username = NULL;
 		}
 
-		chunk.F.topic_len = (uint16_t)strlen(base_msg->msg.topic);
-		chunk.topic = base_msg->msg.topic;
+		chunk.F.topic_len = (uint16_t)strlen(base_msg->data.topic);
+		chunk.topic = base_msg->data.topic;
 
 		if(base_msg->source_listener){
 			chunk.F.source_port = base_msg->source_listener->port;
 		}else{
 			chunk.F.source_port = 0;
 		}
-		chunk.F.qos = base_msg->msg.qos;
-		chunk.payload = base_msg->msg.payload;
-		chunk.properties = base_msg->msg.properties;
+		chunk.F.qos = base_msg->data.qos;
+		chunk.payload = base_msg->data.payload;
+		chunk.properties = base_msg->data.properties;
 
 		rc = persist__chunk_message_store_write_v6(db_fptr, &chunk);
 		if(rc){
@@ -277,9 +277,9 @@ static int persist__retain_save(FILE *db_fptr, struct mosquitto__retainhier *nod
 
 	memset(&retain_chunk, 0, sizeof(struct P_retain));
 
-	if(node->retained && strncmp(node->retained->msg.topic, "$SYS", 4)){
+	if(node->retained && strncmp(node->retained->data.topic, "$SYS", 4)){
 		/* Don't save $SYS messages. */
-		retain_chunk.F.store_id = node->retained->msg.store_id;
+		retain_chunk.F.store_id = node->retained->data.store_id;
 		rc = persist__chunk_retain_write_v6(db_fptr, &retain_chunk);
 		if(rc){
 			return rc;

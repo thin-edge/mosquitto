@@ -410,7 +410,7 @@ struct mosquitto__retainhier {
 
 struct mosquitto__base_msg{
 	UT_hash_handle hh;
-	struct mosquitto_base_msg msg;
+	struct mosquitto_base_msg data;
 	struct mosquitto__listener *source_listener;
 	char **dest_ids;
 	int dest_id_count;

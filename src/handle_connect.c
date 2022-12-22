@@ -96,9 +96,9 @@ static void connection_check_acl(struct mosquitto *context, struct mosquitto__cl
 		}else{
 			access = MOSQ_ACL_WRITE;
 		}
-		if(mosquitto_acl_check(context, base_msg->msg.topic,
-							   base_msg->msg.payloadlen, base_msg->msg.payload,
-							   base_msg->msg.qos, base_msg->msg.retain, access) != MOSQ_ERR_SUCCESS){
+		if(mosquitto_acl_check(context, base_msg->data.topic,
+							   base_msg->data.payloadlen, base_msg->data.payload,
+							   base_msg->data.qos, base_msg->data.retain, access) != MOSQ_ERR_SUCCESS){
 
 			DL_DELETE((*head), client_msg);
 			db__msg_store_ref_dec(&client_msg->base_msg);

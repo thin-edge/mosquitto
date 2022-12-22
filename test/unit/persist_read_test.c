@@ -213,18 +213,18 @@ static void TEST_v3_message_store(void)
 	CU_ASSERT_EQUAL(db.msg_store_bytes, 7);
 	CU_ASSERT_PTR_NOT_NULL(db.msg_store);
 	if(db.msg_store){
-		CU_ASSERT_EQUAL(db.msg_store->msg.store_id, 1);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.source_id, "source_id");
-		CU_ASSERT_EQUAL(db.msg_store->msg.source_mid, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.qos, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.retain, 1);
-		CU_ASSERT_PTR_NOT_NULL(db.msg_store->msg.topic);
-		if(db.msg_store->msg.topic){
-			CU_ASSERT_STRING_EQUAL(db.msg_store->msg.topic, "topic");
+		CU_ASSERT_EQUAL(db.msg_store->data.store_id, 1);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.source_id, "source_id");
+		CU_ASSERT_EQUAL(db.msg_store->data.source_mid, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.qos, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.retain, 1);
+		CU_ASSERT_PTR_NOT_NULL(db.msg_store->data.topic);
+		if(db.msg_store->data.topic){
+			CU_ASSERT_STRING_EQUAL(db.msg_store->data.topic, "topic");
 		}
-		CU_ASSERT_EQUAL(db.msg_store->msg.payloadlen, 7);
-		if(db.msg_store->msg.payloadlen == 7){
-			CU_ASSERT_NSTRING_EQUAL(db.msg_store->msg.payload, "payload", 7);
+		CU_ASSERT_EQUAL(db.msg_store->data.payloadlen, 7);
+		if(db.msg_store->data.payloadlen == 7){
+			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
 	}
 }
@@ -286,17 +286,17 @@ static void TEST_v3_client_message(void)
 			CU_ASSERT_PTR_NOT_NULL(context->msgs_out.inflight->base_msg);
 			if(context->msgs_out.inflight->base_msg){
 				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->ref_count, 1);
-				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->msg.source_id, "source_id");
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.source_mid, 2);
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.qos, 2);
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.retain, 1);
-				CU_ASSERT_PTR_NOT_NULL(context->msgs_out.inflight->base_msg->msg.topic);
-				if(context->msgs_out.inflight->base_msg->msg.topic){
-					CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->msg.topic, "topic");
+				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->data.source_id, "source_id");
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.source_mid, 2);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.qos, 2);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.retain, 1);
+				CU_ASSERT_PTR_NOT_NULL(context->msgs_out.inflight->base_msg->data.topic);
+				if(context->msgs_out.inflight->base_msg->data.topic){
+					CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->data.topic, "topic");
 				}
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.payloadlen, 7);
-				if(context->msgs_out.inflight->base_msg->msg.payloadlen == 7){
-					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->msg.payload, "payload", 7);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.payloadlen, 7);
+				if(context->msgs_out.inflight->base_msg->data.payloadlen == 7){
+					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->data.payload, "payload", 7);
 				}
 			}
 			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.mid, 0x73);
@@ -331,18 +331,18 @@ static void TEST_v3_retain(void)
 	CU_ASSERT_EQUAL(db.msg_store_bytes, 7);
 	CU_ASSERT_PTR_NOT_NULL(db.msg_store);
 	if(db.msg_store){
-		CU_ASSERT_EQUAL(db.msg_store->msg.store_id, 0x54);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.source_id, "source_id");
-		CU_ASSERT_EQUAL(db.msg_store->msg.source_mid, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.qos, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.retain, 1);
-		CU_ASSERT_PTR_NOT_NULL(db.msg_store->msg.topic);
-		if(db.msg_store->msg.topic){
-			CU_ASSERT_STRING_EQUAL(db.msg_store->msg.topic, "topic");
+		CU_ASSERT_EQUAL(db.msg_store->data.store_id, 0x54);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.source_id, "source_id");
+		CU_ASSERT_EQUAL(db.msg_store->data.source_mid, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.qos, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.retain, 1);
+		CU_ASSERT_PTR_NOT_NULL(db.msg_store->data.topic);
+		if(db.msg_store->data.topic){
+			CU_ASSERT_STRING_EQUAL(db.msg_store->data.topic, "topic");
 		}
-		CU_ASSERT_EQUAL(db.msg_store->msg.payloadlen, 7);
-		if(db.msg_store->msg.payloadlen == 7){
-			CU_ASSERT_NSTRING_EQUAL(db.msg_store->msg.payload, "payload", 7);
+		CU_ASSERT_EQUAL(db.msg_store->data.payloadlen, 7);
+		if(db.msg_store->data.payloadlen == 7){
+			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
 	}
 	CU_ASSERT_PTR_NOT_NULL(db.retains);
@@ -413,18 +413,18 @@ static void TEST_v4_message_store(void)
 	CU_ASSERT_EQUAL(db.msg_store_bytes, 7);
 	CU_ASSERT_PTR_NOT_NULL(db.msg_store);
 	if(db.msg_store){
-		CU_ASSERT_EQUAL(db.msg_store->msg.store_id, 0xFEDCBA9876543210);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.source_id, "source_id");
-		CU_ASSERT_EQUAL(db.msg_store->msg.source_mid, 0x88);
-		CU_ASSERT_EQUAL(db.msg_store->msg.qos, 1);
-		CU_ASSERT_EQUAL(db.msg_store->msg.retain, 0);
-		CU_ASSERT_PTR_NOT_NULL(db.msg_store->msg.topic);
-		if(db.msg_store->msg.topic){
-			CU_ASSERT_STRING_EQUAL(db.msg_store->msg.topic, "topic");
+		CU_ASSERT_EQUAL(db.msg_store->data.store_id, 0xFEDCBA9876543210);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.source_id, "source_id");
+		CU_ASSERT_EQUAL(db.msg_store->data.source_mid, 0x88);
+		CU_ASSERT_EQUAL(db.msg_store->data.qos, 1);
+		CU_ASSERT_EQUAL(db.msg_store->data.retain, 0);
+		CU_ASSERT_PTR_NOT_NULL(db.msg_store->data.topic);
+		if(db.msg_store->data.topic){
+			CU_ASSERT_STRING_EQUAL(db.msg_store->data.topic, "topic");
 		}
-		CU_ASSERT_EQUAL(db.msg_store->msg.payloadlen, 7);
-		if(db.msg_store->msg.payloadlen == 7){
-			CU_ASSERT_NSTRING_EQUAL(db.msg_store->msg.payload, "payload", 7);
+		CU_ASSERT_EQUAL(db.msg_store->data.payloadlen, 7);
+		if(db.msg_store->data.payloadlen == 7){
+			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
 	}
 }
@@ -509,17 +509,17 @@ static void TEST_v6_message_store(void)
 	CU_ASSERT_EQUAL(db.msg_store_bytes, 7);
 	CU_ASSERT_PTR_NOT_NULL(db.msg_store);
 	if(db.msg_store){
-		CU_ASSERT_EQUAL(db.msg_store->msg.store_id, 1);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.source_id, "source_id");
-		CU_ASSERT_EQUAL(db.msg_store->msg.source_mid, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.qos, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.retain, 1);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.topic, "topic");
-		CU_ASSERT_EQUAL(db.msg_store->msg.payloadlen, 7);
-		if(db.msg_store->msg.payloadlen == 7){
-			CU_ASSERT_NSTRING_EQUAL(db.msg_store->msg.payload, "payload", 7);
+		CU_ASSERT_EQUAL(db.msg_store->data.store_id, 1);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.source_id, "source_id");
+		CU_ASSERT_EQUAL(db.msg_store->data.source_mid, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.qos, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.retain, 1);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.topic, "topic");
+		CU_ASSERT_EQUAL(db.msg_store->data.payloadlen, 7);
+		if(db.msg_store->data.payloadlen == 7){
+			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
-		CU_ASSERT_PTR_NULL(db.msg_store->msg.properties);
+		CU_ASSERT_PTR_NULL(db.msg_store->data.properties);
 	}
 }
 
@@ -550,20 +550,20 @@ static void TEST_v6_message_store_props(void)
 	CU_ASSERT_EQUAL(db.msg_store_bytes, 7);
 	CU_ASSERT_PTR_NOT_NULL(db.msg_store);
 	if(db.msg_store){
-		CU_ASSERT_EQUAL(db.msg_store->msg.store_id, 1);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.source_id, "source_id");
-		CU_ASSERT_EQUAL(db.msg_store->msg.source_mid, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.qos, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.retain, 1);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.topic, "topic");
-		CU_ASSERT_EQUAL(db.msg_store->msg.payloadlen, 7);
-		if(db.msg_store->msg.payloadlen == 7){
-			CU_ASSERT_NSTRING_EQUAL(db.msg_store->msg.payload, "payload", 7);
+		CU_ASSERT_EQUAL(db.msg_store->data.store_id, 1);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.source_id, "source_id");
+		CU_ASSERT_EQUAL(db.msg_store->data.source_mid, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.qos, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.retain, 1);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.topic, "topic");
+		CU_ASSERT_EQUAL(db.msg_store->data.payloadlen, 7);
+		if(db.msg_store->data.payloadlen == 7){
+			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
-		CU_ASSERT_PTR_NOT_NULL(db.msg_store->msg.properties);
-		if(db.msg_store->msg.properties){
-			CU_ASSERT_EQUAL(db.msg_store->msg.properties->identifier, 1);
-			CU_ASSERT_EQUAL(db.msg_store->msg.properties->value.i8, 1);
+		CU_ASSERT_PTR_NOT_NULL(db.msg_store->data.properties);
+		if(db.msg_store->data.properties){
+			CU_ASSERT_EQUAL(db.msg_store->data.properties->identifier, 1);
+			CU_ASSERT_EQUAL(db.msg_store->data.properties->value.i8, 1);
 		}
 		CU_ASSERT_PTR_NOT_NULL(db.msg_store->source_listener);
 	}
@@ -664,14 +664,14 @@ static void TEST_v6_client_message(void)
 			CU_ASSERT_PTR_NOT_NULL(context->msgs_out.inflight->base_msg);
 			if(context->msgs_out.inflight->base_msg){
 				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->ref_count, 1);
-				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->msg.source_id, "source_id");
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.source_mid, 2);
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.qos, 2);
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.retain, 1);
-				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->msg.topic, "topic");
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.payloadlen, 7);
-				if(context->msgs_out.inflight->base_msg->msg.payloadlen == 7){
-					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->msg.payload, "payload", 7);
+				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->data.source_id, "source_id");
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.source_mid, 2);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.qos, 2);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.retain, 1);
+				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->data.topic, "topic");
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.payloadlen, 7);
+				if(context->msgs_out.inflight->base_msg->data.payloadlen == 7){
+					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->data.payload, "payload", 7);
 				}
 			}
 			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.mid, 0x73);
@@ -713,14 +713,14 @@ static void TEST_v6_client_message_props(void)
 			CU_ASSERT_PTR_NOT_NULL(context->msgs_out.inflight->base_msg);
 			if(context->msgs_out.inflight->base_msg){
 				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->ref_count, 1);
-				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->msg.source_id, "source_id");
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.source_mid, 2);
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.qos, 2);
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.retain, 1);
-				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->msg.topic, "topic");
-				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->msg.payloadlen, 7);
-				if(context->msgs_out.inflight->base_msg->msg.payloadlen == 7){
-					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->msg.payload, "payload", 7);
+				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->data.source_id, "source_id");
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.source_mid, 2);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.qos, 2);
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.retain, 1);
+				CU_ASSERT_STRING_EQUAL(context->msgs_out.inflight->base_msg->data.topic, "topic");
+				CU_ASSERT_EQUAL(context->msgs_out.inflight->base_msg->data.payloadlen, 7);
+				if(context->msgs_out.inflight->base_msg->data.payloadlen == 7){
+					CU_ASSERT_NSTRING_EQUAL(context->msgs_out.inflight->base_msg->data.payload, "payload", 7);
 				}
 			}
 			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.mid, 0x73);
@@ -755,15 +755,15 @@ static void TEST_v6_retain(void)
 	CU_ASSERT_EQUAL(db.msg_store_bytes, 7);
 	CU_ASSERT_PTR_NOT_NULL(db.msg_store);
 	if(db.msg_store){
-		CU_ASSERT_EQUAL(db.msg_store->msg.store_id, 0x54);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.source_id, "source_id");
-		CU_ASSERT_EQUAL(db.msg_store->msg.source_mid, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.qos, 2);
-		CU_ASSERT_EQUAL(db.msg_store->msg.retain, 1);
-		CU_ASSERT_STRING_EQUAL(db.msg_store->msg.topic, "topic");
-		CU_ASSERT_EQUAL(db.msg_store->msg.payloadlen, 7);
-		if(db.msg_store->msg.payloadlen == 7){
-			CU_ASSERT_NSTRING_EQUAL(db.msg_store->msg.payload, "payload", 7);
+		CU_ASSERT_EQUAL(db.msg_store->data.store_id, 0x54);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.source_id, "source_id");
+		CU_ASSERT_EQUAL(db.msg_store->data.source_mid, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.qos, 2);
+		CU_ASSERT_EQUAL(db.msg_store->data.retain, 1);
+		CU_ASSERT_STRING_EQUAL(db.msg_store->data.topic, "topic");
+		CU_ASSERT_EQUAL(db.msg_store->data.payloadlen, 7);
+		if(db.msg_store->data.payloadlen == 7){
+			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
 	}
 	CU_ASSERT_PTR_NOT_NULL(db.retains);

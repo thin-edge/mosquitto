@@ -73,21 +73,21 @@ static int single_publish(struct mosquitto *context, struct mosquitto__message_v
 	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
-	base_msg->msg.topic = pub_msg->topic;
+	base_msg->data.topic = pub_msg->topic;
 	pub_msg->topic = NULL;
-	base_msg->msg.retain = 0;
-	base_msg->msg.payloadlen = (uint32_t)pub_msg->payloadlen;
-	base_msg->msg.payload = mosquitto__malloc(base_msg->msg.payloadlen+1);
-	if(base_msg->msg.payload == NULL){
+	base_msg->data.retain = 0;
+	base_msg->data.payloadlen = (uint32_t)pub_msg->payloadlen;
+	base_msg->data.payload = mosquitto__malloc(base_msg->data.payloadlen+1);
+	if(base_msg->data.payload == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_NOMEM;
 	}
 	/* Ensure payload is always zero terminated, this is the reason for the extra byte above */
-	((uint8_t *)base_msg->msg.payload)[base_msg->msg.payloadlen] = 0;
-	memcpy(base_msg->msg.payload, pub_msg->payload, base_msg->msg.payloadlen);
+	((uint8_t *)base_msg->data.payload)[base_msg->data.payloadlen] = 0;
+	memcpy(base_msg->data.payload, pub_msg->payload, base_msg->data.payloadlen);
 
 	if(pub_msg->properties){
-		base_msg->msg.properties = pub_msg->properties;
+		base_msg->data.properties = pub_msg->properties;
 		pub_msg->properties = NULL;
 	}
 

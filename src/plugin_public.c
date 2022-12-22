@@ -779,17 +779,17 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	if(base_msg == NULL){
 		goto error;
 	}
-	base_msg->msg.store_id = msg_add->store_id;
-	base_msg->msg.payloadlen = msg_add->payloadlen;
-	base_msg->msg.source_mid = msg_add->source_mid;
-	base_msg->msg.qos = msg_add->qos;
-	base_msg->msg.retain = msg_add->retain;
+	base_msg->data.store_id = msg_add->store_id;
+	base_msg->data.payloadlen = msg_add->payloadlen;
+	base_msg->data.source_mid = msg_add->source_mid;
+	base_msg->data.qos = msg_add->qos;
+	base_msg->data.retain = msg_add->retain;
 
-	base_msg->msg.payload = msg_add->payload;
+	base_msg->data.payload = msg_add->payload;
 	msg_add->payload = NULL;
-	base_msg->msg.topic = msg_add->topic;
+	base_msg->data.topic = msg_add->topic;
 	msg_add->topic = NULL;
-	base_msg->msg.properties = msg_add->properties;
+	base_msg->data.properties = msg_add->properties;
 	msg_add->properties = NULL;
 
 	if(msg_add->source_port){

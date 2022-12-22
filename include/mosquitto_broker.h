@@ -279,7 +279,7 @@ struct mosquitto_subscription {
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_subscription {
 	void *future;
-	struct mosquitto_subscription sub;
+	struct mosquitto_subscription data;
 	void *future2[8];
 };
 
@@ -332,7 +332,7 @@ struct mosquitto_base_msg {
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_base_msg {
 	void *future;
-	struct mosquitto_base_msg msg;
+	struct mosquitto_base_msg data;
 	void *future2[8];
 };
 

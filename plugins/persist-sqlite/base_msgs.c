@@ -147,31 +147,31 @@ int persist_sqlite__base_msg_add_cb(int event, void *event_data, void *userdata)
 	UNUSED(event);
 
 	rc = 0;
-	rc += sqlite3_bind_int64(ms->base_msg_add_stmt, 1, (int64_t)ed->msg.store_id);
-	rc += sqlite3_bind_int64(ms->base_msg_add_stmt, 2, ed->msg.expiry_time);
-	rc += sqlite3_bind_text(ms->base_msg_add_stmt, 3, ed->msg.topic, (int)strlen(ed->msg.topic), SQLITE_STATIC);
-	if(ed->msg.payload){
-		rc += sqlite3_bind_blob(ms->base_msg_add_stmt, 4, ed->msg.payload, (int)ed->msg.payloadlen, SQLITE_STATIC);
+	rc += sqlite3_bind_int64(ms->base_msg_add_stmt, 1, (int64_t)ed->data.store_id);
+	rc += sqlite3_bind_int64(ms->base_msg_add_stmt, 2, ed->data.expiry_time);
+	rc += sqlite3_bind_text(ms->base_msg_add_stmt, 3, ed->data.topic, (int)strlen(ed->data.topic), SQLITE_STATIC);
+	if(ed->data.payload){
+		rc += sqlite3_bind_blob(ms->base_msg_add_stmt, 4, ed->data.payload, (int)ed->data.payloadlen, SQLITE_STATIC);
 	}else{
 		rc += sqlite3_bind_null(ms->base_msg_add_stmt, 4);
 	}
-	if(ed->msg.source_id){
-		rc += sqlite3_bind_text(ms->base_msg_add_stmt, 5, ed->msg.source_id, (int)strlen(ed->msg.source_id), SQLITE_STATIC);
+	if(ed->data.source_id){
+		rc += sqlite3_bind_text(ms->base_msg_add_stmt, 5, ed->data.source_id, (int)strlen(ed->data.source_id), SQLITE_STATIC);
 	}else{
 		rc += sqlite3_bind_null(ms->base_msg_add_stmt, 5);
 	}
-	if(ed->msg.source_username){
-		rc += sqlite3_bind_text(ms->base_msg_add_stmt, 6, ed->msg.source_username, (int)strlen(ed->msg.source_username), SQLITE_STATIC);
+	if(ed->data.source_username){
+		rc += sqlite3_bind_text(ms->base_msg_add_stmt, 6, ed->data.source_username, (int)strlen(ed->data.source_username), SQLITE_STATIC);
 	}else{
 		rc += sqlite3_bind_null(ms->base_msg_add_stmt, 6);
 	}
-	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 7, (int)ed->msg.payloadlen);
-	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 8, ed->msg.source_mid);
-	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 9, ed->msg.source_port);
-	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 10, ed->msg.qos);
-	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 11, ed->msg.retain);
-	if(ed->msg.properties){
-		str = properties_to_json(ed->msg.properties);
+	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 7, (int)ed->data.payloadlen);
+	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 8, ed->data.source_mid);
+	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 9, ed->data.source_port);
+	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 10, ed->data.qos);
+	rc += sqlite3_bind_int(ms->base_msg_add_stmt, 11, ed->data.retain);
+	if(ed->data.properties){
+		str = properties_to_json(ed->data.properties);
 	}
 	if(str){
 		rc += sqlite3_bind_text(ms->base_msg_add_stmt, 12, str, (int)strlen(str), SQLITE_STATIC);
@@ -202,7 +202,7 @@ int persist_sqlite__base_msg_remove_cb(int event, void *event_data, void *userda
 
 	UNUSED(event);
 
-	if(sqlite3_bind_int64(ms->base_msg_remove_stmt, 1, (int64_t)ed->msg.store_id) == SQLITE_OK){
+	if(sqlite3_bind_int64(ms->base_msg_remove_stmt, 1, (int64_t)ed->data.store_id) == SQLITE_OK){
 		ms->event_count++;
 		rc = sqlite3_step(ms->base_msg_remove_stmt);
 		if(rc == SQLITE_DONE){
@@ -224,19 +224,19 @@ int persist_sqlite__base_msg_load_cb(int event, void *event_data, void *userdata
 
 	UNUSED(event);
 
-	if(sqlite3_bind_int64(ms->base_msg_load_stmt, 1, (int64_t)ed->msg.store_id) == SQLITE_OK){
+	if(sqlite3_bind_int64(ms->base_msg_load_stmt, 1, (int64_t)ed->data.store_id) == SQLITE_OK){
 		if(sqlite3_step(ms->base_msg_load_stmt) == SQLITE_ROW){
-			ed->msg.expiry_time = (time_t)sqlite3_column_int64(ms->base_msg_load_stmt, 1);
-			ed->msg.topic = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 2);
-			ed->msg.payload = (void *)sqlite3_column_blob(ms->base_msg_load_stmt, 3);
-			ed->msg.source_id = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 4);
-			ed->msg.source_username = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 5);
-			ed->msg.payloadlen = (uint32_t)sqlite3_column_int(ms->base_msg_load_stmt, 6);
-			ed->msg.source_mid = (uint16_t)sqlite3_column_int(ms->base_msg_load_stmt, 7);
-			ed->msg.source_port = (uint16_t)sqlite3_column_int(ms->base_msg_load_stmt, 8);
-			ed->msg.qos = (uint8_t)sqlite3_column_int(ms->base_msg_load_stmt, 9);
-			ed->msg.retain = sqlite3_column_int(ms->base_msg_load_stmt, 10);
-			mosquitto_persist_base_msg_add(&ed->msg);
+			ed->data.expiry_time = (time_t)sqlite3_column_int64(ms->base_msg_load_stmt, 1);
+			ed->data.topic = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 2);
+			ed->data.payload = (void *)sqlite3_column_blob(ms->base_msg_load_stmt, 3);
+			ed->data.source_id = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 4);
+			ed->data.source_username = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 5);
+			ed->data.payloadlen = (uint32_t)sqlite3_column_int(ms->base_msg_load_stmt, 6);
+			ed->data.source_mid = (uint16_t)sqlite3_column_int(ms->base_msg_load_stmt, 7);
+			ed->data.source_port = (uint16_t)sqlite3_column_int(ms->base_msg_load_stmt, 8);
+			ed->data.qos = (uint8_t)sqlite3_column_int(ms->base_msg_load_stmt, 9);
+			ed->data.retain = sqlite3_column_int(ms->base_msg_load_stmt, 10);
+			mosquitto_persist_base_msg_add(&ed->data);
 		}
 	}
 	sqlite3_finalize(ms->base_msg_load_stmt);
