@@ -461,7 +461,7 @@ BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(cons
 	return rc;
 }
 
-BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_client *client)
+BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 {
 	struct mosquitto *context;
 	int i;
@@ -470,13 +470,13 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_clie
 	if(client == NULL){
 		return MOSQ_ERR_INVAL;
 	}
-	if(client->plugin_client_id == NULL){
+	if(client->client_id == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->plugin_client_id, strlen(client->plugin_client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client->client_id, strlen(client->client_id), context);
 	if(context){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
@@ -488,12 +488,12 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_clie
 		goto error;
 	}
 
-	context->id = client->plugin_client_id;
-	client->plugin_client_id = NULL;
-	context->username = client->plugin_username;
-	client->plugin_username = NULL;
-	context->auth_method = client->plugin_auth_method;
-	client->plugin_auth_method = NULL;
+	context->id = client->client_id;
+	client->client_id = NULL;
+	context->username = client->username;
+	client->username = NULL;
+	context->auth_method = client->auth_method;
+	client->auth_method = NULL;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -519,14 +519,14 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_clie
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	SAFE_FREE(client->plugin_client_id);
-	SAFE_FREE(client->plugin_username);
-	SAFE_FREE(client->plugin_auth_method);
+	SAFE_FREE(client->client_id);
+	SAFE_FREE(client->username);
+	SAFE_FREE(client->auth_method);
 	return rc;
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_evt_persist_client *client)
+BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
 {
 	struct mosquitto *context;
 	int i;
@@ -548,8 +548,8 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_evt_persist_c
 	}
 
 	mosquitto_free(context->username);
-	context->username = client->plugin_username;
-	client->plugin_username = NULL;
+	context->username = client->username;
+	client->username = NULL;
 
 	context->clean_start = false;
 	context->will_delay_time = client->will_delay_time;
@@ -572,7 +572,7 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_evt_persist_c
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	SAFE_FREE(client->plugin_username);
+	SAFE_FREE(client->username);
 	return rc;
 }
 
@@ -611,33 +611,33 @@ static struct mosquitto__base_msg *find_store_msg(uint64_t store_id)
 	return base_msg;
 }
 
-BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_client_msg *client_msg)
+BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 	struct mosquitto__base_msg *base_msg;
 
-	if(client_msg == NULL || client_msg->data.client_id == NULL){
+	if(client_msg == NULL || client_msg->client_id == NULL){
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->data.client_id, strlen(client_msg->data.client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
-	base_msg = find_store_msg(client_msg->data.store_id);
+	base_msg = find_store_msg(client_msg->store_id);
 	if(base_msg == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->data.direction == mosq_md_out){
-		if(client_msg->data.qos > 0){
-			context->last_mid = client_msg->data.mid;
+	if(client_msg->direction == mosq_md_out){
+		if(client_msg->qos > 0){
+			context->last_mid = client_msg->mid;
 		}
-		return db__message_insert_outgoing(context, client_msg->data.cmsg_id, client_msg->data.mid,
-				client_msg->data.qos, client_msg->data.retain,
-				base_msg, client_msg->data.subscription_identifier, false, false);
-	}else if(client_msg->data.direction == mosq_md_in){
-		return db__message_insert_incoming(context, client_msg->data.cmsg_id, base_msg, false);
+		return db__message_insert_outgoing(context, client_msg->cmsg_id, client_msg->mid,
+				client_msg->qos, client_msg->retain,
+				base_msg, client_msg->subscription_identifier, false, false);
+	}else if(client_msg->direction == mosq_md_in){
+		return db__message_insert_incoming(context, client_msg->cmsg_id, base_msg, false);
 	}else{
 		return MOSQ_ERR_INVAL;
 	}
@@ -645,21 +645,21 @@ BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persist_client_msg *client_msg)
+BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->data.client_id == NULL) return MOSQ_ERR_INVAL;
+	if(client_msg == NULL || client_msg->client_id == NULL) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->data.client_id, strlen(client_msg->data.client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->data.direction == mosq_md_out){
-		return db__message_delete_outgoing(context, client_msg->data.mid, client_msg->data.state, client_msg->data.qos);
-	}else if(client_msg->data.direction == mosq_md_in){
-		return db__message_remove_incoming(context, client_msg->data.mid);
+	if(client_msg->direction == mosq_md_out){
+		return db__message_delete_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos);
+	}else if(client_msg->direction == mosq_md_in){
+		return db__message_remove_incoming(context, client_msg->mid);
 	}else{
 		return MOSQ_ERR_INVAL;
 	}
@@ -667,20 +667,20 @@ BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persi
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_evt_persist_client_msg *client_msg)
+BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->data.client_id == NULL) return MOSQ_ERR_INVAL;
+	if(client_msg == NULL || client_msg->client_id == NULL) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->data.client_id, strlen(client_msg->data.client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->data.direction == mosq_md_out){
-		db__message_update_outgoing(context, client_msg->data.mid, client_msg->data.state, client_msg->data.qos, false);
-	}else if(client_msg->data.direction == mosq_md_in){
+	if(client_msg->direction == mosq_md_out){
+		db__message_update_outgoing(context, client_msg->mid, client_msg->state, client_msg->qos, false);
+	}else if(client_msg->direction == mosq_md_in){
 		// FIXME db__message_update_incoming(context, client_msg->mid, client_msg->state, client_msg->qos, false);
 	}else{
 		return MOSQ_ERR_INVAL;
@@ -689,20 +689,20 @@ BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_evt_persi
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persist_client_msg *client_msg)
+BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg)
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->data.client_id == NULL) return MOSQ_ERR_INVAL;
+	if(client_msg == NULL || client_msg->client_id == NULL) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->data.client_id, strlen(client_msg->data.client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
 
-	if(client_msg->data.direction == mosq_bmd_in || client_msg->data.direction == mosq_bmd_all){
+	if(client_msg->direction == mosq_bmd_in || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_incoming(context);
-	}else if(client_msg->data.direction == mosq_bmd_out || client_msg->data.direction == mosq_bmd_all){
+	}else if(client_msg->direction == mosq_bmd_out || client_msg->direction == mosq_bmd_all){
 		db__messages_delete_outgoing(context);
 	}
 	return MOSQ_ERR_SUCCESS;

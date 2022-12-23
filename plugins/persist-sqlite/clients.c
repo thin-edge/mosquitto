@@ -33,11 +33,11 @@ int persist_sqlite__client_add_cb(int event, void *event_data, void *userdata)
 	UNUSED(event);
 
 	if(sqlite3_bind_text(ms->client_add_stmt, 1,
-				ed->client_id, (int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK){
+				ed->data.client_id, (int)strlen(ed->data.client_id), SQLITE_STATIC) == SQLITE_OK){
 
-		if(ed->username){
+		if(ed->data.username){
 			sqlite3_bind_text(ms->client_add_stmt, 2,
-					ed->username, (int)strlen(ed->username),
+					ed->data.username, (int)strlen(ed->data.username),
 					SQLITE_STATIC);
 		}else{
 			sqlite3_bind_null(ms->client_add_stmt, 2);
@@ -45,14 +45,14 @@ int persist_sqlite__client_add_cb(int event, void *event_data, void *userdata)
 
 		now = time(NULL);
 		if(sqlite3_bind_int64(ms->client_add_stmt, 3, now) == SQLITE_OK
-				&& sqlite3_bind_int64(ms->client_add_stmt, 4, ed->will_delay_time) == SQLITE_OK
-				&& sqlite3_bind_int64(ms->client_add_stmt, 5, ed->session_expiry_time) == SQLITE_OK
-				&& sqlite3_bind_int(ms->client_add_stmt, 6, ed->listener_port) == SQLITE_OK
-				&& sqlite3_bind_int(ms->client_add_stmt, 7, (int)ed->max_packet_size) == SQLITE_OK
-				&& sqlite3_bind_int(ms->client_add_stmt, 8, ed->max_qos) == SQLITE_OK
-				&& sqlite3_bind_int(ms->client_add_stmt, 9, ed->retain_available) == SQLITE_OK
-				&& sqlite3_bind_int(ms->client_add_stmt, 10, (int)ed->session_expiry_interval) == SQLITE_OK
-				&& sqlite3_bind_int(ms->client_add_stmt, 11, (int)ed->will_delay_interval) == SQLITE_OK
+				&& sqlite3_bind_int64(ms->client_add_stmt, 4, ed->data.will_delay_time) == SQLITE_OK
+				&& sqlite3_bind_int64(ms->client_add_stmt, 5, ed->data.session_expiry_time) == SQLITE_OK
+				&& sqlite3_bind_int(ms->client_add_stmt, 6, ed->data.listener_port) == SQLITE_OK
+				&& sqlite3_bind_int(ms->client_add_stmt, 7, (int)ed->data.max_packet_size) == SQLITE_OK
+				&& sqlite3_bind_int(ms->client_add_stmt, 8, ed->data.max_qos) == SQLITE_OK
+				&& sqlite3_bind_int(ms->client_add_stmt, 9, ed->data.retain_available) == SQLITE_OK
+				&& sqlite3_bind_int(ms->client_add_stmt, 10, (int)ed->data.session_expiry_interval) == SQLITE_OK
+				&& sqlite3_bind_int(ms->client_add_stmt, 11, (int)ed->data.will_delay_interval) == SQLITE_OK
 				){
 
 			ms->event_count++;
@@ -78,7 +78,7 @@ int persist_sqlite__client_remove_cb(int event, void *event_data, void *userdata
 	UNUSED(event);
 
 	if(sqlite3_bind_text(ms->subscription_clear_stmt, 1,
-				ed->client_id, (int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK){
+				ed->data.client_id, (int)strlen(ed->data.client_id), SQLITE_STATIC) == SQLITE_OK){
 
 		ms->event_count++;
 		rc = sqlite3_step(ms->subscription_clear_stmt);
@@ -90,7 +90,7 @@ int persist_sqlite__client_remove_cb(int event, void *event_data, void *userdata
 		}
 	}
 	if(sqlite3_bind_text(ms->client_remove_stmt, 1,
-				ed->client_id, (int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK){
+				ed->data.client_id, (int)strlen(ed->data.client_id), SQLITE_STATIC) == SQLITE_OK){
 
 		ms->event_count++;
 		rc = sqlite3_step(ms->client_remove_stmt);
@@ -101,7 +101,7 @@ int persist_sqlite__client_remove_cb(int event, void *event_data, void *userdata
 			rc = MOSQ_ERR_UNKNOWN;
 		}
 	}
-	persist_sqlite__client_msg_clear(ms, ed->client_id);
+	persist_sqlite__client_msg_clear(ms, ed->data.client_id);
 
 	return rc;
 }
@@ -115,10 +115,10 @@ int persist_sqlite__client_update_cb(int event, void *event_data, void *userdata
 
 	UNUSED(event);
 
-	if(sqlite3_bind_int64(ms->client_update_stmt, 1, ed->session_expiry_time) == SQLITE_OK
-			&& sqlite3_bind_int64(ms->client_update_stmt, 2, ed->will_delay_time) == SQLITE_OK
-			&& sqlite3_bind_text(ms->client_update_stmt, 3, ed->client_id,
-				(int)strlen(ed->client_id), SQLITE_STATIC) == SQLITE_OK
+	if(sqlite3_bind_int64(ms->client_update_stmt, 1, ed->data.session_expiry_time) == SQLITE_OK
+			&& sqlite3_bind_int64(ms->client_update_stmt, 2, ed->data.will_delay_time) == SQLITE_OK
+			&& sqlite3_bind_text(ms->client_update_stmt, 3, ed->data.client_id,
+				(int)strlen(ed->data.client_id), SQLITE_STATIC) == SQLITE_OK
 			){
 
 		ms->event_count++;

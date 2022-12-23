@@ -238,19 +238,12 @@ struct mosquitto_evt_persist_restore {
 	void *future[8];
 };
 
-/* Data for the MOSQ_EVT_PERSIST_CLIENT_ADD/_DELETE/_UPDATE event */
-/* NOTE: The persistence interface is currently marked as unstable, which means
- * it may change in a future minor release. */
-struct mosquitto_evt_persist_client {
-	void *future;
-	const char *client_id;
-	const char *username;
-	const char *auth_method;
-	const struct mosquitto_message_v5 *will;
-	char *plugin_client_id;
-	char *plugin_username;
-	char *plugin_auth_method;
-	struct mosquitto_message_v5 *plugin_will;
+
+struct mosquitto_client {
+	char *client_id;
+	char *username;
+	char *auth_method;
+	struct mosquitto_message_v5 *will;
 	time_t will_delay_time; /* update */
 	time_t session_expiry_time; /* update */
 	uint32_t will_delay_interval;
@@ -260,6 +253,15 @@ struct mosquitto_evt_persist_client {
 	uint8_t max_qos;
 	bool retain_available;
 	uint8_t padding[6];
+	void *future2[8];
+};
+
+/* Data for the MOSQ_EVT_PERSIST_CLIENT_ADD/_DELETE/_UPDATE event */
+/* NOTE: The persistence interface is currently marked as unstable, which means
+ * it may change in a future minor release. */
+struct mosquitto_evt_persist_client {
+	void *future;
+	struct mosquitto_client data;
 	void *future2[8];
 };
 
@@ -890,7 +892,7 @@ mosq_EXPORT int mosquitto_broker_node_id_set(uint16_t id);
  *          client
  *   client->listener_port - the listener port that this client last connected to
  *
- *   All other members of struct mosquitto_evt_persist_client are unused.
+ *   All other members of struct mosquitto_client are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
@@ -898,7 +900,7 @@ mosq_EXPORT int mosquitto_broker_node_id_set(uint16_t id);
  *          client with the same ID already exists.
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_client *client);
+mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client);
 
 
 /* Function: mosquitto_persist_client_update
@@ -925,14 +927,14 @@ mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_evt_persist_client
  *          client
  *   client->listener_port - the listener port that this client last connected to
  *
- *   All other members of struct mosquitto_evt_persist_client are unused.
+ *   All other members of struct mosquitto_client are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_INVAL - if client or client->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-mosq_EXPORT int mosquitto_persist_client_update(struct mosquitto_evt_persist_client *client);
+mosq_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client);
 
 
 /* Function: mosquitto_persist_client_delete
@@ -968,14 +970,14 @@ mosq_EXPORT int mosquitto_persist_client_delete(const char *client_id);
  *   client_msg->subscription_identifier - the MQTT v5 subscription identifier,
  *          for outgoing messages only.
  *
- *   All other members of struct mosquitto_evt_persist_client_msg are unused.
+ *   All other members of struct mosquitto_client_msg are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client or base message is not found
  */
-mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg);
 
 
 /* Function: mosquitto_persist_client_msg_delete
@@ -991,14 +993,14 @@ mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_evt_persist_cl
  *   client_msg->direction - the direction of the message from the perspective
  *          of the broker (mosq_bmd_in / mosq_bmd_out)
  *
- *   All other members of struct mosquitto_evt_persist_client_msg are unused.
+ *   All other members of struct mosquitto_client_msg are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg);
 
 
 /* Function: mosquitto_persist_client_msg_update
@@ -1015,14 +1017,14 @@ mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_evt_persist
  *          of the broker (mosq_bmd_in / mosq_bmd_out)
  *   client_msg->state - the new state of the message
  *
- *   All other members of struct mosquitto_evt_persist_client_msg are unused.
+ *   All other members of struct mosquitto_client_msg are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg);
 
 
 /* Function: mosquitto_persist_client_msg_clear
@@ -1036,14 +1038,14 @@ mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_evt_persist
  *          the perspective of the broker (mosq_bmd_in / mosq_bmd_out / mosq_bmd_all)
  *   client_msg->state - the new state of the message
  *
- *   All other members of struct mosquitto_evt_persist_client_msg are unused.
+ *   All other members of struct mosquitto_client_msg are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
  *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
-mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_evt_persist_client_msg *client_msg);
+mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg);
 
 /* Function: mosquitto_persist_base_msg_add
  *

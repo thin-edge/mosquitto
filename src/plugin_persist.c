@@ -59,21 +59,21 @@ void plugin_persist__handle_client_add(struct mosquitto *context)
 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
-	event_data.client_id = context->id;
-	event_data.username = context->username;
-	event_data.auth_method = context->auth_method;
-	event_data.will_delay_time = context->will_delay_time;
-	event_data.session_expiry_time = context->session_expiry_time;
-	event_data.will_delay_interval = context->will_delay_interval;
-	event_data.session_expiry_interval = context->session_expiry_interval;
+	event_data.data.client_id = context->id;
+	event_data.data.username = context->username;
+	event_data.data.auth_method = context->auth_method;
+	event_data.data.will_delay_time = context->will_delay_time;
+	event_data.data.session_expiry_time = context->session_expiry_time;
+	event_data.data.will_delay_interval = context->will_delay_interval;
+	event_data.data.session_expiry_interval = context->session_expiry_interval;
 	if(context->listener){
-		event_data.listener_port = context->listener->port;
+		event_data.data.listener_port = context->listener->port;
 	}else{
-		event_data.listener_port = 0;
+		event_data.data.listener_port = 0;
 	}
-	event_data.max_qos = context->max_qos;
-	event_data.retain_available = context->retain_available;
-	event_data.max_packet_size = context->maximum_packet_size;
+	event_data.data.max_qos = context->max_qos;
+	event_data.data.retain_available = context->retain_available;
+	event_data.data.max_packet_size = context->maximum_packet_size;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_add, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_ADD, &event_data, cb_base->userdata);
@@ -95,21 +95,21 @@ void plugin_persist__handle_client_update(struct mosquitto *context)
 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
-	event_data.client_id = context->id;
-	event_data.username = context->username;
-	event_data.auth_method = context->auth_method;
-	event_data.will_delay_time = context->will_delay_time;
-	event_data.session_expiry_time = context->session_expiry_time;
-	event_data.will_delay_interval = context->will_delay_interval;
-	event_data.session_expiry_interval = context->session_expiry_interval;
+	event_data.data.client_id = context->id;
+	event_data.data.username = context->username;
+	event_data.data.auth_method = context->auth_method;
+	event_data.data.will_delay_time = context->will_delay_time;
+	event_data.data.session_expiry_time = context->session_expiry_time;
+	event_data.data.will_delay_interval = context->will_delay_interval;
+	event_data.data.session_expiry_interval = context->session_expiry_interval;
 	if(context->listener){
-		event_data.listener_port = context->listener->port;
+		event_data.data.listener_port = context->listener->port;
 	}else{
-		event_data.listener_port = 0;
+		event_data.data.listener_port = 0;
 	}
-	event_data.max_qos = context->max_qos;
-	event_data.retain_available = context->retain_available;
-	event_data.max_packet_size = context->maximum_packet_size;
+	event_data.data.max_qos = context->max_qos;
+	event_data.data.retain_available = context->retain_available;
+	event_data.data.max_packet_size = context->maximum_packet_size;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_update, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_UPDATE, &event_data, cb_base->userdata);
@@ -133,7 +133,7 @@ void plugin_persist__handle_client_delete(struct mosquitto *context)
 	}
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
-	event_data.client_id = context->id;
+	event_data.data.client_id = context->id;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_client_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_CLIENT_DELETE, &event_data, cb_base->userdata);
