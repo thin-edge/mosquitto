@@ -123,8 +123,15 @@ static int dynsec__handle_command(struct plugin_cmd *cmd, struct mosquitto *cont
 int dynsec_control_callback(int event, void *event_data, void *userdata)
 {
 	struct mosquitto_evt_control *ed = event_data;
+	struct dynsec__data *data = userdata;
+	int rc;
 
 	UNUSED(event);
 
-	return plugin__generic_control_callback(ed, RESPONSE_TOPIC, userdata, dynsec__handle_command);
+	data->need_save = false;
+	rc = plugin__generic_control_callback(ed, RESPONSE_TOPIC, userdata, dynsec__handle_command);
+	if(rc == MOSQ_ERR_SUCCESS && data->need_save){
+		dynsec__config_save(data);
+	}
+	return rc;
 }

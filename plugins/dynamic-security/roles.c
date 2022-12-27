@@ -421,7 +421,7 @@ int dynsec_roles__process_create(struct dynsec__data *data, struct plugin_cmd *c
 
 	HASH_ADD_INORDER(hh, data->roles, rolename, rolename_len, role, role_cmp);
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 
 	plugin__command_reply(cmd, NULL);
 
@@ -484,7 +484,7 @@ int dynsec_roles__process_delete(struct dynsec__data *data, struct plugin_cmd *c
 		role__remove_all_clients(data, role);
 		role__remove_all_groups(data, role);
 		role__free_item(data, role, true);
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 		plugin__command_reply(cmd, NULL);
 
 		admin_clientid = mosquitto_client_id(context);
@@ -675,7 +675,7 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct plugin_cmd *
 	json_get_bool(cmd->j_command, "allow", &acl->allow, true, false);
 
 	HASH_ADD_INORDER(hh, *acllist, topic, topic_len, acl, insert_acl_cmp);
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	role__kick_all(data, role);
@@ -753,7 +753,7 @@ int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct plugin_cm
 	HASH_FIND(hh, *acllist, topic, strlen(topic), acl);
 	if(acl){
 		role__free_acl(acllist, acl);
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 		plugin__command_reply(cmd, NULL);
 
 		role__kick_all(data, role);
@@ -924,7 +924,7 @@ int dynsec_roles__process_modify(struct dynsec__data *data, struct plugin_cmd *c
 	if(do_kick){
 		role__kick_all(data, role);
 	}
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 
 	plugin__command_reply(cmd, NULL);
 

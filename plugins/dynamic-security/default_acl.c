@@ -71,7 +71,7 @@ int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct plu
 		}
 	}
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 	return MOSQ_ERR_SUCCESS;
 }

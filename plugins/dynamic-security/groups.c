@@ -159,7 +159,7 @@ int dynsec_groups__process_add_role(struct dynsec__data *data, struct plugin_cmd
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | addGroupRole | groupname=%s | rolename=%s | priority=%d",
 			admin_clientid, admin_username, groupname, rolename, priority);
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */
@@ -436,7 +436,7 @@ int dynsec_groups__process_create(struct dynsec__data *data, struct plugin_cmd *
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | createGroup | groupname=%s",
 			admin_clientid, admin_username, groupname);
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 	return MOSQ_ERR_SUCCESS;
 }
@@ -469,7 +469,7 @@ int dynsec_groups__process_delete(struct dynsec__data *data, struct plugin_cmd *
 
 		dynsec__remove_all_roles_from_group(group);
 		group__free_item(data, group);
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 		plugin__command_reply(cmd, NULL);
 
 		admin_clientid = mosquitto_client_id(context);
@@ -519,7 +519,7 @@ int dynsec_groups__add_client(struct dynsec__data *data, const char *username, c
 	}
 
 	if(update_config){
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 	}
 
 	return MOSQ_ERR_SUCCESS;
@@ -623,7 +623,7 @@ int dynsec_groups__remove_client(struct dynsec__data *data, const char *username
 	dynsec_grouplist__remove(&client->grouplist, group);
 
 	if(update_config){
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 	}
 	return MOSQ_ERR_SUCCESS;
 }
@@ -892,7 +892,7 @@ int dynsec_groups__process_remove_role(struct dynsec__data *data, struct plugin_
 	}
 
 	dynsec_rolelist__group_remove(group, role);
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */
@@ -1031,7 +1031,7 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct plugin_cmd *
 	}
 
 	/* And save */
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 
 	plugin__command_reply(cmd, NULL);
 
@@ -1081,7 +1081,7 @@ int dynsec_groups__process_set_anonymous_group(struct dynsec__data *data, struct
 
 	data->anonymous_group = group;
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */

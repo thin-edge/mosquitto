@@ -200,7 +200,13 @@ int dynsec__write_json_config(FILE* fptr, void* user_data)
 	return rc;
 }
 
+void dynsec__config_batch_save(struct dynsec__data *data)
+{
+	data->need_save = true;
+}
+
 void dynsec__config_save(struct dynsec__data *data)
 {
+	data->need_save = false;
 	mosquitto_write_file(data->config_file, true, &dynsec__write_json_config, data, &dynsec__log_write_error);
 }

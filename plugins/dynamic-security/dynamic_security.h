@@ -152,6 +152,7 @@ struct dynsec__data{
 	struct dynsec__kicklist *kicklist;
 	struct dynsec__acl_default_access default_access;
 	int init_mode;
+	bool need_save;
 };
 
 /* ################################################################
@@ -162,6 +163,7 @@ struct dynsec__data{
 
 int dynsec__config_init(struct dynsec__data *data);
 void dynsec__config_save(struct dynsec__data *data);
+void dynsec__config_batch_save(struct dynsec__data *data);
 int dynsec__config_load(struct dynsec__data *data);
 char *dynsec__config_to_json(struct dynsec__data *data);
 int dynsec__config_from_json(struct dynsec__data *data, const char *json_str);

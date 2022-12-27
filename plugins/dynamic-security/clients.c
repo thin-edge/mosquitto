@@ -454,7 +454,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct plugin_cmd 
 		}
 	}
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 
 	plugin__command_reply(cmd, NULL);
 
@@ -483,7 +483,7 @@ int dynsec_clients__process_delete(struct dynsec__data *data, struct plugin_cmd 
 		dynsec__remove_client_from_all_groups(data, username);
 		client__remove_all_roles(client);
 		client__free_item(data, client);
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 		plugin__command_reply(cmd, NULL);
 
 		/* Enforce any changes */
@@ -526,7 +526,7 @@ int dynsec_clients__process_disable(struct dynsec__data *data, struct plugin_cmd
 
 	dynsec_kicklist__add(data, username);
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	admin_clientid = mosquitto_client_id(context);
@@ -561,7 +561,7 @@ int dynsec_clients__process_enable(struct dynsec__data *data, struct plugin_cmd 
 
 	client->disabled = false;
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	admin_clientid = mosquitto_client_id(context);
@@ -620,7 +620,7 @@ int dynsec_clients__process_set_id(struct dynsec__data *data, struct plugin_cmd 
 	mosquitto_free(client->clientid);
 	client->clientid = clientid_heap;
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */
@@ -680,7 +680,7 @@ int dynsec_clients__process_set_password(struct dynsec__data *data, struct plugi
 	}
 	rc = client__set_password(client, password);
 	if(rc == MOSQ_ERR_SUCCESS){
-		dynsec__config_save(data);
+		dynsec__config_batch_save(data);
 		plugin__command_reply(cmd, NULL);
 
 		/* Enforce any changes */
@@ -849,7 +849,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct plugin_cmd 
 			 * *now* will mean the client can log in again. This might be
 			 * "good", but is inconsistent, so save the config to be
 			 * consistent. */
-			dynsec__config_save(data);
+			dynsec__config_batch_save(data);
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
@@ -876,7 +876,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct plugin_cmd 
 		dynsec_rolelist__cleanup(&rolelist);
 	}
 
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */
@@ -1172,7 +1172,7 @@ int dynsec_clients__process_add_role(struct dynsec__data *data, struct plugin_cm
 		plugin__command_reply(cmd, "Internal error");
 		return MOSQ_ERR_UNKNOWN;
 	}
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */
@@ -1226,7 +1226,7 @@ int dynsec_clients__process_remove_role(struct dynsec__data *data, struct plugin
 	}
 
 	dynsec_rolelist__client_remove(client, role);
-	dynsec__config_save(data);
+	dynsec__config_batch_save(data);
 	plugin__command_reply(cmd, NULL);
 
 	/* Enforce any changes */
