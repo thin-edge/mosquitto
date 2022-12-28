@@ -51,7 +51,7 @@ static HANDLE timeout_h = NULL;
 #endif
 
 #ifdef WIN32
-void timeout_cb(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
+void CALLBACK timeout_cb(PVOID lpParameter, BOOLEAN TimerOrWaitFired)
 {
 	UNUSED(lpParameter);
 	UNUSED(TimerOrWaitFired);
