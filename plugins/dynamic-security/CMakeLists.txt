@@ -21,6 +21,7 @@ if(CJSON_FOUND AND WITH_TLS)
 		config.c
 		config_init.c
 		control.c
+		../../common/control_common.c ../../common/control_common.h
 		default_acl.c
 		dynamic_security.h
 		groups.c
@@ -31,7 +32,6 @@ if(CJSON_FOUND AND WITH_TLS)
 		../../common/misc_mosq.c ../../common/misc_mosq.h
 		../../common/password_mosq.c ../../common/password_mosq.h
 		plugin.c
-		../common/plugin_common.c ../common/plugin_common.h
 		roles.c
 		rolelist.c
 		tick.c

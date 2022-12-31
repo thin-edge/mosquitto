@@ -35,7 +35,7 @@ Contributors:
 
 #define RESPONSE_TOPIC "$CONTROL/dynamic-security/v1/response"
 
-static int dynsec__handle_command(struct plugin_cmd *cmd, struct mosquitto *context, const char *command, void *userdata)
+static int dynsec__handle_command(struct control_cmd *cmd, struct mosquitto *context, const char *command, void *userdata)
 {
 	struct dynsec__data *data = userdata;
 	int rc = MOSQ_ERR_SUCCESS;
@@ -112,7 +112,7 @@ static int dynsec__handle_command(struct plugin_cmd *cmd, struct mosquitto *cont
 
 	/* Unknown */
 	}else{
-		plugin__command_reply(cmd, "Unknown command");
+		control__command_reply(cmd, "Unknown command");
 		rc = MOSQ_ERR_INVAL;
 	}
 
@@ -129,7 +129,7 @@ int dynsec_control_callback(int event, void *event_data, void *userdata)
 	UNUSED(event);
 
 	data->need_save = false;
-	rc = plugin__generic_control_callback(ed, RESPONSE_TOPIC, userdata, dynsec__handle_command);
+	rc = control__generic_control_callback(ed, RESPONSE_TOPIC, userdata, dynsec__handle_command);
 	if(rc == MOSQ_ERR_SUCCESS && data->need_save){
 		dynsec__config_save(data);
 	}
