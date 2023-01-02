@@ -16,7 +16,7 @@ foreach(PY_TEST_FILE ${PY_TEST_FILES})
         continue()
     endif()
     add_test(NAME lib-${PY_TEST_NAME}
-        COMMAND ${PY_TEST_FILE} c/${PY_TEST_NAME}.test
+        COMMAND ${PY_TEST_FILE}
     )
     set_tests_properties(lib-${PY_TEST_NAME}
         PROPERTIES

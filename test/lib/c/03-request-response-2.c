@@ -25,7 +25,6 @@ static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosqui
 	int rc;
 
 	(void)obj;
-	(void)props;
 
 	if(!strcmp(msg->topic, "request/topic")){
 		p_resp = mosquitto_property_read_string(props, MQTT_PROP_RESPONSE_TOPIC, &resp_topic, false);

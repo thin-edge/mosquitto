@@ -1,6 +1,10 @@
 R=..
 include ${R}/config.mk
 
+ifneq ($(UNAME),SunOS)
+	LOCAL_LDFLAGS:=-Wl,--version-script=linker.version -Wl,-soname,libmosquitto.so.$(SOVERSION)
+endif
+
 .PHONY : really clean install
 
 MOSQ_OBJS=mosquitto.o \
@@ -105,7 +109,7 @@ clean :
 	$(MAKE) -C cpp clean
 
 libmosquitto.so.${SOVERSION} : ${MOSQ_OBJS}
-	${CROSS_COMPILE}$(CC) -shared $(LIB_LDFLAGS) $^ -o $@ ${LIB_LIBADD}
+	${CROSS_COMPILE}$(CC) -shared $(LIB_LDFLAGS) $(LOCAL_LDFLAGS) $^ -o $@ ${LIB_LIBADD}
 
 libmosquitto.a : ${MOSQ_OBJS}
 	${CROSS_COMPILE}$(AR) cr $@ $^

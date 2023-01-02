@@ -165,6 +165,7 @@ ifeq ($(UNAME),SunOS)
 	endif
 else
 	CFLAGS?=-Wall -ggdb -O3 -Wconversion -Wextra -std=gnu99
+	CXXFLAGS?=-Wall -ggdb -O3 -Wconversion -Wextra
 endif
 
 STATIC_LIB_DEPS:=
@@ -235,10 +236,6 @@ ifeq ($(UNAME),SunOS)
 else
 	LIB_CFLAGS:=$(LIB_CFLAGS) -fPIC
 	LIB_CXXFLAGS:=$(LIB_CXXFLAGS) -fPIC
-endif
-
-ifneq ($(UNAME),SunOS)
-	LIB_LDFLAGS:=$(LIB_LDFLAGS) -Wl,--version-script=linker.version -Wl,-soname,libmosquitto.so.$(SOVERSION)
 endif
 
 ifeq ($(UNAME),QNX)
@@ -404,6 +401,7 @@ ifeq ($(WITH_COVERAGE),yes)
 	PLUGIN_CFLAGS:=$(PLUGIN_CFLAGS) -coverage
 	PLUGIN_LDFLAGS:=$(PLUGIN_LDFLAGS) -coverage
 	LIB_CFLAGS:=$(LIB_CFLAGS) -coverage
+	LIB_CXXFLAGS:=$(LIB_CXXFLAGS) -coverage
 	LIB_LDFLAGS:=$(LIB_LDFLAGS) -coverage
 	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) -coverage
 	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) -coverage

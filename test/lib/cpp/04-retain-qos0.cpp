@@ -1,8 +1,10 @@
+#include <cassert>
 #include <cstring>
 
 #include <mosquittopp.h>
 
 static int run = -1;
+static int sent_mid = -1;
 
 class mosquittopp_test : public mosqpp::mosquittopp
 {
@@ -22,12 +24,13 @@ void mosquittopp_test::on_connect(int rc)
 	if(rc){
 		exit(1);
 	}else{
-		publish(NULL, "retain/qos0/test", strlen("retained message"), "retained message", 0, true);
+		publish(&sent_mid, "retain/qos0/test", strlen("retained message"), "retained message", 0, true);
 	}
 }
 
 void mosquittopp_test::on_publish(int mid)
 {
+	assert(mid == sent_mid);
 	run = 0;
 }
 
@@ -35,6 +38,7 @@ int main(int argc, char *argv[])
 {
 	struct mosquittopp_test *mosq;
 
+	assert(argc == 2);
 	int port = atoi(argv[1]);
 
 	mosqpp::lib_init();

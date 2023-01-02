@@ -17,7 +17,7 @@ def do_test(proto_ver, env):
         V = 'mqttv31'
 
     env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib'
-    cmd = ['../../client/mosquitto_sub',
+    cmd = [mosq_test.get_build_root() + '/client/mosquitto_sub',
             '-p', str(port),
             '-q', '1',
             '-V', V,
@@ -63,12 +63,12 @@ def do_test(proto_ver, env):
             exit(rc)
 
 
-env = {'HOME': mosq_test.get_build_root() + '/test/client/data'}
+env = {'HOME': str(source_dir / 'data')}
 do_test(proto_ver=3, env=env)
 do_test(proto_ver=4, env=env)
 do_test(proto_ver=5, env=env)
 
-env = {'XDG_CONFIG_HOME': mosq_test.get_build_root() + '/test/client/data/.config'}
+env = {'XDG_CONFIG_HOME': str(source_dir / 'data/.config')}
 do_test(proto_ver=3, env=env)
 do_test(proto_ver=4, env=env)
 do_test(proto_ver=5, env=env)

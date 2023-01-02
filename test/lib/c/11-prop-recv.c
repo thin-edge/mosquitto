@@ -6,6 +6,7 @@
 #include <mqtt_protocol.h>
 
 static int run = -1;
+static int qos = -1;
 
 static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
@@ -36,7 +37,7 @@ static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosqui
 					free(str);
 
 					if(rc == 0){
-						if(msg->qos == 0){
+						if(msg->qos == qos){
 							mosquitto_publish(mosq, NULL, "ok", 2, "ok", 0, 0);
 							return;
 						}
@@ -61,6 +62,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	port = atoi(argv[1]);
+	qos = atoi(argv[2]);
 
 	mosquitto_lib_init();
 

@@ -19,7 +19,8 @@ SRC = \
 	01-unpwd-set.c \
 	01-will-set.c \
 	01-will-unpwd-set.c \
-	02-subscribe-helper-qos2.c \
+	02-subscribe-helper-callback-qos2.c \
+	02-subscribe-helper-simple-qos2.c \
 	02-subscribe-qos0.c \
 	02-subscribe-qos1-async1.c \
 	02-subscribe-qos1-async2.c \
@@ -43,9 +44,12 @@ SRC = \
 	03-publish-c2b-qos2-maximum-qos-0.c \
 	03-publish-c2b-qos2-maximum-qos-1.c \
 	03-publish-c2b-qos2-pubrec-error.c \
-	03-publish-c2b-qos2-receive-maximum-1.c \
-	03-publish-c2b-qos2-receive-maximum-2.c \
+	03-publish-c2b-qos2-receive-maximum.c \
 	03-publish-c2b-qos2.c \
+	03-publish-loop.c \
+	03-publish-loop-forever.c \
+	03-publish-loop-manual.c \
+	03-publish-loop-start.c \
 	03-publish-qos0-no-payload.c \
 	03-publish-qos0.c \
 	03-request-response-1.c \
@@ -56,14 +60,11 @@ SRC = \
 	08-ssl-connect-cert-auth-enc.c \
 	08-ssl-connect-cert-auth.c \
 	08-ssl-connect-no-auth.c \
-	08-ssl-connect-san-dns.c \
-	08-ssl-connect-san-ipv4.c \
+	08-ssl-connect-san.c \
 	08-ssl-fake-cacert.c \
 	09-util-topic-tokenise.c \
 	11-prop-oversize-packet.c \
-	11-prop-recv-qos0.c \
-	11-prop-recv-qos1.c \
-	11-prop-recv-qos2.c \
+	11-prop-recv.c \
 	11-prop-send-payload-format.c \
 	11-prop-send-content-type.c \
 	fuzzish.c

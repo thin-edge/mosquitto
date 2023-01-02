@@ -31,11 +31,13 @@ int main(int argc, char *argv[])
 	int rc;
 	struct mosquitto *mosq;
 	int port;
+	char *host;
 
 	if(argc < 2){
 		return 1;
 	}
 	port = atoi(argv[1]);
+	host = argv[2];
 
 	mosquitto_lib_init();
 
@@ -49,7 +51,7 @@ int main(int argc, char *argv[])
 	mosquitto_connect_callback_set(mosq, on_connect);
 	mosquitto_disconnect_callback_set(mosq, on_disconnect);
 
-	rc = mosquitto_connect(mosq, "localhost", port, 60);
+	rc = mosquitto_connect(mosq, host, port, 60);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
 
 	while(run == -1){

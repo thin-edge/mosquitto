@@ -28,8 +28,8 @@ def do_test(per_listener_settings):
                 '-m', 'psk-test',
                 '--psk', '159445',
                 '--psk-identity', 'badidentity',
-                '-p']
-        bad_client = mosq_test.start_client(filename=sys.argv[0].replace('/', '-'), cmd=bad_client_args, port=port)
+                '-p', str(port)]
+        bad_client = mosq_test.start_client(filename=sys.argv[0].replace('/', '-'), cmd=bad_client_args)
         bad_client.wait()
         if bad_client.returncode == 0:
             raise ValueError('bad client should have failed')
@@ -41,16 +41,16 @@ def do_test(per_listener_settings):
                 '--psk', '159445',
                 '--psk-identity', 'subidentity',
                 '-v', '-N',
-                '-p']
-        sub_client = mosq_test.start_client(filename=sys.argv[0].replace('/', '-'), cmd=sub_client_args, port=port)
+                '-p', str(port)]
+        sub_client = mosq_test.start_client(filename=sys.argv[0].replace('/', '-'), cmd=sub_client_args)
 
         pub_client_args = [mosq_test.get_build_root() + '/client/mosquitto_pub',
                 '-t', 'plugin/psk/test',
                 '-m', 'psk-test',
                 '--psk', '297A49',
                 '--psk-identity', 'pubidentity',
-                '-p']
-        pub_client = mosq_test.start_client(filename=sys.argv[0].replace('/', '-'), cmd=pub_client_args, port=port)
+                '-p', str(port)]
+        pub_client = mosq_test.start_client(filename=sys.argv[0].replace('/', '-'), cmd=pub_client_args)
         pub_client.wait()
         sub_client.wait()
 

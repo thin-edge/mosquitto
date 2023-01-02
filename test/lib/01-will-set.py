@@ -9,36 +9,11 @@
 
 from mosq_test_helper import *
 
-port = mosq_test.get_lib_port()
-
-rc = 1
-keepalive = 60
-connect_packet = mosq_test.gen_connect("01-will-set", keepalive=keepalive, will_topic="topic/on/unexpected/disconnect", will_qos=1, will_retain=True, will_payload=b"will message")
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.settimeout(10)
-sock.bind(('', port))
-sock.listen(5)
-
-client_args = sys.argv[1:]
-client = mosq_test.start_client(filename=sys.argv[1].replace('/', '-'), cmd=client_args, port=port)
-
-try:
-    (conn, address) = sock.accept()
-    conn.settimeout(10)
+def do_test(conn, data):
+    connect_packet = mosq_test.gen_connect("01-will-set", will_topic="topic/on/unexpected/disconnect", will_qos=1, will_retain=True, will_payload=b"will message")
 
     mosq_test.expect_packet(conn, "connect", connect_packet)
-    rc = 0
 
-    conn.close()
-except mosq_test.TestError:
-    pass
-finally:
-    if mosq_test.wait_for_subprocess(client):
-        print("test client not finished")
-        rc=1
-    sock.close()
 
-exit(rc)
-
+mosq_test.client_test("c/01-will-set.test", [], do_test, None)
+mosq_test.client_test("cpp/01-will-set.test", [], do_test, None)

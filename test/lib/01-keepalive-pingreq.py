@@ -9,28 +9,13 @@
 
 from mosq_test_helper import *
 
-port = mosq_test.get_lib_port()
+def do_test(conn, data):
+    keepalive = 5
+    connect_packet = mosq_test.gen_connect("01-keepalive-pingreq", keepalive=keepalive)
+    connack_packet = mosq_test.gen_connack(rc=0)
 
-rc = 1
-keepalive = 5
-connect_packet = mosq_test.gen_connect("01-keepalive-pingreq", keepalive=keepalive)
-connack_packet = mosq_test.gen_connack(rc=0)
-
-pingreq_packet = mosq_test.gen_pingreq()
-pingresp_packet = mosq_test.gen_pingresp()
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.settimeout(10)
-sock.bind(('', port))
-sock.listen(5)
-
-client_args = sys.argv[1:]
-client = mosq_test.start_client(filename=sys.argv[1].replace('/', '-'), cmd=client_args, port=port)
-
-try:
-    (conn, address) = sock.accept()
-    conn.settimeout(keepalive+10)
+    pingreq_packet = mosq_test.gen_pingreq()
+    pingresp_packet = mosq_test.gen_pingresp()
 
     mosq_test.do_receive_send(conn, connect_packet, connack_packet, "connect")
 
@@ -39,17 +24,7 @@ try:
     conn.send(pingresp_packet)
 
     mosq_test.expect_packet(conn, "pingreq", pingreq_packet)
-    conn.close()
-    rc = 0
 
-except mosq_test.TestError:
-    pass
-finally:
-    #client.terminate()
-    if mosq_test.wait_for_subprocess(client, timeout=20):
-        print("test client not finished")
-        rc=1
-    sock.close()
 
-exit(rc)
-
+mosq_test.client_test("c/01-keepalive-pingreq.test", [], do_test, None)
+mosq_test.client_test("cpp/01-keepalive-pingreq.test", [], do_test, None)

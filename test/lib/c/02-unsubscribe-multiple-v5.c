@@ -14,7 +14,7 @@ static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 	if(rc){
 		exit(1);
 	}else{
-		mosquitto_subscribe(mosq, NULL, "unsubscribe/test", QOS);
+		mosquitto_subscribe_v5(mosq, NULL, "unsubscribe/test", QOS, 0, NULL);
 	}
 }
 

@@ -2,7 +2,7 @@ R=../..
 include ${R}/config.mk
 
 ifneq ($(UNAME),SunOS)
-	LIB_LDFLAGS:=$(LDFLAGS) -Wl,-soname,libmosquittopp.so.${SOVERSION}
+	LOCAL_LDFLAGS:=-Wl,-soname,libmosquittopp.so.${SOVERSION}
 endif
 
 .PHONY : clean install
@@ -39,11 +39,10 @@ clean :
 	-rm -f *.o libmosquittopp.so.${SOVERSION} libmosquittopp.a
 
 libmosquittopp.so.${SOVERSION} : mosquittopp.o
-	${CROSS_COMPILE}$(CXX) -shared $(LIB_LDFLAGS) $< -o $@ ../libmosquitto.so.${SOVERSION} $(LIB_LIDADD)
+	${CROSS_COMPILE}$(CXX) -shared $(LOCAL_LDFLAGS) $(LIB_LDFLAGS) $< -o $@ ../libmosquitto.so.${SOVERSION} $(LIB_LIDADD)
 
 libmosquittopp.a : mosquittopp.o
 	${CROSS_COMPILE}$(AR) cr $@ $^
 
 mosquittopp.o : mosquittopp.cpp ${R}/include/mosquittopp.h
 	${CROSS_COMPILE}$(CXX) $(LIB_CPPFLAGS) $(LIB_CXXFLAGS) -c $< -o $@
-

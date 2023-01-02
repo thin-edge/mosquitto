@@ -8,7 +8,7 @@ static int run = -1;
 static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 {
 	int rc2;
-	mosquitto_property *proplist;
+	mosquitto_property *proplist = NULL;
 	(void)obj;
 
 	if(rc){

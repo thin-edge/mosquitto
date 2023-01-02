@@ -27,6 +27,14 @@ def get_build_root():
         result = str(Path(__file__).resolve().parents[1])
     return result
 
+def listen_sock(port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.settimeout(10)
+    sock.bind(('', port))
+    sock.listen(5)
+    return sock
+
 def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost", env=None, check_port=True):
     global vg_index
     global vg_logfiles
@@ -91,7 +99,7 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
     else:
         return None
 
-def start_client(filename, cmd, env=None, port=1888):
+def start_client(filename, cmd, env=None):
     if cmd is None:
         raise ValueError
     if env is None:
@@ -100,7 +108,6 @@ def start_client(filename, cmd, env=None, port=1888):
     if os.environ.get('MOSQ_USE_VALGRIND') is not None:
         cmd = ['valgrind', '-q', '--log-file='+filename+'.vglog'] + cmd
 
-    cmd = cmd + [str(port)]
     return subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 def wait_for_subprocess(client,timeout=10,terminate_timeout=2):
@@ -835,15 +842,46 @@ def get_port(count=1):
             return tuple(range(1888, 1888+count))
 
 
-def get_lib_port():
-    if len(sys.argv) == 3:
-        return int(sys.argv[2])
-    else:
-        return 1888
-
-
 def do_ping(sock, error_string="pingresp"):
      do_send_receive(sock, gen_pingreq(), gen_pingresp(), error_string)
+
+def client_test(client_cmd, client_args, callback, cb_data):
+    port = get_port()
+
+    rc = 1
+
+    sock = listen_sock(port);
+
+    args = [get_build_root() + "/test/lib/" + client_cmd, str(port)]
+    if client_args is not None:
+        args = args + client_args
+
+    client = start_client(filename=client_cmd.replace('/', '-'), cmd=args)
+
+    try:
+        (conn, address) = sock.accept()
+        conn.settimeout(10)
+
+        callback(conn, cb_data)
+        rc = 0
+
+        conn.close()
+    except mosq_test.TestError:
+        pass
+    except Exception as err:
+        print(err)
+        raise
+    finally:
+        if wait_for_subprocess(client):
+            print("test client not finished")
+            rc=1
+        sock.close()
+        if rc:
+            (o, e) = client.communicate()
+            print(o)
+            print(e)
+            print(f"Fail: {client_cmd}")
+            exit(rc)
 
 
 @atexit.register

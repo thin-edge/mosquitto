@@ -1,6 +1,5 @@
 add_subdirectory(c)
 
-
 file(GLOB PY_TEST_FILES [0-9][0-9]-*.py)
 file(GLOB PY_PERSIST_TEST_FILES 15-*.py)
 
