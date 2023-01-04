@@ -460,7 +460,10 @@ int main(int argc, char *argv[])
 
 				default:
 					fprintf(stderr, "Warning: Unsupported chunk \"%d\" of length %d in persistent database file at position %ld. Ignoring.\n", chunk, length, ftell(fd));
-					fseek(fd, length, SEEK_CUR);
+					if(fseek(fd, length, SEEK_CUR)){
+						fprintf(stderr, "Error: %s\n", strerror(errno));
+						return 1;
+					}
 					break;
 			}
 		}
