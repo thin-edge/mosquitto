@@ -87,7 +87,7 @@ int mosquitto_basic_auth(struct mosquitto *context)
 	 * here, then no plugins were configured.
 	 * anonymous logins are allowed. */
 	if(plugin_used == false){
-		if((db.config->per_listener_settings && context->listener->security_options->allow_anonymous != false)
+		if((db.config->per_listener_settings && context->listener && context->listener->security_options->allow_anonymous != false)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous != false)){
 
 			return MOSQ_ERR_SUCCESS;
@@ -98,7 +98,7 @@ int mosquitto_basic_auth(struct mosquitto *context)
 		/* Can't have got here without at least one plugin returning MOSQ_ERR_PLUGIN_DEFER.
 		 * This will now be a denial, unless it is anon and allow anon is true. */
 		if(context->username == NULL &&
-				((db.config->per_listener_settings && context->listener->security_options->allow_anonymous != false)
+				((db.config->per_listener_settings && context->listener && context->listener->security_options->allow_anonymous != false)
 				|| (!db.config->per_listener_settings && db.config->security_options.allow_anonymous != false))){
 
 			return MOSQ_ERR_SUCCESS;
