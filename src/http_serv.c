@@ -262,7 +262,7 @@ int http__read(struct mosquitto *mosq)
 	SAFE_FREE(accept_key);
 	packet->to_process = packet->packet_length;
 
-	mosq->http_request[0] = '\0';
+	memset(mosq->http_request, 0, db.config->websockets_headers_size);
 	rc = packet__queue(mosq, packet);
 	http__context_cleanup(mosq);
 	ws__context_init(mosq);
