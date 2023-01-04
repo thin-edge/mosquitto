@@ -850,8 +850,10 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 	return plugin;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-	mosquitto__FREE(plugin->config.name);
-	mosquitto__FREE(plugin->config.path);
+	if(plugin){
+		mosquitto__FREE(plugin->config.name);
+		mosquitto__FREE(plugin->config.path);
+	}
 	mosquitto__FREE(plugin);
 	return NULL;
 }
