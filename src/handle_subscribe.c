@@ -132,6 +132,7 @@ int handle__subscribe(struct mosquitto *context)
 
 			if(context->protocol == mosq_p_mqtt31 || context->protocol == mosq_p_mqtt311){
 				qos = sub.options;
+				sub.options = 0;
 				if(context->is_bridge){
 					sub.options |= MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | MQTT_SUB_OPT_NO_LOCAL;
 				}
