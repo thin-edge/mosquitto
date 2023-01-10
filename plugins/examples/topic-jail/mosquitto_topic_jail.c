@@ -69,7 +69,7 @@ static bool is_jailed(const char *str)
 }
 
 
-static int callback_message_write(int event, void *event_data, void *userdata)
+static int callback_message_in(int event, void *event_data, void *userdata)
 {
 	struct mosquitto_evt_message *ed = event_data;
 	char *new_topic;
@@ -109,7 +109,7 @@ static int callback_message_write(int event, void *event_data, void *userdata)
 	return MOSQ_ERR_SUCCESS;
 }
 
-static int callback_message_read(int event, void *event_data, void *userdata)
+static int callback_message_out(int event, void *event_data, void *userdata)
 {
 	struct mosquitto_evt_message *ed = event_data;
 	size_t client_id_len;
@@ -246,9 +246,9 @@ int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, s
 
 	int rc;
 
-	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_MESSAGE_WRITE, callback_message_write, NULL, NULL);
+	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_MESSAGE_IN, callback_message_in, NULL, NULL);
 	if(rc) return rc;
-	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_MESSAGE_READ, callback_message_read, NULL, NULL);
+	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_MESSAGE_OUT, callback_message_out, NULL, NULL);
 	if(rc) return rc;
 	rc = mosquitto_callback_register(mosq_pid, MOSQ_EVT_SUBSCRIBE, callback_subscribe, NULL, NULL);
 	if(rc) return rc;

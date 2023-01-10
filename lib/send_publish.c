@@ -70,7 +70,7 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 		tmp_msg.retain = retain;
 		tmp_msg.properties = (mosquitto_property *) store_props;
 
-		plugin__handle_message_read(mosq, &tmp_msg);
+		plugin__handle_message_out(mosq, &tmp_msg);
 
 		if(tmp_msg.payload != payload) payload_changed = true;
 		if(tmp_msg.topic != topic) topic_changed = true;

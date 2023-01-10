@@ -206,10 +206,14 @@ endif
 	./09-plugin-bad.py
 	./09-plugin-change-id.py
 	./09-plugin-delayed-auth.py
+	./09-plugin-evt-message-in.py
+	./09-plugin-evt-message-out.py
 	./09-plugin-evt-psk-key.py
+	./09-plugin-evt-subscribe.py
+	./09-plugin-evt-tick.py
+	./09-plugin-evt-unsubscribe.py
 	./09-plugin-load.py
 	./09-plugin-publish.py
-	./09-plugin-tick.py
 	./09-plugin-unsupported.py
 	./09-pwfile-parse-invalid.py
 

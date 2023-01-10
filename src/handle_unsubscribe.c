@@ -133,6 +133,7 @@ int handle__unsubscribe(struct mosquitto *context)
 			rc = plugin__handle_unsubscribe(context, &sub);
 			if(rc){
 				mosquitto__FREE(sub.topic);
+				mosquitto__FREE(reason_codes);
 				return rc;
 			}
 			rc = sub__remove(context, sub.topic, &reason);

@@ -75,7 +75,7 @@ Broker:
   version.
 
 Plugins / plugin interface:
-- Add support for modifying outgoing messages using MOSQ_EVT_MESSAGE_READ.
+- Add support for modifying outgoing messages using MOSQ_EVT_MESSAGE_OUT.
 - Add persist-sqlite plugin.
 - Add mosquitto_client() function for retrieving a client struct if that
   client is connected.

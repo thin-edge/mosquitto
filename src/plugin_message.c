@@ -70,44 +70,44 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 	}
 
 	stored->retain = event_data.retain;
-	if(ev_type == MOSQ_EVT_MESSAGE_READ){
+	if(ev_type == MOSQ_EVT_MESSAGE_OUT){
 		stored->qos = event_data.qos;
 	}
 
 	return rc;
 }
 
-int plugin__handle_message_read(struct mosquitto *context, struct mosquitto_base_msg *stored)
+int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *stored)
 {
 	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {false, false, false}; /* in msg_read, original data will be freed later */
+	struct should_free to_free = {false, false, false}; /* in msg_out, original data will be freed later */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_read,
-			MOSQ_EVT_MESSAGE_READ, &to_free, context, stored);
+	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_out,
+			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_read,
-			MOSQ_EVT_MESSAGE_READ, &to_free, context, stored);
+		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_out,
+			MOSQ_EVT_MESSAGE_OUT, &to_free, context, stored);
 	}
 
 	return rc;
 }
 
-int plugin__handle_message_write(struct mosquitto *context, struct mosquitto_base_msg *stored)
+int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *stored)
 {
 	int rc = MOSQ_ERR_SUCCESS;
-	struct should_free to_free = {true, true, true}; /* in msg_write, original data should be freed */
+	struct should_free to_free = {true, true, true}; /* in msg_in, original data should be freed */
 
 	/* Global plugins */
-	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_write,
-			MOSQ_EVT_MESSAGE_WRITE, &to_free, context, stored);
+	rc = plugin__handle_message_single(db.config->security_options.plugin_callbacks.message_in,
+			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
 	if(rc) return rc;
 
 	if(db.config->per_listener_settings && context->listener){
-		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_write,
-			MOSQ_EVT_MESSAGE_WRITE, &to_free, context, stored);
+		rc = plugin__handle_message_single(context->listener->security_options->plugin_callbacks.message_in,
+			MOSQ_EVT_MESSAGE_IN, &to_free, context, stored);
 	}
 
 	return rc;

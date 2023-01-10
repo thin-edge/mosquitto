@@ -35,7 +35,7 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 	event_data.topic = sub->topic;
 	event_data.properties = sub->properties;
 
-	DL_FOREACH(opts->plugin_callbacks.subscribe, cb_base){
+	DL_FOREACH(opts->plugin_callbacks.unsubscribe, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
 		if(rc != MOSQ_ERR_SUCCESS){
 			break;
