@@ -153,12 +153,12 @@ void net__cleanup(void)
 	ERR_free_strings();
 	ERR_remove_thread_state(NULL);
 	EVP_cleanup();
-
-#    if !defined(OPENSSL_NO_ENGINE)
-	ENGINE_cleanup();
-#    endif
-	is_tls_initialized = false;
 #  endif
+
+#  if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
+	ENGINE_cleanup();
+#  endif
+	is_tls_initialized = false;
 
 	cleanup_ui_method();
 #endif
@@ -182,7 +182,7 @@ void net__init_tls(void)
 	SSL_library_init();
 	OpenSSL_add_all_algorithms();
 #  endif
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 	ENGINE_load_builtin_engines();
 #endif
 	setup_ui_method();
@@ -646,12 +646,12 @@ static int net__tls_load_ca(struct mosquitto *mosq)
 static int net__init_ssl_ctx(struct mosquitto *mosq)
 {
 	int ret;
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 	ENGINE *engine = NULL;
-	uint8_t tls_alpn_wire[256];
-	uint8_t tls_alpn_len;
-#if !defined(OPENSSL_NO_ENGINE)
 	EVP_PKEY *pkey;
 #endif
+	uint8_t tls_alpn_wire[256];
+	uint8_t tls_alpn_len;
 
 #ifndef WITH_BROKER
 	if(mosq->user_ssl_ctx){
@@ -726,7 +726,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 			SSL_CTX_set_mode(mosq->ssl_ctx, SSL_MODE_RELEASE_BUFFERS);
 #endif
 
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 		if(mosq->tls_engine){
 			engine = ENGINE_by_id(mosq->tls_engine);
 			if(!engine){
@@ -747,7 +747,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 			ret = SSL_CTX_set_cipher_list(mosq->ssl_ctx, mosq->tls_ciphers);
 			if(ret == 0){
 				log__printf(mosq, MOSQ_LOG_ERR, "Error: Unable to set TLS ciphers. Check cipher list \"%s\".", mosq->tls_ciphers);
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 				ENGINE_FINISH(engine);
 #endif
 				net__print_ssl_error(mosq);
@@ -768,7 +768,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 		if(mosq->tls_cafile || mosq->tls_capath || mosq->tls_use_os_certs){
 			ret = net__tls_load_ca(mosq);
 			if(ret != MOSQ_ERR_SUCCESS){
-#  if !defined(OPENSSL_NO_ENGINE)
+#  if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 				ENGINE_FINISH(engine);
 #  endif
 				net__print_ssl_error(mosq);
@@ -793,7 +793,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 #else
 					log__printf(mosq, MOSQ_LOG_ERR, "Error: Unable to load client certificate \"%s\".", mosq->tls_certfile);
 #endif
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 					ENGINE_FINISH(engine);
 #endif
 					net__print_ssl_error(mosq);
@@ -802,7 +802,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 			}
 			if(mosq->tls_keyfile){
 				if(mosq->tls_keyform == mosq_k_engine){
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 					UI_METHOD *ui_method = net__get_ui_method();
 					if(mosq->tls_engine_kpass_sha1){
 						if(!ENGINE_ctrl_cmd(engine, ENGINE_SECRET_MODE, ENGINE_SECRET_MODE_SHA, NULL, NULL, 0)){
@@ -841,7 +841,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 #else
 						log__printf(mosq, MOSQ_LOG_ERR, "Error: Unable to load client key file \"%s\".", mosq->tls_keyfile);
 #endif
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 						ENGINE_FINISH(engine);
 #endif
 						net__print_ssl_error(mosq);
@@ -851,7 +851,7 @@ static int net__init_ssl_ctx(struct mosquitto *mosq)
 				ret = SSL_CTX_check_private_key(mosq->ssl_ctx);
 				if(ret != 1){
 					log__printf(mosq, MOSQ_LOG_ERR, "Error: Client certificate/key are inconsistent.");
-#if !defined(OPENSSL_NO_ENGINE)
+#if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 					ENGINE_FINISH(engine);
 #endif
 					net__print_ssl_error(mosq);

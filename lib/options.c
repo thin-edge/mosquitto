@@ -266,7 +266,7 @@ int mosquitto_tls_insecure_set(struct mosquitto *mosq, bool value)
 
 int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, const char *value)
 {
-#ifdef WITH_TLS
+#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 	ENGINE *eng;
 	char *str;
 #endif
@@ -275,7 +275,7 @@ int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, cons
 
 	switch(option){
 		case MOSQ_OPT_TLS_ENGINE:
-#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE)
+#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 			mosquitto__FREE(mosq->tls_engine);
 			if(value){
 				eng = ENGINE_by_id(value);
@@ -295,7 +295,7 @@ int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, cons
 			break;
 
 		case MOSQ_OPT_TLS_KEYFORM:
-#ifdef WITH_TLS
+#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 			if(!value) return MOSQ_ERR_INVAL;
 			if(!strcasecmp(value, "pem")){
 				mosq->tls_keyform = mosq_k_pem;
@@ -312,7 +312,7 @@ int mosquitto_string_option(struct mosquitto *mosq, enum mosq_opt_t option, cons
 
 
 		case MOSQ_OPT_TLS_ENGINE_KPASS_SHA1:
-#ifdef WITH_TLS
+#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 			mosquitto__FREE(mosq->tls_engine_kpass_sha1);
 			if(mosquitto__hex2bin_sha1(value, (unsigned char**)&str) != MOSQ_ERR_SUCCESS){
 				return MOSQ_ERR_INVAL;

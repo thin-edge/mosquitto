@@ -345,8 +345,13 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 {
 	char buf[256];
 	int rc;
+#if OPENSSL_VERSION_NUMBER >= 0x30000000
+	BIO *bio;
+	EVP_PKEY *dhparam = NULL;
+#else
 	FILE *dhparamfile;
 	DH *dhparam = NULL;
+#endif
 
 	if(listener->ssl_ctx){
 		SSL_CTX_free(listener->ssl_ctx);
@@ -458,6 +463,26 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 #endif
 
 	if(listener->dhparamfile){
+#if OPENSSL_VERSION_NUMBER >= 0x30000000
+		bio = BIO_new_file(listener->dhparamfile, "r");
+		if(!bio){
+			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
+			return MOSQ_ERR_TLS;
+		}
+		dhparam = EVP_PKEY_new();
+		if(dhparam == NULL || !PEM_read_bio_Parameters(bio, &dhparam)){
+			BIO_free(bio);
+			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
+			net__print_ssl_error(NULL);
+			return MOSQ_ERR_TLS;
+		}
+		BIO_free(bio);
+		if(dhparam == NULL || SSL_CTX_set0_tmp_dh_pkey(listener->ssl_ctx, dhparam) != 1){
+			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
+			net__print_ssl_error(NULL);
+			return MOSQ_ERR_TLS;
+		}
+#else
 		dhparamfile = fopen(listener->dhparamfile, "r");
 		if(!dhparamfile){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
@@ -471,6 +496,7 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 			net__print_ssl_error(NULL);
 			return MOSQ_ERR_TLS;
 		}
+#endif
 	}
 	return MOSQ_ERR_SUCCESS;
 }
@@ -549,7 +575,7 @@ int net__load_certificates(struct mosquitto__listener *listener)
 }
 
 
-#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE)
+#if defined(WITH_TLS) && !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 static int net__load_engine(struct mosquitto__listener *listener)
 {
 	ENGINE *engine = NULL;
@@ -644,7 +670,7 @@ int net__tls_load_verify(struct mosquitto__listener *listener)
 	}
 #  endif
 
-#  if !defined(OPENSSL_NO_ENGINE)
+#  if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 	if(net__load_engine(listener)){
 		return MOSQ_ERR_TLS;
 	}
