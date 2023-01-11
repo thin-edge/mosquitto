@@ -92,3 +92,5 @@ cat test-signing-ca.crt test-root-ca.crt > all-ca.crt
 #cp test-signing-ca.crt certs/test-signing-ca.pem
 #cp test-root-ca.crt certs/test-root.ca.pem
 #openssl rehash certs
+
+openssl dhparam -out dhparam 2048
