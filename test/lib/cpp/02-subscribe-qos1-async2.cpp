@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
 {
 	struct mosquittopp_test *mosq;
 	int rc;
+	struct timespec tv = { 0, (long)100e6 };
 
 	assert(argc == 2);
 	int port = atoi(argv[1]);
@@ -58,6 +59,9 @@ int main(int argc, char *argv[])
 	mosqpp::lib_init();
 
 	mosq = new mosquittopp_test("subscribe-qos1-test");
+
+	/* Help with possible race condition on CI */
+	nanosleep(&tv, NULL);
 
 	rc = mosq->connect_async("localhost", port, 60, NULL);
 	if(rc){
@@ -72,7 +76,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* 50 millis to be system polite */
-	struct timespec tv = { 0, (long)50e6 };
+	tv.tv_nsec = (long)50e6;
 	while(should_run){
 		nanosleep(&tv, NULL);
 	}
