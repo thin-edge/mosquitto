@@ -26,18 +26,18 @@ do_test(["broker"], 1)
 do_test(["-A"], 1, response="Error: -A argument given but no address specified.\n\n")
 do_test(["-A", "127.0.0.1"], 1) # Gives generic help
 do_test(["--cafile"], 1, response="Error: --cafile argument given but no file specified.\n\n")
-do_test(["--cafile", mosq_test.get_build_root()+"/test/ssl/all-ca.crt"], 1) # Gives generic help
+do_test(["--cafile", ssl_dir / "all-ca.crt"], 1) # Gives generic help
 do_test(["--capath"], 1, response="Error: --capath argument given but no directory specified.\n\n")
-do_test(["--capath", mosq_test.get_build_root()+"/test/ssl"], 1) # Gives generic help
+do_test(["--capath", ssl_dir], 1) # Gives generic help
 do_test(["--cert"], 1, response="Error: --cert argument given but no file specified.\n\n")
-do_test(["--cert", mosq_test.get_build_root()+"/test/ssl/client.crt"], 1, response="Error: Both certfile and keyfile must be provided if one of them is set.\n")
+do_test(["--cert", ssl_dir / "client.crt"], 1, response="Error: Both certfile and keyfile must be provided if one of them is set.\n")
 do_test(["--key"], 1, response="Error: --key argument given but no file specified.\n\n")
-do_test(["--key", mosq_test.get_build_root()+"/test/ssl/client.key"], 1, response="Error: Both certfile and keyfile must be provided if one of them is set.\n")
+do_test(["--key", ssl_dir / "client.key"], 1, response="Error: Both certfile and keyfile must be provided if one of them is set.\n")
 do_test(["--ciphers"], 1, response="Error: --ciphers argument given but no ciphers specified.\n\n")
 do_test(["--ciphers", "DEFAULT"], 1) # Gives generic help
 do_test(["--debug"], 1) # Gives generic help
 do_test(["-f"], 1, response="Error: -f argument given but no data file specified.\n\n")
-do_test(["-f", mosq_test.get_build_root()+"/test/ssl/test"], 1) # Gives generic help
+do_test(["-f", ssl_dir / "test"], 1) # Gives generic help
 do_test(["--help"], 1) # Gives generic help
 do_test(["--host"], 1, response="Error: -h argument given but no host specified.\n\n")
 do_test(["--host", "127.0.0.1"], 1) # Gives generic help

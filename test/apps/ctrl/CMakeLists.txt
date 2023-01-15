@@ -1,4 +1,4 @@
-file(GLOB PY_TEST_FILES [0-9][0-9]-*.py)
+file(GLOB PY_TEST_FILES ctrl-*.py)
 
 set(EXCLUDE_LIST
     # none

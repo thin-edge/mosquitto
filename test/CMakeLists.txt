@@ -1,3 +1,4 @@
+add_subdirectory(apps)
 add_subdirectory(broker)
 add_subdirectory(client)
 add_subdirectory(lib)

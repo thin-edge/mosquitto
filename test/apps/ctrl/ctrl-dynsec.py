@@ -11,8 +11,8 @@ def write_config(filename, ports):
         f.write("allow_anonymous false\n")
         f.write(f"listener {ports[0]}\n")
         f.write(f"listener {ports[1]}\n")
-        f.write(f"certfile {mosq_test.get_build_root()}/test/ssl/server.crt\n")
-        f.write(f"keyfile {mosq_test.get_build_root()}/test/ssl/server.key\n")
+        f.write(f"certfile {ssl_dir}/server.crt\n")
+        f.write(f"keyfile {ssl_dir}/server.key\n")
 
 def ctrl_dynsec_cmd(args, ports, response=None, input=None):
     opts = ["-u", "admin",
@@ -25,7 +25,7 @@ def ctrl_dynsec_cmd(args, ports, response=None, input=None):
                  ]
     else:
         opts += ["-p", str(ports[1])]
-        opts += ["--cafile", f"{mosq_test.get_build_root()}/test/ssl/all-ca.crt"]
+        opts += ["--cafile", f"{ssl_dir}/all-ca.crt"]
 
     proc = subprocess.run([mosq_test.get_build_root()+"/apps/mosquitto_ctrl/mosquitto_ctrl"]
                     + opts + ["dynsec"] + args,

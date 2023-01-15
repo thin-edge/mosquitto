@@ -14,6 +14,8 @@ test_dir = current_source_dir.parents[1]
 if test_dir not in sys.path:
     sys.path.insert(0, str(test_dir))
 
+ssl_dir = test_dir / "ssl"
+
 import mosq_test
 import subprocess
 import os
