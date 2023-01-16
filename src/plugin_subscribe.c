@@ -29,18 +29,13 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 	struct mosquitto_evt_subscribe event_data;
 	struct mosquitto__callback *cb_base;
 	int rc = MOSQ_ERR_SUCCESS;
-	uint8_t qos;
-	uint8_t options;
 
-	qos = sub->options & 0x03;
-	options = sub->options &= 0xFC;
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
-	event_data.topic_filter = sub->topic_filter;
-	event_data.qos = qos;
-	event_data.subscription_options = options;
-	event_data.subscription_identifier = sub->identifier;
-	event_data.properties = sub->properties;
+	event_data.data.topic_filter = sub->topic_filter;
+	event_data.data.options = sub->options;
+	event_data.data.identifier = sub->identifier;
+	event_data.data.properties = sub->properties;
 
 	DL_FOREACH(opts->plugin_callbacks.subscribe, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
@@ -48,15 +43,12 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 			break;
 		}
 
-		if(sub->topic_filter != event_data.topic_filter){
+		if(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto__free(sub->topic_filter);
-			sub->topic_filter = event_data.topic_filter;
+			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
-	if(event_data.qos < qos){
-		qos = event_data.qos;
-	}
-	sub->options = qos | options;
+	sub->options = event_data.data.options;
 
 	return rc;
 }

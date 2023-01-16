@@ -173,7 +173,7 @@ static int callback_subscribe(int event, void *event_data, void *userdata)
 	/* put the client_id on front of the topic */
 
 	/* calculate the length of the new payload */
-	new_sub_len = strlen(client_id) + sizeof('/') + strlen(ed->topic_filter) + 1;
+	new_sub_len = strlen(client_id) + sizeof('/') + strlen(ed->data.topic_filter) + 1;
 
 	/* Allocate some memory - use
 	 * mosquitto_calloc/mosquitto_malloc/mosquitto_strdup when allocating, to
@@ -184,12 +184,12 @@ static int callback_subscribe(int event, void *event_data, void *userdata)
 	}
 
 	/* prepend the client_id to the subscription */
-	snprintf(new_sub, new_sub_len, "%s/%s", client_id, ed->topic_filter);
+	snprintf(new_sub, new_sub_len, "%s/%s", client_id, ed->data.topic_filter);
 
 	/* Assign the new topic to the event data structure. You
 	 * must *not* free the original topic, it will be handled by the
 	 * broker. */
-	ed->topic_filter = new_sub;
+	ed->data.topic_filter = new_sub;
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -213,7 +213,7 @@ static int callback_unsubscribe(int event, void *event_data, void *userdata)
 	/* put the client_id on front of the topic */
 
 	/* calculate the length of the new payload */
-	new_sub_len = strlen(client_id) + sizeof('/') + strlen(ed->topic_filter) + 1;
+	new_sub_len = strlen(client_id) + sizeof('/') + strlen(ed->data.topic_filter) + 1;
 
 	/* Allocate some memory - use
 	 * mosquitto_calloc/mosquitto_malloc/mosquitto_strdup when allocating, to
@@ -224,12 +224,12 @@ static int callback_unsubscribe(int event, void *event_data, void *userdata)
 	}
 
 	/* prepend the client_id to the subscription */
-	snprintf(new_sub, new_sub_len, "%s/%s", client_id, ed->topic_filter);
+	snprintf(new_sub, new_sub_len, "%s/%s", client_id, ed->data.topic_filter);
 
 	/* Assign the new topic to the event data structure. You
 	 * must *not* free the original topic, it will be handled by the
 	 * broker. */
-	ed->topic_filter = new_sub;
+	ed->data.topic_filter = new_sub;
 
 	return MOSQ_ERR_SUCCESS;
 }

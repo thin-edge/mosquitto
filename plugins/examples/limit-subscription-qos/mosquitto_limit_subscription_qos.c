@@ -52,8 +52,8 @@ static int callback_subscribe(int event, void *event_data, void *userdata)
 	UNUSED(event);
 	UNUSED(userdata);
 
-	if(ed->qos > 1){
-		ed->qos = 1;
+	if(MQTT_SUB_OPT_GET_QOS(ed->data.options) > 1){
+		MQTT_SUB_OPT_SET_QOS(ed->data.options, 1);
 	}
 
 	return MOSQ_ERR_SUCCESS;

@@ -58,6 +58,72 @@ enum mosquitto_broker_msg_direction {
 	mosq_bmd_all = 2
 };
 
+
+/* =========================================================================
+ *
+ * Section: General structs
+ *
+ * ========================================================================= */
+
+struct mosquitto_client {
+	char *client_id;
+	char *username;
+	char *auth_method;
+	struct mosquitto_message_v5 *will;
+	time_t will_delay_time; /* update */
+	time_t session_expiry_time; /* update */
+	uint32_t will_delay_interval;
+	uint32_t session_expiry_interval;
+	uint32_t max_packet_size;
+	uint16_t listener_port;
+	uint8_t max_qos;
+	bool retain_available;
+	uint8_t padding[6];
+	void *future2[8];
+};
+
+struct mosquitto_subscription {
+	char *client_id;
+	char *topic_filter;
+	mosquitto_property *properties;
+	uint32_t identifier;
+	uint8_t options;
+	uint8_t padding[3];
+	void *future2[8];
+};
+
+struct mosquitto_base_msg {
+	uint64_t store_id;
+	int64_t expiry_time;
+	char *topic;
+	void *payload;
+	char *source_id;
+	char *source_username;
+	mosquitto_property *properties;
+	uint32_t payloadlen;
+	uint16_t source_mid;
+	uint16_t source_port;
+	uint8_t qos;
+	bool retain;
+	uint8_t padding[6];
+	void *future2[8];
+};
+
+struct mosquitto_client_msg {
+	const char *client_id;
+	uint64_t cmsg_id;
+	uint64_t store_id;
+	uint32_t subscription_identifier;
+	uint16_t mid;
+	uint8_t qos;
+	bool retain;
+	bool dup; /* add, update */
+	uint8_t direction;
+	uint8_t state; /* add, update */
+	uint8_t padding[5];
+	void *future2[8];
+};
+
 /* =========================================================================
  *
  * Section: Register callbacks.
@@ -213,12 +279,7 @@ struct mosquitto_evt_disconnect {
 struct mosquitto_evt_subscribe {
 	void *future;
 	struct mosquitto *client;
-	char *topic_filter;
-	const mosquitto_property *properties;
-	uint32_t subscription_identifier;
-	uint8_t subscription_options;
-	uint8_t qos;
-	uint8_t padding[2];
+	struct mosquitto_subscription data;
 	void *future2[8];
 };
 
@@ -227,8 +288,7 @@ struct mosquitto_evt_subscribe {
 struct mosquitto_evt_unsubscribe {
 	void *future;
 	struct mosquitto *client;
-	char *topic_filter;
-	const mosquitto_property *properties;
+	struct mosquitto_subscription data;
 	void *future2[8];
 };
 
@@ -241,23 +301,6 @@ struct mosquitto_evt_persist_restore {
 };
 
 
-struct mosquitto_client {
-	char *client_id;
-	char *username;
-	char *auth_method;
-	struct mosquitto_message_v5 *will;
-	time_t will_delay_time; /* update */
-	time_t session_expiry_time; /* update */
-	uint32_t will_delay_interval;
-	uint32_t session_expiry_interval;
-	uint32_t max_packet_size;
-	uint16_t listener_port;
-	uint8_t max_qos;
-	bool retain_available;
-	uint8_t padding[6];
-	void *future2[8];
-};
-
 /* Data for the MOSQ_EVT_PERSIST_CLIENT_ADD/_DELETE/_UPDATE event */
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
@@ -267,16 +310,6 @@ struct mosquitto_evt_persist_client {
 	void *future2[8];
 };
 
-
-struct mosquitto_subscription {
-	char *client_id;
-	char *topic_filter;
-	mosquitto_property *properties;
-	uint32_t identifier;
-	uint8_t options;
-	uint8_t padding[3];
-	void *future2[8];
-};
 
 /* Data for the MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD/_DELETE event */
 /* NOTE: The persistence interface is currently marked as unstable, which means
@@ -288,45 +321,12 @@ struct mosquitto_evt_persist_subscription {
 };
 
 
-struct mosquitto_client_msg {
-	const char *client_id;
-	uint64_t cmsg_id;
-	uint64_t store_id;
-	uint32_t subscription_identifier;
-	uint16_t mid;
-	uint8_t qos;
-	bool retain;
-	bool dup; /* add, update */
-	uint8_t direction;
-	uint8_t state; /* add, update */
-	uint8_t padding[5];
-	void *future2[8];
-};
-
 /* Data for the MOSQ_EVT_PERSIST_CLIENT_MSG_ADD/_DELETE/_UPDATE event */
 /* NOTE: The persistence interface is currently marked as unstable, which means
  * it may change in a future minor release. */
 struct mosquitto_evt_persist_client_msg {
 	void *future;
 	struct mosquitto_client_msg data;
-	void *future2[8];
-};
-
-
-struct mosquitto_base_msg {
-	uint64_t store_id;
-	int64_t expiry_time;
-	char *topic;
-	void *payload;
-	char *source_id;
-	char *source_username;
-	mosquitto_property *properties;
-	uint32_t payloadlen;
-	uint16_t source_mid;
-	uint16_t source_port;
-	uint8_t qos;
-	bool retain;
-	uint8_t padding[6];
 	void *future2[8];
 };
 

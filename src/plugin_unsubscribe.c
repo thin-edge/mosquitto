@@ -32,8 +32,8 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
-	event_data.topic_filter = sub->topic_filter;
-	event_data.properties = sub->properties;
+	event_data.data.topic_filter = sub->topic_filter;
+	event_data.data.properties = sub->properties;
 
 	DL_FOREACH(opts->plugin_callbacks.unsubscribe, cb_base){
 		rc = cb_base->cb(MOSQ_EVT_UNSUBSCRIBE, &event_data, cb_base->userdata);
@@ -41,9 +41,9 @@ static int plugin__handle_unsubscribe_single(struct mosquitto__security_options 
 			break;
 		}
 
-		if(sub->topic_filter != event_data.topic_filter){
+		if(sub->topic_filter != event_data.data.topic_filter){
 			mosquitto__free(sub->topic_filter);
-			sub->topic_filter = event_data.topic_filter;
+			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}
 
