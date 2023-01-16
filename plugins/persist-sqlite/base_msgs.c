@@ -215,30 +215,3 @@ int persist_sqlite__base_msg_remove_cb(int event, void *event_data, void *userda
 
 	return rc;
 }
-
-
-int persist_sqlite__base_msg_load_cb(int event, void *event_data, void *userdata)
-{
-	struct mosquitto_evt_persist_base_msg *ed = event_data;
-	struct mosquitto_sqlite *ms = userdata;
-
-	UNUSED(event);
-
-	if(sqlite3_bind_int64(ms->base_msg_load_stmt, 1, (int64_t)ed->data.store_id) == SQLITE_OK){
-		if(sqlite3_step(ms->base_msg_load_stmt) == SQLITE_ROW){
-			ed->data.expiry_time = (time_t)sqlite3_column_int64(ms->base_msg_load_stmt, 1);
-			ed->data.topic = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 2);
-			ed->data.payload = (void *)sqlite3_column_blob(ms->base_msg_load_stmt, 3);
-			ed->data.source_id = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 4);
-			ed->data.source_username = (char *)sqlite3_column_text(ms->base_msg_load_stmt, 5);
-			ed->data.payloadlen = (uint32_t)sqlite3_column_int(ms->base_msg_load_stmt, 6);
-			ed->data.source_mid = (uint16_t)sqlite3_column_int(ms->base_msg_load_stmt, 7);
-			ed->data.source_port = (uint16_t)sqlite3_column_int(ms->base_msg_load_stmt, 8);
-			ed->data.qos = (uint8_t)sqlite3_column_int(ms->base_msg_load_stmt, 9);
-			ed->data.retain = sqlite3_column_int(ms->base_msg_load_stmt, 10);
-			mosquitto_persist_base_msg_add(&ed->data);
-		}
-	}
-	sqlite3_finalize(ms->base_msg_load_stmt);
-	return MOSQ_ERR_SUCCESS;
-}

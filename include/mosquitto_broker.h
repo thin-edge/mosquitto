@@ -70,8 +70,8 @@ struct mosquitto_client {
 	char *username;
 	char *auth_method;
 	struct mosquitto_message_v5 *will;
-	time_t will_delay_time; /* update */
-	time_t session_expiry_time; /* update */
+	time_t will_delay_time;
+	time_t session_expiry_time;
 	uint32_t will_delay_interval;
 	uint32_t session_expiry_interval;
 	uint32_t max_packet_size;
@@ -117,9 +117,9 @@ struct mosquitto_client_msg {
 	uint16_t mid;
 	uint8_t qos;
 	bool retain;
-	bool dup; /* add, update */
+	bool dup;
 	uint8_t direction;
-	uint8_t state; /* add, update */
+	uint8_t state;
 	uint8_t padding[5];
 	void *future2[8];
 };
@@ -147,22 +147,19 @@ enum mosquitto_plugin_event {
 	MOSQ_EVT_SUBSCRIBE = 12,
 	MOSQ_EVT_UNSUBSCRIBE = 13,
 	MOSQ_EVT_PERSIST_RESTORE = 14,
-	MOSQ_EVT_PERSIST_CONFIG_ADD = 15,
-	MOSQ_EVT_PERSIST_BASE_MSG_ADD = 16,
-	MOSQ_EVT_PERSIST_BASE_MSG_DELETE = 17,
-	MOSQ_EVT_PERSIST_BASE_MSG_LOAD = 18,
-	MOSQ_EVT_PERSIST_RETAIN_MSG_SET = 19,
-	MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE = 20,
-	MOSQ_EVT_PERSIST_CLIENT_ADD = 21,
-	MOSQ_EVT_PERSIST_CLIENT_DELETE = 22,
-	MOSQ_EVT_PERSIST_CLIENT_UPDATE = 23,
-	MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD = 24,
-	MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE = 25,
-	MOSQ_EVT_PERSIST_CLIENT_MSG_ADD = 26,
-	MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE = 27,
-	MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE = 28,
-	MOSQ_EVT_PERSIST_CLIENT_MSG_LOAD = 29,
-	MOSQ_EVT_MESSAGE_OUT = 30,
+	MOSQ_EVT_PERSIST_BASE_MSG_ADD = 15,
+	MOSQ_EVT_PERSIST_BASE_MSG_DELETE = 16,
+	MOSQ_EVT_PERSIST_RETAIN_MSG_SET = 17,
+	MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE = 18,
+	MOSQ_EVT_PERSIST_CLIENT_ADD = 19,
+	MOSQ_EVT_PERSIST_CLIENT_DELETE = 20,
+	MOSQ_EVT_PERSIST_CLIENT_UPDATE = 21,
+	MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD = 22,
+	MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE = 23,
+	MOSQ_EVT_PERSIST_CLIENT_MSG_ADD = 24,
+	MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE = 25,
+	MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE = 26,
+	MOSQ_EVT_MESSAGE_OUT = 27,
 };
 
 /* Data for the MOSQ_EVT_RELOAD event */
