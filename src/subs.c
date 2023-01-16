@@ -72,7 +72,7 @@ static int subs__send(struct mosquitto__subleaf *leaf, const char *topic, uint8_
 	if(rc2 == MOSQ_ERR_ACL_DENIED){
 		return MOSQ_ERR_SUCCESS;
 	}else if(rc2 == MOSQ_ERR_SUCCESS){
-		client_qos = leaf->qos;
+		client_qos = MQTT_SUB_OPT_GET_QOS(leaf->subscription_options);
 
 		if(db.config->upgrade_outgoing_qos){
 			msg_qos = client_qos;
@@ -88,7 +88,7 @@ static int subs__send(struct mosquitto__subleaf *leaf, const char *topic, uint8_
 		}else{
 			mid = 0;
 		}
-		if(leaf->retain_as_published){
+		if(MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(leaf->subscription_options)){
 			client_retain = retain;
 		}else{
 			client_retain = false;
@@ -132,7 +132,7 @@ static int subs__process(struct mosquitto__subhier *hier, const char *source_id,
 
 	leaf = hier->subs;
 	while(source_id && leaf){
-		if(!leaf->context->id || (leaf->no_local && !strcmp(leaf->context->id, source_id))){
+		if(!leaf->context->id || (MQTT_SUB_OPT_GET_NO_LOCAL(leaf->subscription_options) && !strcmp(leaf->context->id, source_id))){
 			leaf = leaf->next;
 			continue;
 		}
@@ -162,10 +162,8 @@ static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subsc
 			/* Client making a second subscription to same topic. Only
 			 * need to update QoS. Return MOSQ_ERR_SUB_EXISTS to
 			 * indicate this to the calling function. */
-			leaf->qos = sub->options & 0x03;
 			leaf->identifier = sub->identifier;
-			leaf->no_local = ((sub->options & MQTT_SUB_OPT_NO_LOCAL) != 0);
-			leaf->retain_as_published = ((sub->options & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED) != 0);
+			leaf->subscription_options = sub->options;
 			return MOSQ_ERR_SUB_EXISTS;
 		}
 		leaf = leaf->next;
@@ -173,10 +171,8 @@ static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subsc
 	leaf = mosquitto__calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic) + 1);
 	if(!leaf) return MOSQ_ERR_NOMEM;
 	leaf->context = context;
-	leaf->qos = sub->options & 0x03;
 	leaf->identifier = sub->identifier;
-	leaf->no_local = ((sub->options & MQTT_SUB_OPT_NO_LOCAL) != 0);
-	leaf->retain_as_published = ((sub->options & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED) != 0);
+	leaf->subscription_options = sub->options;
 	strcpy(leaf->topic_filter, sub->topic);
 
 	DL_APPEND(*head, leaf);
@@ -754,9 +750,9 @@ void sub__tree_print(struct mosquitto__subhier *root, int level)
 		leaf = branch->subs;
 		while(leaf){
 			if(leaf->context){
-				printf(" (%s, %d)", leaf->context->id, leaf->qos);
+				printf(" (%s, %d)", leaf->context->id, MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
 			}else{
-				printf(" (%s, %d)", "", leaf->qos);
+				printf(" (%s, %d)", "", MQTT_SUB_OPT_GET_QOS(leaf->subscription_options));
 			}
 			leaf = leaf->next;
 		}

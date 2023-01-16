@@ -235,8 +235,8 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 			sub_chunk.F.identifier = sub->identifier;
 			sub_chunk.F.id_len = (uint16_t)strlen(sub->context->id);
 			sub_chunk.F.topic_len = (uint16_t)strlen(thistopic);
-			sub_chunk.F.qos = (uint8_t)sub->qos;
-			sub_chunk.F.options = (uint8_t)(sub->no_local<<2 | sub->retain_as_published<<3);
+			sub_chunk.F.qos = MQTT_SUB_OPT_GET_QOS(sub->subscription_options);
+			sub_chunk.F.options = sub->subscription_options & 0xFC;
 			sub_chunk.client_id = sub->context->id;
 			sub_chunk.topic = thistopic;
 

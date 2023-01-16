@@ -140,7 +140,7 @@ int handle__subscribe(struct mosquitto *context)
 				qos = sub.options & 0x03;
 				sub.options &= 0xFC;
 
-				retain_handling = (sub.options & 0x30);
+				retain_handling = MQTT_SUB_OPT_GET_SEND_RETAIN(sub.options);
 				if(retain_handling == 0x30 || (sub.options & 0xC0) != 0){
 					mosquitto__FREE(sub.topic);
 					mosquitto__FREE(payload);

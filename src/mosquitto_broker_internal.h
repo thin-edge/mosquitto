@@ -388,9 +388,7 @@ struct mosquitto__subleaf {
 	struct mosquitto__subhier *hier;
 	struct mosquitto__subshared *shared;
 	uint32_t identifier;
-	uint8_t qos;
-	bool no_local;
-	bool retain_as_published;
+	uint8_t subscription_options;
 	char topic_filter[];
 };
 

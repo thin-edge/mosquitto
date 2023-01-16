@@ -279,4 +279,14 @@ enum mqtt5_sub_options {
 
 #define MQTT_MAX_PAYLOAD 268435455U
 
+#define MQTT_SUB_OPT_GET_QOS(opt) ((opt) & 0x03)
+#define MQTT_SUB_OPT_GET_NO_LOCAL(opt) ((opt) & MQTT_SUB_OPT_NO_LOCAL)
+#define MQTT_SUB_OPT_GET_RETAIN_AS_PUBLISHED(opt) ((opt) & MQTT_SUB_OPT_RETAIN_AS_PUBLISHED)
+#define MQTT_SUB_OPT_GET_SEND_RETAIN(opt) ((opt) & (MQTT_SUB_OPT_SEND_RETAIN_NEW | MQTT_SUB_OPT_SEND_RETAIN_NEVER))
+
+#define MQTT_SUB_OPT_SET_QOS(opt, qos) ((opt) = ((opt) & 0xFC) | ((qos) & 0x03))
+
+#define MQTT_SUB_OPT_SET(opt, val) ((opt) |= val)
+#define MQTT_SUB_OPT_CLEAR(opt, val) ((opt) = (opt) & !val)
+
 #endif
