@@ -1543,11 +1543,11 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 	char *str;
 	size_t i;
 	char *username = NULL, *password = NULL, *host = NULL, *port = NULL;
-	char *username_or_host = NULL;
 	size_t start;
 	size_t len;
-	bool have_auth = false;
+	bool in_ipv6_address = false;
 	int port_int;
+	char *auth_at;
 
 	if(!strncmp(url, "socks5h://", strlen("socks5h://"))){
 		str = url + strlen("socks5h://");
@@ -1564,66 +1564,13 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 	 * socks5h://host
 	 */
 
+	/* Parse credentials */
 	start = 0;
-	for(i=0; i<strlen(str); i++){
-		if(str[i] == ':'){
-			if(i == start){
-				goto cleanup;
-			}
-			if(have_auth){
-				/* Have already seen a @ , so this must be of form
-				 * socks5h://username[:password]@host:port */
-				if(host){
-					/* Already seen a host, must be malformed. */
-					goto cleanup;
-				}
-				len = i-start;
-				host = malloc(len + 1);
-				if(!host){
-					err_printf(cfg, "Error: Out of memory.\n");
-					goto cleanup;
-				}
-				memcpy(host, &(str[start]), len);
-				host[len] = '\0';
-				start = i+1;
-			}else if(!username_or_host){
-				/* Haven't seen a @ before, so must be of form
-				 * socks5h://host:port or
-				 * socks5h://username:password@host[:port] */
-				len = i-start;
-				username_or_host = malloc(len + 1);
-				if(!username_or_host){
-					err_printf(cfg, "Error: Out of memory.\n");
-					goto cleanup;
-				}
-				memcpy(username_or_host, &(str[start]), len);
-				username_or_host[len] = '\0';
-				start = i+1;
-			}
-		}else if(str[i] == '@'){
-			if(i == start){
-				goto cleanup;
-			}
-			have_auth = true;
-			if(username_or_host){
-				/* Must be of form socks5h://username:password@... */
-				username = username_or_host;
-				username_or_host = NULL;
-
-				len = i-start;
-				password = malloc(len + 1);
-				if(!password){
-					err_printf(cfg, "Error: Out of memory.\n");
-					goto cleanup;
-				}
-				memcpy(password, &(str[start]), len);
-				password[len] = '\0';
-				start = i+1;
-			}else{
-				/* Haven't seen a : yet, so must be of form
-				 * socks5h://username@... */
-				if(username){
-					/* Already got a username, must be malformed. */
+	auth_at = strchr(str, '@');
+	if(auth_at){
+		for(i=0; &str[i] != auth_at; i++){
+			if(str[i] == ':'){
+				if(i == start){
 					goto cleanup;
 				}
 				len = i-start;
@@ -1637,26 +1584,79 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 				start = i+1;
 			}
 		}
+		if(username){
+			len = i-start;
+			password = malloc(len + 1);
+			if(!password){
+				err_printf(cfg, "Error: Out of memory.\n");
+				goto cleanup;
+			}
+			memcpy(password, &(str[start]), len);
+			password[len] = '\0';
+		}else{
+			len = i-start;
+			username = malloc(len + 1);
+			if(!username){
+				err_printf(cfg, "Error: Out of memory.\n");
+				goto cleanup;
+			}
+			memcpy(username, &(str[start]), len);
+			username[len] = '\0';
+		}
+		str = auth_at + 1;
 	}
 
-	/* Deal with remainder */
+	start = 0;
+	for(i=0; i<strlen(str); i++){
+		if(str[i] == '['){
+			in_ipv6_address = true;
+			start = i+1;
+		}else if(str[i] == ']'){
+			in_ipv6_address = false;
+
+			len = i-start;
+			host = malloc(len + 1);
+			if(!host){
+				err_printf(cfg, "Error: Out of memory.\n");
+				goto cleanup;
+			}
+			memcpy(host, &(str[start]), len);
+			host[len] = '\0';
+			if(str[i+1] == ':'){
+				start = i+2;
+				i++;
+			}else{
+				start = i+1;
+			}
+		}else if(str[i] == ':'){
+			if(in_ipv6_address){
+				/* Normal IPv6 separator */
+			}else{
+				/* host:port separator */
+
+				if(host){
+					/* Already seen a host, must be malformed. */
+					goto cleanup;
+				}
+				len = i-start;
+				host = malloc(len + 1);
+				if(!host){
+					err_printf(cfg, "Error: Out of memory.\n");
+					goto cleanup;
+				}
+				memcpy(host, &(str[start]), len);
+				host[len] = '\0';
+				start = i+1;
+			}
+		}
+	}
+
+	/* Deal with remainder - either the port, or the host */
 	if(i > start){
 		len = i-start;
 		if(host){
 			/* Have already seen a @ , so this must be of form
 			 * socks5h://username[:password]@host:port */
-			port = malloc(len + 1);
-			if(!port){
-				err_printf(cfg, "Error: Out of memory.\n");
-				goto cleanup;
-			}
-			memcpy(port, &(str[start]), len);
-			port[len] = '\0';
-		}else if(username_or_host){
-			/* Haven't seen a @ before, so must be of form
-			 * socks5h://host:port */
-			host = username_or_host;
-			username_or_host = NULL;
 			port = malloc(len + 1);
 			if(!port){
 				err_printf(cfg, "Error: Out of memory.\n");
@@ -1704,7 +1704,6 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 
 	return 0;
 cleanup:
-	free(username_or_host);
 	free(username);
 	free(password);
 	free(host);

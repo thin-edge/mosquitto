@@ -172,6 +172,7 @@ Clients:
 - Fix `-f` and `-s` options in mosquitto_rr.
 - Add websockets support.
 - Using `-x` now sets the clients to use MQTT v5.0.
+- Fix parsing of IPv6 addresses in socks proxy urls.
 
 Build:
 - Increased CMake minimal required version to 3.14, which is required for the
