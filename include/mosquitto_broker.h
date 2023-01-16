@@ -78,7 +78,6 @@ struct mosquitto_client {
 	uint16_t listener_port;
 	uint8_t max_qos;
 	bool retain_available;
-	uint8_t padding[6];
 	void *future2[8];
 };
 
@@ -228,6 +227,7 @@ struct mosquitto_evt_control {
 	uint8_t qos;
 	uint8_t reason_code;
 	bool retain;
+	uint8_t padding;
 	void *future2[4];
 };
 
@@ -243,6 +243,7 @@ struct mosquitto_evt_message {
 	uint8_t qos;
 	uint8_t reason_code;
 	bool retain;
+	uint8_t padding;
 	void *future2[4];
 };
 
@@ -395,11 +396,11 @@ mosq_EXPORT int mosquitto_plugin_set_info(
  *              registered for.
  *          * MOSQ_EVT_MESSAGE_IN
  *              Called for each incoming PUBLISH message after it has been received
- * 				and authorised. The contents of the message can be modified.
+ *              and authorised. The contents of the message can be modified.
  *          * MOSQ_EVT_MESSAGE_OUT
  *              Called for each outgoing PUBLISH message after it has been authorised,
- * 				but before it is sent to each subscribing client. The contents of the
- * 				message can be modified.
+ *              but before it is sent to each subscribing client. The contents of the
+ *              message can be modified.
  *          * MOSQ_EVT_PSK_KEY
  *              Called when a client connects with TLS-PSK and the broker needs
  *              the PSK information.
@@ -412,6 +413,56 @@ mosq_EXPORT int mosquitto_plugin_set_info(
  *          * MOSQ_EVT_CONNECT
  *              Called when a client has successfully connected to the broker,
  *              i.e. has been authenticated.
+ *          * MOSQ_EVT_SUBSCRIBE
+ *              Called when a client has made a successful subscription
+ *              request, but before the subscription is applied. The
+ *              subscription request can be modified, although this is not
+ *              recommended.
+ *          * MOSQ_EVT_UNSUBSCRIBE
+ *              Called when a client has made a successful unsubscription
+ *              request, but before the unsubscription is applied. The
+ *              unsubscription request can be modified, although this is not
+ *              recommended.
+ *          * MOSQ_EVT_PERSIST_RESTORE
+ *              Called on startup when a persistence plugin should restore
+ *              persistence data.
+ *          * MOSQ_EVT_PERSIST_BASE_MSG_ADD
+ *              Called when a persistence plugin must add a base message to its
+ *              store.
+ *          * MOSQ_EVT_PERSIST_BASE_MSG_DELETE
+ *              Called when a persistence plugin must delete a base message
+ *              from its store.
+ *          * MOSQ_EVT_PERSIST_RETAIN_MSG_SET
+ *              Called when a persistence plugin must set or update a retained
+ *              message in its store.
+ *          * MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE
+ *              Called when a persistence plugin must delete a retained message
+ *              from its store.
+ *          * MOSQ_EVT_PERSIST_CLIENT_ADD
+ *              Called when a persistence plugin must add a client session to
+ *              its store.
+ *          * MOSQ_EVT_PERSIST_CLIENT_DELETE
+ *              Called when a persistence plugin must delete a client session
+ *              from its store.
+ *          * MOSQ_EVT_PERSIST_CLIENT_UPDATE
+ *              Called when a persistence plugin must update a client session
+ *              in its store.
+ *          * MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD
+ *              Called when a persistence plugin must add a client subscription
+ *              to its store.
+ *          * MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE
+ *              Called when a persistence plugin must delete a client
+ *              subscription from its store.
+ *          * MOSQ_EVT_PERSIST_CLIENT_MSG_ADD
+ *              Called when a persistence plugin must add a client message to
+ *              its store.
+ *          * MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE
+ *              Called when a persistence plugin must delete a client message
+ *              from its store.
+ *          * MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE
+ *              Called when a persistence plugin must update a client message
+ *              in its store.
+ *
  *  cb_func - the callback function
  *  event_data - event specific data
  *
@@ -443,12 +494,27 @@ mosq_EXPORT int mosquitto_callback_register(
  *          * MOSQ_EVT_EXT_AUTH_START
  *          * MOSQ_EVT_EXT_AUTH_CONTINUE
  *          * MOSQ_EVT_CONTROL
- *          * MOSQ_EVT_MESSAGE_WRITE
- *          * MOSQ_EVT_MESSAGE_READ
+ *          * MOSQ_EVT_MESSAGE_IN
+ *          * MOSQ_EVT_MESSAGE_OUT
  *          * MOSQ_EVT_PSK_KEY
  *          * MOSQ_EVT_TICK
  *          * MOSQ_EVT_DISCONNECT
  *          * MOSQ_EVT_CONNECT
+ *          * MOSQ_EVT_SUBSCRIBE
+ *          * MOSQ_EVT_UNSUBSCRIBE
+ *          * MOSQ_EVT_PERSIST_RESTORE
+ *          * MOSQ_EVT_PERSIST_BASE_MSG_ADD
+ *          * MOSQ_EVT_PERSIST_BASE_MSG_DELETE
+ *          * MOSQ_EVT_PERSIST_RETAIN_MSG_SET
+ *          * MOSQ_EVT_PERSIST_RETAIN_MSG_DELETE
+ *          * MOSQ_EVT_PERSIST_CLIENT_ADD
+ *          * MOSQ_EVT_PERSIST_CLIENT_DELETE
+ *          * MOSQ_EVT_PERSIST_CLIENT_UPDATE
+ *          * MOSQ_EVT_PERSIST_SUBSCRIPTION_ADD
+ *          * MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE
+ *          * MOSQ_EVT_PERSIST_CLIENT_MSG_ADD
+ *          * MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE
+ *          * MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE
  *  cb_func - the callback function
  *  event_data - event specific data
  *
@@ -873,27 +939,26 @@ mosq_EXPORT int mosquitto_broker_node_id_set(uint16_t id);
  * the broker.
  *
  * Parameters:
- *   client->plugin_clientid - the client id of the client to add
+ *   client->clientid - the client id of the client to add.
  *          This must be allocated on the heap and becomes the property of the
  *          broker immediately this call is made. Must not be NULL.
- *   client->plugin_username - the username for the client session, or NULL. Must
+ *   client->username - the username for the client session, or NULL. Must
  *          be allocated on the heap and becomes the property of the broker
  *          immediately this call is made.
- *   client->plugin_auth_method - the MQTT v5 extended authentication method,
+ *   client->auth_method - the MQTT v5 extended authentication method,
  *          or NULL. Must be allocated on the heap and becomes the property of
  *          the broker immediately this call is made.
- *   client->clean_start - the new MQTT clean start parameter
  *   client->will_delay_time - the actual will delay time for this client
  *   client->session_expiry_time - the actual session expiry time for this
  *          client
  *   client->will_delay_interval - the MQTT v5 will delay interval for this
  *          client
- *   client->max_qos - the MQTT v5 maximum QoS parameter for this client
  *   client->maximum_packet_size - the MQTT v5 maximum packet size parameter
  *          for this client
+ *   client->listener_port - the listener port that this client last connected to
+ *   client->max_qos - the MQTT v5 maximum QoS parameter for this client
  *   client->retain_available - the MQTT v5 retain available parameter for this
  *          client
- *   client->listener_port - the listener port that this client last connected to
  *
  *   All other members of struct mosquitto_client are unused.
  *
@@ -911,30 +976,29 @@ mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client);
  * Use to update client session parameters
  *
  * Parameters:
- *   client->plugin_clientid - the client id of the client to update
+ *   client->clientid - the client id of the client to update
  *          The broker will *not* modify this string and it remains the
  *          property of the plugin.
  *   client->username - the new username for the client session, or NULL. Must
  *          be allocated on the heap and becomes the property of the broker
  *          immediately this call is made.
- *   client->clean_start - the new MQTT clean start parameter
  *   client->will_delay_time - the actual will delay time for this client
  *   client->session_expiry_time - the actual session expiry time for this
  *          client
  *   client->will_delay_interval - the MQTT v5 will delay interval for this
  *          client
- *   client->max_qos - the MQTT v5 maximum QoS parameter for this client
  *   client->maximum_packet_size - the MQTT v5 maximum packet size parameter
  *          for this client
+ *   client->listener_port - the listener port that this client last connected to
+ *   client->max_qos - the MQTT v5 maximum QoS parameter for this client
  *   client->retain_available - the MQTT v5 retain available parameter for this
  *          client
- *   client->listener_port - the listener port that this client last connected to
  *
  *   All other members of struct mosquitto_client are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client or client->plugin_clientid is NULL
+ *   MOSQ_ERR_INVAL - if client or client->clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client);
@@ -962,16 +1026,18 @@ mosq_EXPORT int mosquitto_persist_client_delete(const char *clientid);
  * Parameters:
  *   client_msg->clientid - the client id of the client that the
  *          message belongs to.
+ *   client_msg->cmsg_id - the ID of this client message.
  *   client_msg->store_id - the ID of the base message that this client
  *          message references.
- *   client_msg->cmsg_id - the client message ID of the new message
- *   client_msg->mid - the MQTT message ID of the new message
- *   client_msg->qos - the MQTT QoS of the new message
- *   client_msg->direction - the direction of the new message from the perspective
- *          of the broker (mosq_bmd_in / mosq_bmd_out)
- *   client_msg->retain - the retain flag of the message
  *   client_msg->subscription_identifier - the MQTT v5 subscription identifier,
  *          for outgoing messages only.
+ *   client_msg->mid - the MQTT message ID of the new message
+ *   client_msg->qos - the MQTT QoS of the new message
+ *   client_msg->retain - the retain flag of the message
+ *   client_msg->dup - the dup flag of the message
+ *   client_msg->direction - the direction of the new message from the perspective
+ *          of the broker (mosq_bmd_in / mosq_bmd_out)
+ *   client_msg->state - the current message state
  *
  *   All other members of struct mosquitto_client_msg are unused.
  *
@@ -1000,7 +1066,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *cl
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg);
@@ -1024,7 +1090,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg 
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg);
@@ -1039,13 +1105,12 @@ mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg 
  *          message belongs to.
  *   client_msg->direction - the direction of the messages to be cleared, from
  *          the perspective of the broker (mosq_bmd_in / mosq_bmd_out / mosq_bmd_all)
- *   client_msg->state - the new state of the message
  *
  *   All other members of struct mosquitto_client_msg are unused.
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg);
@@ -1057,29 +1122,30 @@ mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *
  *
  * Parameters:
  *   msg->store_id - the base message ID
- *   msg->plugin_source_id - the client id of the client that the
- *          message originated with, or NULL.
- *          The broker will *not* modify this string and it remains the
- *          property of the plugin.
- *   msg->plugin_source_username - the username of the client that the
- *          message originated with, or NULL.
- *          The broker will *not* modify this string and it remains the
- *          property of the plugin.
+ *   msg->expiry_time - the time at which the message expires, or 0.
  *   msg->topic - the message topic.
  *          Must be allocated on the heap and becomes the property of the
  *          broker immediately this call is made.
  *   msg->payload - the message payload.
  *          Must be allocated on the heap and becomes the property of the
  *          broker immediately this call is made.
- *   msg->payloadlen - the length of the payload, in bytes
- *   msg->expiry_time - the time at which the message expires, or 0.
+ *   msg->source_id - the client id of the client that the
+ *          message originated with, or NULL.
+ *          The broker will *not* modify this string and it remains the
+ *          property of the plugin.
+ *   msg->source_username - the username of the client that the
+ *          message originated with, or NULL.
+ *          The broker will *not* modify this string and it remains the
+ *          property of the plugin.
  *   msg->properties - list of MQTT v5 message properties for this message.
  *          Must be allocated on the heap and becomes the property of the
  *          broker immediately this call is made.
- *   msg->retain - the message retain flag as delivered to the broker
- *   msg->qos - the message QoS as delivered to the broker
+ *   msg->payloadlen - the length of the payload, in bytes
+ *   msg->source_mid - the mid of the source message
  *   msg->source_port - the network port number that the originating client was
  *          connected to, or 0.
+ *   msg->qos - the message QoS as delivered to the broker
+ *   msg->retain - the message retain flag as delivered to the broker
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
@@ -1107,13 +1173,13 @@ mosq_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id);
  *
  * Parameters:
  *   sub->clientid - the client id of the client the new subscription is for
- *   sub->topic - the topic filter for the subscription
- *   sub->subscription_options - the QoS and other flags for this subscription
- *   sub->subscription_identifier - the MQTT v5 subscription id, or 0
+ *   sub->topic_filter - the topic filter for the subscription
+ *   sub->options - the QoS and other flags for this subscription
+ *   sub->identifier - the MQTT v5 subscription id, or 0
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if sub, clientid, or topic are NULL, or are zero length
+ *   MOSQ_ERR_INVAL - if sub, clientid, or topic_filter are NULL, or are zero length
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
@@ -1126,7 +1192,7 @@ mosq_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *
  *
  * Parameters:
  *   clientid - the client id of the client the new subscription is for
- *   topic - the topic filter for the subscription
+ *   topic_filter - the topic filter for the subscription
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
@@ -1134,7 +1200,7 @@ mosq_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-mosq_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic);
+mosq_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic_filter);
 
 
 /* Function: mosquitto_persist_retain_msg_set
@@ -1148,7 +1214,7 @@ mosq_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if msg or msg->plugin_topic are NULL
+ *   MOSQ_ERR_INVAL - if topic is NULL
  *   MOSQ_ERR_NOT_FOUND - the referenced base message was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
@@ -1164,7 +1230,7 @@ mosq_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t sto
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if msg or msg->plugin_topic are NULL
+ *   MOSQ_ERR_INVAL - if topic is NULL
  *   MOSQ_ERR_NOMEM - on out of memory
  */
 mosq_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic);
