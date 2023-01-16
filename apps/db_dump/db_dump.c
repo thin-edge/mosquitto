@@ -80,20 +80,20 @@ struct base_msg_chunk *msgs_by_id = NULL;
 
 static void free__sub(struct P_sub *chunk)
 {
-	free(chunk->client_id);
+	free(chunk->clientid);
 	free(chunk->topic);
 }
 
 static void free__client(struct P_client *chunk)
 {
 	free(chunk->username);
-	free(chunk->client_id);
+	free(chunk->clientid);
 }
 
 
 static void free__client_msg(struct P_client_msg *chunk)
 {
-	free(chunk->client_id);
+	free(chunk->clientid);
 }
 
 
@@ -166,10 +166,10 @@ static int dump__client_chunk_process(FILE *db_fd, uint32_t length)
 		if(!cc){
 			fprintf(stderr, "Error: Out of memory.\n");
 			fclose(db_fd);
-			free(chunk.client_id);
+			free(chunk.clientid);
 			return 1;
 		}
-		cc->id = strdup(chunk.client_id);
+		cc->id = strdup(chunk.clientid);
 		HASH_ADD_KEYPTR(hh_id, clients_by_id, cc->id, strlen(cc->id), cc);
 	}
 
@@ -204,7 +204,7 @@ static int dump__client_msg_chunk_process(FILE *db_fd, uint32_t length)
 	}
 
 	if(client_stats){
-		HASH_FIND(hh_id, clients_by_id, chunk.client_id, strlen(chunk.client_id), cc);
+		HASH_FIND(hh_id, clients_by_id, chunk.clientid, strlen(chunk.clientid), cc);
 		if(cc){
 			cc->messages++;
 			cc->message_size += length;
@@ -360,7 +360,7 @@ static int dump__sub_chunk_process(FILE *db_fd, uint32_t length)
 	}
 
 	if(client_stats){
-		HASH_FIND(hh_id, clients_by_id, chunk.client_id, strlen(chunk.client_id), cc);
+		HASH_FIND(hh_id, clients_by_id, chunk.clientid, strlen(chunk.clientid), cc);
 		if(cc){
 			cc->subscriptions++;
 			cc->subscription_size += length;

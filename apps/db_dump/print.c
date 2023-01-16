@@ -76,7 +76,7 @@ void print__client(struct P_client *chunk, uint32_t length)
 {
 	printf("DB_CHUNK_CLIENT:\n");
 	printf("\tLength: %d\n", length);
-	printf("\tClient ID: %s\n", chunk->client_id);
+	printf("\tClient ID: %s\n", chunk->clientid);
 	if(chunk->username){
 		printf("\tUsername: %s\n", chunk->username);
 	}
@@ -93,7 +93,7 @@ void print__client_msg(struct P_client_msg *chunk, uint32_t length)
 {
 	printf("DB_CHUNK_CLIENT_MSG:\n");
 	printf("\tLength: %d\n", length);
-	printf("\tClient ID: %s\n", chunk->client_id);
+	printf("\tClient ID: %s\n", chunk->clientid);
 	printf("\tStore ID: %" PRIu64 "\n", chunk->F.store_id);
 	printf("\tMID: %d\n", chunk->F.mid);
 	printf("\tQoS: %d\n", chunk->F.qos);
@@ -139,7 +139,7 @@ void print__sub(struct P_sub *chunk, uint32_t length)
 {
 	printf("DB_CHUNK_SUB:\n");
 	printf("\tLength: %u\n", length);
-	printf("\tClient ID: %s\n", chunk->client_id);
+	printf("\tClient ID: %s\n", chunk->clientid);
 	printf("\tTopic: %s\n", chunk->topic);
 	printf("\tQoS: %d\n", chunk->F.qos);
 	printf("\tSubscription ID: %d\n", chunk->F.identifier);

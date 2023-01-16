@@ -78,7 +78,7 @@ int mosquitto_auth_unpwd_check(void *user_data, struct mosquitto *client, const 
 
 	tmp = mosquitto_client_id(client);
 	if(!tmp || strcmp(tmp, "client-params-test")){
-		fprintf(stderr, "mosquitto_auth_unpwd_check client_id error: %s\n", tmp);
+		fprintf(stderr, "mosquitto_auth_unpwd_check clientid error: %s\n", tmp);
 		return MOSQ_ERR_AUTH;
 	}
 

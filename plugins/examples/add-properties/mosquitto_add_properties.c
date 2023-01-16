@@ -20,7 +20,7 @@ Contributors:
 /*
  * Adds MQTT v5 user-properties to incoming messages:
  *  - $timestamp: unix epoch in milliseconds
- *  - $client_id: client id of the publishing client
+ *  - $clientid: client id of the publishing client
  *  - $client_username: username that the publishing client used to authenticate
  *
  * Compile with:
@@ -75,7 +75,7 @@ static int callback_message_in(int event, void *event_data, void *userdata)
 	result = mosquitto_property_add_string_pair(
 		&ed->properties,
 		MQTT_PROP_USER_PROPERTY,
-		"$client_id",
+		"$clientid",
 		mosquitto_client_id(ed->client));
 	if (result != MOSQ_ERR_SUCCESS) return result;
 

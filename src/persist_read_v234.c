@@ -76,7 +76,7 @@ int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint3
 	int rc;
 	time_t temp;
 
-	rc = persist__read_string(db_fptr, &chunk->client_id);
+	rc = persist__read_string(db_fptr, &chunk->clientid);
 	if(rc){
 		return rc;
 	}
@@ -90,7 +90,7 @@ int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint3
 	return MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	mosquitto__FREE(chunk->client_id);
+	mosquitto__FREE(chunk->clientid);
 	return 1;
 }
 
@@ -101,7 +101,7 @@ int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chun
 	int rc;
 	uint8_t retain, dup;
 
-	rc = persist__read_string(db_fptr, &chunk->client_id);
+	rc = persist__read_string(db_fptr, &chunk->clientid);
 	if(rc){
 		return rc;
 	}
@@ -122,7 +122,7 @@ int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chun
 	return MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	mosquitto__FREE(chunk->client_id);
+	mosquitto__FREE(chunk->clientid);
 	return 1;
 }
 
@@ -198,7 +198,7 @@ int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk)
 {
 	int rc;
 
-	rc = persist__read_string(db_fptr, &chunk->client_id);
+	rc = persist__read_string(db_fptr, &chunk->clientid);
 	if(rc) goto error;
 
 	rc = persist__read_string(db_fptr, &chunk->topic);
@@ -208,7 +208,7 @@ int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk)
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->client_id);
+	mosquitto__FREE(chunk->clientid);
 	mosquitto__FREE(chunk->topic);
 	return rc;
 }

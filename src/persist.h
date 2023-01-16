@@ -81,7 +81,7 @@ struct PF_client{
 };
 struct P_client{
 	struct PF_client F;
-	char *client_id;
+	char *clientid;
 	char *username;
 };
 
@@ -97,7 +97,7 @@ struct PF_client_msg{
 };
 struct P_client_msg{
 	struct PF_client_msg F;
-	char *client_id;
+	char *clientid;
 	uint32_t subscription_identifier;
 };
 
@@ -132,7 +132,7 @@ struct PF_sub{
 };
 struct P_sub{
 	struct PF_sub F;
-	char *client_id;
+	char *clientid;
 	char *topic;
 };
 

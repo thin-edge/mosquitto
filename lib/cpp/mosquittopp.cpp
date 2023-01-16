@@ -218,7 +218,7 @@ int subscribe_simple(
 		int qos,
 		const char *host,
 		int port,
-		const char *client_id,
+		const char *clientid,
 		int keepalive,
 		bool clean_session,
 		const char *username,
@@ -229,7 +229,7 @@ int subscribe_simple(
 	return mosquitto_subscribe_simple(
 			messages, msg_count, retained,
 			topic, qos,
-			host, port, client_id, keepalive, clean_session,
+			host, port, clientid, keepalive, clean_session,
 			username, password,
 			will, tls);
 }
@@ -241,7 +241,7 @@ mosqpp_EXPORT int subscribe_callback(
 		int qos,
 		const char *host,
 		int port,
-		const char *client_id,
+		const char *clientid,
 		int keepalive,
 		bool clean_session,
 		const char *username,
@@ -252,7 +252,7 @@ mosqpp_EXPORT int subscribe_callback(
 	return mosquitto_subscribe_callback(
 			callback, userdata,
 			topic, qos,
-			host, port, client_id, keepalive, clean_session,
+			host, port, clientid, keepalive, clean_session,
 			username, password,
 			will, tls);
 }

@@ -52,15 +52,15 @@ static mosquitto_plugin_id_t *mosq_pid = NULL;
 static int connect_callback(int event, void *event_data, void *userdata)
 {
 	struct mosquitto_evt_connect *ed = event_data;
-	const char *client_id;
+	const char *clientid;
 	char topic[1024];
 	int len;
 
 	UNUSED(event);
 	UNUSED(userdata);
 
-	client_id = mosquitto_client_id(ed->client);
-	len = snprintf(topic, sizeof(topic), "$SYS/broker/connection/client/%s/state", client_id);
+	clientid = mosquitto_client_id(ed->client);
+	len = snprintf(topic, sizeof(topic), "$SYS/broker/connection/client/%s/state", clientid);
 	if(len < (int)sizeof(topic)){
 		mosquitto_broker_publish_copy(NULL, topic, 1, "1", 0, true, NULL);
 	}else{
@@ -73,7 +73,7 @@ static int connect_callback(int event, void *event_data, void *userdata)
 static int disconnect_callback(int event, void *event_data, void *userdata)
 {
 	struct mosquitto_evt_disconnect *ed = event_data;
-	const char *client_id;
+	const char *clientid;
 	char topic[1024];
 	int len;
 	mosquitto_property *proplist = NULL;
@@ -82,8 +82,8 @@ static int disconnect_callback(int event, void *event_data, void *userdata)
 	UNUSED(event);
 	UNUSED(userdata);
 
-	client_id = mosquitto_client_id(ed->client);
-	len = snprintf(topic, sizeof(topic), "$SYS/broker/connection/client/%s/state", client_id);
+	clientid = mosquitto_client_id(ed->client);
+	len = snprintf(topic, sizeof(topic), "$SYS/broker/connection/client/%s/state", clientid);
 	if(len < (int)sizeof(topic)){
 		/* Expire our "disconnected" message after a day. */
 		rc = mosquitto_property_add_int32(&proplist, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, 86400);

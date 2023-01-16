@@ -48,9 +48,9 @@ static char nibble_to_hex(uint8_t value)
 	}
 }
 
-static char *client_id_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t auto_id_prefix_len)
+static char *clientid_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t auto_id_prefix_len)
 {
-	char *client_id;
+	char *clientid;
 	uint8_t rnd[16];
 	int i;
 	int pos;
@@ -59,26 +59,26 @@ static char *client_id_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t
 
 	*idlen = (uint16_t)(auto_id_prefix_len + 36);
 
-	client_id = (char *)mosquitto__calloc((size_t)(*idlen) + 1, sizeof(char));
-	if(!client_id){
+	clientid = (char *)mosquitto__calloc((size_t)(*idlen) + 1, sizeof(char));
+	if(!clientid){
 		return NULL;
 	}
 	if(auto_id_prefix){
-		memcpy(client_id, auto_id_prefix, auto_id_prefix_len);
+		memcpy(clientid, auto_id_prefix, auto_id_prefix_len);
 	}
 
 	pos = 0;
 	for(i=0; i<16; i++){
-		client_id[auto_id_prefix_len + pos + 0] = nibble_to_hex(rnd[i] & 0x0F);
-		client_id[auto_id_prefix_len + pos + 1] = nibble_to_hex((rnd[i] >> 4) & 0x0F);
+		clientid[auto_id_prefix_len + pos + 0] = nibble_to_hex(rnd[i] & 0x0F);
+		clientid[auto_id_prefix_len + pos + 1] = nibble_to_hex((rnd[i] >> 4) & 0x0F);
 		pos += 2;
 		if(pos == 8 || pos == 13 || pos == 18 || pos == 23){
-			client_id[auto_id_prefix_len + pos] = '-';
+			clientid[auto_id_prefix_len + pos] = '-';
 			pos++;
 		}
 	}
 
-	return client_id;
+	return clientid;
 }
 
 /* Remove any queued messages that are no longer allowed through ACL,
@@ -358,7 +358,7 @@ error:
 }
 
 
-static int will__read(struct mosquitto *context, const char *client_id, struct mosquitto_message_all **will, uint8_t will_qos, int will_retain)
+static int will__read(struct mosquitto *context, const char *clientid, struct mosquitto_message_all **will, uint8_t will_qos, int will_retain)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 	size_t slen;
@@ -412,7 +412,7 @@ static int will__read(struct mosquitto *context, const char *client_id, struct m
 	will_struct->msg.payloadlen = payloadlen;
 	if(will_struct->msg.payloadlen > 0){
 		if(db.config->message_size_limit && will_struct->msg.payloadlen > (int)db.config->message_size_limit){
-			log__printf(NULL, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", client_id);
+			log__printf(NULL, MOSQ_LOG_DEBUG, "Client %s connected with too large Will payload", clientid);
 			if(context->protocol == mosq_p_mqtt5){
 				send__connack(context, 0, MQTT_RC_PACKET_TOO_LARGE, NULL);
 			}else{
@@ -578,7 +578,7 @@ int handle__connect(struct mosquitto *context)
 	char protocol_name[7];
 	uint8_t protocol_version;
 	uint8_t connect_flags;
-	char *client_id = NULL;
+	char *clientid = NULL;
 	struct mosquitto *found_context;
 	struct mosquitto_message_all *will_struct = NULL;
 	uint8_t will, will_retain, will_qos, clean_start;
@@ -770,7 +770,7 @@ int handle__connect(struct mosquitto *context)
 	}
 
 
-	if(packet__read_string(&context->in_packet, &client_id, &slen)){
+	if(packet__read_string(&context->in_packet, &clientid, &slen)){
 		rc = MOSQ_ERR_PROTOCOL;
 		goto handle_connect_error;
 	}
@@ -781,7 +781,7 @@ int handle__connect(struct mosquitto *context)
 			rc = MOSQ_ERR_PROTOCOL;
 			goto handle_connect_error;
 		}else{ /* mqtt311/mqtt5 */
-			mosquitto__FREE(client_id);
+			mosquitto__FREE(clientid);
 
 			if(db.config->per_listener_settings){
 				allow_zero_length_clientid = context->listener->security_options->allow_zero_length_clientid;
@@ -798,11 +798,11 @@ int handle__connect(struct mosquitto *context)
 				goto handle_connect_error;
 			}else{
 				if(db.config->per_listener_settings){
-					client_id = client_id_gen(&slen, context->listener->security_options->auto_id_prefix, context->listener->security_options->auto_id_prefix_len);
+					clientid = clientid_gen(&slen, context->listener->security_options->auto_id_prefix, context->listener->security_options->auto_id_prefix_len);
 				}else{
-					client_id = client_id_gen(&slen, db.config->security_options.auto_id_prefix, db.config->security_options.auto_id_prefix_len);
+					clientid = clientid_gen(&slen, db.config->security_options.auto_id_prefix, db.config->security_options.auto_id_prefix_len);
 				}
-				if(!client_id){
+				if(!clientid){
 					rc = MOSQ_ERR_NOMEM;
 					goto handle_connect_error;
 				}
@@ -813,7 +813,7 @@ int handle__connect(struct mosquitto *context)
 
 	/* clientid_prefixes check */
 	if(db.config->clientid_prefixes){
-		if(strncmp(db.config->clientid_prefixes, client_id, strlen(db.config->clientid_prefixes))){
+		if(strncmp(db.config->clientid_prefixes, clientid, strlen(db.config->clientid_prefixes))){
 			if(context->protocol == mosq_p_mqtt5){
 				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
 			}else{
@@ -825,14 +825,14 @@ int handle__connect(struct mosquitto *context)
 	}
 
 	/* Check for an existing delayed auth check, reject if present */
-	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, client_id, strlen(client_id), found_context);
+	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), found_context);
 	if(found_context){
 		rc = MOSQ_ERR_UNKNOWN;
 		goto handle_connect_error;
 	}
 
 	if(will){
-		rc = will__read(context, client_id, &will_struct, will_qos, will_retain);
+		rc = will__read(context, clientid, &will_struct, will_qos, will_retain);
 		if(rc){
 			if(context->protocol == mosq_p_mqtt5){
 				if(rc == MOSQ_ERR_DUPLICATE_PROPERTY || rc == MOSQ_ERR_PROTOCOL){
@@ -870,7 +870,7 @@ int handle__connect(struct mosquitto *context)
 		if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
 			if(password_flag){
 				/* username_flag == 0 && password_flag == 1 is forbidden */
-				log__printf(NULL, MOSQ_LOG_ERR, "Protocol error from %s: password without username, closing connection.", client_id);
+				log__printf(NULL, MOSQ_LOG_ERR, "Protocol error from %s: password without username, closing connection.", clientid);
 				rc = MOSQ_ERR_PROTOCOL;
 				goto handle_connect_error;
 			}
@@ -903,8 +903,8 @@ int handle__connect(struct mosquitto *context)
 	/* Once context->id is set, if we return from this function with an error
 	 * we must make sure that context->id is freed and set to NULL, so that the
 	 * client isn't erroneously removed from the by_id hash table. */
-	context->id = client_id;
-	client_id = NULL;
+	context->id = clientid;
+	clientid = NULL;
 
 #ifdef WITH_TLS
 	if(context->listener->ssl_ctx && (context->listener->use_identity_as_username || context->listener->use_subject_as_username)){
@@ -943,7 +943,7 @@ int handle__connect(struct mosquitto *context)
 	}else
 #endif /* WITH_TLS */
 	{
-		/* FIXME - these ensure the mosquitto_client_id() and
+		/* FIXME - these ensure the mosquitto_clientid() and
 		 * mosquitto_client_username() functions work, but is hacky */
 		context->username = username;
 		context->password = password;
@@ -1052,7 +1052,7 @@ int handle__connect(struct mosquitto *context)
 
 handle_connect_error:
 	mosquitto__FREE(auth_data);
-	mosquitto__FREE(client_id);
+	mosquitto__FREE(clientid);
 	mosquitto__FREE(username);
 	mosquitto__FREE(password);
 	if(will_struct){

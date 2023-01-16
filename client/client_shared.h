@@ -141,7 +141,7 @@ struct mosq_config {
 int client_config_load(struct mosq_config *config, int pub_or_sub, int argc, char *argv[]);
 void client_config_cleanup(struct mosq_config *cfg);
 int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg);
-int client_id_generate(struct mosq_config *cfg);
+int clientid_generate(struct mosq_config *cfg);
 int client_connect(struct mosquitto *mosq, struct mosq_config *cfg);
 
 int cfg_parse_property(struct mosq_config *cfg, int argc, char *argv[], int *idx);

@@ -2839,7 +2839,7 @@ struct libmosquitto_tls {
  *   qos - the qos to use for the subscription.
  *   host - the broker to connect to.
  *   port - the network port the broker is listening on.
- *   client_id - the client id to use, or NULL if a random client id should be
+ *   clientid - the client id to use, or NULL if a random client id should be
  *               generated.
  *   keepalive - the MQTT keepalive value.
  *   clean_session - the MQTT clean session flag.
@@ -2863,7 +2863,7 @@ libmosq_EXPORT int mosquitto_subscribe_simple(
 		int qos,
 		const char *host,
 		int port,
-		const char *client_id,
+		const char *clientid,
 		int keepalive,
 		bool clean_session,
 		const char *username,
@@ -2892,7 +2892,7 @@ libmosq_EXPORT int mosquitto_subscribe_simple(
  *   qos - the qos to use for the subscription.
  *   host - the broker to connect to.
  *   port - the network port the broker is listening on.
- *   client_id - the client id to use, or NULL if a random client id should be
+ *   clientid - the client id to use, or NULL if a random client id should be
  *               generated.
  *   keepalive - the MQTT keepalive value.
  *   clean_session - the MQTT clean session flag.
@@ -2915,7 +2915,7 @@ libmosq_EXPORT int mosquitto_subscribe_callback(
 		int qos,
 		const char *host,
 		int port,
-		const char *client_id,
+		const char *clientid,
 		int keepalive,
 		bool clean_session,
 		const char *username,

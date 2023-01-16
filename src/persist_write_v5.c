@@ -74,7 +74,7 @@ int persist__chunk_client_write_v6(FILE *db_fptr, struct P_client *chunk)
 	write_e(db_fptr, &header, sizeof(struct PF_header));
 	write_e(db_fptr, &chunk->F, sizeof(struct PF_client));
 
-	write_e(db_fptr, chunk->client_id, id_len);
+	write_e(db_fptr, chunk->clientid, id_len);
 	if(username_len > 0){
 		write_e(db_fptr, chunk->username, username_len);
 	}
@@ -113,7 +113,7 @@ int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk
 
 	write_e(db_fptr, &header, sizeof(struct PF_header));
 	write_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
-	write_e(db_fptr, chunk->client_id, id_len);
+	write_e(db_fptr, chunk->clientid, id_len);
 	if(chunk->subscription_identifier){
 		if(proplen > 0){
 			prop_packet = calloc(1, sizeof(struct mosquitto__packet)+proplen);
@@ -241,7 +241,7 @@ int persist__chunk_sub_write_v6(FILE *db_fptr, struct P_sub *chunk)
 
 	write_e(db_fptr, &header, sizeof(struct PF_header));
 	write_e(db_fptr, &chunk->F, sizeof(struct PF_sub));
-	write_e(db_fptr, chunk->client_id, id_len);
+	write_e(db_fptr, chunk->clientid, id_len);
 	write_e(db_fptr, chunk->topic, topic_len);
 
 	return MOSQ_ERR_SUCCESS;

@@ -569,7 +569,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	if(client_id_generate(&cfg)){
+	if(clientid_generate(&cfg)){
 		goto cleanup;
 	}
 

@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 	}
 	output_init(&cfg);
 
-	if(client_id_generate(&cfg)){
+	if(clientid_generate(&cfg)){
 		goto cleanup;
 	}
 

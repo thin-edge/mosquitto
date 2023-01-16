@@ -12,7 +12,7 @@ static mosquitto_plugin_id_t *plg_id;
 
 static char *username = NULL;
 static char *password = NULL;
-static char *client_id = NULL;
+static char *clientid = NULL;
 static int auth_delay = -1;
 
 MOSQUITTO_PLUGIN_DECLARE_VERSION(5);
@@ -39,7 +39,7 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *auth_opts, i
 
 	free(username);
 	free(password);
-	free(client_id);
+	free(clientid);
 
 	mosquitto_callback_unregister(plg_id, MOSQ_EVT_BASIC_AUTH, unpwd_check_callback, NULL);
 	mosquitto_callback_unregister(plg_id, MOSQ_EVT_TICK, tick_callback, NULL);
@@ -58,19 +58,19 @@ static int tick_callback(int event, void *event_data, void *user_data)
 	}
 
 	if(auth_delay == 0){
-		if(client_id && username && password
+		if(clientid && username && password
 			&& !strcmp(username, "delayed-username") && !strcmp(password, "good")){
 
-			mosquitto_complete_basic_auth(client_id, MOSQ_ERR_SUCCESS);
+			mosquitto_complete_basic_auth(clientid, MOSQ_ERR_SUCCESS);
 		}else{
-			mosquitto_complete_basic_auth(client_id, MOSQ_ERR_AUTH);
+			mosquitto_complete_basic_auth(clientid, MOSQ_ERR_AUTH);
 		}
 		free(username);
 		free(password);
-		free(client_id);
+		free(clientid);
 		username = NULL;
 		password = NULL;
-		client_id = NULL;
+		clientid = NULL;
 	}else if(auth_delay > 0){
 		auth_delay--;
 	}
@@ -90,7 +90,7 @@ static int unpwd_check_callback(int event, void *event_data, void *user_data)
 
 	free(username);
 	free(password);
-	free(client_id);
+	free(clientid);
 
 	if(ed->username){
 		username = strdup(ed->username);
@@ -98,7 +98,7 @@ static int unpwd_check_callback(int event, void *event_data, void *user_data)
 	if(ed->password){
 		password = strdup(ed->password);
 	}
-	client_id = strdup(mosquitto_client_id(ed->client));
+	clientid = strdup(mosquitto_client_id(ed->client));
 	/* Delay for arbitrary 10 ticks */
 	auth_delay = 10;
 

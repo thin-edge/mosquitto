@@ -85,17 +85,17 @@ int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 
 
-	rc = persist__read_string_len(db_fptr, &chunk->client_id, chunk->F.id_len);
+	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
 	if(rc){
 		return 1;
-	}else if(chunk->client_id == NULL){
+	}else if(chunk->clientid == NULL){
 		return -1;
 	}
 
 	if(chunk->F.username_len > 0){
 		rc = persist__read_string_len(db_fptr, &chunk->username, chunk->F.username_len);
 		if(rc || !chunk->username){
-			mosquitto__FREE(chunk->client_id);
+			mosquitto__FREE(chunk->clientid);
 			return 1;
 		}
 	}
@@ -119,7 +119,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 	length -= (uint32_t)(sizeof(struct PF_client_msg) + chunk->F.id_len);
 
-	rc = persist__read_string_len(db_fptr, &chunk->client_id, chunk->F.id_len);
+	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
 	if(rc) return rc;
 
 	if(length > 0){
@@ -241,7 +241,7 @@ int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk)
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 	chunk->F.topic_len = ntohs(chunk->F.topic_len);
 
-	rc = persist__read_string_len(db_fptr, &chunk->client_id, chunk->F.id_len);
+	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
 	if(rc) goto error;
 
 	rc = persist__read_string_len(db_fptr, &chunk->topic, chunk->F.topic_len);
@@ -249,7 +249,7 @@ int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk)
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->client_id);
+	mosquitto__FREE(chunk->clientid);
 	return rc;
 }
 

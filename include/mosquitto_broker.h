@@ -66,7 +66,7 @@ enum mosquitto_broker_msg_direction {
  * ========================================================================= */
 
 struct mosquitto_client {
-	char *client_id;
+	char *clientid;
 	char *username;
 	char *auth_method;
 	struct mosquitto_message_v5 *will;
@@ -83,7 +83,7 @@ struct mosquitto_client {
 };
 
 struct mosquitto_subscription {
-	char *client_id;
+	char *clientid;
 	char *topic_filter;
 	mosquitto_property *properties;
 	uint32_t identifier;
@@ -110,7 +110,7 @@ struct mosquitto_base_msg {
 };
 
 struct mosquitto_client_msg {
-	const char *client_id;
+	const char *clientid;
 	uint64_t cmsg_id;
 	uint64_t store_id;
 	uint32_t subscription_identifier;
@@ -547,7 +547,7 @@ mosq_EXPORT void mosquitto_log_printf(int level, const char *fmt, ...);
  *
  * Retrieve the struct mosquitto for a client id, or NULL if the client is not connected.
  */
-mosq_EXPORT struct mosquitto *mosquitto_client(const char *client_id);
+mosq_EXPORT struct mosquitto *mosquitto_client(const char *clientid);
 
 
 /*
@@ -843,7 +843,7 @@ mosq_EXPORT int mosquitto_broker_publish_copy(
  * the call to `mosquitto_complete_basic_auth()` must happen in the main
  * mosquitto thread. Using the MOSQ_EVT_TICK event for this is suggested.
  */
-mosq_EXPORT void mosquitto_complete_basic_auth(const char* client_id, int result);
+mosq_EXPORT void mosquitto_complete_basic_auth(const char* clientid, int result);
 
 
 /* Function: mosquitto_broker_node_id_set
@@ -876,7 +876,7 @@ mosq_EXPORT int mosquitto_broker_node_id_set(uint16_t id);
  * the broker.
  *
  * Parameters:
- *   client->plugin_client_id - the client id of the client to add
+ *   client->plugin_clientid - the client id of the client to add
  *          This must be allocated on the heap and becomes the property of the
  *          broker immediately this call is made. Must not be NULL.
  *   client->plugin_username - the username for the client session, or NULL. Must
@@ -902,7 +902,7 @@ mosq_EXPORT int mosquitto_broker_node_id_set(uint16_t id);
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client or client->plugin_client_id is NULL, or if a
+ *   MOSQ_ERR_INVAL - if client or client->plugin_clientid is NULL, or if a
  *          client with the same ID already exists.
  *   MOSQ_ERR_NOMEM - on out of memory
  */
@@ -914,7 +914,7 @@ mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client);
  * Use to update client session parameters
  *
  * Parameters:
- *   client->plugin_client_id - the client id of the client to update
+ *   client->plugin_clientid - the client id of the client to update
  *          The broker will *not* modify this string and it remains the
  *          property of the plugin.
  *   client->username - the new username for the client session, or NULL. Must
@@ -937,7 +937,7 @@ mosq_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client);
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client or client->plugin_client_id is NULL
+ *   MOSQ_ERR_INVAL - if client or client->plugin_clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client);
@@ -948,14 +948,14 @@ mosq_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
  * Use to delete client session for a client from the broker
  *
  * Parameters:
- *   client_id - the client id of the client to delete
+ *   clientid - the client id of the client to delete
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_id is NULL
+ *   MOSQ_ERR_INVAL - if clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the referenced client is not found
  */
-mosq_EXPORT int mosquitto_persist_client_delete(const char *client_id);
+mosq_EXPORT int mosquitto_persist_client_delete(const char *clientid);
 
 
 /* Function: mosquitto_persist_client_msg_add
@@ -963,7 +963,7 @@ mosq_EXPORT int mosquitto_persist_client_delete(const char *client_id);
  * Use to add a client message for a particular client.
  *
  * Parameters:
- *   client_msg->client_id - the client id of the client that the
+ *   client_msg->clientid - the client id of the client that the
  *          message belongs to.
  *   client_msg->store_id - the ID of the base message that this client
  *          message references.
@@ -980,7 +980,7 @@ mosq_EXPORT int mosquitto_persist_client_delete(const char *client_id);
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client or base message is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *client_msg);
@@ -991,7 +991,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *cl
  * Use to delete a client message for a particular client.
  *
  * Parameters:
- *   client_msg->client_id - the client id of the client that the
+ *   client_msg->clientid - the client id of the client that the
  *          message belongs to.
  *   client_msg->cmsg_id - the client message id of the affected message
  *   client_msg->mid - the MQTT message id of the affected message
@@ -1003,7 +1003,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *cl
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg *client_msg);
@@ -1014,7 +1014,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg 
  * Use to update the state of a client message for a particular client.
  *
  * Parameters:
- *   client_msg->client_id - the client id of the client that the
+ *   client_msg->clientid - the client id of the client that the
  *          message belongs to.
  *   client_msg->cmsg_id - the client message id of the affected message
  *   client_msg->mid - the MQTT message id of the affected message
@@ -1027,7 +1027,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_msg 
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg *client_msg);
@@ -1038,7 +1038,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg 
  * Clear all messages for the listed client and direction.
  *
  * Parameters:
- *   client_msg->client_id - the client id of the client that the
+ *   client_msg->clientid - the client id of the client that the
  *          message belongs to.
  *   client_msg->direction - the direction of the messages to be cleared, from
  *          the perspective of the broker (mosq_bmd_in / mosq_bmd_out / mosq_bmd_all)
@@ -1048,7 +1048,7 @@ mosq_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_msg 
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_client_id is NULL
+ *   MOSQ_ERR_INVAL - if client_msg or client_msg->plugin_clientid is NULL
  *   MOSQ_ERR_NOT_FOUND - the client is not found
  */
 mosq_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg *client_msg);
@@ -1109,14 +1109,14 @@ mosq_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id);
  * Use to add a new subscription for a client
  *
  * Parameters:
- *   sub->client_id - the client id of the client the new subscription is for
+ *   sub->clientid - the client id of the client the new subscription is for
  *   sub->topic - the topic filter for the subscription
  *   sub->subscription_options - the QoS and other flags for this subscription
  *   sub->subscription_identifier - the MQTT v5 subscription id, or 0
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if sub, client_id, or topic are NULL, or are zero length
+ *   MOSQ_ERR_INVAL - if sub, clientid, or topic are NULL, or are zero length
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
@@ -1128,16 +1128,16 @@ mosq_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription *
  * Use to delete a subscription for a client
  *
  * Parameters:
- *   client_id - the client id of the client the new subscription is for
+ *   clientid - the client id of the client the new subscription is for
  *   topic - the topic filter for the subscription
  *
  * Returns:
  *   MOSQ_ERR_SUCCESS - on success
- *   MOSQ_ERR_INVAL - if client_id or topic are NULL, or are zero length
+ *   MOSQ_ERR_INVAL - if clientid or topic are NULL, or are zero length
  *   MOSQ_ERR_NOT_FOUND - the referenced client was not found
  *   MOSQ_ERR_NOMEM - on out of memory
  */
-mosq_EXPORT int mosquitto_subscription_delete(const char *client_id, const char *topic);
+mosq_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic);
 
 
 /* Function: mosquitto_persist_retain_msg_set

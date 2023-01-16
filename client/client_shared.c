@@ -1426,7 +1426,7 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 	return MOSQ_ERR_SUCCESS;
 }
 
-int client_id_generate(struct mosq_config *cfg)
+int clientid_generate(struct mosq_config *cfg)
 {
 	if(cfg->id_prefix){
 		cfg->id = malloc(strlen(cfg->id_prefix)+10);

@@ -201,7 +201,7 @@ static int client_restore(struct mosquitto_sqlite *ms)
 	while(sqlite3_step(stmt) == SQLITE_ROW){
 		str = (const char *)sqlite3_column_text(stmt, 0);
 		if(str){
-			client.client_id = strdup(str);
+			client.clientid = strdup(str);
 		}
 		str = (const char *)sqlite3_column_text(stmt, 1);
 		if(str){
@@ -250,7 +250,7 @@ static int subscription_restore(struct mosquitto_sqlite *ms)
 
 	while(sqlite3_step(stmt) == SQLITE_ROW){
 		memset(&sub, 0, sizeof(sub));
-		sub.client_id = (char *)sqlite3_column_text(stmt, 0);
+		sub.clientid = (char *)sqlite3_column_text(stmt, 0);
 		sub.topic_filter = (char *)sqlite3_column_text(stmt, 1);
 		sub.options = (uint8_t)sqlite3_column_int(stmt, 2);
 		sub.identifier = (uint32_t)sqlite3_column_int(stmt, 3);
@@ -355,7 +355,7 @@ static int client_msg_restore(struct mosquitto_sqlite *ms)
 
 	memset(&client_msg, 0, sizeof(client_msg));
 	while(sqlite3_step(stmt) == SQLITE_ROW){
-		client_msg.client_id = (const char *)sqlite3_column_text(stmt, 0);
+		client_msg.clientid = (const char *)sqlite3_column_text(stmt, 0);
 		client_msg.cmsg_id = (uint64_t)sqlite3_column_int64(stmt, 1);
 		client_msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 2);
 		client_msg.dup = sqlite3_column_int(stmt, 3);

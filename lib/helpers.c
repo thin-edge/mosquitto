@@ -97,7 +97,7 @@ libmosq_EXPORT int mosquitto_subscribe_simple(
 		int qos,
 		const char *host,
 		int port,
-		const char *client_id,
+		const char *clientid,
 		int keepalive,
 		bool clean_session,
 		const char *username,
@@ -127,7 +127,7 @@ libmosq_EXPORT int mosquitto_subscribe_simple(
 			on_message_simple, &userdata,
 			topic, qos,
 			host, port,
-			client_id, keepalive, clean_session,
+			clientid, keepalive, clean_session,
 			username, password,
 			will, tls);
 
@@ -151,7 +151,7 @@ libmosq_EXPORT int mosquitto_subscribe_callback(
 		int qos,
 		const char *host,
 		int port,
-		const char *client_id,
+		const char *clientid,
 		int keepalive,
 		bool clean_session,
 		const char *username,
@@ -172,7 +172,7 @@ libmosq_EXPORT int mosquitto_subscribe_callback(
 	cb_userdata.userdata = userdata;
 	cb_userdata.callback = callback;
 
-	mosq = mosquitto_new(client_id, clean_session, &cb_userdata);
+	mosq = mosquitto_new(clientid, clean_session, &cb_userdata);
 	if(!mosq){
 		return MOSQ_ERR_NOMEM;
 	}

@@ -60,16 +60,16 @@ BROKER_EXPORT const char *mosquitto_client_address(const struct mosquitto *clien
 }
 
 
-BROKER_EXPORT struct mosquitto *mosquitto_client(const char *client_id)
+BROKER_EXPORT struct mosquitto *mosquitto_client(const char *clientid)
 {
 	size_t len;
 	struct mosquitto *context;
 
-	if(!client_id) return NULL;
-	len = strlen(client_id);
+	if(!clientid) return NULL;
+	len = strlen(clientid);
 	if(len == 0) return NULL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_id, strlen(client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
 	return context;
 }
@@ -470,13 +470,13 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 	if(client == NULL){
 		return MOSQ_ERR_INVAL;
 	}
-	if(client->client_id == NULL){
+	if(client->clientid == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->client_id, strlen(client->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
 	if(context){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
@@ -488,8 +488,8 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 		goto error;
 	}
 
-	context->id = client->client_id;
-	client->client_id = NULL;
+	context->id = client->clientid;
+	client->clientid = NULL;
 	context->username = client->username;
 	client->username = NULL;
 	context->auth_method = client->auth_method;
@@ -519,7 +519,7 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	SAFE_FREE(client->client_id);
+	SAFE_FREE(client->clientid);
 	SAFE_FREE(client->username);
 	SAFE_FREE(client->auth_method);
 	return rc;
@@ -535,13 +535,13 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 	if(client == NULL){
 		return MOSQ_ERR_INVAL;
 	}
-	if(client->client_id == NULL){
+	if(client->clientid == NULL){
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}
 
 	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client->client_id, strlen(client->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client->clientid, strlen(client->clientid), context);
 	if(context == NULL){
 		rc = MOSQ_ERR_NOT_FOUND;
 		goto error;
@@ -577,14 +577,14 @@ error:
 }
 
 
-BROKER_EXPORT int mosquitto_persist_client_delete(const char *client_id)
+BROKER_EXPORT int mosquitto_persist_client_delete(const char *clientid)
 {
 	struct mosquitto *context;
 
-	if(client_id == NULL) return MOSQ_ERR_INVAL;
+	if(clientid == NULL) return MOSQ_ERR_INVAL;
 
 	context = NULL;
-	HASH_FIND(hh_id, db.contexts_by_id, client_id, strlen(client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 	if(context == NULL){
 		return MOSQ_ERR_SUCCESS;
 	}
@@ -616,11 +616,11 @@ BROKER_EXPORT int mosquitto_persist_client_msg_add(struct mosquitto_client_msg *
 	struct mosquitto *context;
 	struct mosquitto__base_msg *base_msg;
 
-	if(client_msg == NULL || client_msg->client_id == NULL){
+	if(client_msg == NULL || client_msg->clientid == NULL){
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
@@ -649,9 +649,9 @@ BROKER_EXPORT int mosquitto_persist_client_msg_delete(struct mosquitto_client_ms
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->client_id == NULL) return MOSQ_ERR_INVAL;
+	if(client_msg == NULL || client_msg->clientid == NULL) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
@@ -671,9 +671,9 @@ BROKER_EXPORT int mosquitto_persist_client_msg_update(struct mosquitto_client_ms
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->client_id == NULL) return MOSQ_ERR_INVAL;
+	if(client_msg == NULL || client_msg->clientid == NULL) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
@@ -693,9 +693,9 @@ BROKER_EXPORT int mosquitto_persist_client_msg_clear(struct mosquitto_client_msg
 {
 	struct mosquitto *context;
 
-	if(client_msg == NULL || client_msg->client_id == NULL) return MOSQ_ERR_INVAL;
+	if(client_msg == NULL || client_msg->clientid == NULL) return MOSQ_ERR_INVAL;
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_msg->client_id, strlen(client_msg->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, client_msg->clientid, strlen(client_msg->clientid), context);
 	if(context == NULL){
 		return MOSQ_ERR_NOT_FOUND;
 	}
@@ -713,11 +713,11 @@ BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription
 {
 	struct mosquitto *context;
 
-	if(sub == NULL || sub->client_id == NULL || sub->topic_filter == NULL || sub->client_id[0] == '\0' || sub->topic_filter[0] == '\0'){
+	if(sub == NULL || sub->clientid == NULL || sub->topic_filter == NULL || sub->clientid[0] == '\0' || sub->topic_filter[0] == '\0'){
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, sub->client_id, strlen(sub->client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, sub->clientid, strlen(sub->clientid), context);
 
 	if(context){
 		return sub__add(context, sub);
@@ -727,16 +727,16 @@ BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription
 }
 
 
-BROKER_EXPORT int mosquitto_subscription_delete(const char *client_id, const char *topic)
+BROKER_EXPORT int mosquitto_subscription_delete(const char *clientid, const char *topic)
 {
 	struct mosquitto *context;
 	uint8_t reason;
 
-	if(client_id == NULL || topic == NULL || client_id[0] == '\0' || topic[0] == '\0'){
+	if(clientid == NULL || topic == NULL || clientid[0] == '\0' || topic[0] == '\0'){
 		return MOSQ_ERR_INVAL;
 	}
 
-	HASH_FIND(hh_id, db.contexts_by_id, client_id, strlen(client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id, clientid, strlen(clientid), context);
 
 	if(context){
 		return sub__remove(context, topic, &reason);
@@ -836,13 +836,13 @@ BROKER_EXPORT int mosquitto_persist_base_msg_delete(uint64_t store_id)
 }
 
 
-BROKER_EXPORT void mosquitto_complete_basic_auth(const char *client_id, int result)
+BROKER_EXPORT void mosquitto_complete_basic_auth(const char *clientid, int result)
 {
 	struct mosquitto *context;
 
-	if(client_id == NULL) return;
+	if(clientid == NULL) return;
 
-	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, client_id, strlen(client_id), context);
+	HASH_FIND(hh_id, db.contexts_by_id_delayed_auth, clientid, strlen(clientid), context);
 	if(context){
 		HASH_DELETE(hh_id, db.contexts_by_id_delayed_auth, context);
 		if(result == MOSQ_ERR_SUCCESS){

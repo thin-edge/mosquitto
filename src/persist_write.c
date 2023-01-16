@@ -68,7 +68,7 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 		chunk.F.retain_dup = (uint8_t)((cmsg->data.retain&0x0F)<<4 | (cmsg->data.dup&0x0F));
 		chunk.F.direction = (uint8_t)cmsg->data.direction;
 		chunk.F.state = (uint8_t)cmsg->data.state;
-		chunk.client_id = context->id;
+		chunk.clientid = context->id;
 		chunk.subscription_identifier = cmsg->data.subscription_identifier;
 
 		rc = persist__chunk_client_msg_write_v6(db_fptr, &chunk);
@@ -178,7 +178,7 @@ static int persist__client_save(FILE *db_fptr)
 			chunk.F.session_expiry_interval = context->session_expiry_interval;
 			chunk.F.last_mid = context->last_mid;
 			chunk.F.id_len = (uint16_t)strlen(context->id);
-			chunk.client_id = context->id;
+			chunk.clientid = context->id;
 			if(context->username){
 				chunk.F.username_len = (uint16_t)strlen(context->username);
 				chunk.username = context->username;
@@ -237,7 +237,7 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 			sub_chunk.F.topic_len = (uint16_t)strlen(thistopic);
 			sub_chunk.F.qos = MQTT_SUB_OPT_GET_QOS(sub->subscription_options);
 			sub_chunk.F.options = sub->subscription_options & 0xFC;
-			sub_chunk.client_id = sub->context->id;
+			sub_chunk.clientid = sub->context->id;
 			sub_chunk.topic = thistopic;
 
 			rc = persist__chunk_sub_write_v6(db_fptr, &sub_chunk);
