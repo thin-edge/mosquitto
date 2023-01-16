@@ -327,11 +327,11 @@ int retain__queue(struct mosquitto *context, const struct mosquitto_subscription
 	assert(context);
 	assert(sub);
 
-	if(!strncmp(sub->topic, "$share/", strlen("$share/"))){
+	if(!strncmp(sub->topic_filter, "$share/", strlen("$share/"))){
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	rc = sub__topic_tokenise(sub->topic, &local_sub, &split_topics, NULL);
+	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &split_topics, NULL);
 	if(rc) return rc;
 
 	HASH_FIND(hh, db.retains, split_topics[0], strlen(split_topics[0]), retainhier);

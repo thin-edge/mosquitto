@@ -54,7 +54,7 @@ static void TEST_sub_add_single(void)
 
 	db__open(&config);
 
-	sub.topic = "a/b/c/d/e";
+	sub.topic_filter = "a/b/c/d/e";
 	rc = sub__add(&context, &sub);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	CU_ASSERT_PTR_NOT_NULL(db.subs);

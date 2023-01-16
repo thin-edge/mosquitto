@@ -376,7 +376,7 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 	}
 
 	sub.client_id = chunk.client_id;
-	sub.topic = chunk.topic;
+	sub.topic_filter = chunk.topic;
 	sub.options = chunk.F.qos | chunk.F.options;
 	sub.identifier = chunk.F.identifier;
 	rc = persist__restore_sub(&sub);
@@ -548,7 +548,7 @@ static int persist__restore_sub(const struct mosquitto_subscription *sub)
 
 	assert(sub);
 	assert(sub->client_id);
-	assert(sub->topic);
+	assert(sub->topic_filter);
 
 	context = persist__find_or_add_context(sub->client_id, 0);
 	if(!context) return 1;

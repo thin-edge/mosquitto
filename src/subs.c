@@ -168,12 +168,12 @@ static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subsc
 		}
 		leaf = leaf->next;
 	}
-	leaf = mosquitto__calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic) + 1);
+	leaf = mosquitto__calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
 	if(!leaf) return MOSQ_ERR_NOMEM;
 	leaf->context = context;
 	leaf->identifier = sub->identifier;
 	leaf->subscription_options = sub->options;
-	strcpy(leaf->topic_filter, sub->topic);
+	strcpy(leaf->topic_filter, sub->topic_filter);
 
 	DL_APPEND(*head, leaf);
 	*newleaf = leaf;
@@ -555,9 +555,9 @@ int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub
 	size_t topiclen;
 
 	assert(sub);
-	assert(sub->topic);
+	assert(sub->topic_filter);
 
-	rc = sub__topic_tokenise(sub->topic, &local_sub, &topics, &sharename);
+	rc = sub__topic_tokenise(sub->topic_filter, &local_sub, &topics, &sharename);
 	if(rc) return rc;
 
 	topiclen = strlen(topics[0]);

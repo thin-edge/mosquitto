@@ -251,7 +251,7 @@ static int subscription_restore(struct mosquitto_sqlite *ms)
 	while(sqlite3_step(stmt) == SQLITE_ROW){
 		memset(&sub, 0, sizeof(sub));
 		sub.client_id = (char *)sqlite3_column_text(stmt, 0);
-		sub.topic = (char *)sqlite3_column_text(stmt, 1);
+		sub.topic_filter = (char *)sqlite3_column_text(stmt, 1);
 		sub.options = (uint8_t)sqlite3_column_int(stmt, 2);
 		sub.identifier = (uint32_t)sqlite3_column_int(stmt, 3);
 

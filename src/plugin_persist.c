@@ -153,7 +153,7 @@ void plugin_persist__handle_subscription_add(struct mosquitto *context, const st
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.data.client_id = context->id;
-	event_data.data.topic = sub->topic;
+	event_data.data.topic_filter = sub->topic_filter;
 	event_data.data.identifier = sub->identifier;
 	event_data.data.options = sub->options;
 
@@ -175,7 +175,7 @@ void plugin_persist__handle_subscription_delete(struct mosquitto *context, char 
 	opts = &db.config->security_options;
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.data.client_id = context->id;
-	event_data.data.topic = sub;
+	event_data.data.topic_filter = sub;
 
 	DL_FOREACH(opts->plugin_callbacks.persist_subscription_delete, cb_base){
 		cb_base->cb(MOSQ_EVT_PERSIST_SUBSCRIPTION_DELETE, &event_data, cb_base->userdata);

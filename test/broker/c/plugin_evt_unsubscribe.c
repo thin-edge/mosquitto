@@ -18,7 +18,7 @@ int callback_unsubscribe(int event, void *event_data, void *user_data)
 	if(event != MOSQ_EVT_UNSUBSCRIBE){
 		abort();
 	}
-	ed->topic = mosquitto_strdup("missing-topic");
+	ed->topic_filter = mosquitto_strdup("missing-topic");
 
 	return MOSQ_ERR_SUCCESS;
 }

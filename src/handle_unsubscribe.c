@@ -90,7 +90,7 @@ int handle__unsubscribe(struct mosquitto *context)
 	while(context->in_packet.pos < context->in_packet.remaining_length){
 		memset(&sub, 0, sizeof(sub));
 		sub.properties = properties;
-		if(packet__read_string(&context->in_packet, &sub.topic, &slen)){
+		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
 			mosquitto__FREE(reason_codes);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
@@ -99,22 +99,22 @@ int handle__unsubscribe(struct mosquitto *context)
 			log__printf(NULL, MOSQ_LOG_INFO,
 					"Empty unsubscription string from %s, disconnecting.",
 					context->id);
-			mosquitto__FREE(sub.topic);
+			mosquitto__FREE(sub.topic_filter);
 			mosquitto__FREE(reason_codes);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
-		if(mosquitto_sub_topic_check(sub.topic)){
+		if(mosquitto_sub_topic_check(sub.topic_filter)){
 			log__printf(NULL, MOSQ_LOG_INFO,
 					"Invalid unsubscription string from %s, disconnecting.",
 					context->id);
-			mosquitto__FREE(sub.topic);
+			mosquitto__FREE(sub.topic_filter);
 			mosquitto__FREE(reason_codes);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
 
 		/* ACL check */
 		allowed = true;
-		rc = mosquitto_acl_check(context, sub.topic, 0, NULL, 0, false, MOSQ_ACL_UNSUBSCRIBE);
+		rc = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, 0, false, MOSQ_ACL_UNSUBSCRIBE);
 		switch(rc){
 			case MOSQ_ERR_SUCCESS:
 				break;
@@ -123,26 +123,26 @@ int handle__unsubscribe(struct mosquitto *context)
 				reason = MQTT_RC_NOT_AUTHORIZED;
 				break;
 			default:
-				mosquitto__FREE(sub.topic);
+				mosquitto__FREE(sub.topic_filter);
 				mosquitto__FREE(reason_codes);
 				return rc;
 		}
 
-		log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", sub.topic);
+		log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s", sub.topic_filter);
 		if(allowed){
 			rc = plugin__handle_unsubscribe(context, &sub);
 			if(rc){
-				mosquitto__FREE(sub.topic);
+				mosquitto__FREE(sub.topic_filter);
 				mosquitto__FREE(reason_codes);
 				return rc;
 			}
-			rc = sub__remove(context, sub.topic, &reason);
-			plugin_persist__handle_subscription_delete(context, sub.topic);
+			rc = sub__remove(context, sub.topic_filter, &reason);
+			plugin_persist__handle_subscription_delete(context, sub.topic_filter);
 		}else{
 			rc = MOSQ_ERR_SUCCESS;
 		}
-		log__printf(NULL, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic);
-		mosquitto__FREE(sub.topic);
+		log__printf(NULL, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
+		mosquitto__FREE(sub.topic_filter);
 		if(rc){
 			mosquitto__FREE(reason_codes);
 			return rc;

@@ -713,7 +713,7 @@ BROKER_EXPORT int mosquitto_subscription_add(const struct mosquitto_subscription
 {
 	struct mosquitto *context;
 
-	if(sub == NULL || sub->client_id == NULL || sub->topic == NULL || sub->client_id[0] == '\0' || sub->topic[0] == '\0'){
+	if(sub == NULL || sub->client_id == NULL || sub->topic_filter == NULL || sub->client_id[0] == '\0' || sub->topic_filter[0] == '\0'){
 		return MOSQ_ERR_INVAL;
 	}
 

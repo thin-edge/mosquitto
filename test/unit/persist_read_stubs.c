@@ -152,7 +152,7 @@ int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub
 {
 	UNUSED(context);
 
-	last_sub = strdup(sub->topic);
+	last_sub = strdup(sub->topic_filter);
 	last_qos = sub->options & 0x03;
 	last_identifier = sub->identifier;
 

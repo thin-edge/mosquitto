@@ -18,7 +18,7 @@ int callback_subscribe(int event, void *event_data, void *user_data)
 	if(event != MOSQ_EVT_SUBSCRIBE){
 		abort();
 	}
-	ed->topic = mosquitto_strdup("new-topic");
+	ed->topic_filter = mosquitto_strdup("new-topic");
 	ed->qos = 0;
 
 	return MOSQ_ERR_SUCCESS;

@@ -492,7 +492,7 @@ int bridge__connect(struct mosquitto *context)
 				qos = cur_topic->qos;
 			}
 			struct mosquitto_subscription sub;
-			sub.topic = cur_topic->local_topic;
+			sub.topic_filter = cur_topic->local_topic;
 			sub.identifier = 0;
 			sub.options = MQTT_SUB_OPT_NO_LOCAL | MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | qos;
 			if(sub__add(context, &sub) > 0){
@@ -695,7 +695,7 @@ int bridge__on_connect(struct mosquitto *context)
 	struct mosquitto_subscription sub;
 	memset(&sub, 0, sizeof(sub));
 	LL_FOREACH(context->bridge->topics, cur_topic){
-		sub.topic = cur_topic->local_topic;
+		sub.topic_filter = cur_topic->local_topic;
 		if(cur_topic->direction == bd_out || cur_topic->direction == bd_both){
 			if(cur_topic->qos > context->max_qos){
 				sub.options = context->max_qos;
