@@ -60,6 +60,8 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 	property__write_all(packet, properties, true);
 	mosquitto_property_free_all(&properties);
 
+	metrics__int_inc(mosq_counter_mqtt_auth_sent, 1);
+
 	return packet__queue(context, packet);
 error:
 	mosquitto_property_free_all(&properties);
