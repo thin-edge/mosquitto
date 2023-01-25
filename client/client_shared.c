@@ -1574,6 +1574,10 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 					goto cleanup;
 				}
 				len = i-start;
+				if(username){
+					err_printf(cfg, "Error: Username cannot contain ':'.\n");
+					goto cleanup;
+				}
 				username = malloc(len + 1);
 				if(!username){
 					err_printf(cfg, "Error: Out of memory.\n");
