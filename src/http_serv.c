@@ -131,6 +131,7 @@ int http__read(struct mosquitto *mosq)
 		}
 	}
 
+	mosq->http_request[db.config->websockets_headers_size-1] = '\0'; /* Always 0 terminate */
 	read_length = phr_parse_request(mosq->http_request, strlen(mosq->http_request),
 			&http_method, &http_method_len,
 			&http_path, &http_path_len,
