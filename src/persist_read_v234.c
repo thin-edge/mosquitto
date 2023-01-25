@@ -59,6 +59,8 @@ int persist__chunk_header_read_v234(FILE *db_fptr, uint32_t *chunk, uint32_t *le
 
 int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk)
 {
+	int rc = MOSQ_ERR_UNKNOWN;
+
 	read_e(db_fptr, &chunk->shutdown, sizeof(uint8_t)); /* shutdown */
 	read_e(db_fptr, &chunk->dbid_size, sizeof(uint8_t)); /* sizeof(dbid_t) */
 	read_e(db_fptr, &chunk->last_db_id, sizeof(dbid_t));
@@ -66,7 +68,7 @@ int persist__chunk_cfg_read_v234(FILE *db_fptr, struct PF_cfg *chunk)
 	return MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	return 1;
+	return rc;
 }
 
 

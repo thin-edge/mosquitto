@@ -33,7 +33,7 @@ extern const unsigned char magic[15];
 #define DB_CHUNK_CLIENT 6
 /* End DB read/write */
 
-#define read_e(f, b, c) if(fread(b, 1, c, f) != c){ goto error; }
+#define read_e(f, b, c) if(fread(b, 1, c, f) != c){ rc = MOSQ_ERR_UNKNOWN; goto error; }
 #define write_e(f, b, c) if(fwrite(b, 1, c, f) != c){ goto error; }
 
 /* COMPATIBILITY NOTES

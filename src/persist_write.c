@@ -330,6 +330,7 @@ static int persist__write_data(FILE* db_fptr, void* user_data)
 	uint32_t crc = 0;
 	const char* err;
 	struct PF_cfg cfg_chunk;
+	int rc = MOSQ_ERR_UNKNOWN;
 
 	/* Header */
 	write_e(db_fptr, magic, 15);
@@ -359,7 +360,7 @@ error:
 	err = strerror(errno);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error during saving in-memory database %s: %s.", db.config->persistence_filepath, err);
 	if(db_fptr) fclose(db_fptr);
-	return 1;
+	return rc;
 }
 
 
