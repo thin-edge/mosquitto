@@ -25,14 +25,14 @@ Contributors:
 static void plugin__handle_disconnect_single(struct mosquitto__security_options *opts, struct mosquitto *context, int reason)
 {
 	struct mosquitto_evt_disconnect event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 
 	if(context->id == NULL) return;
 
 	memset(&event_data, 0, sizeof(event_data));
 	event_data.client = context;
 	event_data.reason = reason;
-	DL_FOREACH(opts->plugin_callbacks.disconnect, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.disconnect, cb_base, cb_next){
 		cb_base->cb(MOSQ_EVT_DISCONNECT, &event_data, cb_base->userdata);
 	}
 }

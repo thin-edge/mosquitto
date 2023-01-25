@@ -31,7 +31,7 @@ struct should_free {
 static int plugin__handle_message_single(struct mosquitto__callback *callbacks, enum mosquitto_plugin_event ev_type, struct should_free *to_free, struct mosquitto *context, struct mosquitto_base_msg *stored)
 {
 	struct mosquitto_evt_message event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 	int rc = MOSQ_ERR_SUCCESS;
 
 	memset(&event_data, 0, sizeof(event_data));
@@ -43,7 +43,7 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 	event_data.retain = stored->retain;
 	event_data.properties = stored->properties;
 
-	DL_FOREACH(callbacks, cb_base){
+	DL_FOREACH_SAFE(callbacks, cb_base, cb_next){
 		rc = cb_base->cb(ev_type, &event_data, cb_base->userdata);
 		if(rc != MOSQ_ERR_SUCCESS){
 			break;

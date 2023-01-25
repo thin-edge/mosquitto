@@ -31,11 +31,11 @@ Contributors:
 static int plugin__psk_key_get(struct mosquitto__security_options *opts, struct mosquitto *context, const char *hint, const char *identity, char *key, int max_key_len)
 {
 	struct mosquitto_evt_psk_key event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 	int rc;
 	int rc_final = MOSQ_ERR_SUCCESS;
 
-	DL_FOREACH(opts->plugin_callbacks.psk_key, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.psk_key, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
 		event_data.hint = hint;

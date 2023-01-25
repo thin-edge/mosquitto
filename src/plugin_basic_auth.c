@@ -31,11 +31,11 @@ Contributors:
 static int plugin__basic_auth(struct mosquitto__security_options *opts, struct mosquitto *context)
 {
 	struct mosquitto_evt_basic_auth event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 	int rc;
 	int rc_final = MOSQ_ERR_PLUGIN_IGNORE;
 
-	DL_FOREACH(opts->plugin_callbacks.basic_auth, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.basic_auth, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
 		event_data.username = context->username;

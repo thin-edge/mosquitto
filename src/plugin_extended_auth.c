@@ -31,13 +31,13 @@ Contributors:
 static int plugin__ext_auth_start(struct mosquitto__security_options *opts, struct mosquitto *context, bool reauth, const void *data_in, uint16_t data_in_len, void **data_out, uint16_t *data_out_len)
 {
 	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 	int rc;
 	int rc_final = MOSQ_ERR_PLUGIN_DEFER;
 
 	UNUSED(reauth);
 
-	DL_FOREACH(opts->plugin_callbacks.ext_auth_start, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_start, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
 		event_data.auth_method = context->auth_method;
@@ -104,9 +104,9 @@ static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, s
 {
 	int rc;
 	struct mosquitto_evt_extended_auth event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 
-	DL_FOREACH(opts->plugin_callbacks.ext_auth_continue, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_continue, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
 		event_data.data_in = data_in;

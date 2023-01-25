@@ -104,7 +104,7 @@ static int plugin__acl_check(struct mosquitto__security_options *opts, struct mo
 {
 	int rc = MOSQ_ERR_PLUGIN_DEFER;
 	struct mosquitto_acl_msg msg;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 	struct mosquitto_evt_acl_check event_data;
 
 	memset(&msg, 0, sizeof(msg));
@@ -114,7 +114,7 @@ static int plugin__acl_check(struct mosquitto__security_options *opts, struct mo
 	msg.qos = qos;
 	msg.retain = retain;
 
-	DL_FOREACH(opts->plugin_callbacks.acl_check, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.acl_check, cb_base, cb_next){
 		/* FIXME - username deny special chars */
 
 		memset(&event_data, 0, sizeof(event_data));

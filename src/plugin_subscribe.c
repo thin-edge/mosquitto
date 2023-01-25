@@ -27,7 +27,7 @@ Contributors:
 static int plugin__handle_subscribe_single(struct mosquitto__security_options *opts, struct mosquitto *context, struct mosquitto_subscription *sub)
 {
 	struct mosquitto_evt_subscribe event_data;
-	struct mosquitto__callback *cb_base;
+	struct mosquitto__callback *cb_base, *cb_next;
 	int rc = MOSQ_ERR_SUCCESS;
 
 	memset(&event_data, 0, sizeof(event_data));
@@ -37,7 +37,7 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 	event_data.data.identifier = sub->identifier;
 	event_data.data.properties = sub->properties;
 
-	DL_FOREACH(opts->plugin_callbacks.subscribe, cb_base){
+	DL_FOREACH_SAFE(opts->plugin_callbacks.subscribe, cb_base, cb_next){
 		rc = cb_base->cb(MOSQ_EVT_SUBSCRIBE, &event_data, cb_base->userdata);
 		if(rc != MOSQ_ERR_SUCCESS){
 			break;
