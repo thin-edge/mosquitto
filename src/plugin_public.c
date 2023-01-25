@@ -771,6 +771,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 		if(message_expiry_interval_tt > UINT32_MAX){
 			message_expiry_interval = UINT32_MAX;
 		}else{
+			/* coverity[store_truncates_time_t] - we check above whether the value will fit in a uint32_t */
 			message_expiry_interval = (uint32_t)message_expiry_interval_tt;
 		}
 	}

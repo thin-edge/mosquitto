@@ -125,7 +125,8 @@ static int tick_callback(int event, void *event_data, void *userdata)
 #ifdef WIN32
 				r = rand() % 1000;
 #else
-				 r = random() % 1000;
+				/* coverity[dont_call] - we don't care about random() not being cryptographically secure here */
+				r = random() % 1000;
 #endif
 				if(r > 740){
 					mosquitto_complete_basic_auth(client->id, MOSQ_ERR_AUTH);

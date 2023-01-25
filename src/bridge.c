@@ -464,7 +464,9 @@ int bridge__connect(struct mosquitto *context)
 
 	mosquitto__set_state(context, mosq_cs_new);
 	context->sock = INVALID_SOCKET;
+	/* coverity[missing_lock] - broker is single threaded, so no lock required */
 	context->last_msg_in = db.now_s;
+	/* coverity[missing_lock] - broker is single threaded, so no lock required */
 	context->next_msg_out = db.now_s + context->bridge->keepalive;
 	context->keepalive = context->bridge->keepalive;
 	context->clean_start = context->bridge->clean_start;

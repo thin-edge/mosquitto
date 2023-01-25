@@ -406,6 +406,13 @@ int socks5__read(struct mosquitto *mosq)
 				packet__cleanup(&mosq->in_packet);
 				return MOSQ_ERR_PROTOCOL;
 			}
+			/* coverity[tainted_data] - we know the value of
+			 * mosq->in_packet.packet_lenth is within a bound. At the start of
+			 * this if statement, it was 5. The next set of if statements add
+			 * either (4+2-1)=5 to its value, or (16+2-1)=17 to its value, or
+			 * the contents of a uint8_t, which can be a maximum of 255. So the
+			 * range is 10 to 260 bytes. Coverity most likely doesn't realise
+			 * this because the += promotes to the size of packet_length. */
 			payload = mosquitto__realloc(mosq->in_packet.payload, mosq->in_packet.packet_length);
 			if(payload){
 				mosq->in_packet.payload = payload;

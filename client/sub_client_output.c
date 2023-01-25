@@ -857,6 +857,7 @@ void print_message(struct mosq_config *lcfg, const struct mosquitto_message *mes
 #ifdef WIN32
 		rand_s(&r);
 #else
+		/* coverity[dont_call] - we don't care about random() not being cryptographically secure here */
 		r = random();
 #endif
 		if((long)(r%10000) >= lcfg->random_filter){

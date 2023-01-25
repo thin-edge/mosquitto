@@ -212,6 +212,7 @@ int keepalive__update(struct mosquitto *context)
 {
 #ifndef WITH_OLD_KEEPALIVE
 	keepalive__remove(context);
+	/* coverity[missing_lock] - broker is single threaded, so no lock required */
 	context->last_msg_in = db.now_s;
 	keepalive__add(context);
 #else

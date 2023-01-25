@@ -188,6 +188,7 @@ static void TEST_100k_random_clients(void)
 
 	for(int i=0; i<client_count; i++){
 		contexts[i].id = strdup("clientid");
+		/* coverity[dont_call] - we don't care about rand() not being cryptographically secure here */
 		contexts[i].keepalive = (uint16_t)rand() % UINT16_MAX;
 		contexts[i].last_msg_in = rand() % 60000;
 	}
