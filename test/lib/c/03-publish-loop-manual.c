@@ -17,6 +17,8 @@ static void do_loop(struct mosquitto *mosq)
 
 	sock = mosquitto_socket(mosq);
 
+	if(sock < 0) exit(1);
+
     FD_ZERO(&readfds);
     FD_ZERO(&writefds);
 
@@ -34,6 +36,7 @@ static void do_loop(struct mosquitto *mosq)
 		}
 
 		fdcount = select(sock+1, &readfds, &writefds, NULL, &tv);
+		if(fdcount < 0) exit(1);
 		if(FD_ISSET(sock, &readfds)){
 			rc = mosquitto_loop_read(mosq, 1);
 		}

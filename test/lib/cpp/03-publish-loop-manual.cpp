@@ -66,6 +66,7 @@ void do_loop(mosquittopp_test *mosq)
 	fd_set readfds, writefds;
 
 	sock = mosq->socket();
+	if(sock < 0) exit(1);
 
 	FD_ZERO(&readfds);
 	FD_ZERO(&writefds);
@@ -83,7 +84,9 @@ void do_loop(mosquittopp_test *mosq)
 			FD_CLR(sock, &writefds);
 		}
 
-		select(sock+1, &readfds, &writefds, NULL, &tv);
+		int fdcount = select(sock+1, &readfds, &writefds, NULL, &tv);
+		if(fdcount < 0) exit(1);
+
 		if(FD_ISSET(sock, &readfds)){
 			mosq->loop_read();
 		}
