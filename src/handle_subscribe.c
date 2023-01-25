@@ -210,16 +210,21 @@ int handle__subscribe(struct mosquitto *context)
 				}
 				if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
 					if(rc2 == MOSQ_ERR_SUCCESS || rc2 == MOSQ_ERR_SUB_EXISTS){
-						if(retain__queue(context, &sub)) rc = 1;
+						if(retain__queue(context, &sub)){
+							mosquitto__FREE(sub.topic_filter);
+							return rc;
+						}
 					}
 				}else{
 					if((retain_handling == MQTT_SUB_OPT_SEND_RETAIN_ALWAYS)
 							|| (rc2 == MOSQ_ERR_SUCCESS && retain_handling == MQTT_SUB_OPT_SEND_RETAIN_NEW)){
 
-						if(retain__queue(context, &sub)) rc = 1;
+						if(retain__queue(context, &sub)){
+							mosquitto__FREE(sub.topic_filter);
+							return rc;
+						}
 					}
 				}
-
 				log__printf(NULL, MOSQ_LOG_SUBSCRIBE, "%s %d %s", context->id, qos, sub.topic_filter);
 
 				rc = plugin__handle_subscribe(context, &sub);
