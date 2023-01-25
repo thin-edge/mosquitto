@@ -1620,6 +1620,10 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 			in_ipv6_address = true;
 			start = i+1;
 		}else if(str[i] == ']'){
+			if(host){
+				err_printf(cfg, "Error: Duplicate IPv6 address.\n");
+				goto cleanup;
+			}
 			in_ipv6_address = false;
 
 			len = i-start;
