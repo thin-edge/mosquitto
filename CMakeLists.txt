@@ -164,7 +164,8 @@ endif()
 # ========================================
 
 if(WITH_BROKER)
-	install(FILES mosquitto.conf aclfile.example pskfile.example pwfile.example DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/mosquitto")
+	install(FILES mosquitto.conf RENAME mosquitto.conf.example DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/mosquitto")
+	install(FILES aclfile.example pskfile.example pwfile.example DESTINATION "${CMAKE_INSTALL_SYSCONFDIR}/mosquitto")
 endif()
 
 # ========================================
