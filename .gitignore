@@ -40,6 +40,11 @@ examples/temperature_conversion/mqtt_temperature_conversion
 examples/publish/basic-1
 examples/publish/basic-websockets-1
 
+fuzzing/broker/broker_fuzz_initial_packet
+fuzzing/broker/broker_fuzz_second_packet
+fuzzing/corpora/broker/*
+fuzzing/corpora/client/*
+
 lib/cpp/libmosquittopp.so*
 lib/cpp/libmosquittopp.a
 lib/libmosquitto.so*
@@ -60,6 +65,7 @@ man/mqtt.7
 out/
 
 src/mosquitto
+src/mosquitto_broker.a
 
 test/broker/broker.pid
 test/test_client

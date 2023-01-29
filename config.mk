@@ -135,6 +135,10 @@ WITH_OLD_KEEPALIVE=no
 # Build with sqlite3 support - this enables the sqlite persistence plugin.
 WITH_SQLITE=yes
 
+# Build broker for fuzzing only - does not work as a normal broker. This is
+# currently only suitable for use with oss-fuzz.
+WITH_FUZZING=no
+
 # =============================================================================
 # End of user configuration
 # =============================================================================
@@ -422,6 +426,14 @@ endif
 
 ifeq ($(WITH_XTREPORT),yes)
 	BROKER_CFLAGS:=$(BROKER_CFLAGS) -DWITH_XTREPORT
+endif
+
+ifeq ($(WITH_FUZZING),yes)
+	MAKE_ALL:=$(MAKE_ALL) fuzzing
+	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_FUZZING
+	BROKER_CFLAGS:=$(BROKER_CFLAGS) -fPIC
+	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -shared
+	LDFLAGS:=$(LDFLAGS) $(CFLAGS)
 endif
 
 BROKER_LDADD:=${BROKER_LDADD} ${LDADD}
