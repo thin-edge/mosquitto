@@ -75,16 +75,14 @@ int connect_retrying(int port)
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
-	for(int i=0; i<500; i++){ /* 500x10ms = 5 seconds max wait */
+	while(1){
 		errno = 0;
 		rc = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
-		if(rc < 0 && errno == ECONNREFUSED){
+		if(rc < 0){
 			struct timespec ts;
 			ts.tv_sec = 0;
 			ts.tv_nsec = 10000000; /* 10ms */
 			nanosleep(&ts, NULL);
-		}else if(rc < 0){
-			return -1;
 		}else{
 			break;
 		}
