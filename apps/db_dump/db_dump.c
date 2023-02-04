@@ -387,7 +387,11 @@ static void cleanup_msg_store()
 }
 
 
+#ifdef WITH_FUZZING
+int db_dump_fuzz_main(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
 	FILE *fd;
 	char header[15];

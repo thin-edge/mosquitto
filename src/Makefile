@@ -3,6 +3,10 @@ include ${R}/config.mk
 
 .PHONY: all install uninstall clean reallyclean
 
+BROKER_CFLAGS:=$(BROKER_CFLAGS) $(CFLAGS)
+BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) $(CPPFLAGS)
+BROKER_LDFLAGS:=$(BROKER_LDFLAGS) $(LDFLAGS)
+
 ifeq ($(WITH_FUZZING),yes)
 all : mosquitto_broker.a
 else
