@@ -132,6 +132,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
+		mosquitto__FREE(chunk->clientid);
 		mosquitto__FREE(prop_packet.payload);
 		if(rc) return rc;
 
@@ -149,6 +150,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 	return MOSQ_ERR_SUCCESS;
 error:
+	mosquitto__FREE(chunk->clientid);
 	mosquitto__FREE(prop_packet.payload);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	return 1;
