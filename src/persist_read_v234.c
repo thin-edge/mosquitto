@@ -163,6 +163,10 @@ int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, u
 	chunk->F.payloadlen = ntohl(i32temp);
 
 	if(chunk->F.payloadlen){
+		if(chunk->F.payloadlen > MQTT_MAX_PAYLOAD){
+			rc = MOSQ_ERR_INVAL;
+			goto error;
+		}
 		chunk->payload = mosquitto_malloc(chunk->F.payloadlen+1);
 		if(chunk->payload == NULL){
 			rc = MOSQ_ERR_NOMEM;
