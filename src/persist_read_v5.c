@@ -118,6 +118,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 	chunk->F.id_len = ntohs(chunk->F.id_len);
 
 	length -= (uint32_t)(sizeof(struct PF_client_msg) + chunk->F.id_len);
+	if(length > MQTT_MAX_PAYLOAD) goto error;
 
 	rc = persist__read_string_len(db_fptr, &chunk->clientid, chunk->F.id_len);
 	if(rc) return rc;
