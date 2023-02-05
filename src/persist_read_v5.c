@@ -113,6 +113,8 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 	struct mosquitto__packet_in prop_packet;
 	int rc;
 
+	memset(&prop_packet, 0, sizeof(struct mosquitto__packet));
+
 	read_e(db_fptr, &chunk->F, sizeof(struct PF_client_msg));
 	chunk->F.mid = ntohs(chunk->F.mid);
 	chunk->F.id_len = ntohs(chunk->F.id_len);
@@ -124,7 +126,6 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 	if(rc) return rc;
 
 	if(length > 0){
-		memset(&prop_packet, 0, sizeof(struct mosquitto__packet));
 		prop_packet.remaining_length = length;
 		prop_packet.payload = mosquitto__malloc(length);
 		if(!prop_packet.payload) return MOSQ_ERR_NOMEM;
@@ -148,6 +149,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 	return MOSQ_ERR_SUCCESS;
 error:
+	mosquitto__FREE(prop_packet.payload);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	return 1;
 }
