@@ -128,7 +128,10 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 	if(length > 0){
 		prop_packet.remaining_length = length;
 		prop_packet.payload = mosquitto__malloc(length);
-		if(!prop_packet.payload) return MOSQ_ERR_NOMEM;
+		if(!prop_packet.payload){
+			errno = ENOMEM;
+			goto error;
+		}
 
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
