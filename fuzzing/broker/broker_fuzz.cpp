@@ -25,28 +25,28 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "broker_fuzz.h"
+
+#define PORT 1883
 
 /* The broker fuzz-only main function. */
 extern "C" int mosquitto_fuzz_main(int argc, char *argv[]);
 
 void *run_broker(void *args)
 {
-	struct fuzz_data *fuzz = (struct fuzz_data *)args;
 	char *argv[4];
 	int argc = 4;
-	char buf[20];
 
 	argv[0] = strdup("mosquitto");
-	argv[1] = strdup("-q");
-	argv[2] = strdup("-p");
-	snprintf(buf, sizeof(buf), "%d", fuzz->port);
-	argv[3] = buf;
+	argv[1] = strdup("-v");
+	argv[2] = strdup("-c");
+	argv[3] = strdup("/tmp/mosquitto.conf");
 
 	mosquitto_fuzz_main(argc, argv);
 
-	for(int i=0; i<3; i++){
+	for(int i=0; i<argc; i++){
 		free(argv[i]);
 	}
 
@@ -94,6 +94,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
 	struct fuzz_data fuzz;
 	pthread_t thread;
+	FILE *fptr;
 
 	if(size < kMinInputLength || size > kMaxInputLength){
 		return 0;
@@ -102,13 +103,25 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	signal(SIGPIPE, SIG_IGN);
 
 	memset(&fuzz, 0, sizeof(fuzz));
-	fuzz.port = 1883;
+	fuzz.port = PORT;
 	fuzz.size = size;
 	fuzz.data = (uint8_t *)data;
+
+	fptr = fopen("/tmp/mosquitto.conf", "wb");
+	if(!fptr){
+		printf("FILE %s\n", strerror(errno));
+		abort();
+	}
+	fprintf(fptr, "user root\n");
+	fprintf(fptr, "listener %d\n", PORT);
+	fprintf(fptr, "allow_anonymous true\n");
+	fclose(fptr);
 
 	pthread_create(&thread, NULL, run_broker, &fuzz);
 	run_client(&fuzz);
 	pthread_join(thread, NULL);
+
+	unlink("/tmp/mosquitto.conf");
 
 	return 0;
 }
