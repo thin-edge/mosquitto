@@ -48,7 +48,11 @@ examples/publish/basic-websockets-1
 fuzzing/broker/broker_fuzz_initial_packet
 fuzzing/broker/broker_fuzz_second_packet
 fuzzing/corpora/broker/*
+fuzzing/corpora/broker_packet_seed_corpus.zip
 fuzzing/corpora/client/*
+fuzzing/corpora/client_packet_seed_corpus.zip
+fuzzing/corpora/db_dump_seed_corpus.zip
+
 
 lib/cpp/libmosquittopp.so*
 lib/cpp/libmosquittopp.a
