@@ -360,9 +360,11 @@ int main(int argc, char *argv[])
 	if(config.test_configuration){
 		if(!db.config_file){
 			log__printf(NULL, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
+			config__cleanup(&config);
 			return MOSQ_ERR_INVAL;
 		}else{
 			log__printf(NULL, MOSQ_LOG_INFO, "Configuration file is OK.");
+			config__cleanup(&config);
 			return MOSQ_ERR_SUCCESS;
 		}
 	}
