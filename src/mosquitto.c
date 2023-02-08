@@ -355,7 +355,10 @@ int main(int argc, char *argv[])
 	db.config = &config;
 	config__init(&config);
 	rc = config__parse_args(&config, argc, argv);
-	if(rc != MOSQ_ERR_SUCCESS) return rc;
+	if(rc != MOSQ_ERR_SUCCESS){
+		config__cleanup(&config);
+		return rc;
+	}
 
 	if(config.test_configuration){
 		if(!db.config_file){
