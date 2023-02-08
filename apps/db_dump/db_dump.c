@@ -143,7 +143,7 @@ static int dump__client_chunk_process(FILE *db_fd, uint32_t length)
 {
 	struct P_client chunk;
 	int rc = 0;
-	struct client_data *cc;
+	struct client_data *cc = NULL;
 
 	client_count++;
 
@@ -159,7 +159,7 @@ static int dump__client_chunk_process(FILE *db_fd, uint32_t length)
 		return rc;
 	}
 
-	if(client_stats){
+	if(client_stats && chunk.clientid){
 		cc = calloc(1, sizeof(struct client_data));
 		if(!cc){
 			fprintf(stderr, "Error: Out of memory.\n");
@@ -199,7 +199,7 @@ static int dump__client_msg_chunk_process(FILE *db_fd, uint32_t length)
 		return rc;
 	}
 
-	if(client_stats){
+	if(client_stats && chunk.clientid){
 		HASH_FIND(hh_id, clients_by_id, chunk.clientid, strlen(chunk.clientid), cc);
 		if(cc){
 			cc->messages++;
@@ -352,7 +352,7 @@ static int dump__sub_chunk_process(FILE *db_fd, uint32_t length)
 		return rc;
 	}
 
-	if(client_stats){
+	if(client_stats && chunk.clientid){
 		HASH_FIND(hh_id, clients_by_id, chunk.clientid, strlen(chunk.clientid), cc);
 		if(cc){
 			cc->subscriptions++;
