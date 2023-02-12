@@ -1001,7 +1001,12 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
-						cur_bridge->addresses[cur_bridge->address_count-1].address = token;
+						memset(&cur_bridge->addresses[cur_bridge->address_count-1], 0, sizeof(struct bridge_address));
+						cur_bridge->addresses[cur_bridge->address_count-1].address = mosquitto__strdup(token);
+						if(!cur_bridge->addresses[cur_bridge->address_count-1].address){
+							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
+							return MOSQ_ERR_NOMEM;
+						}
 					}
 					for(i=0; i<cur_bridge->address_count; i++){
 						/* cur_bridge->addresses[i].address is now
