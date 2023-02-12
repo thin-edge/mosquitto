@@ -144,7 +144,16 @@ static int config__check_bridges(struct mosquitto__config *config);
 static int config__add_listener(struct mosquitto__config *config)
 {
 	struct mosquitto__listener *listener;
+	int def_listener = -1;
 
+	if(config->default_listener){
+		for(int i=0; i<config->listener_count; i++){
+			if(&config->listeners[i] == config->default_listener){
+				def_listener = i;
+				break;
+			}
+		}
+	}
 	config->listener_count++;
 	config->listeners = mosquitto__realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)config->listener_count);
 	if(!config->listeners){
@@ -157,6 +166,9 @@ static int config__add_listener(struct mosquitto__config *config)
 	if(!listener->security_options){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
+	}
+	if(def_listener != -1){
+		config->default_listener = &config->listeners[def_listener];
 	}
 
 	return MOSQ_ERR_SUCCESS;
