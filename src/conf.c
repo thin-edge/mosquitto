@@ -1029,12 +1029,6 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						}else{
 							cur_bridge->addresses[i].port = 1883;
 						}
-						/* This looks a bit weird, but isn't. Before this
-						 * call, cur_bridge->addresses[i].address points
-						 * to the tokenised part of the line, it will be
-						 * reused in a future parse of a config line so we
-						 * must duplicate it. */
-						cur_bridge->addresses[i].address = mosquitto__strdup(cur_bridge->addresses[i].address);
 						conf__attempt_resolve(cur_bridge->addresses[i].address, "bridge address", MOSQ_LOG_WARNING, "Warning");
 					}
 					if(cur_bridge->address_count == 0){
