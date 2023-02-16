@@ -135,9 +135,11 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
-		mosquitto__FREE(chunk->clientid);
 		mosquitto__FREE(prop_packet.payload);
-		if(rc) return rc;
+		if(rc){
+			mosquitto__FREE(chunk->clientid);
+			return rc;
+		}
 
 		if(properties){
 			p = properties;
