@@ -227,11 +227,6 @@ int handle__subscribe(struct mosquitto *context)
 				}
 				log__printf(NULL, MOSQ_LOG_SUBSCRIBE, "%s %d %s", context->id, qos, sub.topic_filter);
 
-				rc = plugin__handle_subscribe(context, &sub);
-				if(rc){
-					mosquitto__FREE(sub.topic_filter);
-					return rc;
-				}
 				plugin_persist__handle_subscription_add(context, &sub);
 			}
 			mosquitto__FREE(sub.topic_filter);
