@@ -44,6 +44,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <mosquitto.h>
 #include <mosquitto_broker.h>
 
 struct mosquitto;
@@ -65,8 +66,6 @@ struct mosquitto_acl_msg {
 	int qos;
 	bool retain;
 };
-
-typedef struct mosquitto_plugin_id_t mosquitto_plugin_id_t;
 
 #ifdef WIN32
 #  define mosq_plugin_EXPORT __declspec(dllexport)

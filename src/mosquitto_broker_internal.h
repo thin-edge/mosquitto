@@ -293,7 +293,7 @@ struct plugin_own_callback{
 	int event;
 };
 
-typedef struct mosquitto_plugin_id_t{
+struct mosquitto_plugin_id_t{
 	struct mosquitto__plugin_config config;
 	struct mosquitto__plugin_lib lib;
 	struct mosquitto__listener *listener;
@@ -301,7 +301,7 @@ typedef struct mosquitto_plugin_id_t{
 	char *plugin_version;
 	struct control_endpoint *control_endpoints;
 	struct plugin_own_callback *own_callbacks;
-} mosquitto_plugin_id_t;
+};
 
 struct mosquitto__config {
 	bool allow_duplicate_messages;
