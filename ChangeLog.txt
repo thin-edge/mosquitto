@@ -176,6 +176,8 @@ Clients:
 - Add websockets support.
 - Using `-x` now sets the clients to use MQTT v5.0.
 - Fix parsing of IPv6 addresses in socks proxy urls.
+- Add `--tls-keylog` option which can be used to generate a file that can be
+  used by wireshark to decrypt TLS traffic for debugging purposes.
 
 Build:
 - Increased CMake minimal required version to 3.14, which is required for the

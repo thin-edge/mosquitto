@@ -42,6 +42,10 @@ Contributors:
 static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url);
 #endif
 static int client_config_line_proc(struct mosq_config *cfg, int pub_or_sub, int argc, char *argv[]);
+#ifdef WITH_TLS
+static void tls_keylog_callback(const SSL *ssl, const char *line);
+static int tls_ex_index_cfg = -1;
+#endif
 
 
 static int check_format(const char *str)
@@ -1135,6 +1139,14 @@ int client_config_line_proc(struct mosq_config *cfg, int pub_or_sub, int argc, c
 				cfg->tls_version = strdup(argv[i+1]);
 			}
 			i++;
+		}else if(!strcmp(argv[i], "--tls-keylog")){
+			if(i==argc-1){
+				fprintf(stderr, "Error: --tls-keylog argument given but no file specified.\n\n");
+				return 1;
+			}else{
+				cfg->tls_keylog = strdup(argv[i+1]);
+			}
+			i++;
 #endif
 		}else if(!strcmp(argv[i], "-U") || !strcmp(argv[i], "--unsubscribe")){
 			if(pub_or_sub != CLIENT_SUB){
@@ -1317,6 +1329,21 @@ static int client_tls_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 
 	if(cfg->no_tls){
 		return MOSQ_ERR_SUCCESS;
+	}
+
+	if(cfg->tls_keylog){
+		if(tls_ex_index_cfg == -1){
+			tls_ex_index_cfg = SSL_CTX_get_ex_new_index(0, "client config", NULL, NULL, NULL);
+		}
+		cfg->ssl_ctx = SSL_CTX_new(TLS_client_method());
+		if(!cfg->ssl_ctx){
+			err_printf(cfg, "Error: Unable to create SSL_CTX.\n");
+			return 1;
+		}
+		SSL_CTX_set_ex_data(cfg->ssl_ctx, tls_ex_index_cfg, cfg);
+		mosquitto_void_option(mosq, MOSQ_OPT_SSL_CTX, cfg->ssl_ctx);
+		mosquitto_int_option(mosq, MOSQ_OPT_SSL_CTX_WITH_DEFAULTS, 1);
+		SSL_CTX_set_keylog_callback(cfg->ssl_ctx, tls_keylog_callback);
 	}
 
 	if(cfg->cafile || cfg->capath){
@@ -1735,3 +1762,22 @@ void err_printf(const struct mosq_config *cfg, const char *fmt, ...)
 	va_end(va);
 }
 
+#ifdef WITH_TLS
+static void tls_keylog_callback(const SSL *ssl, const char *line)
+{
+	struct mosq_config *cfg;
+	FILE *fptr;
+
+	UNUSED(ssl);
+
+	cfg = SSL_CTX_get_ex_data(SSL_get_SSL_CTX(ssl), tls_ex_index_cfg);
+
+	if(cfg && cfg->tls_keylog){
+		fptr = fopen(cfg->tls_keylog, "at");
+		if(fptr){
+			fprintf(fptr, "%s\n", line);
+			fclose(fptr);
+		}
+	}
+}
+#endif

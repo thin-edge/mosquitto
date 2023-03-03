@@ -91,6 +91,7 @@
 						<arg choice='plain'><replaceable>engine</replaceable></arg>
 					</group></arg>
 					<arg><option>--tls-engine-kpass-sha1</option> <replaceable>kpass-sha1</replaceable></arg>
+					<arg><option>--tls-keylog</option> <replaceable>file</replaceable></arg>
 					<arg><option>--tls-use-os-certs</option></arg>
 					<arg><option>--insecure</option></arg>
 				</arg>
@@ -705,6 +706,23 @@ mosquitto_sub -t 'bbc/#' -T bbc/bbc1 --remove-retained</programlisting>
 						password to the engine directly, instead of the user
 						being prompted for the password.</para>
 					<para>See also <option>--tls-engine</option>.</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term><option>--tls-keylog</option> <replaceable>file</replaceable></term>
+				<listitem>
+					<para>
+						Log TLS connection information to <replaceable>file</replaceable>.
+						This option allows tools such as <command>tcpdump</command>,
+						<command>wireshark</command> and <command>mqttshark</command>
+						to decrypt TLS traffic and inspect the MQTT traffic. In Wireshark
+						this can be done by setting the
+						<option>(Pre)-Master-Secret log filename</option> option for the
+						<option>Transport Layer Security</option> protocol.
+					</para>
+					<para>
+						This option should be used for debugging only.
+					</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>

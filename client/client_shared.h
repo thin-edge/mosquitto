@@ -27,6 +27,10 @@ Contributors:
 #  include <sys/time.h>
 #endif
 
+#ifdef WITH_TLS
+#  include <openssl/ssl.h>
+#endif
+
 #ifndef __GNUC__
 #define __attribute__(attrib)
 #endif
@@ -90,6 +94,8 @@ struct mosq_config {
 	char *tls_engine_kpass_sha1;
 	char *keyform;
 	bool tls_use_os_certs;
+	char *tls_keylog;
+	SSL_CTX *ssl_ctx;
 #  ifdef FINAL_WITH_TLS_PSK
 	char *psk;
 	char *psk_identity;
