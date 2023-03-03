@@ -6,6 +6,7 @@ all:
 	$(MAKE) -C broker $@
 	$(MAKE) -C db_dump $@
 	$(MAKE) -C lib $@
+	$(MAKE) -C mosquitto_passwd $@
 
 clean:
 	-rm -rf corpora/broker corpora/client
@@ -14,3 +15,4 @@ clean:
 	$(MAKE) -C broker $@
 	$(MAKE) -C db_dump $@
 	$(MAKE) -C lib $@
+	$(MAKE) -C mosquitto_passwd $@

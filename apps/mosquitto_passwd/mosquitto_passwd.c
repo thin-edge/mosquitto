@@ -418,7 +418,11 @@ static bool is_username_valid(const char *username)
 	return true;
 }
 
+#ifdef WITH_FUZZING
+int mosquitto_passwd_fuzz_main(int argc, char *argv[])
+#else
 int main(int argc, char *argv[])
+#endif
 {
 	char *password_file_tmp = NULL;
 	char *password_file = NULL;
