@@ -129,12 +129,12 @@
 
 	<refsect1>
 		<title>Exit Status</title>
-            <para>
-                mosquitto_sub returns zero on success, or non-zero on error. If
-                the connection is refused by the broker at the MQTT level, then
-                the exit code is the CONNACK reason code. If another error
-                occurs, the exit code is a libmosquitto return value.
-            </para>
+			<para>
+				mosquitto_sub returns zero on success, or non-zero on error. If
+				the connection is refused by the broker at the MQTT level, then
+				the exit code is the CONNACK reason code. If another error
+				occurs, the exit code is a libmosquitto return value.
+			</para>
 
 			<para>MQTT v3.1.1 CONNACK codes:</para>
 			<itemizedlist mark="circle">

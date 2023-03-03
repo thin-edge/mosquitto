@@ -17,15 +17,15 @@
 	<refsynopsisdiv>
 		<cmdsynopsis>
 			<command>mosquitto</command>
-			<arg>-c <replaceable>config file</replaceable></arg>
+			<arg><option>-c</option> <replaceable>config file</replaceable></arg>
 			<group>
-				<arg choice='plain'>-d</arg>
-				<arg choice='plain'>--daemon</arg>
+				<arg choice='plain'><option>-d</option></arg>
+				<arg choice='plain'><option>--daemon</option></arg>
 			</group>
-			<arg>-p <replaceable>port number</replaceable></arg>
-			<arg>-q</arg>
-			<arg>-v</arg>
-			<arg>--tls-keylog <replaceable>file</replaceable></arg>
+			<arg><option>-p</option> <replaceable>port number</replaceable></arg>
+			<arg><option>-q</option></arg>
+			<arg><option>-v</option></arg>
+			<arg><option>--tls-keylog</option> <replaceable>file</replaceable></arg>
 		</cmdsynopsis>
 	</refsynopsisdiv>
 

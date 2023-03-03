@@ -475,7 +475,7 @@
 				<term><option>global_max_clients</option> <replaceable>count</replaceable></term>
 				<listitem>
 					<para>
-                        The maximum number of client sessions to allow across
+						The maximum number of client sessions to allow across
 						the whole broker. In this context a client session means
 						either a client currently connected via the network, or
 						a client that has clean_session = False (MQTT v3.x) and
@@ -1229,10 +1229,10 @@ log_timestamp_format %Y-%m-%dT%H:%M:%S
 					<term><option>accept_protocol_versions</option> <replaceable>versions</replaceable></term>
 					<listitem>
 						<para>
-                            Accepted protocol versions. This sets what versions
-                            of the MQTT protocol will be accepted on this
-                            listener. Can be any combination of 3, 4, 5 in a
-                            comma separated list, e.g.
+							Accepted protocol versions. This sets what versions
+							of the MQTT protocol will be accepted on this
+							listener. Can be any combination of 3, 4, 5 in a
+							comma separated list, e.g.
 						</para>
 						<programlisting>
 # Allow v5.0 only:
@@ -1513,13 +1513,13 @@ accept_protocol_versions 3, 4</programlisting>
 				<varlistentry>
 					<term><option>websockets_origin</option> <replaceable>level</replaceable></term>
 					<listitem>
-                        <para>
-                            If set, this will be compared to the http origin
-                            header when a connection attempts to upgrade to
-                            WebSockets. Only matching origins will be allowed.
-                            Use the exact string provided by the browser in the
-                            origin header, e.g.
-                            <replaceable>http://example.com:8080</replaceable>.
+						<para>
+							If set, this will be compared to the http origin
+							header when a connection attempts to upgrade to
+							WebSockets. Only matching origins will be allowed.
+							Use the exact string provided by the browser in the
+							origin header, e.g.
+							<replaceable>http://example.com:8080</replaceable>.
 							Can be specified multiple times per listener.
 						</para>
 						<para>
@@ -1939,11 +1939,11 @@ openssl dhparam -out dhparam.pem 2048</programlisting>
 			<varlistentry>
 				<term><option>bridge_tcp_keepalive</option> <replaceable>idle</replaceable> <replaceable>interval</replaceable> <replaceable>counter</replaceable></term>
 				<listitem>
-                    <para>
-                        Set TCP keepalive parameters for this bridge connection.
-                        Use this option to allow you to set a long MQTT
-                        keepalive value, whilst still being able to detect the
-                        connection dropping in a reasonable time.
+					<para>
+						Set TCP keepalive parameters for this bridge connection.
+						Use this option to allow you to set a long MQTT
+						keepalive value, whilst still being able to detect the
+						connection dropping in a reasonable time.
 					</para>
 					<para>
 						This may be useful when bridging to services that bill
@@ -2006,7 +2006,7 @@ openssl dhparam -out dhparam.pem 2048</programlisting>
 				<term><option>local_cleansession</option> [ true | false]</term>
 				<listitem>
 					<para>The regular <option>cleansession</option> covers both the local subscriptions
-					and the remote subscriptions.   local_cleansession allows splitting this.
+					and the remote subscriptions. local_cleansession allows splitting this.
 					Setting <replaceable>false</replaceable> will mean that the local connection
 					will preserve subscription, independent of the remote connection.
 					</para>

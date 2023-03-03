@@ -32,7 +32,7 @@
 			man page for details of the options for connecting to remote brokers,
 			in particular since this module works with authentication and access
 			control, it is crucial that secure encrypted connections are used.
-        </para>
+		</para>
 	</refsect1>
 
 	<refsect1>
