@@ -44,10 +44,10 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 {
 #ifdef WITH_BROKER
 	size_t len;
+	int rc;
 #ifdef WITH_BRIDGE
 	struct mosquitto__bridge_topic *cur_topic;
 	bool match;
-	int rc;
 	char *mapped_topic = NULL;
 	char *topic_temp = NULL;
 #endif

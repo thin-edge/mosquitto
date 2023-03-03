@@ -267,17 +267,14 @@ static int bridge__connect_step1(struct mosquitto *context)
 			}else{
 				qos = cur_topic->qos;
 			}
-			if(sub__add(context,
-						cur_topic->local_topic,
-						qos,
-						0,
-						MQTT_SUB_OPT_NO_LOCAL | MQTT_SUB_OPT_RETAIN_AS_PUBLISHED
-						) > 0){
+			struct mosquitto_subscription sub;
+			sub.topic_filter = cur_topic->local_topic;
+			sub.identifier = 0;
+			sub.options = MQTT_SUB_OPT_NO_LOCAL | MQTT_SUB_OPT_RETAIN_AS_PUBLISHED | qos;
+			if(sub__add(context, &sub) > 0){
 				return 1;
 			}
-			retain__queue(context,
-					cur_topic->local_topic,
-					qos, 0);
+			retain__queue(context, &sub);
 		}
 	}
 
