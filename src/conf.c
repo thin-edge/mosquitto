@@ -1073,11 +1073,11 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						mosquitto__FREE(key);
 						return MOSQ_ERR_INVAL;
 					}
-					token += prefix_len+strlen(key)+1;
-					while(token[0] == ' ' || token[0] == '\t'){
-						token++;
-					}
-					if(token[0]){
+					token = saveptr;
+					if(token && token[0]){
+						while(token[0] == ' ' || token[0] == '\t'){
+							token++;
+						}
 						cur_plugin->config.option_count++;
 						cur_plugin->config.options = mosquitto__realloc(cur_plugin->config.options, (size_t)cur_plugin->config.option_count*sizeof(struct mosquitto_auth_opt));
 						if(!cur_plugin->config.options){
