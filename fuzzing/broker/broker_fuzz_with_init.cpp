@@ -40,7 +40,7 @@ void *run_broker(void *args)
 	int argc = 4;
 
 	argv[0] = strdup("mosquitto");
-	argv[1] = strdup("-v");
+	argv[1] = strdup("-q");
 	argv[2] = strdup("-c");
 	argv[3] = strdup("/tmp/mosquitto.conf");
 
