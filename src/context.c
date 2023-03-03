@@ -218,7 +218,7 @@ void context__send_will(struct mosquitto *ctxt)
 }
 
 
-void context__disconnect(struct mosquitto *context)
+void context__disconnect(struct mosquitto *context, int reason)
 {
 	if(mosquitto__get_state(context) == mosq_cs_disconnected){
 		return;
@@ -231,7 +231,7 @@ void context__disconnect(struct mosquitto *context)
 		if(send(context->sock, buf, 4, 0)){};
 	}
 #endif
-	plugin__handle_disconnect(context, -1);
+	plugin__handle_disconnect(context, reason);
 
 	context__send_will(context);
 	net__socket_close(context);

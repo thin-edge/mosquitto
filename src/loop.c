@@ -384,6 +384,6 @@ void do_disconnect(struct mosquitto *context, int reason)
 			}
 		}
 		mux__delete(context);
-		context__disconnect(context);
+		context__disconnect(context, reason);
 	}
 }

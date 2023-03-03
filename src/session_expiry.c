@@ -141,7 +141,7 @@ void session_expiry__remove_all(void)
 		context->session_expiry_interval = 0;
 		context->will_delay_interval = 0;
 		will_delay__remove(context);
-		context__disconnect(context);
+		context__disconnect(context, -1);
 	}
 }
 

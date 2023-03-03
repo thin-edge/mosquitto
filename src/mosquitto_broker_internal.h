@@ -759,7 +759,7 @@ void sub__topic_tokens_free(struct sub__token *tokens);
 struct mosquitto *context__init(void);
 int context__init_sock(struct mosquitto *context, mosq_sock_t sock);
 void context__cleanup(struct mosquitto *context, bool force_free);
-void context__disconnect(struct mosquitto *context);
+void context__disconnect(struct mosquitto *context, int reason);
 void context__add_to_disused(struct mosquitto *context);
 void context__free_disused(void);
 void context__send_will(struct mosquitto *context);
