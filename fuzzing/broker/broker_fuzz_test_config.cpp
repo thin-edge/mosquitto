@@ -31,13 +31,14 @@ extern "C" int mosquitto_fuzz_main(int argc, char *argv[]);
 
 void run_broker(char *filename)
 {
-	char *argv[4];
-	int argc = 4;
+	char *argv[5];
+	int argc = 5;
 
 	argv[0] = strdup("mosquitto");
 	argv[1] = strdup("--test-config");
-	argv[2] = strdup("-c");
-	argv[3] = strdup(filename);
+	argv[2] = strdup("-q");
+	argv[3] = strdup("-c");
+	argv[4] = strdup(filename);
 
 	mosquitto_fuzz_main(argc, argv);
 

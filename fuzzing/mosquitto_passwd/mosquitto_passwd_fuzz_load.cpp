@@ -32,8 +32,8 @@ extern "C" int mosquitto_passwd_fuzz_main(int argc, char *argv[]);
 
 void run_mosquitto_passwd(char *filename)
 {
-	char *argv[2];
-	int argc = 2;
+	char *argv[5];
+	int argc = 5;
 
 	argv[0] = strdup("mosquitto_passwd");
 	argv[1] = strdup("-b");
