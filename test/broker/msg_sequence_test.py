@@ -25,12 +25,14 @@ class SingleMsg(object):
         self.comment = comment
 
 class MsgSequence(object):
-    __slots__ = 'name', 'msgs', 'msgs_all', 'expect_disconnect'
+    __slots__ = 'name', 'msgs', 'msgs_all', 'expect_disconnect', 'port', 'protocol'
 
-    def __init__(self, name, default_connect=True, proto_ver=4, expect_disconnect=True):
+    def __init__(self, name, default_connect=True, port=1888, protocol='mqtt', proto_ver=4, expect_disconnect=True):
         self.name = name
         self.msgs_all = deque()
         self.expect_disconnect = expect_disconnect
+        self.port = port
+        self.protocol = protocol
         if default_connect:
             self.add_default_connect(proto_ver=proto_ver)
 
@@ -67,7 +69,7 @@ class MsgSequence(object):
         sock.send(msg.message)
 
     def _publish_message(self, msg):
-        sock = mosq_test.client_connect_only(hostname="localhost", port=1888, timeout=2)
+        sock = mosq_test.client_connect_only(hostname="localhost", port=self.port, timeout=2, protocol=self.protocol)
         sock.send(mosq_test.gen_connect("helper"))
         mosq_test.expect_packet(sock, "connack", mosq_test.gen_connack(rc=0))
 
@@ -95,7 +97,7 @@ class MsgSequence(object):
             data = sock.recv(1)
             if len(data) == 1 and self.expect_disconnect:
                 raise ValueError("Still connected")
-        except ConnectionResetError:
+        except (ConnectionResetError, BlockingIOError):
             if self.expect_disconnect:
                 pass
             else:
@@ -127,7 +129,7 @@ class MsgSequence(object):
             self._connected_check(sock)
 
 
-def do_test(hostname, port):
+def do_test(hostname, port, protocol):
     data_path=Path(__file__).resolve().parent/"data"
     rc = 0
     sequences = []
@@ -184,6 +186,8 @@ def do_test(hostname, port):
                     expect_disconnect = g_expect_disconnect
 
                 this_test = MsgSequence(tname,
+                        port=port,
+                        protocol=protocol,
                         proto_ver=proto_ver,
                         expect_disconnect=expect_disconnect,
                         default_connect=connect)
@@ -203,7 +207,7 @@ def do_test(hostname, port):
                 total += 1
                 try:
                     failed_tests.append(this_test)
-                    sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2)
+                    sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2, protocol=protocol)
                     this_test.process_all(sock)
                     print("\033[32m" + tname + "\033[0m")
                     succeeded += 1
@@ -221,6 +225,7 @@ def do_test(hostname, port):
                     print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
                     rc = 1
                     sock.close()
+                    exit()
                 except mosq_test.TestError as e:
                     print("\033[31m" + tname + " failed: " + str(e) + "\033[0m")
                     rc = 1
@@ -230,8 +235,9 @@ def do_test(hostname, port):
     if False:
         for t in failed_tests:
             try:
-                sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2)
+                sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2, protocol=protocol)
                 t.process_all(sock)
+                length = len(data)
                 print("\033[32m" + t.name + "\033[0m")
                 sock.close()
             except ValueError as e:
@@ -254,19 +260,35 @@ def do_test(hostname, port):
     print("%d tests total\n%d tests succeeded" % (total, succeeded))
     return rc
 
-hostname = "localhost"
-port = mosq_test.get_port()
-broker = mosq_test.start_broker(filename=os.path.basename(__file__), port=port, nolog=True)
 
-rc = 0
-try:
-    rc = do_test(hostname=hostname, port=port)
-finally:
-    broker.terminate()
-    if mosq_test.wait_for_subprocess(broker):
-        print("broker not terminated")
-        if rc == 0: rc=1
-    (stdo, stde) = broker.communicate()
-if rc:
-    #print(stde.decode('utf-8'))
-    exit(rc)
+def write_config(filename, port, protocol):
+    with open(filename, 'w') as f:
+        f.write(f'listener {port}\n')
+        f.write(f'protocol {protocol}\n')
+        f.write("allow_anonymous true\n")
+        f.write("log_type all\n")
+
+
+def main(protocol):
+    hostname = "localhost"
+    port = mosq_test.get_port()
+    conf_file = 'msg_sequence_test.conf'
+    write_config(conf_file, port, protocol)
+    broker = mosq_test.start_broker(filename=conf_file, port=port, use_conf=True, nolog=True)
+
+    rc = 0
+    try:
+        rc = do_test(hostname=hostname, port=port, protocol=protocol)
+    finally:
+        broker.terminate()
+        os.remove(conf_file)
+        if mosq_test.wait_for_subprocess(broker):
+            print("broker not terminated")
+            if rc == 0: rc=1
+        (stdo, stde) = broker.communicate()
+    if rc:
+        #print(stde.decode('utf-8'))
+        exit(rc)
+
+#main(protocol="websockets")
+main(protocol="mqtt")
