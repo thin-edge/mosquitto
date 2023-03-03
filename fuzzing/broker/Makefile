@@ -4,6 +4,8 @@ R=../..
 FUZZERS:= \
 	broker_fuzz_initial_packet \
 	broker_fuzz_second_packet \
+	broker_fuzz_initial_packet_with_init \
+	broker_fuzz_second_packet_with_init \
 	broker_fuzz_test_config
 
 LOCAL_CPPFLAGS:=$(CPPFLAGS) -I${R}/include/
@@ -19,6 +21,16 @@ broker_fuzz_initial_packet : broker_fuzz_initial_packet.cpp broker_fuzz.cpp
 	cp ${R}/fuzzing/corpora/broker_packet_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
 
 broker_fuzz_second_packet : broker_fuzz_second_packet.cpp broker_fuzz.cpp
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
+	install $@ ${OUT}/$@
+	cp ${R}/fuzzing/corpora/broker_packet_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
+
+broker_fuzz_initial_packet_with_init : broker_fuzz_initial_packet.cpp broker_fuzz_with_init.cpp
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
+	install $@ ${OUT}/$@
+	cp ${R}/fuzzing/corpora/broker_packet_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
+
+broker_fuzz_second_packet_with_init : broker_fuzz_second_packet.cpp broker_fuzz_with_init.cpp
 	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
 	install $@ ${OUT}/$@
 	cp ${R}/fuzzing/corpora/broker_packet_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
