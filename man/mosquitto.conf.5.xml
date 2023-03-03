@@ -2151,7 +2151,9 @@ openssl dhparam -out dhparam.pem 2048</programlisting>
 						<replaceable>base</replaceable> after a successful connection.
 						When <replaceable>stable</replaceable> is specified, the backoff time
 						will be reset only if the connection remains open for at least
-						<replaceable>stable</replaceable> seconds.</para>
+						<replaceable>stable</replaceable> seconds. Base has a minimum of 1 second
+						and a maximum of 3600 seconds. Cap has a minimum of base, and a maximum of
+						7200 seconds.</para>
 					<para>Set a constant timeout of 20 seconds:</para>
 						<programlisting language="config">
 restart_timeout 20</programlisting>

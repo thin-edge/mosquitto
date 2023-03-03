@@ -2176,6 +2176,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(cur_bridge->restart_timeout < 1){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "restart_timeout interval too low, using 1 second.");
 						cur_bridge->restart_timeout = 1;
+					}else if(cur_bridge->restart_timeout > 3600){
+						log__printf(NULL, MOSQ_LOG_NOTICE, "restart_timeout interval too high, using 3600 seconds.");
+						cur_bridge->restart_timeout = 3600;
 					}
 					token = strtok_r(NULL, " ", &saveptr);
 					if(token){
@@ -2184,6 +2187,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						if(cur_bridge->backoff_cap < cur_bridge->backoff_base){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: backoff cap is lower than the base in restart_timeout.");
 							return MOSQ_ERR_INVAL;
+						}else if(cur_bridge->backoff_cap > 7200){
+							log__printf(NULL, MOSQ_LOG_ERR, "Error: backoff cap too high, using 7200 seconds.");
+							cur_bridge->backoff_cap = 7200;
 						}
 
 						token = strtok_r(NULL, " ", &saveptr);
