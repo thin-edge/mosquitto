@@ -2459,11 +2459,10 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_NOMEM;
 					}
 					ws_origins[cur_listener->ws_origin_count] = NULL;
+					cur_listener->ws_origins = ws_origins;
 					if(conf__parse_string(&token, "websockets_origin", &ws_origins[cur_listener->ws_origin_count], &saveptr)){
-						mosquitto__FREE(ws_origins);
 						return MOSQ_ERR_INVAL;
 					}
-					cur_listener->ws_origins = ws_origins;
 					cur_listener->ws_origin_count++;
 #  else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: websockets_origin support not available, libwebsockets version is too old.");
