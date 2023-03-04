@@ -46,7 +46,11 @@ examples/publish/basic-1
 examples/publish/basic-websockets-1
 
 fuzzing/broker/broker_fuzz_initial_packet
+fuzzing/broker/broker_fuzz_initial_packet_with_init
+fuzzing/broker/broker_fuzz_read_handle
 fuzzing/broker/broker_fuzz_second_packet
+fuzzing/broker/broker_fuzz_second_packet_with_init
+fuzzing/broker/broker_fuzz_test_config
 fuzzing/corpora/broker/*
 fuzzing/corpora/broker_packet_seed_corpus.zip
 fuzzing/corpora/client/*
@@ -104,3 +108,5 @@ test/unit/out/
 
 www/cache/
 __pycache__
+
+*.sync-conflict-*
