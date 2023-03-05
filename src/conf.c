@@ -378,12 +378,14 @@ void config__cleanup(struct mosquitto__config *config)
 			mosquitto__FREE(config->listeners[i].bind_interface);
 			mosquitto__FREE(config->listeners[i].mount_point);
 			mosquitto__FREE(config->listeners[i].socks);
-			mosquitto__FREE(config->listeners[i].security_options->auto_id_prefix);
-			mosquitto__FREE(config->listeners[i].security_options->acl_file);
-			mosquitto__FREE(config->listeners[i].security_options->password_file);
-			mosquitto__FREE(config->listeners[i].security_options->psk_file);
-			mosquitto__FREE(config->listeners[i].security_options->plugins);
-			mosquitto__FREE(config->listeners[i].security_options);
+			if(config->listeners[i].security_options){
+				mosquitto__FREE(config->listeners[i].security_options->auto_id_prefix);
+				mosquitto__FREE(config->listeners[i].security_options->acl_file);
+				mosquitto__FREE(config->listeners[i].security_options->password_file);
+				mosquitto__FREE(config->listeners[i].security_options->psk_file);
+				mosquitto__FREE(config->listeners[i].security_options->plugins);
+				mosquitto__FREE(config->listeners[i].security_options);
+			}
 #ifdef WITH_TLS
 			mosquitto__FREE(config->listeners[i].cafile);
 			mosquitto__FREE(config->listeners[i].capath);
