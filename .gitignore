@@ -45,6 +45,10 @@ examples/temperature_conversion/mqtt_temperature_conversion
 examples/publish/basic-1
 examples/publish/basic-websockets-1
 
+fuzzing/apps/db_dump/db_dump_fuzz_load
+fuzzing/apps/db_dump/db_dump_fuzz_load_client_stats
+fuzzing/apps/db_dump/db_dump_fuzz_load_stats
+fuzzing/apps/mosquitto_passwd/mosquitto_passwd_fuzz_load
 fuzzing/broker/broker_fuzz_initial_packet
 fuzzing/broker/broker_fuzz_initial_packet_with_init
 fuzzing/broker/broker_fuzz_read_handle
@@ -56,7 +60,9 @@ fuzzing/corpora/broker_packet_seed_corpus.zip
 fuzzing/corpora/client/*
 fuzzing/corpora/client_packet_seed_corpus.zip
 fuzzing/corpora/db_dump_seed_corpus.zip
-
+fuzzing/lib/lib_fuzz_pub_topic_check2
+fuzzing/lib/lib_fuzz_sub_topic_check2
+fuzzing/lib/lib_fuzz_utf8
 
 lib/cpp/libmosquittopp.so*
 lib/cpp/libmosquittopp.a

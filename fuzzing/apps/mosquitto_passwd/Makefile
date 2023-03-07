@@ -1,4 +1,4 @@
-R=../..
+R=../../..
 .PHONY: all clean
 
 FUZZERS:= \
@@ -7,7 +7,7 @@ FUZZERS:= \
 LOCAL_CPPFLAGS:=$(CPPFLAGS)
 LOCAL_CXXFLAGS:=$(CXXFLAGS) -g -Wall -Werror -pthread
 LOCAL_LDFLAGS:=$(LDFLAGS)
-LOCAL_LIBADD:=$(LIBADD) $(LIB_FUZZING_ENGINE) ${R}/apps/mosquitto_passwd/mosquittopasswd.a
+LOCAL_LIBADD:=$(LIBADD) $(LIB_FUZZING_ENGINE) ${R}/apps/mosquitto_passwd/mosquitto_passwd.a -lssl -lcrypto
 
 all: $(FUZZERS)
 
