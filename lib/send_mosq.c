@@ -24,6 +24,7 @@ Contributors:
 
 #ifdef WITH_BROKER
 #  include "mosquitto_broker_internal.h"
+#  include "sys_tree.h"
 #endif
 
 #include "mosquitto.h"
@@ -172,4 +173,3 @@ int send__simple_command(struct mosquitto *mosq, uint8_t command)
 
 	return packet__queue(mosq, packet);
 }
-

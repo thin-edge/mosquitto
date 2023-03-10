@@ -25,7 +25,7 @@ Contributors:
 #  include "mosquitto_broker_internal.h"
 #  include "sys_tree.h"
 #else
-#  define G_PUB_BYTES_SENT_INC(A)
+#  define metrics__int_inc(stat, val)
 #endif
 
 #include "alias_mosq.h"
@@ -156,7 +156,7 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 						mapped_topic = topic_temp;
 					}
 					log__printf(mosq, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, mapped_topic, (long)payloadlen);
-					G_PUB_BYTES_SENT_INC(payloadlen);
+					metrics__int_inc(mosq_counter_pub_bytes_sent, payloadlen);
 					rc =  send__real_publish(mosq, mid, mapped_topic, payloadlen, payload, qos, retain, dup, subscription_identifier, store_props, expiry_interval);
 					mosquitto__FREE(mapped_topic);
 					return rc;
@@ -166,7 +166,7 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 	}
 #endif
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, topic, (long)payloadlen);
-	G_PUB_BYTES_SENT_INC(payloadlen);
+	metrics__int_inc(mosq_counter_pub_bytes_sent, payloadlen);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBLISH (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, topic, (long)payloadlen);
 #endif
@@ -300,6 +300,10 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 		}
 #endif
 	}
+
+#if defined(WITH_BROKER) && defined(WITH_SYS_TREE)
+	metrics__int_inc(mosq_counter_mqtt_publish_sent, 1);
+#endif
 
 	/* Payload */
 	if(payloadlen && payload){

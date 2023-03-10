@@ -9,21 +9,7 @@
 #include <util_mosq.h>
 #include <logging_mosq.h>
 #include <persist.h>
-
-uint64_t g_bytes_received;
-uint64_t g_bytes_sent;
-uint64_t g_pub_bytes_received;
-uint64_t g_pub_bytes_sent;
-int64_t g_out_packet_bytes;
-unsigned long g_msgs_received;
-unsigned long g_msgs_sent;
-unsigned long g_pub_msgs_received;
-unsigned long g_pub_msgs_sent;
-unsigned long g_msgs_dropped;
-long g_out_packet_count;
-unsigned int g_clients_expired;
-unsigned int g_socket_connections;
-unsigned int g_connection_count;
+#include <sys_tree.h>
 
 int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
 {
@@ -232,4 +218,13 @@ int session_expiry__add_from_persistence(struct mosquitto *context, time_t expir
 	UNUSED(context);
 	UNUSED(expiry_time);
 	return 0;
+}
+
+void metrics__int_inc(enum mosq_metric_type m, int64_t value)
+{
+	UNUSED(m); UNUSED(value);
+}
+void metrics__int_dec(enum mosq_metric_type m, int64_t value)
+{
+	UNUSED(m); UNUSED(value);
 }

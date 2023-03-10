@@ -52,6 +52,7 @@ int handle__packet(struct mosquitto *context)
 			rc = handle__pubackcomp(context, "PUBCOMP");
 			break;
 		case CMD_PUBLISH:
+			metrics__int_inc(mosq_counter_mqtt_publish_received, 1);
 			rc = handle__publish(context);
 			break;
 		case CMD_PUBREC:
@@ -61,6 +62,7 @@ int handle__packet(struct mosquitto *context)
 			rc = handle__pubrel(context);
 			break;
 		case CMD_CONNECT:
+			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
 			return handle__connect(context);
 		case CMD_DISCONNECT:
 			rc = handle__disconnect(context);

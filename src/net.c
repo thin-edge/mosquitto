@@ -147,7 +147,7 @@ struct mosquitto *net__socket_accept(struct mosquitto__listener_sock *listensock
 		return NULL;
 	}
 
-	G_SOCKET_CONNECTIONS_INC();
+	metrics__int_inc(mosq_counter_socket_connections, 1);
 
 	if(net__socket_nonblock(&new_sock)){
 		return NULL;

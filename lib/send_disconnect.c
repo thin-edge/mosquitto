@@ -22,6 +22,7 @@ Contributors:
 
 #ifdef WITH_BROKER
 #  include "mosquitto_broker_internal.h"
+#  include "sys_tree.h"
 #endif
 
 #include "mosquitto.h"

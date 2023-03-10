@@ -194,7 +194,7 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 		db.next_event_ms = 86400000;
 #ifdef WITH_SYS_TREE
 		if(db.config->sys_interval > 0){
-			sys_tree__update();
+			sys_tree__update(false);
 		}
 #endif
 

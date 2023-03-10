@@ -93,4 +93,3 @@ int send__subscribe(struct mosquitto *mosq, int *mid, int topic_count, char *con
 
 	return packet__queue(mosq, packet);
 }
-

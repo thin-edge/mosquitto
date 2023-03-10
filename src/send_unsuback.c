@@ -25,6 +25,7 @@ Contributors:
 #include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "sys_tree.h"
 
 
 int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, uint8_t *reason_codes, const mosquitto_property *properties)

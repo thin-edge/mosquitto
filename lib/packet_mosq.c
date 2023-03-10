@@ -42,14 +42,8 @@ Contributors:
 #  include "sys_tree.h"
 #  include "send_mosq.h"
 #else
-#  define G_BYTES_RECEIVED_INC(A)
-#  define G_BYTES_SENT_INC(A)
-#  define G_MSGS_SENT_INC(A)
-#  define G_PUB_MSGS_SENT_INC(A)
-#  define G_OUT_PACKET_COUNT_INC(A)
-#  define G_OUT_PACKET_COUNT_DEC(A)
-#  define G_OUT_PACKET_BYTES_INC(A)
-#  define G_OUT_PACKET_BYTES_DEC(A)
+#  define metrics__int_inc(stat, val)
+#  define metrics__int_dec(stat, val)
 #endif
 
 int packet__alloc(struct mosquitto__packet **packet, uint8_t command, uint32_t remaining_length)
@@ -124,8 +118,8 @@ void packet__cleanup_all_no_locks(struct mosquitto *mosq)
 
 		mosquitto__FREE(packet);
 	}
-	G_OUT_PACKET_COUNT_DEC(mosq->out_packet_count);
-	G_OUT_PACKET_BYTES_DEC(mosq->out_packet_bytes);
+	metrics__int_dec(mosq_gauge_out_packets, mosq->out_packet_count);
+	metrics__int_dec(mosq_gauge_out_packet_bytes, mosq->out_packet_bytes);
 	mosq->out_packet_count = 0;
 	mosq->out_packet_bytes = 0;
 	mosq->out_packet_last = NULL;
@@ -152,8 +146,8 @@ static void packet__queue_append(struct mosquitto *mosq, struct mosquitto__packe
 	mosq->out_packet_last = packet;
 	mosq->out_packet_count++;
 	mosq->out_packet_bytes += packet->packet_length;
-	G_OUT_PACKET_COUNT_INC(1);
-	G_OUT_PACKET_BYTES_INC(packet->packet_length);
+	metrics__int_inc(mosq_gauge_out_packets, 1);
+	metrics__int_inc(mosq_gauge_out_packet_bytes, packet->packet_length);
 	pthread_mutex_unlock(&mosq->out_packet_mutex);
 }
 
@@ -236,8 +230,8 @@ struct mosquitto__packet *packet__get_next_out(struct mosquitto *mosq)
 	if(mosq->out_packet){
 		mosq->out_packet_count--;
 		mosq->out_packet_bytes -= mosq->out_packet->packet_length;
-		G_OUT_PACKET_COUNT_DEC(1);
-		G_OUT_PACKET_BYTES_DEC(mosq->out_packet->packet_length);
+		metrics__int_dec(mosq_gauge_out_packets, 1);
+		metrics__int_dec(mosq_gauge_out_packet_bytes, mosq->out_packet->packet_length);
 
 		mosq->out_packet = mosq->out_packet->next;
 		if(!mosq->out_packet){
@@ -283,7 +277,7 @@ int packet__write(struct mosquitto *mosq)
 		while(packet->to_process > 0){
 			write_length = net__write(mosq, &(packet->payload[packet->pos]), packet->to_process);
 			if(write_length > 0){
-				G_BYTES_SENT_INC(write_length);
+				metrics__int_inc(mosq_counter_bytes_sent, write_length);
 				packet->to_process -= (uint32_t)write_length;
 				packet->pos += (uint32_t)write_length;
 			}else{
@@ -309,17 +303,14 @@ int packet__write(struct mosquitto *mosq)
 			}
 		}
 
-		G_MSGS_SENT_INC(1);
+		metrics__int_inc(mosq_counter_messages_sent, 1);
 		if(((packet->command)&0xF6) == CMD_PUBLISH){
-			G_PUB_MSGS_SENT_INC(1);
 #ifndef WITH_BROKER
 			callback__on_publish(mosq, packet->mid, 0, NULL);
 		}else if(((packet->command)&0xF0) == CMD_DISCONNECT){
 			do_client_disconnect(mosq, MOSQ_ERR_SUCCESS, NULL);
 			return MOSQ_ERR_SUCCESS;
 #endif
-		}else if(((packet->command)&0xF0) == CMD_PUBLISH){
-			G_PUB_MSGS_SENT_INC(1);
 		}
 
 		next_packet = packet__get_next_out(mosq);
@@ -390,7 +381,7 @@ int packet__read(struct mosquitto *mosq)
 		if(read_length == 1){
 			mosq->in_packet.command = byte;
 #ifdef WITH_BROKER
-			G_BYTES_RECEIVED_INC(1);
+			metrics__int_inc(mosq_counter_bytes_received, 1);
 			/* Clients must send CONNECT as their first command. */
 			if(!(mosq->bridge) && state == mosq_cs_connected && (byte&0xF0) != CMD_CONNECT){
 				return MOSQ_ERR_PROTOCOL;
@@ -438,7 +429,7 @@ int packet__read(struct mosquitto *mosq)
 					return MOSQ_ERR_MALFORMED_PACKET;
 				}
 
-				G_BYTES_RECEIVED_INC(1);
+				metrics__int_inc(mosq_counter_bytes_received, 1);
 				mosq->in_packet.remaining_length += (byte & 127) * mosq->in_packet.remaining_mult;
 				mosq->in_packet.remaining_mult *= 128;
 			}else{
@@ -518,7 +509,7 @@ int packet__read(struct mosquitto *mosq)
 	while(mosq->in_packet.to_process>0){
 		read_length = local__read(mosq, &(mosq->in_packet.payload[mosq->in_packet.pos]), mosq->in_packet.to_process);
 		if(read_length > 0){
-			G_BYTES_RECEIVED_INC(read_length);
+			metrics__int_inc(mosq_counter_bytes_received, read_length);
 			mosq->in_packet.to_process -= (uint32_t)read_length;
 			mosq->in_packet.pos += (uint32_t)read_length;
 		}else{
@@ -557,10 +548,7 @@ int packet__read(struct mosquitto *mosq)
 	/* All data for this packet is read. */
 	mosq->in_packet.pos = 0;
 #ifdef WITH_BROKER
-	G_MSGS_RECEIVED_INC(1);
-	if(((mosq->in_packet.command)&0xF0) == CMD_PUBLISH){
-		G_PUB_MSGS_RECEIVED_INC(1);
-	}
+	metrics__int_inc(mosq_counter_messages_received, 1);
 #endif
 	rc = handle__packet(mosq);
 

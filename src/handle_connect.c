@@ -593,8 +593,6 @@ int handle__connect(struct mosquitto *context)
 	uint16_t auth_data_out_len = 0;
 	bool allow_zero_length_clientid;
 
-	G_CONNECTION_COUNT_INC();
-
 	if(!context->listener){
 		return MOSQ_ERR_INVAL;
 	}

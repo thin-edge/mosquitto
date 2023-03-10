@@ -23,6 +23,7 @@ Contributors:
 #include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "sys_tree.h"
 #include "util_mosq.h"
 
 

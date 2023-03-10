@@ -175,7 +175,7 @@ void session_expiry__check(void)
 			if(context->id){
 				log__printf(NULL, MOSQ_LOG_NOTICE, "Expiring client %s due to timeout.", context->id);
 			}
-			G_CLIENTS_EXPIRED_INC();
+			metrics__int_inc(mosq_counter_clients_expired, 1);
 
 			/* Session has now expired, so clear interval */
 			context->session_expiry_interval = 0;

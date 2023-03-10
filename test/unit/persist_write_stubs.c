@@ -7,21 +7,7 @@
 #include <send_mosq.h>
 #include <time_mosq.h>
 #include <callbacks.h>
-
-uint64_t g_bytes_received;
-uint64_t g_bytes_sent;
-uint64_t g_pub_bytes_received;
-uint64_t g_pub_bytes_sent;
-int64_t g_out_packet_bytes;
-unsigned long g_msgs_received;
-unsigned long g_msgs_sent;
-unsigned long g_pub_msgs_received;
-unsigned long g_pub_msgs_sent;
-unsigned long g_msgs_dropped;
-long g_out_packet_count;
-unsigned int g_clients_expired;
-unsigned int g_socket_connections;
-unsigned int g_connection_count;
+#include <sys_tree.h>
 
 extern uint64_t last_retained;
 extern char *last_sub;
@@ -291,4 +277,13 @@ int send__disconnect(struct mosquitto *mosq, uint8_t reason_code, const mosquitt
 	UNUSED(reason_code);
 	UNUSED(properties);
 	return 0;
+}
+
+void metrics__int_inc(enum mosq_metric_type m, int64_t value)
+{
+	UNUSED(m); UNUSED(value);
+}
+void metrics__int_dec(enum mosq_metric_type m, int64_t value)
+{
+	UNUSED(m); UNUSED(value);
 }

@@ -23,6 +23,7 @@ Contributors:
 #include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "sys_tree.h"
 #include "util_mosq.h"
 
 int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_data, uint16_t auth_data_len)

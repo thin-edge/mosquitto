@@ -215,7 +215,7 @@ int handle__publish(struct mosquitto *context)
 	}
 
 	base_msg->data.payloadlen = context->in_packet.remaining_length - context->in_packet.pos;
-	G_PUB_BYTES_RECEIVED_INC(base_msg->data.payloadlen);
+	metrics__int_inc(mosq_counter_pub_bytes_received, base_msg->data.payloadlen);
 	if(context->listener && context->listener->mount_point){
 		len = strlen(context->listener->mount_point) + strlen(base_msg->data.topic) + 1;
 		topic_mount = mosquitto__malloc(len+1);

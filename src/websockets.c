@@ -236,7 +236,7 @@ static int callback_mqtt(
 				}
 				ucount = (unsigned int)count;
 #ifdef WITH_SYS_TREE
-				g_bytes_sent += ucount;
+				metrics__int_inc(mosq_counter_bytes_sent, ucount);
 #endif
 				packet->to_process -= ucount;
 				packet->pos += ucount;
@@ -251,9 +251,9 @@ static int callback_mqtt(
 				}
 
 #ifdef WITH_SYS_TREE
-				g_msgs_sent++;
+				metrics__int_inc(mosq_counter_messages_sent, 1);
 				if(((packet->command)&0xF0) == CMD_PUBLISH){
-					g_pub_msgs_sent++;
+					metrics__int_inc(mosq_counter_mqtt_publish_sent, 1);
 				}
 #endif
 
@@ -280,7 +280,7 @@ static int callback_mqtt(
 			mosq = u->mosq;
 			pos = 0;
 			buf = (uint8_t *)in;
-			G_BYTES_RECEIVED_INC(len);
+			metrics__int_inc(mosq_counter_bytes_received, (int64_t)len);
 			while(pos < len){
 				if(!mosq->in_packet.command){
 					mosq->in_packet.command = buf[pos];
@@ -336,10 +336,7 @@ static int callback_mqtt(
 				mosq->in_packet.pos = 0;
 
 #ifdef WITH_SYS_TREE
-				G_MSGS_RECEIVED_INC(1);
-				if(((mosq->in_packet.command)&0xF0) == CMD_PUBLISH){
-					G_PUB_MSGS_RECEIVED_INC(1);
-				}
+				metrics__int_inc(mosq_counter_messages_received, 1);
 #endif
 				rc = handle__packet(mosq);
 
