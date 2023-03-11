@@ -28,25 +28,25 @@ mosquitto_passwd.a : ${OBJS}
 	${CROSS_COMPILE}$(AR) cr $@ $^
 
 mosquitto_passwd.o : mosquitto_passwd.c
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 get_password.o : get_password.c
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 memory_mosq.o : ${R}/lib/memory_mosq.c
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 memory_public.o : ${R}/src/memory_public.c
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 install : all
 ifeq ($(WITH_TLS),yes)
