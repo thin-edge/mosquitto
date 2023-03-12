@@ -4,8 +4,6 @@ R=../..
 FUZZERS:= \
 	broker_fuzz_initial_packet \
 	broker_fuzz_second_packet \
-	broker_fuzz_initial_packet_with_init \
-	broker_fuzz_second_packet_with_init \
 	broker_fuzz_read_handle \
 	broker_fuzz_test_config
 
