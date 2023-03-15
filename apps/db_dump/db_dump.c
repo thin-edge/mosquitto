@@ -368,6 +368,37 @@ static int dump__sub_chunk_process(FILE *db_fd, uint32_t length)
 }
 
 
+static void report_client_stats(void)
+{
+	if(client_stats){
+		struct client_data *cc, *cc_tmp;
+
+		HASH_ITER(hh_id, clients_by_id, cc, cc_tmp){
+			printf("SC: %d SS: %d MC: %d MS: %ld   ", cc->subscriptions, cc->subscription_size, cc->messages, cc->message_size);
+			printf("%s\n", cc->id);
+		}
+	}
+}
+
+
+static void cleanup_client_stats()
+{
+	struct base_msg_chunk *msg, *msg_tmp;
+	struct client_data *cc, *cc_tmp;
+
+	HASH_ITER(hh, msgs_by_id, msg, msg_tmp){
+		HASH_DELETE(hh, msgs_by_id, msg);
+		free(msg);
+	}
+
+	HASH_ITER(hh_id, clients_by_id, cc, cc_tmp){
+		HASH_DELETE(hh_id, clients_by_id, cc);
+		free(cc->id);
+		free(cc);
+	}
+}
+
+
 static void cleanup_msg_store()
 {
 	struct mosquitto__base_msg *msg, *msg_tmp;
@@ -393,7 +424,6 @@ int main(int argc, char *argv[])
 	uint32_t length;
 	uint32_t chunk;
 	char *filename;
-	struct client_data *cc, *cc_tmp;
 
 	if(argc == 2){
 		filename = argv[1];
@@ -480,16 +510,8 @@ int main(int argc, char *argv[])
 		printf("DB_CHUNK_CLIENT:     %ld\n", client_count);
 	}
 
-	if(client_stats){
-		HASH_ITER(hh_id, clients_by_id, cc, cc_tmp){
-			printf("SC: %d SS: %d MC: %d MS: %ld   ", cc->subscriptions, cc->subscription_size, cc->messages, cc->message_size);
-			printf("%s\n", cc->id);
-
-			HASH_DELETE(hh_id, clients_by_id, cc);
-			free(cc->id);
-			free(cc);
-		}
-	}
+	report_client_stats();
+	cleanup_client_stats();
 	cleanup_msg_store();
 
 	return rc;
