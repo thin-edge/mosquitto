@@ -33,27 +33,40 @@ extern "C" {
 }
 #endif
 
-#define kMinInputLength 1
+#define kMinInputLength 3
 #define kMaxInputLength 268435455U
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
 	struct mosquitto *context = NULL;
 	uint8_t *data_heap;
+	struct mosquitto__listener listener;
+	struct mosquitto__bridge bridge;
 
-	//if(size < kMinInputLength || size > kMaxInputLength){
-		//return 0;
-	//}
+	if(size < kMinInputLength || size > kMaxInputLength){
+		return 0;
+	}
 
 	db.config = (struct mosquitto__config *)calloc(1, sizeof(struct mosquitto__config));
 	log__init(db.config);
 
-	data_heap = (uint8_t *)malloc(size);
-	memcpy(data_heap, data, size);
-
+	memset(&listener, 0, sizeof(listener));
+	memset(&bridge, 0, sizeof(bridge));
 
 	context = context__init();
-	context->state = mosq_cs_active;
+	if(!context) return 1;
+	context->listener = &listener;
+	context->bridge = &bridge;
+
+	context->state = (enum mosquitto_client_state )data[0];
+	context->protocol = (enum mosquitto__protocol )data[1];
+	size -= 2;
+
+	data_heap = (uint8_t *)malloc(size);
+	if(!data_heap) return 1;
+
+	memcpy(data_heap, data, size);
+
 	context->in_packet.command = data_heap[0];
 	context->in_packet.payload = (uint8_t *)data_heap;
 	context->in_packet.packet_length = size;
@@ -62,6 +75,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 	handle__packet(context);
 
+	context->bridge = NULL;
 	context__cleanup(context, true);
 
 	free(db.config);
