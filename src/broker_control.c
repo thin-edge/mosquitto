@@ -39,7 +39,7 @@ Contributors:
 
 static mosquitto_plugin_id_t plg_id;
 
-static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *context, const char *command, void *userdata);
+static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *context, void *userdata);
 
 static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 {
@@ -252,15 +252,15 @@ void broker_control__reload(void)
  * #
  * ################################################################ */
 
-static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *context, const char *command, void *userdata)
+static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *context, void *userdata)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
 	UNUSED(userdata);
 
-	if(!strcasecmp(command, "listPlugins")){
+	if(!strcasecmp(cmd->command_name, "listPlugins")){
 		rc = broker__process_list_plugins(cmd, context);
-	}else if(!strcasecmp(command, "listListeners")){
+	}else if(!strcasecmp(cmd->command_name, "listListeners")){
 		rc = broker__process_list_listeners(cmd, context);
 
 	/* Unknown */
