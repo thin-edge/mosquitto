@@ -88,7 +88,7 @@ test-compile: mosquitto lib
 	$(MAKE) -C test test-compile
 	$(MAKE) -C plugins test-compile
 
-test : mosquitto lib apps
+test : mosquitto lib apps test-compile
 	$(MAKE) -C test test
 	$(MAKE) -C plugins test
 
