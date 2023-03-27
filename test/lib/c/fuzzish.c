@@ -6,6 +6,8 @@
 #include <strings.h>
 #include <mosquitto.h>
 
+#define UNUSED(A) (void)(A)
+
 static int run = -1;
 static int proto_ver;
 
@@ -50,6 +52,9 @@ static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 	char *command = obj;
 	int mid;
 	mosquitto_property *props = NULL;
+
+	UNUSED(mosq);
+	UNUSED(obj);
 
 	if(command){
 		if(proto_ver == 5){
@@ -174,25 +179,34 @@ static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 
 static void on_connect_with_flags(struct mosquitto *mosq, void *obj, int rc, int flags)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(rc);
+	UNUSED(flags);
 }
 
 static void on_connect_v5(struct mosquitto *mosq, void *obj, int rc, int flags, const mosquitto_property *props)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(rc);
+	UNUSED(flags);
+
 	prop_test(props);
 }
 
 static void on_disconnect(struct mosquitto *mosq, void *obj, int rc)
 {
-	(void)mosq;
-	(void)obj;
+	UNUSED(mosq);
+	UNUSED(obj);
 
 	run = rc;
 }
 
 static void on_disconnect_v5(struct mosquitto *mosq, void *obj, int rc, const mosquitto_property *props)
 {
-	(void)mosq;
-	(void)obj;
+	UNUSED(mosq);
+	UNUSED(obj);
 
 	prop_test(props);
 
@@ -201,20 +215,34 @@ static void on_disconnect_v5(struct mosquitto *mosq, void *obj, int rc, const mo
 
 static void on_publish(struct mosquitto *mosq, void *obj, int mid)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
 }
 
 static void on_publish_v5(struct mosquitto *mosq, void *obj, int mid, int reason_code, const mosquitto_property *props)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+	UNUSED(reason_code);
+
 	prop_test(props);
 }
 
 static void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+
 	msg_test(msg);
 }
 
 static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg, const mosquitto_property *props)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+
 	msg_test(msg);
 	prop_test(props);
 }
@@ -222,6 +250,11 @@ static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosqui
 static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos)
 {
 	int tot = 0;
+
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	for(int i=0; i<qos_count; i++){
 		tot += granted_qos[i];
 	}
@@ -230,6 +263,11 @@ static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_cou
 static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos, const mosquitto_property *props)
 {
 	int tot = 0;
+
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	for(int i=0; i<qos_count; i++){
 		tot += granted_qos[i];
 	}
@@ -238,10 +276,17 @@ static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_
 
 static void on_unsubscribe(struct mosquitto *mosq, void *obj, int mid)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
 }
 
 static void on_unsubscribe_v5(struct mosquitto *mosq, void *obj, int mid, const mosquitto_property *props)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	prop_test(props);
 }
 

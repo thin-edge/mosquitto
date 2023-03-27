@@ -126,7 +126,7 @@ add_executable(persist-write-test
     ../../src/memory_public.c
     ../../lib/packet_mosq.c
 )
-target_compile_definitions(persist-write-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER)
+target_compile_definitions(persist-write-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER WITH_SYS_TREE)
 target_link_libraries(persist-write-test PRIVATE persistence-write-obj OpenSSL::SSL)
 add_test(NAME unit-persist-write-test COMMAND persist-write-test)
 
@@ -150,6 +150,6 @@ add_executable(subs-test
     ../../src/memory_public.c
 )
 
-target_compile_definitions(subs-test PRIVATE WITH_PERSISTENCE WITH_BROKER)
+target_compile_definitions(subs-test PRIVATE WITH_PERSISTENCE WITH_BROKER WITH_SYS_TREE)
 target_link_libraries(subs-test PRIVATE common-unit-test-header persistence-obj)
 add_test(NAME unit-subs-test COMMAND subs-test)

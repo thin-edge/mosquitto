@@ -6,7 +6,12 @@ target_include_directories(client-common INTERFACE
 	"${OPENSSL_INCLUDE_DIR}"
 	"${mosquitto_SOURCE_DIR}"
 )
+
 target_sources(client-common INTERFACE ${shared_src})
+
+if(WITH_TLS)
+	target_link_libraries(client-common INTERFACE OpenSSL::SSL)
+endif()
 
 if(WITH_SRV)
 	target_compile_definitions(client-common INTERFACE "-DWITH_SRV")
