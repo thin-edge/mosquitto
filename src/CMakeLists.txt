@@ -7,7 +7,7 @@ set (MOSQ_SRCS
 	conf_includedir.c
 	context.c
 	control.c
-	../common/control_common.c
+	control_common.c
 	database.c
 	handle_auth.c
 	handle_connack.c

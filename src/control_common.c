@@ -1,14 +1,12 @@
 #include "config.h"
 
-#include "control_common.h"
-#include "json_help.h"
 #include <mqtt_protocol.h>
 #include <mosquitto_broker.h>
 
 #include <stdlib.h>
 #include <string.h>
 
-void control__command_reply(struct control_cmd *cmd, const char *error)
+void mosquitto_control_command_reply(struct mosquitto_control_cmd *cmd, const char *error)
 {
 	cJSON *j_response;
 
@@ -27,7 +25,7 @@ void control__command_reply(struct control_cmd *cmd, const char *error)
 	cJSON_AddItemToArray(cmd->j_responses, j_response);
 }
 
-void control__send_response(cJSON *tree, const char *topic)
+void mosquitto_control_send_response(cJSON *tree, const char *topic)
 {
 	char *payload;
 	size_t payload_len;
@@ -45,43 +43,50 @@ void control__send_response(cJSON *tree, const char *topic)
 }
 
 
-static int control__generic_handle_commands(struct control_cmd *cmd, struct mosquitto *context, cJSON *commands, void *userdata, int (*cmd_cb)(struct control_cmd *cmd, struct mosquitto *context, void *userdata))
+static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, struct mosquitto *context, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata))
 {
-	cJSON *aiter;
+	cJSON *aiter, *j_tmp;;
 	char *command;
 
 	cJSON_ArrayForEach(aiter, commands){
 		cmd->command_name = "Unknown command";
 		if(cJSON_IsObject(aiter)){
-			if(json_get_string(aiter, "command", &command, false) == MOSQ_ERR_SUCCESS){
+			j_tmp = cJSON_GetObjectItem(aiter, "command");
+			command = cJSON_GetStringValue(j_tmp);
+			if(command){
 				cmd->j_command = aiter;
 				cmd->correlation_data = NULL;
 				cmd->command_name = command;
 
-				if(json_get_string(aiter, "correlationData", &cmd->correlation_data, true) != MOSQ_ERR_SUCCESS){
-					control__command_reply(cmd, "Invalid correlationData data type.");
-					return MOSQ_ERR_INVAL;
+				j_tmp = cJSON_GetObjectItem(aiter, "correlationData");
+				if(j_tmp){
+					if(cJSON_IsString(j_tmp)){
+						cmd->correlation_data = cJSON_GetStringValue(j_tmp);
+					}else{
+						mosquitto_control_command_reply(cmd, "Invalid correlationData data type.");
+						return MOSQ_ERR_INVAL;
+					}
 				}
 
 				cmd_cb(cmd, context, userdata);
 			}else{
-				control__command_reply(cmd, "Missing command");
+				mosquitto_control_command_reply(cmd, "Missing command");
 				return MOSQ_ERR_INVAL;
 			}
 		}else{
-			control__command_reply(cmd, "Command not an object");
+			mosquitto_control_command_reply(cmd, "Command not an object");
 			return MOSQ_ERR_INVAL;
 		}
 	}
 	return MOSQ_ERR_SUCCESS;
 }
 
-int control__generic_control_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
-		int (*cmd_cb)(struct control_cmd *cmd, struct mosquitto *context, void *userdata))
+int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
+		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata))
 
 {
 	struct mosquitto_evt_control *ed = event_data;
-	struct control_cmd cmd;
+	struct mosquitto_control_cmd cmd;
 	cJSON *tree, *commands;
 	cJSON *j_response_tree;
 
@@ -113,15 +118,15 @@ int control__generic_control_callback(struct mosquitto_evt_control *event_data, 
 	tree = cJSON_ParseWithLength(ed->payload, ed->payloadlen);
 #endif
 	if(tree == NULL){
-		control__command_reply(&cmd, "Payload not valid JSON");
-		control__send_response(j_response_tree, response_topic);
+		mosquitto_control_command_reply(&cmd, "Payload not valid JSON");
+		mosquitto_control_send_response(j_response_tree, response_topic);
 		return MOSQ_ERR_SUCCESS;
 	}
 	commands = cJSON_GetObjectItem(tree, "commands");
 	if(commands == NULL || !cJSON_IsArray(commands)){
 		cJSON_Delete(tree);
-		control__command_reply(&cmd, "Invalid/missing commands");
-		control__send_response(j_response_tree, response_topic);
+		mosquitto_control_command_reply(&cmd, "Invalid/missing commands");
+		mosquitto_control_send_response(j_response_tree, response_topic);
 		return MOSQ_ERR_SUCCESS;
 	}
 
@@ -129,7 +134,7 @@ int control__generic_control_callback(struct mosquitto_evt_control *event_data, 
 	control__generic_handle_commands(&cmd, ed->client, commands, userdata, cmd_cb);
 	cJSON_Delete(tree);
 
-	control__send_response(j_response_tree, response_topic);
+	mosquitto_control_send_response(j_response_tree, response_topic);
 
 	return MOSQ_ERR_SUCCESS;
 }

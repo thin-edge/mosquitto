@@ -155,7 +155,7 @@ context.o : context.c mosquitto_broker_internal.h
 control.o : control.c mosquitto_broker_internal.h
 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
-control_common.o : ${R}/common/control_common.c ${R}/common/control_common.h
+control_common.o : control_common.c
 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
 database.o : database.c mosquitto_broker_internal.h

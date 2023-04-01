@@ -35,7 +35,7 @@ Contributors:
 
 #define RESPONSE_TOPIC "$CONTROL/dynamic-security/v1/response"
 
-static int dynsec__handle_command(struct control_cmd *cmd, struct mosquitto *context, void *userdata)
+static int dynsec__handle_command(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata)
 {
 	struct dynsec__data *data = userdata;
 	int rc = MOSQ_ERR_SUCCESS;
@@ -112,7 +112,7 @@ static int dynsec__handle_command(struct control_cmd *cmd, struct mosquitto *con
 
 	/* Unknown */
 	}else{
-		control__command_reply(cmd, "Unknown command");
+		mosquitto_control_command_reply(cmd, "Unknown command");
 		rc = MOSQ_ERR_INVAL;
 	}
 
@@ -129,7 +129,7 @@ int dynsec_control_callback(int event, void *event_data, void *userdata)
 	UNUSED(event);
 
 	data->need_save = false;
-	rc = control__generic_control_callback(ed, RESPONSE_TOPIC, userdata, dynsec__handle_command);
+	rc = mosquitto_control_generic_callback(ed, RESPONSE_TOPIC, userdata, dynsec__handle_command);
 	if(rc == MOSQ_ERR_SUCCESS && data->need_save){
 		dynsec__config_save(data);
 	}

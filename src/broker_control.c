@@ -33,11 +33,10 @@ Contributors:
 #include "mosquitto_plugin.h"
 #include "memory_mosq.h"
 #include "mqtt_protocol.h"
-#include "control_common.h"
 
 static mosquitto_plugin_id_t plg_id;
 
-static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *context, void *userdata);
+static int broker__handle_control(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata);
 
 static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 {
@@ -77,7 +76,7 @@ static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 }
 
 
-static int broker__process_list_plugins(struct control_cmd *cmd, struct mosquitto *context)
+static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	cJSON *tree, *j_data, *j_plugins;
 	const char *admin_clientid, *admin_username;
@@ -85,7 +84,7 @@ static int broker__process_list_plugins(struct control_cmd *cmd, struct mosquitt
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -119,7 +118,7 @@ static int broker__process_list_plugins(struct control_cmd *cmd, struct mosquitt
 
 internal_error:
 	cJSON_Delete(tree);
-	control__command_reply(cmd, "Internal error");
+	mosquitto_control_command_reply(cmd, "Internal error");
 	return MOSQ_ERR_NOMEM;
 }
 
@@ -164,7 +163,7 @@ static int add_listener(cJSON *j_listeners, struct mosquitto__listener *listener
 }
 
 
-static int broker__process_list_listeners(struct control_cmd *cmd, struct mosquitto *context)
+static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	cJSON *tree, *j_data, *j_listeners;
 	const char *admin_clientid, *admin_username;
@@ -172,7 +171,7 @@ static int broker__process_list_listeners(struct control_cmd *cmd, struct mosqui
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -206,7 +205,7 @@ static int broker__process_list_listeners(struct control_cmd *cmd, struct mosqui
 
 internal_error:
 	cJSON_Delete(tree);
-	control__command_reply(cmd, "Internal error");
+	mosquitto_control_command_reply(cmd, "Internal error");
 	return MOSQ_ERR_NOMEM;
 }
 
@@ -217,7 +216,7 @@ static int broker_control_callback(int event, void *event_data, void *userdata)
 
 	UNUSED(event);
 
-	return control__generic_control_callback(ed, "$CONTROL/broker/v1/response", userdata, broker__handle_control);
+	return mosquitto_control_generic_callback(ed, "$CONTROL/broker/v1/response", userdata, broker__handle_control);
 }
 
 
@@ -250,7 +249,7 @@ void broker_control__reload(void)
  * #
  * ################################################################ */
 
-static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *context, void *userdata)
+static int broker__handle_control(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
@@ -263,7 +262,7 @@ static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *con
 
 	/* Unknown */
 	}else{
-		control__command_reply(cmd, "Unknown command");
+		mosquitto_control_command_reply(cmd, "Unknown command");
 		rc = MOSQ_ERR_INVAL;
 	}
 	return rc;

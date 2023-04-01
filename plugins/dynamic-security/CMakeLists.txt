@@ -21,7 +21,6 @@ if(CJSON_FOUND AND WITH_TLS)
 		config.c
 		config_init.c
 		control.c
-		../../common/control_common.c ../../common/control_common.h
 		default_acl.c
 		dynamic_security.h
 		groups.c

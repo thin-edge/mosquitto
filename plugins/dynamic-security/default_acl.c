@@ -30,11 +30,10 @@ Contributors:
 #include "mosquitto_broker.h"
 #include "mosquitto_plugin.h"
 #include "mqtt_protocol.h"
-#include "control_common.h"
 
 #include "dynamic_security.h"
 
-int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	cJSON *j_actions, *j_action, *j_acltype, *j_allow;
 	bool allow;
@@ -42,7 +41,7 @@ int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct con
 
 	j_actions = cJSON_GetObjectItem(cmd->j_command, "acls");
 	if(j_actions == NULL || !cJSON_IsArray(j_actions)){
-		control__command_reply(cmd, "Missing/invalid actions array");
+		mosquitto_control_command_reply(cmd, "Missing/invalid actions array");
 		return MOSQ_ERR_INVAL;
 	}
 
@@ -72,19 +71,19 @@ int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct con
 	}
 
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 	return MOSQ_ERR_SUCCESS;
 }
 
 
-int dynsec__process_get_default_acl_access(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec__process_get_default_acl_access(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	cJSON *tree, *jtmp, *j_data, *j_acls, *j_acl;
 	const char *admin_clientid, *admin_username;
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -170,6 +169,6 @@ int dynsec__process_get_default_acl_access(struct dynsec__data *data, struct con
 
 internal_error:
 	cJSON_Delete(tree);
-	control__command_reply(cmd, "Internal error");
+	mosquitto_control_command_reply(cmd, "Internal error");
 	return MOSQ_ERR_NOMEM;
 }

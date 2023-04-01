@@ -38,6 +38,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <time.h>
+#include <cjson/cJSON.h>
 
 #include <mosquitto.h>
 #include <mqtt_protocol.h>
@@ -1244,6 +1245,24 @@ mosq_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic);
  *   A NULL pointer if neither the option nor the variable are set
  */
 mosq_EXPORT const char *mosquitto_persistence_location(void);
+
+/* =========================================================================
+ *
+ * Section: $CONTROL event helpers
+ *
+ * ========================================================================= */
+
+struct mosquitto_control_cmd{
+	cJSON *j_responses;
+	cJSON *j_command;
+	char *correlation_data;
+	const char *command_name;
+};
+
+mosq_EXPORT void mosquitto_control_command_reply(struct mosquitto_control_cmd *cmd, const char *error);
+mosq_EXPORT void mosquitto_control_send_response(cJSON *tree, const char* topic);
+mosq_EXPORT int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
+		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata));
 
 #ifdef __cplusplus
 }

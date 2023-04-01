@@ -316,7 +316,7 @@ int dynsec_clients__config_save(struct dynsec__data *data, cJSON *tree)
 }
 
 
-int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username, *password, *clientid = NULL;
 	char *text_name, *text_description;
@@ -328,53 +328,53 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 	size_t username_len;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	username_len = strlen(username);
 	if(username_len == 0){
-		control__command_reply(cmd, "Empty username");
+		mosquitto_control_command_reply(cmd, "Empty username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)username_len) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "password", &password, true) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing password");
+		mosquitto_control_command_reply(cmd, "Invalid/missing password");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "clientid", &clientid, true) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing client id");
+		mosquitto_control_command_reply(cmd, "Invalid/missing client id");
 		return MOSQ_ERR_INVAL;
 	}
 	if(clientid && mosquitto_validate_utf8(clientid, (int)strlen(clientid)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Client ID not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Client ID not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 
 	if(json_get_string(cmd->j_command, "textname", &text_name, true) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing textname");
+		mosquitto_control_command_reply(cmd, "Invalid/missing textname");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "textdescription", &text_description, true) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing textdescription");
+		mosquitto_control_command_reply(cmd, "Invalid/missing textdescription");
 		return MOSQ_ERR_INVAL;
 	}
 
 	client = dynsec_clients__find(data, username);
 	if(client){
-		control__command_reply(cmd, "Client already exists");
+		mosquitto_control_command_reply(cmd, "Client already exists");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	client = mosquitto_calloc(1, sizeof(struct dynsec__client) + username_len + 1);
 	if(client == NULL){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 	strncpy(client->username, username, username_len);
@@ -382,7 +382,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 	if(text_name){
 		client->text_name = mosquitto_strdup(text_name);
 		if(client->text_name == NULL){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			client__free_item(data, client);
 			return MOSQ_ERR_NOMEM;
 		}
@@ -390,7 +390,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 	if(text_description){
 		client->text_description = mosquitto_strdup(text_description);
 		if(client->text_description == NULL){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			client__free_item(data, client);
 			return MOSQ_ERR_NOMEM;
 		}
@@ -398,7 +398,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 
 	if(password){
 		if(dynsec_auth__pw_hash(client, password, client->pw.password_hash, sizeof(client->pw.password_hash), true)){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			client__free_item(data, client);
 			return MOSQ_ERR_NOMEM;
 		}
@@ -407,7 +407,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 	if(clientid && strlen(clientid) > 0){
 		client->clientid = mosquitto_strdup(clientid);
 		if(client->clientid == NULL){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			client__free_item(data, client);
 			return MOSQ_ERR_NOMEM;
 		}
@@ -416,14 +416,14 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 	rc = dynsec_rolelist__load_from_json(data, cmd->j_command, &client->rolelist);
 	if(rc == MOSQ_ERR_SUCCESS || rc == ERR_LIST_NOT_FOUND){
 	}else if(rc == MOSQ_ERR_NOT_FOUND){
-		control__command_reply(cmd, "Role not found");
+		mosquitto_control_command_reply(cmd, "Role not found");
 		client__free_item(data, client);
 		return MOSQ_ERR_INVAL;
 	}else{
 		if(rc == MOSQ_ERR_INVAL){
-			control__command_reply(cmd, "'roles' not an array or missing/invalid rolename");
+			mosquitto_control_command_reply(cmd, "'roles' not an array or missing/invalid rolename");
 		}else{
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 		}
 		client__free_item(data, client);
 		return MOSQ_ERR_INVAL;
@@ -441,11 +441,11 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 					json_get_int(j_group, "priority", &priority, true, -1);
 					rc = dynsec_groups__add_client(data, username, jtmp->valuestring, priority, false);
 					if(rc == ERR_GROUP_NOT_FOUND){
-						control__command_reply(cmd, "Group not found");
+						mosquitto_control_command_reply(cmd, "Group not found");
 						client__free_item(data, client);
 						return MOSQ_ERR_INVAL;
 					}else if(rc != MOSQ_ERR_SUCCESS){
-						control__command_reply(cmd, "Internal error");
+						mosquitto_control_command_reply(cmd, "Internal error");
 						client__free_item(data, client);
 						return MOSQ_ERR_INVAL;
 					}
@@ -456,7 +456,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 
 	dynsec__config_batch_save(data);
 
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	admin_clientid = mosquitto_client_id(context);
 	admin_username = mosquitto_client_username(context);
@@ -467,14 +467,14 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct control_cmd
 }
 
 
-int dynsec_clients__process_delete(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username;
 	struct dynsec__client *client;
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 
@@ -484,7 +484,7 @@ int dynsec_clients__process_delete(struct dynsec__data *data, struct control_cmd
 		client__remove_all_roles(client);
 		client__free_item(data, client);
 		dynsec__config_batch_save(data);
-		control__command_reply(cmd, NULL);
+		mosquitto_control_command_reply(cmd, NULL);
 
 		/* Enforce any changes */
 		dynsec_kicklist__add(data, username);
@@ -496,29 +496,29 @@ int dynsec_clients__process_delete(struct dynsec__data *data, struct control_cmd
 
 		return MOSQ_ERR_SUCCESS;
 	}else{
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 }
 
-int dynsec_clients__process_disable(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_disable(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username;
 	struct dynsec__client *client;
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
@@ -527,7 +527,7 @@ int dynsec_clients__process_disable(struct dynsec__data *data, struct control_cm
 	dynsec_kicklist__add(data, username);
 
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	admin_clientid = mosquitto_client_id(context);
 	admin_username = mosquitto_client_username(context);
@@ -538,31 +538,31 @@ int dynsec_clients__process_disable(struct dynsec__data *data, struct control_cm
 }
 
 
-int dynsec_clients__process_enable(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_enable(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username;
 	struct dynsec__client *client;
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	client->disabled = false;
 
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	admin_clientid = mosquitto_client_id(context);
 	admin_username = mosquitto_client_username(context);
@@ -573,7 +573,7 @@ int dynsec_clients__process_enable(struct dynsec__data *data, struct control_cmd
 }
 
 
-int dynsec_clients__process_set_id(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_set_id(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username, *clientid, *clientid_heap = NULL;
 	struct dynsec__client *client;
@@ -581,28 +581,28 @@ int dynsec_clients__process_set_id(struct dynsec__data *data, struct control_cmd
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "clientid", &clientid, true) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing client ID");
+		mosquitto_control_command_reply(cmd, "Invalid/missing client ID");
 		return MOSQ_ERR_INVAL;
 	}
 	if(clientid){
 		slen = strlen(clientid);
 		if(mosquitto_validate_utf8(clientid, (int)slen) != MOSQ_ERR_SUCCESS){
-			control__command_reply(cmd, "Client ID not valid UTF-8");
+			mosquitto_control_command_reply(cmd, "Client ID not valid UTF-8");
 			return MOSQ_ERR_INVAL;
 		}
 		if(slen > 0){
 			clientid_heap = mosquitto_strdup(clientid);
 			if(clientid_heap == NULL){
-				control__command_reply(cmd, "Internal error");
+				mosquitto_control_command_reply(cmd, "Internal error");
 				return MOSQ_ERR_NOMEM;
 			}
 		}else{
@@ -613,7 +613,7 @@ int dynsec_clients__process_set_id(struct dynsec__data *data, struct control_cmd
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
 		mosquitto_free(clientid_heap);
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
@@ -621,7 +621,7 @@ int dynsec_clients__process_set_id(struct dynsec__data *data, struct control_cmd
 	client->clientid = clientid_heap;
 
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
@@ -648,7 +648,7 @@ static int client__set_password(struct dynsec__client *client, const char *passw
 	}
 }
 
-int dynsec_clients__process_set_password(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_set_password(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username, *password;
 	struct dynsec__client *client;
@@ -656,32 +656,32 @@ int dynsec_clients__process_set_password(struct dynsec__data *data, struct contr
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "password", &password, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing password");
+		mosquitto_control_command_reply(cmd, "Invalid/missing password");
 		return MOSQ_ERR_INVAL;
 	}
 	if(strlen(password) == 0){
-		control__command_reply(cmd, "Empty password is not allowed");
+		mosquitto_control_command_reply(cmd, "Empty password is not allowed");
 		return MOSQ_ERR_INVAL;
 	}
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 	rc = client__set_password(client, password);
 	if(rc == MOSQ_ERR_SUCCESS){
 		dynsec__config_batch_save(data);
-		control__command_reply(cmd, NULL);
+		mosquitto_control_command_reply(cmd, NULL);
 
 		/* Enforce any changes */
 		dynsec_kicklist__add(data, username);
@@ -691,7 +691,7 @@ int dynsec_clients__process_set_password(struct dynsec__data *data, struct contr
 		mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | setClientPassword | username=%s | password=******",
 				admin_clientid, admin_username, username);
 	}else{
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 	}
 	return rc;
 }
@@ -715,7 +715,7 @@ static void client__remove_all_roles(struct dynsec__client *client)
 	}
 }
 
-int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username;
 	char *clientid = NULL;
@@ -732,17 +732,17 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_INVAL;
 	}
 
@@ -751,7 +751,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 		if(str && strlen(str) > 0){
 			clientid = mosquitto_strdup(str);
 			if(clientid == NULL){
-				control__command_reply(cmd, "Internal error");
+				mosquitto_control_command_reply(cmd, "Internal error");
 				rc = MOSQ_ERR_NOMEM;
 				goto error;
 			}
@@ -770,7 +770,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 		have_text_name = true;
 		text_name = mosquitto_strdup(str);
 		if(text_name == NULL){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
@@ -780,7 +780,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 		have_text_description = true;
 		text_description = mosquitto_strdup(str);
 		if(text_description == NULL){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
@@ -792,14 +792,14 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 	}else if(rc == ERR_LIST_NOT_FOUND){
 		/* There was no list in the JSON, so no modification */
 	}else if(rc == MOSQ_ERR_NOT_FOUND){
-		control__command_reply(cmd, "Role not found");
+		mosquitto_control_command_reply(cmd, "Role not found");
 		rc = MOSQ_ERR_INVAL;
 		goto error;
 	}else{
 		if(rc == MOSQ_ERR_INVAL){
-			control__command_reply(cmd, "'roles' not an array or missing/invalid rolename");
+			mosquitto_control_command_reply(cmd, "'roles' not an array or missing/invalid rolename");
 		}else{
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 		}
 		rc = MOSQ_ERR_INVAL;
 		goto error;
@@ -814,12 +814,12 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 				if(jtmp && cJSON_IsString(jtmp)){
 					group = dynsec_groups__find(data, jtmp->valuestring);
 					if(group == NULL){
-						control__command_reply(cmd, "'groups' contains an object with a 'groupname' that does not exist");
+						mosquitto_control_command_reply(cmd, "'groups' contains an object with a 'groupname' that does not exist");
 						rc = MOSQ_ERR_INVAL;
 						goto error;
 					}
 				}else{
-					control__command_reply(cmd, "'groups' contains an object with an invalid 'groupname'");
+					mosquitto_control_command_reply(cmd, "'groups' contains an object with an invalid 'groupname'");
 					rc = MOSQ_ERR_INVAL;
 					goto error;
 				}
@@ -842,7 +842,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 		/* FIXME - This is the one call that will result in modification on internal error - note that groups have already been modified */
 		rc = client__set_password(client, password);
 		if(rc != MOSQ_ERR_SUCCESS){
-			control__command_reply(cmd, "Internal error");
+			mosquitto_control_command_reply(cmd, "Internal error");
 			mosquitto_kick_client_by_username(username, false);
 			/* If this fails we have the situation that the password is set as
 			 * invalid, but the config isn't saved, so restarting the broker
@@ -877,7 +877,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct control_cmd
 	}
 
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
@@ -1012,7 +1012,7 @@ static cJSON *add_client_to_json(struct dynsec__client *client, bool verbose)
 }
 
 
-int dynsec_clients__process_get(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username;
 	struct dynsec__client *client;
@@ -1020,23 +1020,23 @@ int dynsec_clients__process_get(struct dynsec__data *data, struct control_cmd *c
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -1046,14 +1046,14 @@ int dynsec_clients__process_get(struct dynsec__data *data, struct control_cmd *c
 			){
 
 		cJSON_Delete(tree);
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
 	j_client = add_client_to_json(client, true);
 	if(j_client == NULL){
 		cJSON_Delete(tree);
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 	cJSON_AddItemToObject(j_data, "client", j_client);
@@ -1068,7 +1068,7 @@ int dynsec_clients__process_get(struct dynsec__data *data, struct control_cmd *c
 }
 
 
-int dynsec_clients__process_list(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_list(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	bool verbose;
 	struct dynsec__client *client, *client_tmp;
@@ -1082,7 +1082,7 @@ int dynsec_clients__process_list(struct dynsec__data *data, struct control_cmd *
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -1094,7 +1094,7 @@ int dynsec_clients__process_list(struct dynsec__data *data, struct control_cmd *
 			){
 
 		cJSON_Delete(tree);
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -1104,7 +1104,7 @@ int dynsec_clients__process_list(struct dynsec__data *data, struct control_cmd *
 			j_client = add_client_to_json(client, verbose);
 			if(j_client == NULL){
 				cJSON_Delete(tree);
-				control__command_reply(cmd, "Internal error");
+				mosquitto_control_command_reply(cmd, "Internal error");
 				return MOSQ_ERR_NOMEM;
 			}
 			cJSON_AddItemToArray(j_clients, j_client);
@@ -1129,7 +1129,7 @@ int dynsec_clients__process_list(struct dynsec__data *data, struct control_cmd *
 }
 
 
-int dynsec_clients__process_add_role(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_add_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username, *rolename;
 	struct dynsec__client *client;
@@ -1138,42 +1138,42 @@ int dynsec_clients__process_add_role(struct dynsec__data *data, struct control_c
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing rolename");
+		mosquitto_control_command_reply(cmd, "Invalid/missing rolename");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(rolename, (int)strlen(rolename)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Role name not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Role name not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 	json_get_int(cmd->j_command, "priority", &priority, true, -1);
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	role = dynsec_roles__find(data, rolename);
 	if(role == NULL){
-		control__command_reply(cmd, "Role not found");
+		mosquitto_control_command_reply(cmd, "Role not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	if(dynsec_rolelist__client_add(client, role, priority) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Internal error");
+		mosquitto_control_command_reply(cmd, "Internal error");
 		return MOSQ_ERR_UNKNOWN;
 	}
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
@@ -1187,7 +1187,7 @@ int dynsec_clients__process_add_role(struct dynsec__data *data, struct control_c
 }
 
 
-int dynsec_clients__process_remove_role(struct dynsec__data *data, struct control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_remove_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
 	char *username, *rolename;
 	struct dynsec__client *client;
@@ -1195,39 +1195,39 @@ int dynsec_clients__process_remove_role(struct dynsec__data *data, struct contro
 	const char *admin_clientid, *admin_username;
 
 	if(json_get_string(cmd->j_command, "username", &username, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing username");
+		mosquitto_control_command_reply(cmd, "Invalid/missing username");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(username, (int)strlen(username)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Username not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Username not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 	if(json_get_string(cmd->j_command, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Invalid/missing rolename");
+		mosquitto_control_command_reply(cmd, "Invalid/missing rolename");
 		return MOSQ_ERR_INVAL;
 	}
 	if(mosquitto_validate_utf8(rolename, (int)strlen(rolename)) != MOSQ_ERR_SUCCESS){
-		control__command_reply(cmd, "Role name not valid UTF-8");
+		mosquitto_control_command_reply(cmd, "Role name not valid UTF-8");
 		return MOSQ_ERR_INVAL;
 	}
 
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){
-		control__command_reply(cmd, "Client not found");
+		mosquitto_control_command_reply(cmd, "Client not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	role = dynsec_roles__find(data, rolename);
 	if(role == NULL){
-		control__command_reply(cmd, "Role not found");
+		mosquitto_control_command_reply(cmd, "Role not found");
 		return MOSQ_ERR_SUCCESS;
 	}
 
 	dynsec_rolelist__client_remove(client, role);
 	dynsec__config_batch_save(data);
-	control__command_reply(cmd, NULL);
+	mosquitto_control_command_reply(cmd, NULL);
 
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);

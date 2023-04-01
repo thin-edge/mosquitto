@@ -18,6 +18,9 @@
 	mosquitto_client_sub_count;
 	mosquitto_client_username;
 	mosquitto_complete_basic_auth;
+	mosquitto_control_command_reply;
+	mosquitto_control_generic_callback;
+	mosquitto_control_send_response;
 	mosquitto_free;
 	mosquitto_kick_client_by_clientid;
 	mosquitto_kick_client_by_username;
