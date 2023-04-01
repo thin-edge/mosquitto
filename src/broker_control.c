@@ -18,8 +18,6 @@ Contributors:
 
 #include "config.h"
 
-#ifdef WITH_CJSON
-
 #include <cjson/cJSON.h>
 #include <errno.h>
 #include <stdio.h>
@@ -270,4 +268,3 @@ static int broker__handle_control(struct control_cmd *cmd, struct mosquitto *con
 	}
 	return rc;
 }
-#endif

@@ -17,8 +17,6 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifdef WITH_CJSON
-
 #include <cjson/cJSON.h>
 #include <stdbool.h>
 
@@ -30,5 +28,4 @@ int json_get_string(cJSON *json, const char *name, char **value, bool optional);
 cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, long long number);
 cJSON *cJSON_CreateInt(int num);
 
-#endif
 #endif

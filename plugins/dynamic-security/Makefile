@@ -4,7 +4,7 @@ include ${R}/config.mk
 .PHONY : all binary check clean reallyclean test test-compile install uninstall
 
 PLUGIN_NAME=mosquitto_dynamic_security
-LOCAL_CPPFLAGS=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common -DWITH_CJSON -DWITH_TLS
+LOCAL_CPPFLAGS=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common -DWITH_TLS
 ifeq ($(WITH_BUNDLED_DEPS),yes)
 	LOCAL_CPPFLAGS:=$(LOCAL_CPPFLAGS) -I${R}/deps
 endif
@@ -32,12 +32,8 @@ OBJS=	\
 		rolelist.o \
 		tick.o
 
-ifeq ($(WITH_CJSON),yes)
 ifeq ($(WITH_TLS),yes)
 ALL_DEPS:= binary
-else
-ALL_DEPS:=
-endif
 else
 ALL_DEPS:=
 endif
@@ -121,11 +117,9 @@ check: test
 test: test-compile
 
 install: all
-ifeq ($(WITH_CJSON),yes)
 ifeq ($(WITH_TLS),yes)
 	$(INSTALL) -d "${DESTDIR}$(libdir)"
 	$(INSTALL) ${STRIP_OPTS} ${PLUGIN_NAME}.so "${DESTDIR}${libdir}/${PLUGIN_NAME}.so"
-endif
 endif
 
 uninstall :

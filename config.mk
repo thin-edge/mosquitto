@@ -110,10 +110,6 @@ WITH_COVERAGE:=no
 # Build with unix domain socket support
 WITH_UNIX_SOCKETS:=yes
 
-# Build mosquitto_sub with cJSON support
-# Build mosquitto with broker control support
-WITH_CJSON:=yes
-
 # Build mosquitto with support for the $CONTROL topics.
 WITH_CONTROL:=yes
 
@@ -418,14 +414,9 @@ ifeq ($(WITH_COVERAGE),yes)
 	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) -coverage
 endif
 
-ifeq ($(WITH_CJSON),yes)
-	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) -DWITH_CJSON
 	CLIENT_LDADD:=$(CLIENT_LDADD) -lcjson
 	CLIENT_STATIC_LDADD:=$(CLIENT_STATIC_LDADD) -lcjson
-	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS)
-	BROKER_CFLAGS:=$(BROKER_CFLAGS) -DWITH_CJSON
 	BROKER_LDADD:=$(BROKER_LDADD) -lcjson
-endif
 
 ifeq ($(WITH_OLD_KEEPALIVE),yes)
 	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_OLD_KEEPALIVE

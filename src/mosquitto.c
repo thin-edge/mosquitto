@@ -447,9 +447,7 @@ int main(int argc, char *argv[])
 	bridge__start_all();
 #endif
 
-#ifdef WITH_CJSON
 	broker_control__init();
-#endif
 
 	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s running", VERSION);
 #ifdef WITH_SYSTEMD
@@ -471,9 +469,7 @@ int main(int argc, char *argv[])
 	db.shutdown = true;
 	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
 
-#ifdef WITH_CJSON
 	broker_control__cleanup();
-#endif
 
 #ifdef WITH_PERSISTENCE
 	persist__backup(true);

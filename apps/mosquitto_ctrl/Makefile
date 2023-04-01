@@ -14,7 +14,7 @@ endif
 endif
 
 LOCAL_LDFLAGS:=${LDFLAGS}
-LOCAL_CPPFLAGS:=-I${R}/apps/mosquitto_passwd -I${R}/plugins/dynamic-security -DWITH_CJSON -I${R}/plugins/common -I${R}/common
+LOCAL_CPPFLAGS:=-I${R}/apps/mosquitto_passwd -I${R}/plugins/dynamic-security -I${R}/plugins/common -I${R}/common
 ifeq ($(WITH_BUNDLED_DEPS),yes)
 LOCAL_CPPFLAGS+=-I${R}/deps
 endif
@@ -38,12 +38,7 @@ OBJS=	mosquitto_ctrl.o \
 EXAMPLE_OBJS= example.o
 
 ifeq ($(WITH_TLS),yes)
-ifeq ($(WITH_CJSON),yes)
 TARGET:=mosquitto_ctrl mosquitto_ctrl_example.so
-else
-TARGET:=
-endif
-
 else
 TARGET:=
 endif
@@ -90,7 +85,7 @@ get_password.o : ${R}/apps/mosquitto_passwd/get_password.c ${R}/apps/mosquitto_p
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -DWITH_CJSON=yes -c $< -o $@
+	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
 
 memory_mosq.o : ${R}/lib/memory_mosq.c
 	${CROSS_COMPILE}${CC} $(APP_CPPFLAGS) $(APP_CFLAGS) -c $< -o $@
@@ -112,10 +107,8 @@ ${R}/lib/libmosquitto.a :
 
 install : all
 ifeq ($(WITH_TLS),yes)
-ifeq ($(WITH_CJSON),yes)
 	$(INSTALL) -d "${DESTDIR}$(prefix)/bin"
 	$(INSTALL) ${STRIP_OPTS} mosquitto_ctrl "${DESTDIR}${prefix}/bin/mosquitto_ctrl"
-endif
 endif
 
 uninstall :

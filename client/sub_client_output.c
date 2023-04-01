@@ -26,6 +26,7 @@ Contributors:
 #endif
 
 #include <assert.h>
+#include <cjson/cJSON.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,9 +44,6 @@ Contributors:
 #undef uthash_free
 #include <uthash.h>
 
-#ifdef WITH_CJSON
-#  include <cjson/cJSON.h>
-#endif
 
 #ifdef __APPLE__
 #  include <sys/time.h>
@@ -149,23 +147,6 @@ static void write_payload(const unsigned char *payload, int payloadlen, int hex,
 }
 
 
-#ifndef WITH_CJSON
-static void write_json_payload(const char *payload, int payloadlen)
-{
-	int i;
-
-	for(i=0; i<payloadlen; i++){
-		if(payload[i] == '"' || payload[i] == '\\' || (payload[i] >=0 && payload[i] < 32)){
-			printf("\\u%04x", payload[i]);
-		}else{
-			fputc(payload[i], stdout);
-		}
-	}
-}
-#endif
-
-
-#ifdef WITH_CJSON
 static int json_print_properties(cJSON *root, const mosquitto_property *properties)
 {
 	int identifier;
@@ -266,7 +247,6 @@ static int json_print_properties(cJSON *root, const mosquitto_property *properti
 	}
 	return MOSQ_ERR_SUCCESS;
 }
-#endif
 
 
 static void format_time_8601(const struct tm *ti, int ns, char *buf, size_t len)
@@ -282,7 +262,6 @@ static void format_time_8601(const struct tm *ti, int ns, char *buf, size_t len)
 static int json_print(const struct mosquitto_message *message, const mosquitto_property *properties, const struct tm *ti, int ns, bool escaped, bool pretty)
 {
 	char buf[100];
-#ifdef WITH_CJSON
 	cJSON *root;
 	cJSON *tmp;
 	char *json_str;
@@ -351,28 +330,6 @@ static int json_print(const struct mosquitto_message *message, const mosquitto_p
 	free(json_str);
 
 	return MOSQ_ERR_SUCCESS;
-#else
-	UNUSED(properties);
-	UNUSED(pretty);
-
-	format_time_8601(ti, ns, buf, sizeof(buf));
-
-	printf("{\"tst\":\"%s\",\"topic\":\"%s\",\"qos\":%d,\"retain\":%d,\"payloadlen\":%d,", buf, message->topic, message->qos, message->retain, message->payloadlen);
-	if(message->qos > 0){
-		printf("\"mid\":%d,", message->mid);
-	}
-	if(escaped){
-		fputs("\"payload\":\"", stdout);
-		write_json_payload(message->payload, message->payloadlen);
-		fputs("\"}", stdout);
-	}else{
-		fputs("\"payload\":", stdout);
-		write_payload(message->payload, message->payloadlen, 0, 0, 0, 0, 0);
-		fputs("}", stdout);
-	}
-
-	return MOSQ_ERR_SUCCESS;
-#endif
 }
 
 

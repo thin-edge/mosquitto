@@ -245,7 +245,6 @@ endif
 
 14 :
 ifeq ($(WITH_TLS),yes)
-ifeq ($(WITH_CJSON),yes)
 	./14-dynsec-acl.py
 	./14-dynsec-allow-wildcard.py
 	./14-dynsec-anon-group.py
@@ -265,7 +264,6 @@ ifeq ($(WITH_CJSON),yes)
 	./14-dynsec-plugin-invalid.py
 	./14-dynsec-role-invalid.py
 	./14-dynsec-role.py
-endif
 endif
 
 15 :

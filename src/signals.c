@@ -112,9 +112,7 @@ void signal__flag_check(void)
 		log__init(db.config);
 		keepalive__cleanup();
 		keepalive__init();
-#ifdef WITH_CJSON
 		broker_control__reload();
-#endif
 #ifdef WITH_BRIDGE
 		bridge__reload();
 #endif

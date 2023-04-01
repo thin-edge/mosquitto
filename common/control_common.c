@@ -1,7 +1,5 @@
 #include "config.h"
 
-#ifdef WITH_CJSON
-
 #include "control_common.h"
 #include "json_help.h"
 #include <mqtt_protocol.h>
@@ -135,4 +133,3 @@ int control__generic_control_callback(struct mosquitto_evt_control *event_data, 
 
 	return MOSQ_ERR_SUCCESS;
 }
-#endif

@@ -21,7 +21,6 @@ RUN set -x && \
     make -C /build/mosq -j "$(nproc)" \
         CFLAGS="-Wall -O2 -I/build" \
         WITH_ADNS=no \
-        WITH_CJSON=yes \
         WITH_DOCS=no \
         WITH_SHARED_LIBRARIES=yes \
         WITH_SRV=no \

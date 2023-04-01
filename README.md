@@ -67,8 +67,8 @@ already be built. Use `make binary` to skip building the man pages, or install
 ### Build Dependencies
 
 * c-ares (libc-ares-dev on Debian based systems) - only when compiled with `make WITH_SRV=yes`
-* cJSON - for client JSON output support. Disable with `make WITH_CJSON=no` Auto detected with CMake.
-* libwebsockets (libwebsockets-dev) - enable with `make WITH_WEBSOCKETS=yes`
+* cJSON - required for dynsec plugin, broker control plugin, and for client JSON output support.
+* libwebsockets (libwebsockets-dev) - enable with `make WITH_WEBSOCKETS=lws`
 * openssl (libssl-dev on Debian based systems) - disable with `make WITH_TLS=no`
 * pthreads - for client library thread support. This is required to support the
   `mosquitto_loop_start()` and `mosquitto_loop_stop()` functions. If compiled
@@ -82,7 +82,3 @@ Equivalent options for enabling/disabling features are available when using the 
 ## Credits
 
 Mosquitto was written by Roger Light <roger@atchoo.org>
-
-Master: [![Travis Build Status (master)](https://travis-ci.org/eclipse/mosquitto.svg?branch=master)](https://travis-ci.org/eclipse/mosquitto)
-Develop: [![Travis Build Status (develop)](https://travis-ci.org/eclipse/mosquitto.svg?branch=develop)](https://travis-ci.org/eclipse/mosquitto)
-Fixes: [![Travis Build Status (fixes)](https://travis-ci.org/eclipse/mosquitto.svg?branch=fixes)](https://travis-ci.org/eclipse/mosquitto)

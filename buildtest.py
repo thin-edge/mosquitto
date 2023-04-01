@@ -3,7 +3,6 @@
 build_variants = [
     'WITH_ADNS',
     'WITH_BRIDGE',
-    'WITH_CJSON',
     'WITH_DOCS',
     'WITH_EC',
     'WITH_EPOLL',

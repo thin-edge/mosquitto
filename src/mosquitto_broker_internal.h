@@ -975,10 +975,8 @@ void will_delay__remove(struct mosquitto *mosq);
 void xtreport(void);
 #endif
 
-#ifdef WITH_CJSON
 void broker_control__init(void);
 void broker_control__cleanup(void);
 void broker_control__reload(void);
-#endif
 
 #endif

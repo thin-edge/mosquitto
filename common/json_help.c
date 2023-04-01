@@ -18,8 +18,6 @@ Contributors:
 
 #include "config.h"
 
-#ifdef WITH_CJSON
-
 #include <cjson/cJSON.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -103,4 +101,3 @@ cJSON *cJSON_AddIntToObject(cJSON * const object, const char * const name, long 
 	snprintf(buf, sizeof(buf), "%lld", number);
 	return cJSON_AddRawToObject(object, name, buf);
 }
-#endif
