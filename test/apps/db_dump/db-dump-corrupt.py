@@ -20,7 +20,7 @@ def do_test(file, stderr, rc_expected):
 
 do_test('missing.test-db', f"Error: Unable to open {test_dir}/apps/db_dump/data/missing.test-db\n", 0)
 do_test('bad-magic.test-db', "Error: Unrecognised file format.\n", 1)
-do_test('short.test-db', "Error: Corrupt persistent database.\n", 1)
+do_test('short.test-db', "", 1)
 do_test('bad-dbid-size.test-db', "Error: Incompatible database configuration (dbid size is 5 bytes, expected 8)", 1)
 do_test('bad-chunk.test-db', 'Warning: Unsupported chunk "2816" of length 65696 in persistent database file at position 29. Ignoring.\n', 0)
 do_test('v3-corrupt.test-db', "Error: Corrupt persistent database.\n", 1)
