@@ -41,6 +41,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	struct mosquitto *context = NULL;
 	uint8_t *data_heap;
 	struct mosquitto__listener listener;
+	struct mosquitto__security_options secopts;
 	struct mosquitto__bridge bridge;
 
 	if(size < kMinInputLength || size > kMaxInputLength){
@@ -52,9 +53,11 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 	memset(&listener, 0, sizeof(listener));
 	memset(&bridge, 0, sizeof(bridge));
+	memset(&secopts, 0, sizeof(secopts));
 
 	context = context__init();
 	if(!context) return 1;
+	listener.security_options = &secopts;
 	context->listener = &listener;
 	context->bridge = &bridge;
 
@@ -65,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	data_heap = (uint8_t *)malloc(size);
 	if(!data_heap) return 1;
 
-	memcpy(data_heap, data, size);
+	memcpy(data_heap, &data[2], size);
 
 	context->in_packet.command = data_heap[0];
 	context->in_packet.payload = (uint8_t *)data_heap;
