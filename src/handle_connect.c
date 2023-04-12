@@ -1059,7 +1059,12 @@ handle_connect_error:
 		mosquitto__FREE(will_struct->msg.topic);
 		mosquitto__FREE(will_struct);
 	}
-	context->will = NULL;
+	if(context->will){
+		mosquitto_property_free_all(&context->will->properties);
+		mosquitto__FREE(context->will->msg.payload);
+		mosquitto__FREE(context->will->msg.topic);
+		mosquitto__FREE(context->will);
+	}
 	/* We return an error here which means the client is freed later on. */
 	context->clean_start = true;
 	context->session_expiry_interval = 0;
