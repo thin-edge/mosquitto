@@ -40,8 +40,17 @@ endif
 all : ${ALL_DEPS}
 binary : ${PLUGIN_NAME}.so
 
+ifeq ($(WITH_FUZZING),yes)
+binary : ${PLUGIN_NAME}.a
+else
+binary : ${PLUGIN_NAME}.so
+endif
+
 ${PLUGIN_NAME}.so : ${OBJS}
 	${CROSS_COMPILE}${CC} $(PLUGIN_LDFLAGS) -fPIC -shared $^ -o $@ -lcjson
+
+${PLUGIN_NAME}.a : ${OBJS}
+	${CROSS_COMPILE}$(AR) cr $@ $^
 
 acl.o : acl.c dynamic_security.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@

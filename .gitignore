@@ -1,3 +1,4 @@
+*.a
 *.db
 *.gcda
 *.gcno
@@ -63,6 +64,7 @@ fuzzing/corpora/db_dump_seed_corpus.zip
 fuzzing/lib/lib_fuzz_pub_topic_check2
 fuzzing/lib/lib_fuzz_sub_topic_check2
 fuzzing/lib/lib_fuzz_utf8
+fuzzing/plugins/dynamic-security/dynsec_fuzz_load
 
 lib/cpp/libmosquittopp.so*
 lib/cpp/libmosquittopp.a
