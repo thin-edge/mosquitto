@@ -6,6 +6,7 @@ all:
 	$(MAKE) -C apps $@
 	$(MAKE) -C broker $@
 	$(MAKE) -C lib $@
+	$(MAKE) -C plugins $@
 
 clean:
 	-rm -rf corpora/broker corpora/client
@@ -14,3 +15,4 @@ clean:
 	$(MAKE) -C apps $@
 	$(MAKE) -C broker $@
 	$(MAKE) -C lib $@
+	$(MAKE) -C plugins $@
