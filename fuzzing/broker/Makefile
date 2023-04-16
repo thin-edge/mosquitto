@@ -15,13 +15,13 @@ LOCAL_LIBADD:=$(LIBADD) $(LIB_FUZZING_ENGINE) ${R}/src/mosquitto_broker.a -lssl 
 
 all: $(FUZZERS)
 
-broker_fuzz_read_handle : broker_fuzz_read_handle.cpp
-	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
+broker_fuzz_read_handle : broker_fuzz_read_handle.cpp ${R}/src/mosquitto_broker.a
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< $(LOCAL_LIBADD)
 	install $@ ${OUT}/$@
 	cp ${R}/fuzzing/corpora/broker_packet_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
 
-broker_fuzz_test_config : broker_fuzz_test_config.cpp
-	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
+broker_fuzz_test_config : broker_fuzz_test_config.cpp ${R}/src/mosquitto_broker.a
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< $(LOCAL_LIBADD)
 	install $@ ${OUT}/$@
 	cp ${R}/fuzzing/corpora/broker_fuzz_test_config_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
 	cp ${R}/fuzzing/corpora/broker_conf.dict ${OUT}/$@.dict

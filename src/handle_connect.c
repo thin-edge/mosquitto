@@ -1049,6 +1049,7 @@ int handle__connect(struct mosquitto *context)
 
 
 handle_connect_error:
+	mosquitto_property_free_all(&properties);
 	mosquitto__FREE(auth_data);
 	mosquitto__FREE(clientid);
 	mosquitto__FREE(username);
