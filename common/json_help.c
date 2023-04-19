@@ -84,7 +84,7 @@ int json_get_string(cJSON *json, const char *name, char **value, bool optional)
 		if(cJSON_IsString(jtmp) == false){
 			return MOSQ_ERR_INVAL;
 		}
-		*value  = jtmp->valuestring;
+		*value = jtmp->valuestring;
 	}else{
 		if(optional == false){
 			return MOSQ_ERR_INVAL;

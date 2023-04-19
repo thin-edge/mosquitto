@@ -22,6 +22,7 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 
+#include "json_help.h"
 #include "mosquitto_ctrl.h"
 #include "mosquitto.h"
 
@@ -43,6 +44,7 @@ void broker__print_usage(void)
 static void print_listeners(cJSON *j_response)
 {
 	cJSON *j_data, *j_listeners, *j_listener, *jtmp;
+	char *stmp;
 	int i=1;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
@@ -65,19 +67,16 @@ static void print_listeners(cJSON *j_response)
 			printf("  Port:              %d\n", jtmp->valueint);
 		}
 
-		jtmp = cJSON_GetObjectItem(j_listener, "protocol");
-		if(jtmp && cJSON_IsString(jtmp)){
-			printf("  Protocol:          %s\n", jtmp->valuestring);
+		if(json_get_string(j_listener, "protocol", &stmp, false) == MOSQ_ERR_SUCCESS){
+			printf("  Protocol:          %s\n", stmp);
 		}
 
-		jtmp = cJSON_GetObjectItem(j_listener, "socket-path");
-		if(jtmp && cJSON_IsString(jtmp)){
-			printf("  Socket path:       %s\n", jtmp->valuestring);
+		if(json_get_string(j_listener, "socket-path", &stmp, false) == MOSQ_ERR_SUCCESS){
+			printf("  Socket path:       %s\n", stmp);
 		}
 
-		jtmp = cJSON_GetObjectItem(j_listener, "bind-address");
-		if(jtmp && cJSON_IsString(jtmp)){
-			printf("  Bind address:      %s\n", jtmp->valuestring);
+		if(json_get_string(j_listener, "bind-address", &stmp, false) == MOSQ_ERR_SUCCESS){
+			printf("  Bind address:      %s\n", stmp);
 		}
 
 		jtmp = cJSON_GetObjectItem(j_listener, "tls");
@@ -90,6 +89,7 @@ static void print_listeners(cJSON *j_response)
 static void print_plugin_info(cJSON *j_response)
 {
 	cJSON *j_data, *j_plugins, *j_plugin, *jtmp, *j_eps;
+	char *stmp;
 	bool first;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
@@ -105,23 +105,21 @@ static void print_plugin_info(cJSON *j_response)
 	}
 
 	cJSON_ArrayForEach(j_plugin, j_plugins){
-		jtmp = cJSON_GetObjectItem(j_plugin, "name");
-		if(jtmp == NULL || !cJSON_IsString(jtmp)){
+		if(json_get_string(j_plugin, "name", &stmp, false) != MOSQ_ERR_SUCCESS){
 			fprintf(stderr, "Error: Invalid response from server.\n");
 			return;
 		}
-		printf("Plugin:            %s\n", jtmp->valuestring);
+		printf("Plugin:            %s\n", stmp);
 
-		jtmp = cJSON_GetObjectItem(j_plugin, "version");
-		if(jtmp && cJSON_IsString(jtmp)){
-			printf("Version:           %s\n", jtmp->valuestring);
+		if(json_get_string(j_plugin, "version", &stmp, false) != MOSQ_ERR_SUCCESS){
+			printf("Version:           %s\n", stmp);
 		}
 
 		j_eps = cJSON_GetObjectItem(j_plugin, "control-endpoints");
 		if(j_eps && cJSON_IsArray(j_eps)){
 			first = true;
 			cJSON_ArrayForEach(jtmp, j_eps){
-				if(jtmp && cJSON_IsString(jtmp)){
+				if(jtmp && cJSON_IsString(jtmp) && jtmp->valuestring){
 					if(first){
 						first = false;
 						printf("Control endpoints: %s\n", jtmp->valuestring);
@@ -137,7 +135,7 @@ static void print_plugin_info(cJSON *j_response)
 
 static void broker__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, const void *payload)
 {
-	cJSON *tree, *j_responses, *j_response, *j_command, *j_error;
+	cJSON *tree, *j_responses, *j_response, *j_command;
 
 	UNUSED(ctrl);
 
@@ -173,9 +171,9 @@ static void broker__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, co
 		return;
 	}
 
-	j_error = cJSON_GetObjectItem(j_response, "error");
-	if(j_error){
-		fprintf(stderr, "%s: Error: %s.\n", j_command->valuestring, j_error->valuestring);
+	char *error;
+	if(json_get_string(j_response, "error", &error, false) == MOSQ_ERR_SUCCESS){
+		fprintf(stderr, "%s: Error: %s.\n", j_command->valuestring, error);
 	}else{
 		if(!strcasecmp(j_command->valuestring, "listPlugins")){
 			print_plugin_info(j_response);

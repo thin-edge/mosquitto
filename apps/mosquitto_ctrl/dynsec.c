@@ -29,6 +29,7 @@ Contributors:
 #include "mosquitto_ctrl.h"
 #include "mosquitto.h"
 #include "base64_mosq.h"
+#include "json_help.h"
 #include "password_mosq.h"
 #include "get_password.h"
 
@@ -100,7 +101,7 @@ void dynsec__print_usage(void)
 
 static void print_list(cJSON *j_response, const char *arrayname, const char *keyname)
 {
-	cJSON *j_data, *j_array, *j_elem, *j_name;
+	cJSON *j_data, *j_array, *j_elem;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL){
@@ -115,12 +116,13 @@ static void print_list(cJSON *j_response, const char *arrayname, const char *key
 	}
 
 	cJSON_ArrayForEach(j_elem, j_array){
+		char *stmp;
+
 		if(cJSON_IsObject(j_elem)){
-			j_name = cJSON_GetObjectItem(j_elem, keyname);
-			if(j_name && cJSON_IsString(j_name)){
-				printf("%s\n", j_name->valuestring);
+			if(json_get_string(j_elem, keyname, &stmp, false) == MOSQ_ERR_SUCCESS){
+				printf("%s\n", stmp);
 			}
-		}else if(cJSON_IsString(j_elem)){
+		}else if(cJSON_IsString(j_elem) && j_elem->valuestring){
 			printf("%s\n", j_elem->valuestring);
 		}
 	}
@@ -130,7 +132,9 @@ static void print_json_value(cJSON *value, const char *null_value)
 {
 	if(value){
 		if(cJSON_IsString(value)){
-			printf("%s", value->valuestring);
+			if(value->valuestring){
+				printf("%s", value->valuestring);
+			}
 		}else{
 			char buffer[MAX_STRING_LEN];
 			cJSON_PrintPreallocated(value, buffer, sizeof(buffer), 0);
@@ -148,17 +152,18 @@ static void print_json_array(cJSON *j_list, int slen, const char *label, const c
 	if(j_list && cJSON_IsArray(j_list)){
 		cJSON_ArrayForEach(j_elem, j_list){
 			if(cJSON_IsObject(j_elem)){
-				cJSON *jtmp = cJSON_GetObjectItem(j_elem, element_name);
-				if(!jtmp || !cJSON_IsString(jtmp)){
+				char *stmp;
+
+				if(json_get_string(j_elem, element_name, &stmp, false) != MOSQ_ERR_SUCCESS){
 					continue;
 				}
-				printf("%-*s %s", (int)slen, label, jtmp->valuestring);
+				printf("%-*s %s", (int)slen, label, stmp);
 				if(optional_element_name){
 					printf(" (%s: ", optional_element_name);
 					print_json_value(cJSON_GetObjectItem(j_elem,optional_element_name),optional_element_null_value);
 					printf(")");
 				}
-			}else if(cJSON_IsString(j_elem)){
+			}else if(cJSON_IsString(j_elem) && j_elem->valuestring){
 				printf("%-*s %s", (int)slen, label, j_elem->valuestring);
 			}
 			label = "";
@@ -174,6 +179,7 @@ static void print_client(cJSON *j_response)
 {
 	cJSON *j_data, *j_client, *jtmp;
 	const int label_width = strlen( "Connections:");
+	char *stmp;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -187,16 +193,14 @@ static void print_client(cJSON *j_response)
 		return;
 	}
 
-	jtmp = cJSON_GetObjectItem(j_client, "username");
-	if(jtmp == NULL || !cJSON_IsString(jtmp)){
+	if(json_get_string(j_client, "username", &stmp, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
-	printf("%-*s %s\n",  label_width, "Username:", jtmp->valuestring);
+	printf("%-*s %s\n",  label_width, "Username:", stmp);
 
-	jtmp = cJSON_GetObjectItem(j_client, "clientid");
-	if(jtmp && cJSON_IsString(jtmp)){
-		printf("%-*s %s\n",  label_width, "Clientid:", jtmp->valuestring);
+	if(json_get_string(j_client, "clientid", &stmp, false) != MOSQ_ERR_SUCCESS){
+		printf("%-*s %s\n",  label_width, "Clientid:", stmp);
 	}else{
 		printf("Clientid:\n");
 	}
@@ -214,8 +218,9 @@ static void print_client(cJSON *j_response)
 
 static void print_group(cJSON *j_response)
 {
-	cJSON *j_data, *j_group, *jtmp;
+	cJSON *j_data, *j_group;
 	int label_width = strlen("Groupname:");
+	char *groupname;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -229,12 +234,11 @@ static void print_group(cJSON *j_response)
 		return;
 	}
 
-	jtmp = cJSON_GetObjectItem(j_group, "groupname");
-	if(jtmp == NULL || !cJSON_IsString(jtmp)){
+	if(json_get_string(j_group, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
-	printf("Groupname: %s\n", jtmp->valuestring);
+	printf("Groupname: %s\n", groupname);
 
 	print_json_array(cJSON_GetObjectItem(j_group, "roles"), label_width, "Roles:",  "rolename", "priority", "-1");
 	print_json_array(cJSON_GetObjectItem(j_group, "clients"), label_width, "Clients:",  "username", NULL, NULL);
@@ -245,6 +249,7 @@ static void print_role(cJSON *j_response)
 {
 	cJSON *j_data, *j_role, *j_array, *j_elem, *jtmp;
 	bool first;
+	char *stmp;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -258,33 +263,32 @@ static void print_role(cJSON *j_response)
 		return;
 	}
 
-	jtmp = cJSON_GetObjectItem(j_role, "rolename");
-	if(jtmp == NULL || !cJSON_IsString(jtmp)){
+	if(json_get_string(j_role, "rolename", &stmp, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
-	printf("Rolename: %s\n", jtmp->valuestring);
+	printf("Rolename: %s\n", stmp);
 
 	j_array = cJSON_GetObjectItem(j_role, "acls");
 	if(j_array && cJSON_IsArray(j_array)){
 		first = true;
 		cJSON_ArrayForEach(j_elem, j_array){
-			jtmp = cJSON_GetObjectItem(j_elem, "acltype");
-			if(jtmp && cJSON_IsString(jtmp)){
+			char *stmp;
+
+			if(json_get_string(j_role, "rolename", &stmp, false) == MOSQ_ERR_SUCCESS){
 				if(first){
 					first = false;
-					printf("ACLs:     %-20s", jtmp->valuestring);
+					printf("ACLs:     %-20s", stmp);
 				}else{
-					printf("          %-20s", jtmp->valuestring);
+					printf("          %-20s", stmp);
 				}
 
 				jtmp = cJSON_GetObjectItem(j_elem, "allow");
 				if(jtmp && cJSON_IsBool(jtmp)){
 					printf(" : %s", cJSON_IsTrue(jtmp)?"allow":"deny ");
 				}
-				jtmp = cJSON_GetObjectItem(j_elem, "topic");
-				if(jtmp && cJSON_IsString(jtmp)){
-					printf(" : %s", jtmp->valuestring);
+				if(json_get_string(j_elem, "topic", &stmp, false) == MOSQ_ERR_SUCCESS){
+					printf(" : %s", stmp);
 				}
 				jtmp = cJSON_GetObjectItem(j_elem, "priority");
 				if(jtmp && cJSON_IsNumber(jtmp)){
@@ -301,7 +305,8 @@ static void print_role(cJSON *j_response)
 
 static void print_anonymous_group(cJSON *j_response)
 {
-	cJSON *j_data, *j_group, *j_groupname;
+	cJSON *j_data, *j_group;
+	char *groupname;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -315,17 +320,16 @@ static void print_anonymous_group(cJSON *j_response)
 		return;
 	}
 
-	j_groupname = cJSON_GetObjectItem(j_group, "groupname");
-	if(j_groupname == NULL || !cJSON_IsString(j_groupname)){
+	if(json_get_string(j_group, "groupname", &groupname, false) == MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
-	printf("%s\n", j_groupname->valuestring);
+	printf("%s\n", groupname);
 }
 
 static void print_default_acl_access(cJSON *j_response)
 {
-	cJSON *j_data, *j_acls, *j_acl, *j_acltype, *j_allow;
+	cJSON *j_data, *j_acls, *j_acl;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -340,23 +344,23 @@ static void print_default_acl_access(cJSON *j_response)
 	}
 
 	cJSON_ArrayForEach(j_acl, j_acls){
-		j_acltype = cJSON_GetObjectItem(j_acl, "acltype");
-		j_allow = cJSON_GetObjectItem(j_acl, "allow");
+		char *acltype;
+		bool allow;
 
-		if(j_acltype == NULL || !cJSON_IsString(j_acltype)
-				|| j_allow == NULL || !cJSON_IsBool(j_allow)
-				){
+		if(json_get_string(j_acl, "acltype", &acltype, false) != MOSQ_ERR_SUCCESS
+				|| json_get_bool(j_acl, "allow", &allow, false, false) != MOSQ_ERR_SUCCESS){
 
 			fprintf(stderr, "Error: Invalid response from server.\n");
 			return;
 		}
-		printf("%-20s : %s\n", j_acltype->valuestring, cJSON_IsTrue(j_allow)?"allow":"deny");
+		printf("%-20s : %s\n", acltype, allow?"allow":"deny");
 	}
 }
 
 static void dynsec__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, const void *payload)
 {
-	cJSON *tree, *j_responses, *j_response, *j_command, *j_error;
+	cJSON *tree, *j_responses, *j_response;
+	char *command, *error;
 
 	UNUSED(ctrl);
 
@@ -385,35 +389,33 @@ static void dynsec__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, co
 		return;
 	}
 
-	j_command = cJSON_GetObjectItem(j_response, "command");
-	if(j_command == NULL){
+	if(json_get_string(j_response, "command", &command, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Payload missing data.\n");
 		cJSON_Delete(tree);
 		return;
 	}
 
-	j_error = cJSON_GetObjectItem(j_response, "error");
-	if(j_error){
-		fprintf(stderr, "%s: Error: %s.\n", j_command->valuestring, j_error->valuestring);
+	if(json_get_string(j_response, "error", &error, false) == MOSQ_ERR_SUCCESS){
+		fprintf(stderr, "%s: Error: %s.\n", command, error);
 	}else{
-		if(!strcasecmp(j_command->valuestring, "listClients")){
+		if(!strcasecmp(command, "listClients")){
 			print_list(j_response, "clients", "username");
-		}else if(!strcasecmp(j_command->valuestring, "listGroups")){
+		}else if(!strcasecmp(command, "listGroups")){
 			print_list(j_response, "groups", "groupname");
-		}else if(!strcasecmp(j_command->valuestring, "listRoles")){
+		}else if(!strcasecmp(command, "listRoles")){
 			print_list(j_response, "roles", "rolename");
-		}else if(!strcasecmp(j_command->valuestring, "getClient")){
+		}else if(!strcasecmp(command, "getClient")){
 			print_client(j_response);
-		}else if(!strcasecmp(j_command->valuestring, "getGroup")){
+		}else if(!strcasecmp(command, "getGroup")){
 			print_group(j_response);
-		}else if(!strcasecmp(j_command->valuestring, "getRole")){
+		}else if(!strcasecmp(command, "getRole")){
 			print_role(j_response);
-		}else if(!strcasecmp(j_command->valuestring, "getDefaultACLAccess")){
+		}else if(!strcasecmp(command, "getDefaultACLAccess")){
 			print_default_acl_access(j_response);
-		}else if(!strcasecmp(j_command->valuestring, "getAnonymousGroup")){
+		}else if(!strcasecmp(command, "getAnonymousGroup")){
 			print_anonymous_group(j_response);
 		}else{
-			/* fprintf(stderr, "%s: Success\n", j_command->valuestring); */
+			/* fprintf(stderr, "%s: Success\n", command); */
 		}
 	}
 	cJSON_Delete(tree);

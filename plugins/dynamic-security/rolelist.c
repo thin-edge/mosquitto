@@ -171,18 +171,18 @@ int dynsec_rolelist__group_add(struct dynsec__group *group, struct dynsec__role 
 
 int dynsec_rolelist__load_from_json(struct dynsec__data *data, cJSON *command, struct dynsec__rolelist **rolelist)
 {
-	cJSON *j_roles, *j_role, *j_rolename;
+	cJSON *j_roles, *j_role;
 	int priority;
 	struct dynsec__role *role;
+	char *rolename;
 
 	j_roles = cJSON_GetObjectItem(command, "roles");
 	if(j_roles){
 		if(cJSON_IsArray(j_roles)){
 			cJSON_ArrayForEach(j_role, j_roles){
-				j_rolename = cJSON_GetObjectItem(j_role, "rolename");
-				if(j_rolename && cJSON_IsString(j_rolename)){
+				if(json_get_string(j_role, "rolename", &rolename, false) == MOSQ_ERR_SUCCESS){
 					json_get_int(j_role, "priority", &priority, true, -1);
-					role = dynsec_roles__find(data, j_rolename->valuestring);
+					role = dynsec_roles__find(data, rolename);
 					if(role){
 						dynsec_rolelist__add(rolelist, role, priority);
 					}else{

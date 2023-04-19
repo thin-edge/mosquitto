@@ -21,6 +21,7 @@ Contributors:
 #include <sqlite3.h>
 #include <cjson/cJSON.h>
 
+#include "json_help.h"
 #include "mosquitto.h"
 #include "mosquitto_broker.h"
 #include "mqtt_protocol.h"
@@ -58,7 +59,7 @@ static uint8_t hex2nibble(char c)
 static mosquitto_property *json_to_properties(const char *json)
 {
 	mosquitto_property *properties = NULL;
-	cJSON *array, *obj, *j_id, *j_value, *j_name;
+	cJSON *array, *obj, *j_value;
 	int propid, proptype;
 	size_t slen;
 
@@ -72,15 +73,16 @@ static mosquitto_property *json_to_properties(const char *json)
 	}
 
 	cJSON_ArrayForEach(obj, array){
-		j_id = cJSON_GetObjectItem(obj, "identifier");
-		j_name = cJSON_GetObjectItem(obj, "name");
+		char *identifier;
+
+		json_get_string(obj, "identifier", &identifier, true);
 		j_value = cJSON_GetObjectItem(obj, "value");
 
-		if(!j_id || !cJSON_IsString(j_id) || !j_value){
+		if(!identifier || !j_value){
 			mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring property whilst restoring, invalid identifier / value");
 			continue;
 		}
-		if(mosquitto_string_to_property_info(j_id->valuestring, &propid, &proptype)){
+		if(mosquitto_string_to_property_info(identifier, &propid, &proptype)){
 			mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring property whilst restoring, unknown identifier");
 			continue;
 		}
@@ -130,15 +132,22 @@ static mosquitto_property *json_to_properties(const char *json)
 					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "binary");
 					continue;
 				}
-				slen = strlen(j_value->valuestring);
-				if(slen/2 > UINT16_MAX){
-					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is too large", "binary");
-					continue;
+				uint8_t *binstr = NULL;
+				uint16_t len = 0;
+
+				if(j_value->valuestring){
+					slen = strlen(j_value->valuestring);
+					if(slen/2 > UINT16_MAX){
+						mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is too large", "binary");
+						continue;
+					}
+					for(size_t i=0; i<slen; i+=2){
+						((uint8_t *)j_value->valuestring)[i/2] = (uint8_t)(hex2nibble(j_value->valuestring[i])<<4) + hex2nibble(j_value->valuestring[i+1]);
+					}
+					binstr = (uint8_t *)j_value->valuestring;
+					len = (uint16_t)slen/2;
 				}
-				for(size_t i=0; i<slen; i+=2){
-					((uint8_t *)j_value->valuestring)[i/2] = (uint8_t)(hex2nibble(j_value->valuestring[i])<<4) + hex2nibble(j_value->valuestring[i+1]);
-				}
-				if(mosquitto_property_add_binary(&properties, propid, (uint8_t *)j_value->valuestring, (uint16_t)(slen/2))){
+				if(mosquitto_property_add_binary(&properties, propid, binstr, len)){
 					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "binary");
 					continue;
 				}
@@ -154,17 +163,21 @@ static mosquitto_property *json_to_properties(const char *json)
 				}
 				break;
 			case MQTT_PROP_TYPE_STRING_PAIR:
-				if(!cJSON_IsString(j_value)){
-					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "string pair");
-					continue;
-				}
-				if(!j_name || !cJSON_IsString(j_name)){
-					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring string pair property whilst restoring, name is missing or incorrect type");
-					continue;
-				}
-				if(mosquitto_property_add_string_pair(&properties, propid, j_name->valuestring, j_value->valuestring)){
-					mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "string pair");
-					continue;
+				{
+					char *prop_name;
+
+					if(!cJSON_IsString(j_value)){
+						mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "string pair");
+						continue;
+					}
+					if(json_get_string(obj, "name", &prop_name, false) != MOSQ_ERR_SUCCESS){
+						mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring string pair property whilst restoring, name is missing or incorrect type");
+						continue;
+					}
+					if(mosquitto_property_add_string_pair(&properties, propid, prop_name, j_value->valuestring)){
+						mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Out of memory whilst restoring %s property", "string pair");
+						continue;
+					}
 				}
 				break;
 		}

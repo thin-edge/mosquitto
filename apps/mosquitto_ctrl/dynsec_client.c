@@ -158,7 +158,7 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 	FILE *fptr;
 	char *fstr;
 	cJSON *j_tree, *j_clients, *j_client;
-	cJSON *j_username, *j_password = NULL, *j_salt = NULL, *j_iterations = NULL;
+	cJSON *j_password = NULL, *j_salt = NULL, *j_iterations = NULL;
 	struct dynsec__client client;
 	char *pw_buf = NULL, *salt_buf = NULL;
 	char *json_str;
@@ -231,9 +231,9 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 
 	cJSON_ArrayForEach(j_client, j_clients){
 		if(cJSON_IsObject(j_client) == true){
-			j_username = cJSON_GetObjectItem(j_client, "username");
-			if(j_username && cJSON_IsString(j_username)){
-				if(!strcmp(j_username->valuestring, username)){
+			char *username_json;
+			if(json_get_string(j_client, "username", &username_json, false) == MOSQ_ERR_SUCCESS){
+				if(!strcmp(username_json, username)){
 					if(dynsec_auth__pw_hash(&client, password, client.pw.password_hash, sizeof(client.pw.password_hash), true) != MOSQ_ERR_SUCCESS){
 						fprintf(stderr, "Error: Problem generating password hash.\n");
 						goto error;

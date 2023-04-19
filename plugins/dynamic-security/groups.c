@@ -189,13 +189,14 @@ void dynsec_groups__cleanup(struct dynsec__data *data)
 int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 {
 	cJSON *j_groups, *j_group;
-	cJSON *j_clientlist, *j_client, *j_username;
-	cJSON *j_roles, *j_role, *j_rolename;
+	cJSON *j_clientlist;
+	cJSON *j_roles;
 
 	struct dynsec__group *group;
 	struct dynsec__role *role;
-	char *str;
 	int priority;
+	char *textname, *textdescription;
+	char *groupname;
 	size_t groupname_len;
 
 	j_groups = cJSON_GetObjectItem(tree, "groups");
@@ -210,11 +211,14 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	cJSON_ArrayForEach(j_group, j_groups){
 		if(cJSON_IsObject(j_group) == true){
 			/* Group name */
-			if(json_get_string(j_group, "groupname", &str, false) != MOSQ_ERR_SUCCESS){
+			if(json_get_string(j_group, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 				continue;
 			}
-			groupname_len = strlen(str);
+			groupname_len = strlen(groupname);
 			if(groupname_len == 0){
+				continue;
+			}
+			if(dynsec_groups__find(data, groupname)){
 				continue;
 			}
 
@@ -222,12 +226,12 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			if(group == NULL){
 				return MOSQ_ERR_NOMEM;
 			}
-			strncpy(group->groupname, str, groupname_len+1);
+			strncpy(group->groupname, groupname, groupname_len+1);
 
 			/* Text name */
-			if(json_get_string(j_group, "textname", &str, false) == MOSQ_ERR_SUCCESS){
-				if(str){
-					group->text_name = strdup(str);
+			if(json_get_string(j_group, "textname", &textname, false) == MOSQ_ERR_SUCCESS){
+				if(textname){
+					group->text_name = strdup(textname);
 					if(group->text_name == NULL){
 						mosquitto_free(group);
 						continue;
@@ -236,9 +240,9 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			}
 
 			/* Text description */
-			if(json_get_string(j_group, "textdescription", &str, false) == MOSQ_ERR_SUCCESS){
-				if(str){
-					group->text_description = strdup(str);
+			if(json_get_string(j_group, "textdescription", &textdescription, false) == MOSQ_ERR_SUCCESS){
+				if(textdescription){
+					group->text_description = strdup(textdescription);
 					if(group->text_description == NULL){
 						mosquitto_free(group->text_name);
 						mosquitto_free(group);
@@ -250,12 +254,14 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			/* Roles */
 			j_roles = cJSON_GetObjectItem(j_group, "roles");
 			if(j_roles && cJSON_IsArray(j_roles)){
+				cJSON *j_role;
+
 				cJSON_ArrayForEach(j_role, j_roles){
 					if(cJSON_IsObject(j_role)){
-						j_rolename = cJSON_GetObjectItem(j_role, "rolename");
-						if(j_rolename && cJSON_IsString(j_rolename)){
+						char *rolename;
+						if(json_get_string(j_role, "rolename", &rolename, false) == MOSQ_ERR_SUCCESS){
 							json_get_int(j_role, "priority", &priority, true, -1);
-							role = dynsec_roles__find(data, j_rolename->valuestring);
+							role = dynsec_roles__find(data, rolename);
 							dynsec_rolelist__group_add(group, role, priority);
 						}
 					}
@@ -268,12 +274,13 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			/* Clients */
 			j_clientlist = cJSON_GetObjectItem(j_group, "clients");
 			if(j_clientlist && cJSON_IsArray(j_clientlist)){
+				cJSON *j_client;
 				cJSON_ArrayForEach(j_client, j_clientlist){
 					if(cJSON_IsObject(j_client)){
-						j_username = cJSON_GetObjectItem(j_client, "username");
-						if(j_username && cJSON_IsString(j_username)){
+						char *username;
+						if(json_get_string(j_client, "username", &username, false) == MOSQ_ERR_SUCCESS){
 							json_get_int(j_client, "priority", &priority, true, -1);
-							dynsec_groups__add_client(data, j_username->valuestring, group->groupname, priority, false);
+							dynsec_groups__add_client(data, username, group->groupname, priority, false);
 						}
 					}
 				}
@@ -282,9 +289,8 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	}
 	HASH_SORT(data->groups, group_cmp);
 
-	j_group = cJSON_GetObjectItem(tree, "anonymousGroup");
-	if(j_group && cJSON_IsString(j_group)){
-		data->anonymous_group = dynsec_groups__find(data, j_group->valuestring);
+	if(json_get_string(tree, "anonymousGroup", &groupname, false) == MOSQ_ERR_SUCCESS){
+		data->anonymous_group = dynsec_groups__find(data, groupname);
 	}
 
 	return 0;
@@ -918,8 +924,9 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_co
 	char *str;
 	int rc;
 	int priority;
-	cJSON *j_client, *j_clients, *jtmp;
+	cJSON *j_client, *j_clients;
 	const char *admin_clientid, *admin_username;
+	char *username;
 
 	if(json_get_string(cmd->j_command, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 		mosquitto_control_command_reply(cmd, "Invalid/missing groupname");
@@ -982,9 +989,8 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_co
 		/* Iterate over array to check clients are valid before proceeding */
 		cJSON_ArrayForEach(j_client, j_clients){
 			if(cJSON_IsObject(j_client)){
-				jtmp = cJSON_GetObjectItem(j_client, "username");
-				if(jtmp && cJSON_IsString(jtmp)){
-					client = dynsec_clients__find(data, jtmp->valuestring);
+				if(json_get_string(j_client, "username", &username, false) == MOSQ_ERR_SUCCESS){
+					client = dynsec_clients__find(data, username);
 					if(client == NULL){
 						mosquitto_control_command_reply(cmd, "'clients' contains an object with a 'username' that does not exist");
 						rc = MOSQ_ERR_INVAL;
@@ -1005,10 +1011,9 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_co
 		/* Now we can add the new clients to the group */
 		cJSON_ArrayForEach(j_client, j_clients){
 			if(cJSON_IsObject(j_client)){
-				jtmp = cJSON_GetObjectItem(j_client, "username");
-				if(jtmp && cJSON_IsString(jtmp)){
+				if(json_get_string(j_client, "username", &username, false) == MOSQ_ERR_SUCCESS){
 					json_get_int(j_client, "priority", &priority, true, -1);
-					dynsec_groups__add_client(data, jtmp->valuestring, groupname, priority, false);
+					dynsec_groups__add_client(data, username, groupname, priority, false);
 				}
 			}
 		}
