@@ -174,7 +174,7 @@ int dynsec_rolelist__load_from_json(struct dynsec__data *data, cJSON *command, s
 	cJSON *j_roles, *j_role;
 	int priority;
 	struct dynsec__role *role;
-	char *rolename;
+	const char *rolename;
 
 	j_roles = cJSON_GetObjectItem(command, "roles");
 	if(j_roles){

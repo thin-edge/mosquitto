@@ -73,7 +73,7 @@ int json_get_int(cJSON *json, const char *name, int *value, bool optional, int d
 }
 
 
-int json_get_string(cJSON *json, const char *name, char **value, bool optional)
+int json_get_string(cJSON *json, const char *name, const char **value, bool optional)
 {
 	cJSON *jtmp;
 
@@ -84,7 +84,11 @@ int json_get_string(cJSON *json, const char *name, char **value, bool optional)
 		if(cJSON_IsString(jtmp) == false){
 			return MOSQ_ERR_INVAL;
 		}
-		*value = jtmp->valuestring;
+		if(jtmp->valuestring){
+			*value = jtmp->valuestring;
+		}else{
+			*value = "";
+		}
 	}else{
 		if(optional == false){
 			return MOSQ_ERR_INVAL;

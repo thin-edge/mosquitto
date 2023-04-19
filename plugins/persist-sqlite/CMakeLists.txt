@@ -10,6 +10,7 @@ if(SQLITE3_FOUND AND CJSON_FOUND)
 		clients.c
 		client_msgs.c
 		init.c
+		../../common/json_help.c ../../common/json_help.h
 		plugin.c
 		restore.c
 		retain_msgs.c

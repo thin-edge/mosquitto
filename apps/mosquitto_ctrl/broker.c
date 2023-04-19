@@ -44,7 +44,7 @@ void broker__print_usage(void)
 static void print_listeners(cJSON *j_response)
 {
 	cJSON *j_data, *j_listeners, *j_listener, *jtmp;
-	char *stmp;
+	const char *stmp;
 	int i=1;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
@@ -89,7 +89,7 @@ static void print_listeners(cJSON *j_response)
 static void print_plugin_info(cJSON *j_response)
 {
 	cJSON *j_data, *j_plugins, *j_plugin, *jtmp, *j_eps;
-	char *stmp;
+	const char *stmp;
 	bool first;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
@@ -171,7 +171,7 @@ static void broker__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, co
 		return;
 	}
 
-	char *error;
+	const char *error;
 	if(json_get_string(j_response, "error", &error, false) == MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "%s: Error: %s.\n", j_command->valuestring, error);
 	}else{

@@ -207,8 +207,8 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 	cJSON *j_acl, *jtmp;
 	struct dynsec__acl *acl;
 	size_t topic_len;
-	char *acltype;
-	char *topic;
+	const char *acltype;
+	const char *topic;
 
 	cJSON_ArrayForEach(j_acl, j_acls){
 		if(json_get_string(j_acl, "acltype", &acltype, false) != MOSQ_ERR_SUCCESS){
@@ -265,7 +265,7 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 	cJSON_ArrayForEach(j_role, j_roles){
 		if(cJSON_IsObject(j_role) == true){
 			/* Role name */
-			char *rolename;
+			const char *rolename;
 			if(json_get_string(j_role, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
 				continue;
 			}
@@ -284,7 +284,7 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 			strncpy(role->rolename, rolename, rolename_len+1);
 
 			/* Text name */
-			char *textname;
+			const char *textname;
 			if(json_get_string(j_role, "textname", &textname, false) == MOSQ_ERR_SUCCESS){
 				role->text_name = mosquitto_strdup(textname);
 				if(role->text_name == NULL){
@@ -294,7 +294,7 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 			}
 
 			/* Text description */
-			char *textdescription;
+			const char *textdescription;
 			if(json_get_string(j_role, "textdescription", &textdescription, false) == MOSQ_ERR_SUCCESS){
 				role->text_description = mosquitto_strdup(textdescription);
 				if(role->text_description == NULL){
@@ -339,8 +339,8 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 
 int dynsec_roles__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *rolename;
-	char *text_name, *text_description;
+	const char *rolename;
+	const char *text_name, *text_description;
 	bool allow_wildcard_subs;
 	struct dynsec__role *role;
 	int rc = MOSQ_ERR_SUCCESS;
@@ -472,7 +472,7 @@ static void role__remove_all_groups(struct dynsec__data *data, struct dynsec__ro
 
 int dynsec_roles__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *rolename;
+	const char *rolename;
 	struct dynsec__role *role;
 	const char *admin_clientid, *admin_username;
 
@@ -602,14 +602,14 @@ int dynsec_roles__process_list(struct dynsec__data *data, struct mosquitto_contr
 
 int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *rolename;
+	const char *rolename;
 	struct dynsec__role *role;
 	struct dynsec__acl **acllist, *acl;
 	int rc;
 	const char *admin_clientid, *admin_username;
-	char *topic;
+	const char *topic;
 	size_t topic_len;
-	char *acltype;
+	const char *acltype;
 
 	if(json_get_string(cmd->j_command, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
 		mosquitto_control_command_reply(cmd, "Invalid/missing rolename");
@@ -696,13 +696,13 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_co
 
 int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *rolename;
+	const char *rolename;
 	struct dynsec__role *role;
 	struct dynsec__acl **acllist, *acl;
-	char *topic;
+	const char *topic;
 	int rc;
 	const char *admin_clientid, *admin_username;
-	char *acltype;
+	const char *acltype;
 
 	if(json_get_string(cmd->j_command, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
 		mosquitto_control_command_reply(cmd, "Invalid/missing rolename");
@@ -777,7 +777,7 @@ int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct mosquitto
 
 int dynsec_roles__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *rolename;
+	const char *rolename;
 	struct dynsec__role *role;
 	cJSON *tree, *j_role, *j_data;
 	const char *admin_clientid, *admin_username;
@@ -833,8 +833,8 @@ int dynsec_roles__process_get(struct dynsec__data *data, struct mosquitto_contro
 
 int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *rolename;
-	char *text_name, *text_description;
+	const char *rolename;
+	const char *text_name, *text_description;
 	struct dynsec__role *role;
 	char *str;
 	cJSON *j_acls;

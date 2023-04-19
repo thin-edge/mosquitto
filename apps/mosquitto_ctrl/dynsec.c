@@ -116,7 +116,7 @@ static void print_list(cJSON *j_response, const char *arrayname, const char *key
 	}
 
 	cJSON_ArrayForEach(j_elem, j_array){
-		char *stmp;
+		const char *stmp;
 
 		if(cJSON_IsObject(j_elem)){
 			if(json_get_string(j_elem, keyname, &stmp, false) == MOSQ_ERR_SUCCESS){
@@ -152,7 +152,7 @@ static void print_json_array(cJSON *j_list, int slen, const char *label, const c
 	if(j_list && cJSON_IsArray(j_list)){
 		cJSON_ArrayForEach(j_elem, j_list){
 			if(cJSON_IsObject(j_elem)){
-				char *stmp;
+				const char *stmp;
 
 				if(json_get_string(j_elem, element_name, &stmp, false) != MOSQ_ERR_SUCCESS){
 					continue;
@@ -179,7 +179,7 @@ static void print_client(cJSON *j_response)
 {
 	cJSON *j_data, *j_client, *jtmp;
 	const int label_width = strlen( "Connections:");
-	char *stmp;
+	const char *stmp;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -220,7 +220,7 @@ static void print_group(cJSON *j_response)
 {
 	cJSON *j_data, *j_group;
 	int label_width = strlen("Groupname:");
-	char *groupname;
+	const char *groupname;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -249,7 +249,7 @@ static void print_role(cJSON *j_response)
 {
 	cJSON *j_data, *j_role, *j_array, *j_elem, *jtmp;
 	bool first;
-	char *stmp;
+	const char *stmp;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -273,7 +273,7 @@ static void print_role(cJSON *j_response)
 	if(j_array && cJSON_IsArray(j_array)){
 		first = true;
 		cJSON_ArrayForEach(j_elem, j_array){
-			char *stmp;
+			const char *stmp;
 
 			if(json_get_string(j_role, "rolename", &stmp, false) == MOSQ_ERR_SUCCESS){
 				if(first){
@@ -306,7 +306,7 @@ static void print_role(cJSON *j_response)
 static void print_anonymous_group(cJSON *j_response)
 {
 	cJSON *j_data, *j_group;
-	char *groupname;
+	const char *groupname;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -344,7 +344,7 @@ static void print_default_acl_access(cJSON *j_response)
 	}
 
 	cJSON_ArrayForEach(j_acl, j_acls){
-		char *acltype;
+		const char *acltype;
 		bool allow;
 
 		if(json_get_string(j_acl, "acltype", &acltype, false) != MOSQ_ERR_SUCCESS
@@ -360,7 +360,7 @@ static void print_default_acl_access(cJSON *j_response)
 static void dynsec__payload_callback(struct mosq_ctrl *ctrl, long payloadlen, const void *payload)
 {
 	cJSON *tree, *j_responses, *j_response;
-	char *command, *error;
+	const char *command, *error;
 
 	UNUSED(ctrl);
 

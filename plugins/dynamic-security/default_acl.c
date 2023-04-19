@@ -38,7 +38,7 @@ int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct mos
 	cJSON *j_actions, *j_action;
 	bool allow;
 	const char *admin_clientid, *admin_username;
-	char *acltype;
+	const char *acltype;
 
 	j_actions = cJSON_GetObjectItem(cmd->j_command, "acls");
 	if(j_actions == NULL || !cJSON_IsArray(j_actions)){

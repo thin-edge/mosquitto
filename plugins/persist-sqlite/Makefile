@@ -11,6 +11,7 @@ OBJS=	\
 		clients.o \
 		client_msgs.o \
 		init.o \
+		json_help.o \
 		plugin.o \
 		restore.o \
 		retain_msgs.o \
@@ -36,6 +37,9 @@ client_msgs.o : client_msgs.c persist_sqlite.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
 
 init.o : init.c persist_sqlite.h
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
+
+json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
 
 base_msgs.o : base_msgs.c persist_sqlite.h

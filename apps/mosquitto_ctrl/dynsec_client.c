@@ -231,7 +231,7 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 
 	cJSON_ArrayForEach(j_client, j_clients){
 		if(cJSON_IsObject(j_client) == true){
-			char *username_json;
+			const char *username_json;
 			if(json_get_string(j_client, "username", &username_json, false) == MOSQ_ERR_SUCCESS){
 				if(!strcmp(username_json, username)){
 					if(dynsec_auth__pw_hash(&client, password, client.pw.password_hash, sizeof(client.pw.password_hash), true) != MOSQ_ERR_SUCCESS){

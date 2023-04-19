@@ -36,7 +36,7 @@ Contributors:
 #include "memory_mosq.h"
 
 #ifdef WITH_TLS
-int base64__encode(unsigned char *in, size_t in_len, char **encoded)
+int base64__encode(const unsigned char *in, size_t in_len, char **encoded)
 {
 	BIO *bmem, *b64;
 	BUF_MEM *bptr = NULL;
@@ -70,7 +70,7 @@ int base64__encode(unsigned char *in, size_t in_len, char **encoded)
 }
 
 
-int base64__decode(char *in, unsigned char **decoded, unsigned int *decoded_len)
+int base64__decode(const char *in, unsigned char **decoded, unsigned int *decoded_len)
 {
 	BIO *bmem, *b64;
 	size_t slen;

@@ -73,7 +73,7 @@ static mosquitto_property *json_to_properties(const char *json)
 	}
 
 	cJSON_ArrayForEach(obj, array){
-		char *identifier;
+		const char *identifier;
 
 		json_get_string(obj, "identifier", &identifier, true);
 		j_value = cJSON_GetObjectItem(obj, "value");
@@ -164,7 +164,7 @@ static mosquitto_property *json_to_properties(const char *json)
 				break;
 			case MQTT_PROP_TYPE_STRING_PAIR:
 				{
-					char *prop_name;
+					const char *prop_name;
 
 					if(!cJSON_IsString(j_value)){
 						mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring %s property whilst restoring, value is incorrect type", "string pair");

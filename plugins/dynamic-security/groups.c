@@ -104,7 +104,7 @@ static void group__free_item(struct dynsec__data *data, struct dynsec__group *gr
 
 int dynsec_groups__process_add_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname, *rolename;
+	const char *groupname, *rolename;
 	struct dynsec__group *group;
 	struct dynsec__role *role;
 	int priority;
@@ -195,8 +195,8 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	struct dynsec__group *group;
 	struct dynsec__role *role;
 	int priority;
-	char *textname, *textdescription;
-	char *groupname;
+	const char *textname, *textdescription;
+	const char *groupname;
 	size_t groupname_len;
 
 	j_groups = cJSON_GetObjectItem(tree, "groups");
@@ -258,7 +258,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 
 				cJSON_ArrayForEach(j_role, j_roles){
 					if(cJSON_IsObject(j_role)){
-						char *rolename;
+						const char *rolename;
 						if(json_get_string(j_role, "rolename", &rolename, false) == MOSQ_ERR_SUCCESS){
 							json_get_int(j_role, "priority", &priority, true, -1);
 							role = dynsec_roles__find(data, rolename);
@@ -277,7 +277,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 				cJSON *j_client;
 				cJSON_ArrayForEach(j_client, j_clientlist){
 					if(cJSON_IsObject(j_client)){
-						char *username;
+						const char *username;
 						if(json_get_string(j_client, "username", &username, false) == MOSQ_ERR_SUCCESS){
 							json_get_int(j_client, "priority", &priority, true, -1);
 							dynsec_groups__add_client(data, username, group->groupname, priority, false);
@@ -364,7 +364,7 @@ int dynsec_groups__config_save(struct dynsec__data *data, cJSON *tree)
 
 int dynsec_groups__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname, *text_name, *text_description;
+	const char *groupname, *text_name, *text_description;
 	struct dynsec__group *group = NULL;
 	int rc = MOSQ_ERR_SUCCESS;
 	const char *admin_clientid, *admin_username;
@@ -450,7 +450,7 @@ int dynsec_groups__process_create(struct dynsec__data *data, struct mosquitto_co
 
 int dynsec_groups__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname;
+	const char *groupname;
 	struct dynsec__group *group;
 	const char *admin_clientid, *admin_username;
 
@@ -534,7 +534,7 @@ int dynsec_groups__add_client(struct dynsec__data *data, const char *username, c
 
 int dynsec_groups__process_add_client(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *username, *groupname;
+	const char *username, *groupname;
 	int rc;
 	int priority;
 	const char *admin_clientid, *admin_username;
@@ -636,7 +636,7 @@ int dynsec_groups__remove_client(struct dynsec__data *data, const char *username
 
 int dynsec_groups__process_remove_client(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *username, *groupname;
+	const char *username, *groupname;
 	int rc;
 	const char *admin_clientid, *admin_username;
 
@@ -804,7 +804,7 @@ int dynsec_groups__process_list(struct dynsec__data *data, struct mosquitto_cont
 
 int dynsec_groups__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname;
+	const char *groupname;
 	cJSON *tree, *j_group, *j_data;
 	struct dynsec__group *group;
 	const char *admin_clientid, *admin_username;
@@ -862,7 +862,7 @@ int dynsec_groups__process_get(struct dynsec__data *data, struct mosquitto_contr
 
 int dynsec_groups__process_remove_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname, *rolename;
+	const char *groupname, *rolename;
 	struct dynsec__group *group;
 	struct dynsec__role *role;
 	const char *admin_clientid, *admin_username;
@@ -915,18 +915,17 @@ int dynsec_groups__process_remove_role(struct dynsec__data *data, struct mosquit
 
 int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname = NULL;
+	const char *groupname = NULL;
 	char *text_name = NULL, *text_description = NULL;
 	struct dynsec__client *client = NULL;
 	struct dynsec__group *group = NULL;
 	struct dynsec__rolelist *rolelist = NULL;
 	bool have_text_name = false, have_text_description = false, have_rolelist = false;
-	char *str;
+	const char *str;
 	int rc;
 	int priority;
 	cJSON *j_client, *j_clients;
 	const char *admin_clientid, *admin_username;
-	char *username;
 
 	if(json_get_string(cmd->j_command, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 		mosquitto_control_command_reply(cmd, "Invalid/missing groupname");
@@ -986,6 +985,7 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_co
 
 	j_clients = cJSON_GetObjectItem(cmd->j_command, "clients");
 	if(j_clients && cJSON_IsArray(j_clients)){
+		const char *username;
 		/* Iterate over array to check clients are valid before proceeding */
 		cJSON_ArrayForEach(j_client, j_clients){
 			if(cJSON_IsObject(j_client)){
@@ -1065,7 +1065,7 @@ error:
 
 int dynsec_groups__process_set_anonymous_group(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
 {
-	char *groupname;
+	const char *groupname;
 	struct dynsec__group *group = NULL;
 	const char *admin_clientid, *admin_username;
 
