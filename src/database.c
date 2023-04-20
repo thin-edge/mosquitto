@@ -903,7 +903,7 @@ uint64_t db__new_msg_id(void)
 	id = id | (tmp >> 7);
 
 	if(id <= db.last_db_id){
-		id++;
+		id = db.last_db_id + 1;
 	}
 	db.last_db_id = id;
 
