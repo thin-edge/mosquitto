@@ -20,6 +20,7 @@ if(SQLITE3_FOUND AND CJSON_FOUND)
 
 	target_include_directories(mosquitto_persist_sqlite PRIVATE
 		${CLIENT_INC}
+		"${mosquitto_SOURCE_DIR}/common"
 	)
 
 	set_target_properties(mosquitto_persist_sqlite PROPERTIES
