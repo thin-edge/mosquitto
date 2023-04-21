@@ -55,7 +55,5 @@ int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, c
 		packet__write_bytes(packet, payload, payloadlen);
 	}
 
-	metrics__int_inc(mosq_counter_mqtt_suback_sent, 1);
-
 	return packet__queue(context, packet);
 }

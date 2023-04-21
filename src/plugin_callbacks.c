@@ -49,6 +49,8 @@ static const char *get_event_name(int event)
 			return "disconnect";
 		case MOSQ_EVT_CONNECT:
 			return "connect";
+		case MOSQ_EVT_CLIENT_OFFLINE:
+			return "connect";
 		case MOSQ_EVT_SUBSCRIBE:
 			return "subscribe";
 		case MOSQ_EVT_UNSUBSCRIBE:
@@ -121,6 +123,8 @@ static struct mosquitto__callback **plugin__get_callback_base(struct mosquitto__
 			return &security_options->plugin_callbacks.disconnect;
 		case MOSQ_EVT_CONNECT:
 			return &security_options->plugin_callbacks.connect;
+		case MOSQ_EVT_CLIENT_OFFLINE:
+			return &security_options->plugin_callbacks.client_offline;
 		case MOSQ_EVT_SUBSCRIBE:
 			return &security_options->plugin_callbacks.subscribe;
 		case MOSQ_EVT_UNSUBSCRIBE:

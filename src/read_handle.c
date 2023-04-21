@@ -40,18 +40,15 @@ int handle__packet(struct mosquitto *context)
 
 	switch((context->in_packet.command)&0xF0){
 		case CMD_PINGREQ:
-			metrics__int_inc(mosq_counter_mqtt_pingreq_received, 1);
 			rc = handle__pingreq(context);
 			break;
 		case CMD_PINGRESP:
 			rc = handle__pingresp(context);
 			break;
 		case CMD_PUBACK:
-			metrics__int_inc(mosq_counter_mqtt_puback_received, 1);
 			rc = handle__pubackcomp(context, "PUBACK");
 			break;
 		case CMD_PUBCOMP:
-			metrics__int_inc(mosq_counter_mqtt_pubcomp_received, 1);
 			rc = handle__pubackcomp(context, "PUBCOMP");
 			break;
 		case CMD_PUBLISH:
@@ -59,26 +56,21 @@ int handle__packet(struct mosquitto *context)
 			rc = handle__publish(context);
 			break;
 		case CMD_PUBREC:
-			metrics__int_inc(mosq_counter_mqtt_pubrec_received, 1);
 			rc = handle__pubrec(context);
 			break;
 		case CMD_PUBREL:
-			metrics__int_inc(mosq_counter_mqtt_pubrel_received, 1);
 			rc = handle__pubrel(context);
 			break;
 		case CMD_CONNECT:
 			metrics__int_inc(mosq_counter_mqtt_connect_received, 1);
 			return handle__connect(context);
 		case CMD_DISCONNECT:
-			metrics__int_inc(mosq_counter_mqtt_disconnect_received, 1);
 			rc = handle__disconnect(context);
 			break;
 		case CMD_SUBSCRIBE:
-			metrics__int_inc(mosq_counter_mqtt_subscribe_received, 1);
 			rc = handle__subscribe(context);
 			break;
 		case CMD_UNSUBSCRIBE:
-			metrics__int_inc(mosq_counter_mqtt_unsubscribe_received, 1);
 			rc = handle__unsubscribe(context);
 			break;
 #ifdef WITH_BRIDGE
@@ -93,7 +85,6 @@ int handle__packet(struct mosquitto *context)
 			break;
 #endif
 		case CMD_AUTH:
-			metrics__int_inc(mosq_counter_mqtt_auth_received, 1);
 			rc = handle__auth(context);
 			break;
 		default:

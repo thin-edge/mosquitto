@@ -231,7 +231,12 @@ void context__disconnect(struct mosquitto *context, int reason)
 		if(send(context->sock, buf, 4, 0)){};
 	}
 #endif
-	plugin__handle_disconnect(context, reason);
+
+	if(context->session_expiry_interval == 0){
+		plugin__handle_disconnect(context, reason);
+	}else{
+		plugin__handle_client_offline(context, reason);
+	}
 
 	context__send_will(context);
 	net__socket_close(context);

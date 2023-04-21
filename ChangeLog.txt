@@ -91,6 +91,8 @@ Plugins / plugin interface:
 - Add MOSQ_EVT_CONNECT, to allow plugins to know when a client has
   successfully authenticated to the broker.
 - Add connection-state example plugin to demonstrate MOSQ_EVT_CONNECT.
+- Add MOSQ_EVT_CLIENT_OFFLINE, to allow plugins to know when a client with a
+  non-zero session expiry interval has gone offline.
 - Plugins on non-Windows platforms now no longer make their symbols globally
   available, which means they are self contained.
 - Add support for delayed basic authentication in plugins.

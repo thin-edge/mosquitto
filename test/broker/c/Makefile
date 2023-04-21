@@ -45,6 +45,7 @@ PLUGIN_SRC = \
 	bad_v5_1.c \
 	bad_v6.c \
 	plugin_control.c \
+	plugin_evt_client_offline.c \
 	plugin_evt_message_in.c \
 	plugin_evt_message_out.c \
 	plugin_evt_psk_key.c \

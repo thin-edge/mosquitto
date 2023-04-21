@@ -59,9 +59,6 @@ int send__pingresp(struct mosquitto *mosq)
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PINGRESP to %s", SAFE_PRINT(mosq->id));
-#  ifdef WITH_SYS_TREE
-	metrics__int_inc(mosq_counter_mqtt_pingresp_sent, 1);
-#  endif
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PINGRESP", SAFE_PRINT(mosq->id));
 #endif
@@ -72,9 +69,6 @@ int send__puback(struct mosquitto *mosq, uint16_t mid, uint8_t reason_code, cons
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBACK to %s (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
-#  ifdef WITH_SYS_TREE
-	metrics__int_inc(mosq_counter_mqtt_puback_sent, 1);
-#  endif
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBACK (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
 #endif
@@ -87,9 +81,6 @@ int send__pubcomp(struct mosquitto *mosq, uint16_t mid, const mosquitto_property
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBCOMP to %s (m%d)", SAFE_PRINT(mosq->id), mid);
-#  ifdef WITH_SYS_TREE
-	metrics__int_inc(mosq_counter_mqtt_pubcomp_sent, 1);
-#  endif
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBCOMP (m%d)", SAFE_PRINT(mosq->id), mid);
 #endif
@@ -103,9 +94,6 @@ int send__pubrec(struct mosquitto *mosq, uint16_t mid, uint8_t reason_code, cons
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBREC to %s (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
-#  ifdef WITH_SYS_TREE
-	metrics__int_inc(mosq_counter_mqtt_pubrec_sent, 1);
-#  endif
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBREC (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
 #endif
@@ -120,9 +108,6 @@ int send__pubrel(struct mosquitto *mosq, uint16_t mid, const mosquitto_property 
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBREL to %s (m%d)", SAFE_PRINT(mosq->id), mid);
-#  ifdef WITH_SYS_TREE
-	metrics__int_inc(mosq_counter_mqtt_pubrel_sent, 1);
-#  endif
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBREL (m%d)", SAFE_PRINT(mosq->id), mid);
 #endif

@@ -163,6 +163,7 @@ struct plugin__callbacks{
 	struct mosquitto__callback *connect;
 	struct mosquitto__callback *control;
 	struct mosquitto__callback *disconnect;
+	struct mosquitto__callback *client_offline;
 	struct mosquitto__callback *ext_auth_continue;
 	struct mosquitto__callback *ext_auth_start;
 	struct mosquitto__callback *message_in;
@@ -848,6 +849,7 @@ int acl__pre_check(mosquitto_plugin_id_t *plugin, struct mosquitto *context, int
 
 void plugin__handle_connect(struct mosquitto *context);
 void plugin__handle_disconnect(struct mosquitto *context, int reason);
+void plugin__handle_client_offline(struct mosquitto *context, int reason);
 int plugin__handle_message_in(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
 int plugin__handle_message_out(struct mosquitto *context, struct mosquitto_base_msg *base_msg);
 int plugin__handle_subscribe(struct mosquitto *context, struct mosquitto_subscription *sub);

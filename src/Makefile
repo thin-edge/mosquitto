@@ -74,6 +74,7 @@ OBJS=	mosquitto.o \
 		plugin_acl_check.o \
 		plugin_basic_auth.o \
 		plugin_cleanup.o \
+		plugin_client_offline.o \
 		plugin_connect.o \
 		plugin_disconnect.o \
 		plugin_extended_auth.o \
@@ -306,6 +307,9 @@ plugin_basic_auth.o : plugin_basic_auth.c ${R}/include/mosquitto_plugin.h mosqui
 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
 plugin_cleanup.o : plugin_cleanup.c ${R}/include/mosquitto_plugin.h mosquitto_broker_internal.h
+	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
+
+plugin_client_offline.o : plugin_client_offline.c ${R}/include/mosquitto_plugin.h mosquitto_broker_internal.h
 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 
 plugin_connect.o : plugin_connect.c ${R}/include/mosquitto_plugin.h mosquitto_broker_internal.h

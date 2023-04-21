@@ -156,6 +156,7 @@ enum mosquitto_plugin_event {
 	MOSQ_EVT_PERSIST_CLIENT_MSG_DELETE = 25,
 	MOSQ_EVT_PERSIST_CLIENT_MSG_UPDATE = 26,
 	MOSQ_EVT_MESSAGE_OUT = 27,
+	MOSQ_EVT_CLIENT_OFFLINE = 28,
 };
 
 /* Data for the MOSQ_EVT_RELOAD event */
@@ -264,6 +265,14 @@ struct mosquitto_evt_connect {
 
 /* Data for the MOSQ_EVT_DISCONNECT event */
 struct mosquitto_evt_disconnect {
+	void *future;
+	struct mosquitto *client;
+	int reason;
+	void *future2[4];
+};
+
+/* Data for the MOSQ_EVT_CLIENT_OFFLINE event */
+struct mosquitto_evt_client_offline {
 	void *future;
 	struct mosquitto *client;
 	int reason;
