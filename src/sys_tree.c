@@ -67,8 +67,8 @@ struct metric metrics[mosq_metric_max] = {
 	{ 1, 0, "$SYS/broker/heap/current", NULL, false }, /* mosq_gauge_heap_current */
 	{ 1, 0, "$SYS/broker/heap/maximum", NULL, true }, /* mosq_gauge_heap_maximum */
 #else
-	{ 1, 0, NULL, NULL, NULL, 0 }, /* mosq_gauge_heap_current */
-	{ 1, 0, NULL, NULL, NULL, 0 }, /* mosq_gauge_heap_maximum */
+	{ 1, 0, NULL, NULL, 0 }, /* mosq_gauge_heap_current */
+	{ 1, 0, NULL, NULL, 0 }, /* mosq_gauge_heap_maximum */
 #endif
 	{ 1, 0, "$SYS/broker/messages/received", NULL, false }, /* mosq_counter_messages_received */
 	{ 1, 0, "$SYS/broker/messages/sent", NULL, false }, /* mosq_counter_messages_sent */
