@@ -107,7 +107,7 @@ void dynsec_clients__cleanup(struct dynsec__data *data)
 
 int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 {
-	cJSON *j_clients, *j_client, *jtmp, *j_roles, *j_role;
+	cJSON *j_clients, *j_client = NULL, *jtmp, *j_roles, *j_role;
 	struct dynsec__client *client;
 	struct dynsec__role *role;
 	unsigned char *buf;
@@ -127,7 +127,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 	if(cJSON_IsArray(j_clients) == false){
 		return 1;
 	}
-
 	cJSON_ArrayForEach(j_client, j_clients){
 		if(cJSON_IsObject(j_client) == true){
 			/* Username */
@@ -168,7 +167,6 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				}
 				memcpy(client->pw.salt, buf, (size_t)buf_len);
 				client->pw.salt_len = (size_t)buf_len;
-				mosquitto_free(buf);
 
 				if(base64__decode(password, &buf, &buf_len) != MOSQ_ERR_SUCCESS
 						|| buf_len != sizeof(client->pw.password_hash)){
