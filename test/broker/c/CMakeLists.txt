@@ -40,6 +40,7 @@ set(PLUGINS
     bad_v5_1
     bad_v6
     plugin_control
+	plugin_evt_client_offline
 	plugin_evt_message_in
 	plugin_evt_message_out
     plugin_evt_subscribe
