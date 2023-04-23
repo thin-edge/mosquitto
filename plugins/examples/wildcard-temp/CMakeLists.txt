@@ -7,6 +7,7 @@ add_library(${PLUGIN_NAME} MODULE
 target_include_directories(${PLUGIN_NAME} PRIVATE
 	"${mosquitto_SOURCE_DIR}"
 	"${mosquitto_SOURCE_DIR}/include"
+	"${CJSON_INCLUDE_DIRS}"
 )
 
 if(WITH_BUNDLED_DEPS)
@@ -20,7 +21,10 @@ set_target_properties(${PLUGIN_NAME} PROPERTIES
 	POSITION_INDEPENDENT_CODE 1
 )
 
-target_link_libraries(${PLUGIN_NAME} PRIVATE mosquitto)
+target_link_libraries(${PLUGIN_NAME} PRIVATE
+	mosquitto
+	cJSON
+)
 
 # Don't install, these are example plugins only.
 #install(TARGETS ${PLUGIN_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
