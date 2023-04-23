@@ -199,7 +199,7 @@ static void print_client(cJSON *j_response)
 	}
 	printf("%-*s %s\n",  label_width, "Username:", stmp);
 
-	if(json_get_string(j_client, "clientid", &stmp, false) != MOSQ_ERR_SUCCESS){
+	if(json_get_string(j_client, "clientid", &stmp, false) == MOSQ_ERR_SUCCESS){
 		printf("%-*s %s\n",  label_width, "Clientid:", stmp);
 	}else{
 		printf("Clientid:\n");
@@ -275,7 +275,7 @@ static void print_role(cJSON *j_response)
 		cJSON_ArrayForEach(j_elem, j_array){
 			const char *stmp;
 
-			if(json_get_string(j_role, "rolename", &stmp, false) == MOSQ_ERR_SUCCESS){
+			if(json_get_string(j_elem, "acltype", &stmp, false) == MOSQ_ERR_SUCCESS){
 				if(first){
 					first = false;
 					printf("ACLs:     %-20s", stmp);
@@ -320,7 +320,7 @@ static void print_anonymous_group(cJSON *j_response)
 		return;
 	}
 
-	if(json_get_string(j_group, "groupname", &groupname, false) == MOSQ_ERR_SUCCESS){
+	if(json_get_string(j_group, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
