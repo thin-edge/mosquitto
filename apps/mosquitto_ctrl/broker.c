@@ -111,7 +111,7 @@ static void print_plugin_info(cJSON *j_response)
 		}
 		printf("Plugin:            %s\n", stmp);
 
-		if(json_get_string(j_plugin, "version", &stmp, false) != MOSQ_ERR_SUCCESS){
+		if(json_get_string(j_plugin, "version", &stmp, false) == MOSQ_ERR_SUCCESS){
 			printf("Version:           %s\n", stmp);
 		}
 
