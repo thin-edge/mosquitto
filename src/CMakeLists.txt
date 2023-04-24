@@ -226,9 +226,7 @@ if(WITH_DLT)
 	target_compile_definitions(mosquitto PRIVATE "WITH_DLT")
 endif()
 
-if(CJSON_FOUND)
-	target_link_libraries(mosquitto PRIVATE cJSON)
-endif()
+target_link_libraries(mosquitto PRIVATE cJSON)
 
 target_include_directories(mosquitto
 	PUBLIC
