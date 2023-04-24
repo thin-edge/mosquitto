@@ -38,7 +38,6 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #include <time.h>
-#include <cjson/cJSON.h>
 
 #include <mosquitto.h>
 #include <mqtt_protocol.h>
