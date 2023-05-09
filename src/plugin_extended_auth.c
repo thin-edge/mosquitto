@@ -109,6 +109,7 @@ static int plugin__ext_auth_continue(struct mosquitto__security_options *opts, s
 	DL_FOREACH_SAFE(opts->plugin_callbacks.ext_auth_continue, cb_base, cb_next){
 		memset(&event_data, 0, sizeof(event_data));
 		event_data.client = context;
+		event_data.auth_method = context->auth_method;
 		event_data.data_in = data_in;
 		event_data.data_out = NULL;
 		event_data.data_in_len = data_in_len;
