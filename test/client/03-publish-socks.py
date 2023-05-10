@@ -9,7 +9,19 @@ def do_test(proto_ver, host):
 
     (port1, port2) = mosq_test.get_port(2)
 
-    cmd = ['microsocks', '-1', '-b', '-i', host, '-u', 'user', '-P', 'password', '-p', str(port1)]
+    cmd = ['microsocks', '-?']
+    try:
+        proxy = subprocess.run(cmd, capture_output=True)
+    except FileNotFoundError:
+        print("microsocks not found, skipping test")
+        sys.exit(0)
+
+    cmd = ['microsocks', '-1', '-i', host, '-u', 'user', '-P', 'password', '-p', str(port1)]
+    if b"bindaddr" in proxy.stderr:
+        cmd += ['-b', host]
+    else:
+        cmd += ['-b']
+
     try:
         proxy = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError:
