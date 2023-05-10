@@ -154,8 +154,19 @@ DB_HTML_XSL=man/html.xsl
 
 #MANCOUNTRIES=en_GB
 
+MAKE_ALL:=mosquitto
+CPPFLAGS+=-DVERSION=\""${VERSION}\"" -I${R} -I. -I${R}/include -I${R}/common
+
 UNAME:=$(shell uname -s)
 ARCH:=$(shell uname -p)
+
+INSTALL?=install
+prefix?=/usr/local
+incdir?=${prefix}/include
+libdir?=${prefix}/lib${LIB_SUFFIX}
+localedir?=${prefix}/share/locale
+mandir?=${prefix}/share/man
+STRIP?=strip
 
 ifeq ($(UNAME),SunOS)
 	ifeq ($(CC),cc)
@@ -168,47 +179,23 @@ else
 	CXXFLAGS?=-Wall -ggdb -O3 -Wconversion -Wextra
 endif
 
-STATIC_LIB_DEPS:=
-
-APP_CPPFLAGS=$(CPPFLAGS) -I. -I${R}/ -I${R}/include -I${R}/common -I${R}/lib
-APP_CFLAGS=$(CFLAGS) -DVERSION=\""${VERSION}\""
-APP_LDFLAGS:=$(LDFLAGS)
-
-LIB_CPPFLAGS=$(CPPFLAGS) -I${R}/ -I. -I${R}/common -I${R}/include -I${R}/lib
-LIB_CFLAGS:=$(CFLAGS)
-LIB_CXXFLAGS:=$(CXXFLAGS)
-LIB_LDFLAGS:=$(LDFLAGS)
-LIB_LIBADD:=$(LIBADD)
-
-BROKER_CPPFLAGS:=$(LIB_CPPFLAGS) -I${R}/lib -I${R}/common
-BROKER_CFLAGS:=${CFLAGS} -DVERSION="\"${VERSION}\"" -DWITH_BROKER
-BROKER_LDFLAGS:=${LDFLAGS}
-BROKER_LDADD:=
-
-CLIENT_CPPFLAGS:=$(CPPFLAGS) -I${R} -I${R}/include
-CLIENT_CFLAGS:=${CFLAGS} -DVERSION="\"${VERSION}\""
-CLIENT_LDFLAGS:=$(LDFLAGS) -L${R}/lib
-CLIENT_LDADD:=
-
-PASSWD_LDADD:=
-
-PLUGIN_CPPFLAGS:=$(CPPFLAGS) -I${R} -I${R}/include -I${R}/common -I${R}/plugins/common
-PLUGIN_CFLAGS:=$(CFLAGS) -fPIC
-PLUGIN_LDFLAGS:=$(LDFLAGS)
-
 ifneq ($(or $(findstring $(UNAME),FreeBSD), $(findstring $(UNAME),OpenBSD), $(findstring $(UNAME),NetBSD)),)
-	BROKER_LDADD:=$(BROKER_LDADD) -lm
-	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -Wl,--dynamic-list=linker.syms
 	SEDINPLACE:=-i ""
 else
-	BROKER_LDADD:=$(BROKER_LDADD) -ldl -lm
+ifeq ($(UNAME),SunOS)
+	SEDINPLACE:=
+else
 	SEDINPLACE:=-i
 endif
+endif
 
-ifeq ($(UNAME),Linux)
-	BROKER_LDADD:=$(BROKER_LDADD) -lrt
-	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -Wl,--dynamic-list=linker.syms
-	LIB_LIBADD:=$(LIB_LIBADD) -lrt
+ifeq ($(UNAME),QNX)
+	LDADD+=-lsocket
+endif
+
+ifeq ($(UNAME),SunOS)
+	LDADD+=-lsocket -lnsl
+	LIBADD+=-lsocket -lnsl
 endif
 
 ifeq ($(WITH_FUZZING),yes)
@@ -217,222 +204,60 @@ ifeq ($(WITH_FUZZING),yes)
 endif
 
 ifeq ($(WITH_SHARED_LIBRARIES),yes)
-	CLIENT_LDADD:=${CLIENT_LDADD} ${R}/lib/libmosquitto.so.${SOVERSION}
-endif
-
-ifeq ($(UNAME),SunOS)
-	SEDINPLACE:=
-	ifeq ($(ARCH),sparc)
-		ifeq ($(CC),cc)
-			LIB_CFLAGS:=$(LIB_CFLAGS) -xc99 -KPIC
-		else
-			LIB_CFLAGS:=$(LIB_CFLAGS) -fPIC
-		endif
-	endif
-	ifeq ($(ARCH),i386)
-		LIB_CFLAGS:=$(LIB_CFLAGS) -fPIC
-	endif
-
-	ifeq ($(CXX),CC)
-		LIB_CXXFLAGS:=$(LIB_CXXFLAGS) -KPIC
-	else
-		LIB_CXXFLAGS:=$(LIB_CXXFLAGS) -fPIC
-	endif
+	LIBMOSQ:=${R}/lib/libmosquitto.so.${SOVERSION}
 else
-	LIB_CFLAGS:=$(LIB_CFLAGS) -fPIC
-	LIB_CXXFLAGS:=$(LIB_CXXFLAGS) -fPIC
-endif
-
-ifeq ($(UNAME),QNX)
-	BROKER_LDADD:=$(BROKER_LDADD) -lsocket
-	LIB_LIBADD:=$(LIB_LIBADD) -lsocket
-endif
-
-ifeq ($(WITH_WRAP),yes)
-	BROKER_LDADD:=$(BROKER_LDADD) -lwrap
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_WRAP
+	LIBMOSQ:=${R}/lib/libmosquitto.a
 endif
 
 ifeq ($(WITH_TLS),yes)
-	APP_CPPFLAGS:=$(APP_CPPFLAGS) -DWITH_TLS
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_TLS
-	BROKER_LDADD:=$(BROKER_LDADD) -lssl -lcrypto
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_TLS
-	CLIENT_LDADD:=$(CLIENT_LDADD) -lssl -lcrypto
-	CLIENT_STATIC_LDADD:=$(CLIENT_STATIC_LDADD) -lssl -lcrypto
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_TLS
-	LIB_LIBADD:=$(LIB_LIBADD) -lssl -lcrypto
-	PASSWD_LDADD:=$(PASSWD_LDADD) -lcrypto
-	STATIC_LIB_DEPS:=$(STATIC_LIB_DEPS) -lssl -lcrypto
-
+	CPPFLAGS+=-DWITH_TLS
 	ifeq ($(WITH_TLS_PSK),yes)
-		BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_TLS_PSK
-		LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_TLS_PSK
-		CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_TLS_PSK
+		CPPFLAGS+=-DWITH_TLS_PSK
 	endif
-endif
-
-ifeq ($(WITH_THREADING),yes)
-	BROKER_CFLAGS:=$(BROKER_CFLAGS) -pthread
-	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -pthread
-	LIB_CFLAGS:=$(LIB_CFLAGS) -pthread
-	LIB_LDFLAGS:=$(LIB_LDFLAGS) -pthread
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_THREADING
-	LIB_LDFLAGS:=$(LIB_LDFLAGS) -pthread
-	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) -pthread
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_THREADING
-	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) -pthread
-	STATIC_LIB_DEPS:=$(STATIC_LIB_DEPS) -pthread
-endif
-
-ifeq ($(WITH_SOCKS),yes)
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_SOCKS
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_SOCKS
-endif
-
-ifeq ($(WITH_BRIDGE),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_BRIDGE
 endif
 
 ifeq ($(WITH_LTO),yes)
-	BROKER_CFLAGS:=$(BROKER_CFLAGS) -flto
-	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -flto
-	LIB_CFLAGS:=$(LIB_CFLAGS) -flto
-	LIB_LDFLAGS:=$(LIB_LDFLAGS) -flto
-	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) -flto
-	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) -flto
-	PLUGIN_CFLAGS:=$(PLUGIN_CFLAGS) -flto
-	PLUGIN_LDFLAGS:=$(PLUGIN_LDFLAGS) -flto
+	CFLAGS+=-flto
+	LDFLAGS+=-flto
 endif
 
-ifeq ($(WITH_PERSISTENCE),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_PERSISTENCE
-endif
-
-ifeq ($(WITH_MEMORY_TRACKING),yes)
-	ifneq ($(UNAME),SunOS)
-		BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_MEMORY_TRACKING
-	endif
-endif
-
-ifeq ($(WITH_SYS_TREE),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_SYS_TREE
-endif
-
-ifeq ($(WITH_SYSTEMD),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_SYSTEMD
-	BROKER_LDADD:=$(BROKER_LDADD) -lsystemd
-endif
-
-ifeq ($(WITH_SRV),yes)
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_SRV
-	LIB_LIBADD:=$(LIB_LIBADD) -lcares
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_SRV
-	STATIC_LIB_DEPS:=$(STATIC_LIB_DEPS) -lcares
-endif
-
-ifeq ($(UNAME),SunOS)
-	BROKER_LDADD:=$(BROKER_LDADD) -lsocket -lnsl
-	LIB_LIBADD:=$(LIB_LIBADD) -lsocket -lnsl
-endif
-
-ifeq ($(WITH_EC),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_EC
-endif
-
-ifeq ($(WITH_ADNS),yes)
-	BROKER_LDADD:=$(BROKER_LDADD) -lanl
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_ADNS
-endif
-
-ifeq ($(WITH_CONTROL),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_CONTROL
-endif
-
-MAKE_ALL:=mosquitto
 ifeq ($(WITH_DOCS),yes)
-	MAKE_ALL:=$(MAKE_ALL) docs
+	MAKE_ALL+=docs
 endif
 
 ifeq ($(WITH_JEMALLOC),yes)
-	BROKER_LDADD:=$(BROKER_LDADD) -ljemalloc
+	LDADD+=-ljemalloc
 endif
 
 ifeq ($(WITH_UNIX_SOCKETS),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_UNIX_SOCKETS
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_UNIX_SOCKETS
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_UNIX_SOCKETS
+	CPPFLAGS+=-DWITH_UNIX_SOCKETS
 endif
 
 ifeq ($(WITH_WEBSOCKETS),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_WEBSOCKETS=WS_IS_BUILTIN -I${R}/deps/picohttpparser
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_WEBSOCKETS=WS_IS_BUILTIN -I${R}/deps/picohttpparser
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_WEBSOCKETS=WS_IS_BUILTIN
+	CPPFLAGS+=-DWITH_WEBSOCKETS=WS_IS_BUILTIN -I${R}/deps/picohttpparser
 endif
 
 ifeq ($(WITH_WEBSOCKETS),lws)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_WEBSOCKETS=WS_IS_LWS
-	BROKER_LDADD:=$(BROKER_LDADD) -lwebsockets
+	CPPFLAGS+=-DWITH_WEBSOCKETS=WS_IS_LWS
+	LDADD+=-lwebsockets
 endif
-
-INSTALL?=install
-prefix?=/usr/local
-incdir?=${prefix}/include
-libdir?=${prefix}/lib${LIB_SUFFIX}
-localedir?=${prefix}/share/locale
-mandir?=${prefix}/share/man
-STRIP?=strip
 
 ifeq ($(WITH_STRIP),yes)
 	STRIP_OPTS?=-s --strip-program=${CROSS_COMPILE}${STRIP}
 endif
 
-ifeq ($(WITH_EPOLL),yes)
-	ifeq ($(UNAME),Linux)
-		BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_EPOLL
-	endif
-endif
-
 ifeq ($(WITH_BUNDLED_DEPS),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -I${R}/deps
-	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -I${R}/deps
-	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -I${R}/deps
-	PLUGIN_CPPFLAGS:=$(PLUGIN_CPPFLAGS) -I${R}/deps
+	CPPFLAGS+=-I${R}/deps
 endif
 
 ifeq ($(WITH_COVERAGE),yes)
-	APP_CFLAGS:=$(APP_CFLAGS) -coverage
-	APP_LDFLAGS:=$(APP_LDFLAGS) -coverage
-	BROKER_CFLAGS:=$(BROKER_CFLAGS) -coverage
-	BROKER_LDFLAGS:=$(BROKER_LDFLAGS) -coverage
-	PLUGIN_CFLAGS:=$(PLUGIN_CFLAGS) -coverage
-	PLUGIN_LDFLAGS:=$(PLUGIN_LDFLAGS) -coverage
-	LIB_CFLAGS:=$(LIB_CFLAGS) -coverage
-	LIB_CXXFLAGS:=$(LIB_CXXFLAGS) -coverage
-	LIB_LDFLAGS:=$(LIB_LDFLAGS) -coverage
-	CLIENT_CFLAGS:=$(CLIENT_CFLAGS) -coverage
-	CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) -coverage
-endif
-
-	CLIENT_LDADD:=$(CLIENT_LDADD) -lcjson
-	CLIENT_STATIC_LDADD:=$(CLIENT_STATIC_LDADD) -lcjson
-	BROKER_LDADD:=$(BROKER_LDADD) -lcjson
-
-ifeq ($(WITH_OLD_KEEPALIVE),yes)
-	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_OLD_KEEPALIVE
-endif
-
-ifeq ($(WITH_XTREPORT),yes)
-	BROKER_CFLAGS:=$(BROKER_CFLAGS) -DWITH_XTREPORT
+	CFLAGS+=-coverage
+	LDFLAGS+=-coverage
 endif
 
 ifeq ($(WITH_FUZZING),yes)
-	MAKE_ALL:=$(MAKE_ALL) fuzzing
-	CPPFLAGS:=$(CPPFLAGS) -DWITH_FUZZING
-	CFLAGS:=$(CFLAGS) -fPIC
-	LDFLAGS:=$(LDFLAGS) -shared $(CFLAGS)
+	MAKE_ALL+=fuzzing
+	CPPFLAGS+=-DWITH_FUZZING
+	CFLAGS+=-fPIC
+	LDFLAGS+=-shared $(CFLAGS)
 endif
-
-BROKER_LDADD:=${BROKER_LDADD} ${LDADD}
-CLIENT_LDADD:=${CLIENT_LDADD} ${LDADD}
-PASSWD_LDADD:=${PASSWD_LDADD} ${LDADD}

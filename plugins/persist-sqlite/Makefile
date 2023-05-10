@@ -4,19 +4,22 @@ include ${R}/config.mk
 .PHONY : all binary check clean reallyclean test test-compile install uninstall
 
 PLUGIN_NAME=mosquitto_persist_sqlite
-LOCAL_CPPFLAGS=-I${R}/src/
+CPPFLAGS+=-I${R}/src/
+LIBADD+=-lsqlite3 -lcjson
 
-OBJS=	\
-		base_msgs.o \
-		clients.o \
-		client_msgs.o \
-		init.o \
-		json_help.o \
-		plugin.o \
-		restore.o \
-		retain_msgs.o \
-		subscriptions.o \
-		tick.o
+OBJS = \
+	base_msgs.o \
+	clients.o \
+	client_msgs.o \
+	init.o \
+	plugin.o \
+	restore.o \
+	retain_msgs.o \
+	subscriptions.o \
+	tick.o
+
+OBJS_EXTERNAL = \
+	json_help.o
 
 ifeq ($(WITH_SQLITE),yes)
 ALL_DEPS:= binary
@@ -27,38 +30,14 @@ endif
 all : ${ALL_DEPS}
 binary : ${PLUGIN_NAME}.so
 
-${PLUGIN_NAME}.so : ${OBJS}
-	${CROSS_COMPILE}${CC} $(PLUGIN_LDFLAGS) -fPIC -shared $^ -o $@ -lsqlite3 -lcjson
+${PLUGIN_NAME}.so : ${OBJS} ${OBJS_EXTERNAL}
+	${CROSS_COMPILE}${CC} $(LDFLAGS) -fPIC -shared $^ -o $@ ${LIBADD}
 
-clients.o : clients.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-client_msgs.o : client_msgs.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-init.o : init.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
+${OBJS} : %.o: %.c persist_sqlite.h
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-base_msgs.o : base_msgs.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-plugin.o : plugin.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-restore.o : restore.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-retain_msgs.o : retain_msgs.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-subscriptions.o : subscriptions.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
-
-tick.o : tick.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 reallyclean : clean
 clean:

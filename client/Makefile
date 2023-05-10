@@ -3,14 +3,19 @@ include ${R}/config.mk
 
 .PHONY: all install uninstall reallyclean clean static static_pub static_sub static_rr
 
-CLIENT_CFLAGS:=$(CLIENT_CFLAGS) $(CFLAGS)
-CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) $(CPPFLAGS)
-CLIENT_LDFLAGS:=$(CLIENT_LDFLAGS) $(LDFLAGS)
-CLIENT_LDADD:=${CLIENT_LDADD} -lcjson
-CLIENT_STATIC_LDADD:=${CLIENT_STATIC_LDADD} -lcjson
-
 ifeq ($(WITH_SHARED_LIBRARIES),yes)
 SHARED_DEP:=${R}/lib/libmosquitto.so.${SOVERSION}
+endif
+
+CFLAGS+=
+CPPFLAGS+=
+LDFLAGS+=
+LDADD+=-lcjson ${SHARED_DEP}
+STATIC_LDADD+=-lcjson
+
+ifeq ($(WITH_TLS),yes)
+	LDADD+=-lssl -lcrypto
+	STATIC_LDADD+= -lssl -lcrypto
 endif
 
 ifeq ($(WITH_SHARED_LIBRARIES),yes)
@@ -28,51 +33,51 @@ static : static_pub static_sub static_rr
 	# libmosquitto only.
 
 static_pub : pub_client.o pub_shared.o client_props.o client_shared.o ${R}/lib/libmosquitto.a
-	${CROSS_COMPILE}${CC} $^ -o mosquitto_pub ${CLIENT_LDFLAGS} ${STATIC_LIB_DEPS} ${CLIENT_STATIC_LDADD}
+	${CROSS_COMPILE}${CC} $^ -o mosquitto_pub ${LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
 
 static_sub : sub_client.o sub_client_output.o client_props.o client_shared.o ${R}/lib/libmosquitto.a
-	${CROSS_COMPILE}${CC} $^ -o mosquitto_sub ${CLIENT_LDFLAGS} ${STATIC_LIB_DEPS} ${CLIENT_STATIC_LDADD}
+	${CROSS_COMPILE}${CC} $^ -o mosquitto_sub ${LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
 
 static_rr : rr_client.o client_props.o client_shared.o pub_shared.o sub_client_output.o ${R}/lib/libmosquitto.a
-	${CROSS_COMPILE}${CC} $^ -o mosquitto_rr ${CLIENT_LDFLAGS} ${STATIC_LIB_DEPS} ${CLIENT_STATIC_LDADD}
+	${CROSS_COMPILE}${CC} $^ -o mosquitto_rr ${LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
 
 mosquitto_pub : pub_client.o pub_shared.o client_shared.o client_props.o
-	${CROSS_COMPILE}${CC} $(CLIENT_LDFLAGS) $^ -o $@ $(CLIENT_LDADD)
+	${CROSS_COMPILE}${CC} $(LDFLAGS) $^ -o $@ $(LDADD)
 
 mosquitto_sub : sub_client.o sub_client_output.o client_shared.o client_props.o
-	${CROSS_COMPILE}${CC} $(CLIENT_LDFLAGS) $^ -o $@ $(CLIENT_LDADD)
+	${CROSS_COMPILE}${CC} $(LDFLAGS) $^ -o $@ $(LDADD)
 
 mosquitto_rr : rr_client.o client_shared.o client_props.o pub_shared.o sub_client_output.o
-	${CROSS_COMPILE}${CC} $(CLIENT_LDFLAGS) $^ -o $@ $(CLIENT_LDADD)
+	${CROSS_COMPILE}${CC} $(LDFLAGS) $^ -o $@ $(LDADD)
 
 pub_client.o : pub_client.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 pub_shared.o : pub_shared.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 sub_client.o : sub_client.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 sub_client_output.o : sub_client_output.c sub_client_output.h ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 rr_client.o : rr_client.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 client_shared.o : client_shared.c client_shared.h
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 client_props.o : client_props.c client_shared.h
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 # The "testing" target is intended to make it easy to compile a quick client
 # for testing purposes. testing.c should not be committed as a file.
 testing : testing.o
-	${CROSS_COMPILE}${CC} $(CLIENT_LDFLAGS) $^ -o $@ $(CLIENT_LDADD) $(CLIENT_LDFLAGS)
+	${CROSS_COMPILE}${CC} $() $^ -o $@ $(LDADD) $(LDFLAGS)
 
 testing.o : testing.c
-	${CROSS_COMPILE}${CC} $(CLIENT_CPPFLAGS) $(CLIENT_CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 
 ${R}/lib/libmosquitto.so.${SOVERSION} :

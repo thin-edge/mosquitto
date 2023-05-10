@@ -4,9 +4,9 @@ include ${R}/config.mk
 .PHONY : all binary check clean reallyclean test install uninstall
 
 PLUGIN_NAME=mosquitto_wildcard_temp
-PLUGIN_CPPFLAGS+=-I${R}/include -I${R}/
+CPPFLAGS+=-I${R}/include -I${R}/
 ifeq ($(WITH_BUNDLED_DEPS),yes)
-PLUGIN_CPPFLAGS+=-I${R}/deps
+CPPFLAGS+=-I${R}/deps
 endif
 
 all : binary
@@ -14,7 +14,7 @@ all : binary
 binary : ${PLUGIN_NAME}.so
 
 ${PLUGIN_NAME}.so : ${PLUGIN_NAME}.c
-	$(CROSS_COMPILE)$(CC) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) $(PLUGIN_LDFLAGS) -fPIC -shared $< -o $@
+	$(CROSS_COMPILE)$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -fPIC -shared $< -o $@
 
 reallyclean : clean
 clean:

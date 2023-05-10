@@ -16,6 +16,7 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
+#include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>

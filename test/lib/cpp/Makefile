@@ -3,7 +3,7 @@ include ${R}/config.mk
 
 .PHONY: all test clean reallyclean
 
-LOCAL_CXXFLAGS=${CXXFLAGS} -I${R}/include -I${R}/test -I${R}/lib/cpp -DDEBUG -Werror -W
+CXXFLAGS+=-I${R}/include -I${R}/test -I${R}/lib/cpp -DDEBUG -Werror -W
 LIBS=${R}/lib/libmosquitto.so.1 ${R}/lib/cpp/libmosquittopp.so.1
 
 SRC = \
@@ -76,7 +76,7 @@ TESTS = ${SRC:.cpp=.test}
 all : ${TESTS}
 
 ${TESTS} : %.test: %.cpp ${R}/test/path_helper.h
-	$(CXX) -DTEST_SOURCE_DIR='"$(realpath .)"' $< -o $@ $(LOCAL_CXXFLAGS) $(LIBS)
+	$(CXX) -DTEST_SOURCE_DIR='"$(realpath .)"' $< -o $@ $(CXXFLAGS) $(LIBS)
 
 reallyclean : clean
 	-rm -f *.orig

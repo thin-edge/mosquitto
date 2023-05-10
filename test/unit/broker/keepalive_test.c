@@ -3,9 +3,6 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#define WITH_BROKER
-#define WITH_PERSISTENCE
-
 #include "keepalive.c"
 
 #include "mosquitto_internal.h"

@@ -142,4 +142,3 @@ localdocker : reallyclean
 	cp dockertmp/mosq.tar.gz docker/local
 	rm -rf dockertmp/
 	cd docker/local && docker build . -t eclipse-mosquitto:local
-

@@ -1,4 +1,6 @@
 R=../../..
+include ${R}/config.mk
+
 .PHONY: all test clean reallyclean
 
 CFLAGS=-I${R}/include -Wall -Werror
@@ -69,7 +71,7 @@ ${PLUGINS} : %.so: %.c
 
 
 ${TESTS} : %.test: %.c
-	$(CC) ${CFLAGS} $< -o $@ ${R}/lib/libmosquitto.so.1
+	$(CC) ${CFLAGS} $< -o $@ ${LIBMOSQ}
 
 
 reallyclean : clean

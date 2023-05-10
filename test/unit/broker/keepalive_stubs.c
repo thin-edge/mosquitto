@@ -1,7 +1,5 @@
 #include <time.h>
 
-#define WITH_BROKER
-
 #include <logging_mosq.h>
 #include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
