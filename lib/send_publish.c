@@ -229,6 +229,7 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 			expiry_prop.next = NULL;
 			expiry_prop.value.i32 = expiry_interval;
 			expiry_prop.identifier = MQTT_PROP_MESSAGE_EXPIRY_INTERVAL;
+			expiry_prop.property_type = MQTT_PROP_TYPE_INT32;
 			expiry_prop.client_generated = false;
 
 			proplen += property__get_length_all(&expiry_prop);
@@ -238,6 +239,7 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 			topic_alias_prop.next = NULL;
 			topic_alias_prop.value.i16 = topic_alias;
 			topic_alias_prop.identifier = MQTT_PROP_TOPIC_ALIAS;
+			topic_alias_prop.property_type = MQTT_PROP_TYPE_INT16;
 			topic_alias_prop.client_generated = false;
 
 			proplen += property__get_length_all(&topic_alias_prop);
@@ -246,6 +248,7 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 			subscription_id_prop.next = NULL;
 			subscription_id_prop.value.varint = subscription_identifier;
 			subscription_id_prop.identifier = MQTT_PROP_SUBSCRIPTION_IDENTIFIER;
+			subscription_id_prop.property_type = MQTT_PROP_TYPE_VARINT;
 			subscription_id_prop.client_generated = false;
 
 			proplen += property__get_length_all(&subscription_id_prop);

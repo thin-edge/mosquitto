@@ -3373,6 +3373,21 @@ libmosq_EXPORT const mosquitto_property *mosquitto_property_read_string_pair(
 		bool skip_first);
 
 /*
+ * Function: mosquitto_property_type
+ *
+ * Return the property type for a single property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  A valid property type on success
+ *  0 - on error
+ */
+libmosq_EXPORT int mosquitto_property_type(const mosquitto_property *property);
+
+
+/*
  * Function: mosquitto_property_free_all
  *
  * Free all properties from a list of properties. Frees the list and sets *properties to NULL.

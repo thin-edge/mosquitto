@@ -69,6 +69,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			if(rc) return rc;
 			*len -= 1; /* byte */
 			property->value.i8 = byte;
+			property->property_type = MQTT_PROP_TYPE_BYTE;
 			break;
 
 		case MQTT_PROP_SERVER_KEEP_ALIVE:
@@ -79,6 +80,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			if(rc) return rc;
 			*len -= 2; /* uint16 */
 			property->value.i16 = uint16;
+			property->property_type = MQTT_PROP_TYPE_INT16;
 			break;
 
 		case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
@@ -89,6 +91,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			if(rc) return rc;
 			*len -= 4; /* uint32 */
 			property->value.i32 = uint32;
+			property->property_type = MQTT_PROP_TYPE_INT32;
 			break;
 
 		case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
@@ -96,6 +99,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			if(rc) return rc;
 			*len -= byte_count;
 			property->value.varint = varint;
+			property->property_type = MQTT_PROP_TYPE_VARINT;
 			break;
 
 		case MQTT_PROP_CONTENT_TYPE:
@@ -110,6 +114,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			*len = (*len) - 2 - slen1; /* uint16, string len */
 			property->value.s.v = str1;
 			property->value.s.len = slen1;
+			property->property_type = MQTT_PROP_TYPE_STRING;
 			break;
 
 		case MQTT_PROP_AUTHENTICATION_DATA:
@@ -119,6 +124,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			*len = (*len) - 2 - slen1; /* uint16, binary len */
 			property->value.bin.v = str1;
 			property->value.bin.len = slen1;
+			property->property_type = MQTT_PROP_TYPE_BINARY;
 			break;
 
 		case MQTT_PROP_USER_PROPERTY:
@@ -137,6 +143,7 @@ static int property__read(struct mosquitto__packet_in *packet, uint32_t *len, mo
 			property->name.len = slen1;
 			property->value.s.v = str2;
 			property->value.s.len = slen2;
+			property->property_type = MQTT_PROP_TYPE_STRING_PAIR;
 			break;
 
 		default:
@@ -196,44 +203,24 @@ void property__free(mosquitto_property **property)
 {
 	if(!property || !(*property)) return;
 
-	switch((*property)->identifier){
-		case MQTT_PROP_CONTENT_TYPE:
-		case MQTT_PROP_RESPONSE_TOPIC:
-		case MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER:
-		case MQTT_PROP_AUTHENTICATION_METHOD:
-		case MQTT_PROP_RESPONSE_INFORMATION:
-		case MQTT_PROP_SERVER_REFERENCE:
-		case MQTT_PROP_REASON_STRING:
+	switch((*property)->property_type){
+		case MQTT_PROP_TYPE_STRING:
 			mosquitto__FREE((*property)->value.s.v);
 			break;
 
-		case MQTT_PROP_AUTHENTICATION_DATA:
-		case MQTT_PROP_CORRELATION_DATA:
+		case MQTT_PROP_TYPE_BINARY:
 			mosquitto__FREE((*property)->value.bin.v);
 			break;
 
-		case MQTT_PROP_USER_PROPERTY:
+		case MQTT_PROP_TYPE_STRING_PAIR:
 			mosquitto__FREE((*property)->name.v);
 			mosquitto__FREE((*property)->value.s.v);
 			break;
 
-		case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-		case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-		case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-		case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-		case MQTT_PROP_SERVER_KEEP_ALIVE:
-		case MQTT_PROP_REQUEST_PROBLEM_INFORMATION:
-		case MQTT_PROP_WILL_DELAY_INTERVAL:
-		case MQTT_PROP_REQUEST_RESPONSE_INFORMATION:
-		case MQTT_PROP_RECEIVE_MAXIMUM:
-		case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-		case MQTT_PROP_TOPIC_ALIAS:
-		case MQTT_PROP_MAXIMUM_QOS:
-		case MQTT_PROP_RETAIN_AVAILABLE:
-		case MQTT_PROP_MAXIMUM_PACKET_SIZE:
-		case MQTT_PROP_WILDCARD_SUB_AVAILABLE:
-		case MQTT_PROP_SUBSCRIPTION_ID_AVAILABLE:
-		case MQTT_PROP_SHARED_SUB_AVAILABLE:
+		case MQTT_PROP_TYPE_BYTE:
+		case MQTT_PROP_TYPE_INT16:
+		case MQTT_PROP_TYPE_INT32:
+		case MQTT_PROP_TYPE_VARINT:
 			/* Nothing to free */
 			break;
 	}
@@ -262,34 +249,17 @@ unsigned int property__get_length(const mosquitto_property *property)
 {
 	if(!property) return 0;
 
-	switch(property->identifier){
-		/* Byte */
-		case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-		case MQTT_PROP_REQUEST_PROBLEM_INFORMATION:
-		case MQTT_PROP_REQUEST_RESPONSE_INFORMATION:
-		case MQTT_PROP_MAXIMUM_QOS:
-		case MQTT_PROP_RETAIN_AVAILABLE:
-		case MQTT_PROP_WILDCARD_SUB_AVAILABLE:
-		case MQTT_PROP_SUBSCRIPTION_ID_AVAILABLE:
-		case MQTT_PROP_SHARED_SUB_AVAILABLE:
+	switch(property->property_type){
+		case MQTT_PROP_TYPE_BYTE:
 			return 2; /* 1 (identifier) + 1 byte */
 
-		/* uint16 */
-		case MQTT_PROP_SERVER_KEEP_ALIVE:
-		case MQTT_PROP_RECEIVE_MAXIMUM:
-		case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-		case MQTT_PROP_TOPIC_ALIAS:
+		case MQTT_PROP_TYPE_INT16:
 			return 3; /* 1 (identifier) + 2 bytes */
 
-		/* uint32 */
-		case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-		case MQTT_PROP_WILL_DELAY_INTERVAL:
-		case MQTT_PROP_MAXIMUM_PACKET_SIZE:
-		case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
+		case MQTT_PROP_TYPE_INT32:
 			return 5; /* 1 (identifier) + 4 bytes */
 
-		/* varint */
-		case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+		case MQTT_PROP_TYPE_VARINT:
 			if(property->value.varint < 128){
 				return 2;
 			}else if(property->value.varint < 16384){
@@ -302,23 +272,13 @@ unsigned int property__get_length(const mosquitto_property *property)
 				return 0;
 			}
 
-		/* binary */
-		case MQTT_PROP_CORRELATION_DATA:
-		case MQTT_PROP_AUTHENTICATION_DATA:
+		case MQTT_PROP_TYPE_BINARY:
 			return 3U + property->value.bin.len; /* 1 + 2 bytes (len) + X bytes (payload) */
 
-		/* string */
-		case MQTT_PROP_CONTENT_TYPE:
-		case MQTT_PROP_RESPONSE_TOPIC:
-		case MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER:
-		case MQTT_PROP_AUTHENTICATION_METHOD:
-		case MQTT_PROP_RESPONSE_INFORMATION:
-		case MQTT_PROP_SERVER_REFERENCE:
-		case MQTT_PROP_REASON_STRING:
+		case MQTT_PROP_TYPE_STRING:
 			return 3U + property->value.s.len; /* 1 + 2 bytes (len) + X bytes (string) */
 
-		/* string pair */
-		case MQTT_PROP_USER_PROPERTY:
+		case MQTT_PROP_TYPE_STRING_PAIR:
 			return 5U + property->value.s.len + property->name.len; /* 1 + 2*(2 bytes (len) + X bytes (string))*/
 
 		default:
@@ -361,52 +321,32 @@ static int property__write(struct mosquitto__packet *packet, const mosquitto_pro
 	rc = packet__write_varint(packet, (uint32_t)property->identifier);
 	if(rc) return rc;
 
-	switch(property->identifier){
-		case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-		case MQTT_PROP_REQUEST_PROBLEM_INFORMATION:
-		case MQTT_PROP_REQUEST_RESPONSE_INFORMATION:
-		case MQTT_PROP_MAXIMUM_QOS:
-		case MQTT_PROP_RETAIN_AVAILABLE:
-		case MQTT_PROP_WILDCARD_SUB_AVAILABLE:
-		case MQTT_PROP_SUBSCRIPTION_ID_AVAILABLE:
-		case MQTT_PROP_SHARED_SUB_AVAILABLE:
+	switch(property->property_type){
+		case MQTT_PROP_TYPE_BYTE:
 			packet__write_byte(packet, property->value.i8);
 			break;
 
-		case MQTT_PROP_SERVER_KEEP_ALIVE:
-		case MQTT_PROP_RECEIVE_MAXIMUM:
-		case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-		case MQTT_PROP_TOPIC_ALIAS:
+		case MQTT_PROP_TYPE_INT16:
 			packet__write_uint16(packet, property->value.i16);
 			break;
 
-		case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-		case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-		case MQTT_PROP_WILL_DELAY_INTERVAL:
-		case MQTT_PROP_MAXIMUM_PACKET_SIZE:
+		case MQTT_PROP_TYPE_INT32:
 			packet__write_uint32(packet, property->value.i32);
 			break;
 
-		case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+		case MQTT_PROP_TYPE_VARINT:
 			return packet__write_varint(packet, property->value.varint);
 
-		case MQTT_PROP_CONTENT_TYPE:
-		case MQTT_PROP_RESPONSE_TOPIC:
-		case MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER:
-		case MQTT_PROP_AUTHENTICATION_METHOD:
-		case MQTT_PROP_RESPONSE_INFORMATION:
-		case MQTT_PROP_SERVER_REFERENCE:
-		case MQTT_PROP_REASON_STRING:
+		case MQTT_PROP_TYPE_STRING:
 			packet__write_string(packet, property->value.s.v, property->value.s.len);
 			break;
 
-		case MQTT_PROP_AUTHENTICATION_DATA:
-		case MQTT_PROP_CORRELATION_DATA:
+		case MQTT_PROP_TYPE_BINARY:
 			packet__write_uint16(packet, property->value.bin.len);
 			packet__write_bytes(packet, property->value.bin.v, property->value.bin.len);
 			break;
 
-		case MQTT_PROP_USER_PROPERTY:
+		case MQTT_PROP_TYPE_STRING_PAIR:
 			packet__write_string(packet, property->name.v, property->name.len);
 			packet__write_string(packet, property->value.s.v, property->value.s.len);
 			break;
@@ -728,6 +668,7 @@ BROKER_EXPORT int mosquitto_property_add_byte(mosquitto_property **proplist, int
 	prop->client_generated = true;
 	prop->identifier = identifier;
 	prop->value.i8 = value;
+	prop->property_type = MQTT_PROP_TYPE_BYTE;
 
 	property__add(proplist, prop);
 	return MOSQ_ERR_SUCCESS;
@@ -752,6 +693,7 @@ BROKER_EXPORT int mosquitto_property_add_int16(mosquitto_property **proplist, in
 	prop->client_generated = true;
 	prop->identifier = identifier;
 	prop->value.i16 = value;
+	prop->property_type = MQTT_PROP_TYPE_INT16;
 
 	property__add(proplist, prop);
 	return MOSQ_ERR_SUCCESS;
@@ -777,6 +719,7 @@ BROKER_EXPORT int mosquitto_property_add_int32(mosquitto_property **proplist, in
 	prop->client_generated = true;
 	prop->identifier = identifier;
 	prop->value.i32 = value;
+	prop->property_type = MQTT_PROP_TYPE_INT32;
 
 	property__add(proplist, prop);
 	return MOSQ_ERR_SUCCESS;
@@ -796,6 +739,7 @@ BROKER_EXPORT int mosquitto_property_add_varint(mosquitto_property **proplist, i
 	prop->client_generated = true;
 	prop->identifier = identifier;
 	prop->value.varint = value;
+	prop->property_type = MQTT_PROP_TYPE_VARINT;
 
 	property__add(proplist, prop);
 	return MOSQ_ERR_SUCCESS;
@@ -818,6 +762,7 @@ BROKER_EXPORT int mosquitto_property_add_binary(mosquitto_property **proplist, i
 
 	prop->client_generated = true;
 	prop->identifier = identifier;
+	prop->property_type = MQTT_PROP_TYPE_BINARY;
 
 	if(len){
 		prop->value.bin.v = mosquitto__malloc(len);
@@ -862,6 +807,7 @@ BROKER_EXPORT int mosquitto_property_add_string(mosquitto_property **proplist, i
 
 	prop->client_generated = true;
 	prop->identifier = identifier;
+	prop->property_type = MQTT_PROP_TYPE_STRING;
 	if(value && slen > 0){
 		prop->value.s.v = mosquitto__strdup(value);
 		if(!prop->value.s.v){
@@ -896,6 +842,7 @@ BROKER_EXPORT int mosquitto_property_add_string_pair(mosquitto_property **propli
 
 	prop->client_generated = true;
 	prop->identifier = identifier;
+	prop->property_type = MQTT_PROP_TYPE_STRING_PAIR;
 
 	if(name){
 		prop->name.v = mosquitto__strdup(name);
@@ -999,6 +946,14 @@ BROKER_EXPORT int mosquitto_property_identifier(const mosquitto_property *proper
 	if(property == NULL) return 0;
 
 	return property->identifier;
+}
+
+
+BROKER_EXPORT int mosquitto_property_type(const mosquitto_property *property)
+{
+	if(property == NULL) return 0;
+
+	return property->property_type;
 }
 
 
@@ -1248,43 +1203,25 @@ BROKER_EXPORT int mosquitto_property_copy_all(mosquitto_property **dest, const m
 
 		pnew->client_generated = src->client_generated;
 		pnew->identifier = src->identifier;
-		switch(pnew->identifier){
-			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-			case MQTT_PROP_REQUEST_PROBLEM_INFORMATION:
-			case MQTT_PROP_REQUEST_RESPONSE_INFORMATION:
-			case MQTT_PROP_MAXIMUM_QOS:
-			case MQTT_PROP_RETAIN_AVAILABLE:
-			case MQTT_PROP_WILDCARD_SUB_AVAILABLE:
-			case MQTT_PROP_SUBSCRIPTION_ID_AVAILABLE:
-			case MQTT_PROP_SHARED_SUB_AVAILABLE:
+		pnew->property_type = src->property_type;
+		switch(pnew->property_type){
+			case MQTT_PROP_TYPE_BYTE:
 				pnew->value.i8 = src->value.i8;
 				break;
 
-			case MQTT_PROP_SERVER_KEEP_ALIVE:
-			case MQTT_PROP_RECEIVE_MAXIMUM:
-			case MQTT_PROP_TOPIC_ALIAS_MAXIMUM:
-			case MQTT_PROP_TOPIC_ALIAS:
+			case MQTT_PROP_TYPE_INT16:
 				pnew->value.i16 = src->value.i16;
 				break;
 
-			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-			case MQTT_PROP_SESSION_EXPIRY_INTERVAL:
-			case MQTT_PROP_WILL_DELAY_INTERVAL:
-			case MQTT_PROP_MAXIMUM_PACKET_SIZE:
+			case MQTT_PROP_TYPE_INT32:
 				pnew->value.i32 = src->value.i32;
 				break;
 
-			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+			case MQTT_PROP_TYPE_VARINT:
 				pnew->value.varint = src->value.varint;
 				break;
 
-			case MQTT_PROP_CONTENT_TYPE:
-			case MQTT_PROP_RESPONSE_TOPIC:
-			case MQTT_PROP_ASSIGNED_CLIENT_IDENTIFIER:
-			case MQTT_PROP_AUTHENTICATION_METHOD:
-			case MQTT_PROP_RESPONSE_INFORMATION:
-			case MQTT_PROP_SERVER_REFERENCE:
-			case MQTT_PROP_REASON_STRING:
+			case MQTT_PROP_TYPE_STRING:
 				pnew->value.s.len = src->value.s.len;
 				if(src->value.s.v){
 					pnew->value.s.v = strdup(src->value.s.v);
@@ -1295,8 +1232,7 @@ BROKER_EXPORT int mosquitto_property_copy_all(mosquitto_property **dest, const m
 				}
 				break;
 
-			case MQTT_PROP_AUTHENTICATION_DATA:
-			case MQTT_PROP_CORRELATION_DATA:
+			case MQTT_PROP_TYPE_BINARY:
 				pnew->value.bin.len = src->value.bin.len;
 				if(src->value.bin.len){
 					pnew->value.bin.v = malloc(pnew->value.bin.len);
@@ -1308,7 +1244,7 @@ BROKER_EXPORT int mosquitto_property_copy_all(mosquitto_property **dest, const m
 				}
 				break;
 
-			case MQTT_PROP_USER_PROPERTY:
+			case MQTT_PROP_TYPE_STRING_PAIR:
 				pnew->value.s.len = src->value.s.len;
 				if(src->value.s.v){
 					pnew->value.s.v = strdup(src->value.s.v);

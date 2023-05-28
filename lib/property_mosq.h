@@ -38,6 +38,7 @@ struct mqtt5__property {
 	} value;
 	struct mqtt__string name;
 	int32_t identifier;
+	uint8_t property_type;
 	bool client_generated;
 };
 
