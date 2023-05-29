@@ -13,6 +13,17 @@ LDFLAGS+=
 LDADD+=-lcjson ${SHARED_DEP}
 STATIC_LDADD+=-lcjson
 
+ifeq ($(WITH_SOCKS),yes)
+	CPPFLAGS+=-DWITH_SOCKS
+endif
+
+ifeq ($(WITH_THREADING),yes)
+	CFLAGS+=-pthread
+	CPPFLAGS+=-DWITH_THREADING
+	LDFLAGS+=-pthread
+	STATIC_LDLADD+=-pthread
+endif
+
 ifeq ($(WITH_TLS),yes)
 	LDADD+=-lssl -lcrypto
 	STATIC_LDADD+= -lssl -lcrypto
