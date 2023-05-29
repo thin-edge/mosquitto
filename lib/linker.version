@@ -151,4 +151,14 @@ MOSQ_2.1 {
 		mosquitto_unsubscribe2_v5_callback_set;
 		mosquitto_property_remove;
 		mosquitto_property_type;
+		mosquitto_property_byte_value;
+		mosquitto_property_int16_value;
+		mosquitto_property_int32_value;
+		mosquitto_property_varint_value;
+		mosquitto_property_binary_value;
+		mosquitto_property_binary_value_length;
+		mosquitto_property_string_value;
+		mosquitto_property_string_value_length;
+		mosquitto_property_string_name;
+		mosquitto_property_string_name_length;
 } MOSQ_1.7;

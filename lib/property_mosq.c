@@ -1274,3 +1274,103 @@ BROKER_EXPORT int mosquitto_property_copy_all(mosquitto_property **dest, const m
 
 	return MOSQ_ERR_SUCCESS;
 }
+
+
+uint8_t mosquitto_property_byte_value(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_BYTE){
+		return property->value.i8;
+	}else{
+		return 0;
+	}
+}
+
+
+uint16_t mosquitto_property_int16_value(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_INT16){
+		return property->value.i16;
+	}else{
+		return 0;
+	}
+}
+
+
+uint32_t mosquitto_property_int32_value(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_INT32){
+		return property->value.i32;
+	}else{
+		return 0;
+	}
+}
+
+
+uint32_t mosquitto_property_varint_value(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_VARINT){
+		return property->value.varint;
+	}else{
+		return 0;
+	}
+}
+
+
+const void *mosquitto_property_binary_value(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_BINARY){
+		return property->value.bin.v;
+	}else{
+		return NULL;
+	}
+}
+
+
+uint16_t mosquitto_property_binary_value_length(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_BINARY){
+		return property->value.bin.len;
+	}else{
+		return 0;
+	}
+}
+
+
+const char *mosquitto_property_string_value(const mosquitto_property *property)
+{
+	if(property && (property->property_type == MQTT_PROP_TYPE_STRING || property->property_type == MQTT_PROP_TYPE_STRING_PAIR)){
+		return property->value.s.v;
+	}else{
+		return NULL;
+	}
+}
+
+
+uint16_t mosquitto_property_string_value_length(const mosquitto_property *property)
+{
+	if(property && (property->property_type == MQTT_PROP_TYPE_STRING || property->property_type == MQTT_PROP_TYPE_STRING_PAIR)){
+		return property->value.s.len;
+	}else{
+		return 0;
+	}
+}
+
+
+const char *mosquitto_property_string_name(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_STRING_PAIR){
+		return property->name.v;
+	}else{
+		return NULL;
+	}
+}
+
+
+uint16_t mosquitto_property_string_name_length(const mosquitto_property *property)
+{
+	if(property && property->property_type == MQTT_PROP_TYPE_STRING_PAIR){
+		return property->name.len;
+	}else{
+		return 0;
+	}
+}

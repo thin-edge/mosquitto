@@ -3388,6 +3388,156 @@ libmosq_EXPORT int mosquitto_property_type(const mosquitto_property *property);
 
 
 /*
+ * Function: mosquitto_property_byte_value
+ *
+ * Return the property value for a byte type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Byte value on success
+ *  0 - on error (property is NULL, or not a byte)
+ */
+libmosq_EXPORT uint8_t mosquitto_property_byte_value(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_int16_value
+ *
+ * Return the property value for an int16 type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Int16 value on success
+ *  0 - on error (property is NULL, or not a int16)
+ */
+libmosq_EXPORT uint16_t mosquitto_property_int16_value(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_int32_value
+ *
+ * Return the property value for an int32 type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Int32 value on success
+ *  0 - on error (property is NULL, or not a int32)
+ */
+libmosq_EXPORT uint32_t mosquitto_property_int32_value(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_varint_value
+ *
+ * Return the property value for a varint type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Varint value on success
+ *  0 - on error (property is NULL, or not a varint)
+ */
+libmosq_EXPORT uint32_t mosquitto_property_varint_value(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_binary_value
+ *
+ * Return the property value for a binary type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Binary value on success
+ *  NULL - on error (property is NULL, or not a binary)
+ */
+libmosq_EXPORT const void *mosquitto_property_binary_value(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_byte_value_length
+ *
+ * Return the property value for a byte type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Binary value length on success
+ *  0 - on error (property is NULL, or not a binary)
+ */
+libmosq_EXPORT uint16_t mosquitto_property_binary_value_length(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_string_value
+ *
+ * Return the property value for a string or string pair type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  String value on success
+ *  NULL - on error (property is NULL, or not a string or string pair)
+ */
+libmosq_EXPORT const char *mosquitto_property_string_value(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_string_value_length
+ *
+ * Return the length of the property value for a string or string pair type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Value length on success
+ *  0 - on error (property is NULL, or not a string or string pair)
+ */
+libmosq_EXPORT uint16_t mosquitto_property_string_value_length(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_string_value
+ *
+ * Return the property name for a string pair type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  String name on success
+ *  NULL - on error (property is NULL, or not a string pair)
+ */
+libmosq_EXPORT const char *mosquitto_property_string_name(const mosquitto_property *property);
+
+
+/*
+ * Function: mosquitto_property_string_name_length
+ *
+ * Return the property name length for a string pair type property.
+ *
+ * Parameters:
+ *	property - pointer to a valid mosquitto_property pointer.
+ *
+ * Returns:
+ *  Name length on success
+ *  0 - on error (property is NULL, or not a string pair)
+ */
+libmosq_EXPORT uint16_t mosquitto_property_string_name_length(const mosquitto_property *property);
+
+
+/*
  * Function: mosquitto_property_free_all
  *
  * Free all properties from a list of properties. Frees the list and sets *properties to NULL.

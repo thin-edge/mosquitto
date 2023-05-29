@@ -6,6 +6,7 @@ add_executable(lib-test
 	property_read.c
 	property_user_read.c
 	property_write.c
+	property_value.c
 	strings_test.c
 	stubs.c
 	utf8.c

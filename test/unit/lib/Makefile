@@ -21,6 +21,7 @@ TEST_OBJS = \
 	property_read.o \
 	property_user_read.o \
 	property_write.o \
+	property_value.o \
 	strings_test.o \
 	stubs.o \
 	utf8.o \
