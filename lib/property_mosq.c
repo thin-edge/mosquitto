@@ -318,7 +318,7 @@ static int property__write(struct mosquitto__packet *packet, const mosquitto_pro
 {
 	int rc;
 
-	rc = packet__write_varint(packet, (uint32_t)property->identifier);
+	rc = packet__write_varint(packet, (uint32_t)mosquitto_property_identifier(property));
 	if(rc) return rc;
 
 	switch(property->property_type){
@@ -957,7 +957,7 @@ BROKER_EXPORT int mosquitto_property_type(const mosquitto_property *property)
 }
 
 
-BROKER_EXPORT const mosquitto_property *mosquitto_property_next(const mosquitto_property *proplist)
+BROKER_EXPORT mosquitto_property *mosquitto_property_next(const mosquitto_property *proplist)
 {
 	if(proplist == NULL) return NULL;
 
@@ -1269,7 +1269,7 @@ BROKER_EXPORT int mosquitto_property_copy_all(mosquitto_property **dest, const m
 				return MOSQ_ERR_INVAL;
 		}
 
-		src = src->next;
+		src = mosquitto_property_next(src);
 	}
 
 	return MOSQ_ERR_SUCCESS;

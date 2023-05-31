@@ -128,7 +128,7 @@ int handle__publish(struct mosquitto *context)
 		base_msg->data.properties = NULL;
 		msg_properties_last = NULL;
 		while(p){
-			switch(p->identifier){
+			switch(mosquitto_property_identifier(p)){
 				case MQTT_PROP_CONTENT_TYPE:
 				case MQTT_PROP_CORRELATION_DATA:
 				case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
@@ -142,39 +142,39 @@ int handle__publish(struct mosquitto *context)
 						msg_properties_last = p;
 					}
 					if(p_prev){
-						p_prev->next = p->next;
-						p = p_prev->next;
+						p_prev->next = mosquitto_property_next(p);
+						p = mosquitto_property_next(p_prev);
 					}else{
-						properties = p->next;
+						properties = mosquitto_property_next(p);
 						p = properties;
 					}
 					msg_properties_last->next = NULL;
 					break;
 
 				case MQTT_PROP_TOPIC_ALIAS:
-					topic_alias = p->value.i16;
+					topic_alias = mosquitto_property_int16_value(p);
 					p_prev = p;
-					p = p->next;
+					p = mosquitto_property_next(p);
 					break;
 
 				case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-					message_expiry_interval = p->value.i32;
+					message_expiry_interval = mosquitto_property_int32_value(p);
 					p_prev = p;
-					p = p->next;
+					p = mosquitto_property_next(p);
 					break;
 
 				case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-					if(p->value.varint == 0){
+					if(mosquitto_property_varint_value(p) == 0){
 						mosquitto_property_free_all(&properties);
 						db__msg_store_free(base_msg);
 						return MOSQ_ERR_PROTOCOL;
 					}
 					p_prev = p;
-					p = p->next;
+					p = mosquitto_property_next(p);
 					break;
 
 				default:
-					p = p->next;
+					p = mosquitto_property_next(p);
 					break;
 			}
 		}

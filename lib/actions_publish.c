@@ -77,11 +77,11 @@ int mosquitto_publish_v5(struct mosquitto *mosq, int *mid, const char *topic, in
 			p = outgoing_properties;
 			have_topic_alias = false;
 			while(p){
-				if(p->identifier == MQTT_PROP_TOPIC_ALIAS){
+				if(mosquitto_property_identifier(p) == MQTT_PROP_TOPIC_ALIAS){
 					have_topic_alias = true;
 					break;
 				}
-				p = p->next;
+				p = mosquitto_property_next(p);
 			}
 			if(have_topic_alias == false){
 				return MOSQ_ERR_INVAL;

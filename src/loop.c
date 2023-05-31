@@ -112,19 +112,19 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 
 	p = *proplist;
 	while(p){
-		if(p->identifier == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
-			*message_expiry = p->value.i32;
+		if(mosquitto_property_identifier(p) == MQTT_PROP_MESSAGE_EXPIRY_INTERVAL){
+			*message_expiry = mosquitto_property_int32_value(p);
 			if(p == *proplist){
-				*proplist = p->next;
+				*proplist = mosquitto_property_next(p);
 			}else{
-				previous->next = p->next;
+				previous->next = mosquitto_property_next(p);
 			}
 			property__free(&p);
 			return;
 
 		}
 		previous = p;
-		p = p->next;
+		p = mosquitto_property_next(p);
 	}
 }
 

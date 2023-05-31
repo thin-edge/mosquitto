@@ -144,10 +144,10 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 		if(properties){
 			p = properties;
 			while(p){
-				if(p->identifier == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
-					chunk->subscription_identifier = p->value.varint;
+				if(mosquitto_property_identifier(p) == MQTT_PROP_SUBSCRIPTION_IDENTIFIER){
+					chunk->subscription_identifier = mosquitto_property_varint_value(p);
 				}
-				p = p->next;
+				p = mosquitto_property_next(p);
 			}
 			mosquitto_property_free_all(&properties);
 		}

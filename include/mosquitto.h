@@ -3158,7 +3158,7 @@ libmosq_EXPORT int mosquitto_property_identifier(const mosquitto_property *prope
  *	Pointer to the next item in the list
  *	NULL, if proplist is NULL, or if there are no more items in the list.
  */
-libmosq_EXPORT const mosquitto_property *mosquitto_property_next(const mosquitto_property *proplist);
+libmosq_EXPORT mosquitto_property *mosquitto_property_next(const mosquitto_property *proplist);
 
 
 /*
