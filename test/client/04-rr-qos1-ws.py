@@ -29,7 +29,7 @@ def do_test(proto_ver):
     }
     env = mosq_test.env_add_ld_library_path(env)
     payload = "message"
-    cmd = ['../../client/mosquitto_rr',
+    cmd = [f'{mosq_test.get_build_root()}/client/mosquitto_rr',
             '-p', str(ports[0]),
             '-q', '1',
             '-t', '04/rr/qos1/test/request',

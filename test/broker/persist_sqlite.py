@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import sqlite3
+import mosq_test
 
 dir_in = 0
 dir_out = 1
@@ -22,7 +23,7 @@ def write_config(filename, port):
     with open(filename, 'w') as f:
         f.write("listener %d\n" % (port))
         f.write("allow_anonymous true\n")
-        f.write("plugin ../../plugins/persist-sqlite/mosquitto_persist_sqlite.so\n")
+        f.write(f"plugin {mosq_test.get_build_root()}/plugins/persist-sqlite/mosquitto_persist_sqlite.so\n")
         f.write("plugin_opt_db_file %d/mosquitto.sqlite3\n" % (port))
 
 
