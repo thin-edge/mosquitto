@@ -88,8 +88,7 @@ class MsgSequence(object):
         global vg_index
         global vg_logfiles
 
-        env = {}
-        env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib'
+        env = mosq_test.env_add_ld_library_path()
         cmd = [
                 mosq_test.get_build_root() + '/test/lib/c/fuzzish.test',
                 str(port), str(self.proto_ver), str(self.clean_start)

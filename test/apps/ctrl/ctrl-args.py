@@ -18,8 +18,7 @@ def do_test(args, rc_expected, response=None):
     if proc.returncode != rc_expected:
         raise ValueError(args)
 
-env = dict(os.environ)
-env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib'
+env = mosq_test.env_add_ld_library_path()
 
 do_test([], 1)
 do_test(["broker"], 1)

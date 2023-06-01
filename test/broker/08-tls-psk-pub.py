@@ -22,14 +22,7 @@ def write_config(filename, port1, port2):
 conf_file = os.path.basename(__file__).replace('.py', '.conf')
 write_config(conf_file, port1, port2)
 
-env = dict(os.environ)
-env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib:' + mosq_test.get_build_root() + '/lib/cpp'
-try:
-    pp = env['PYTHONPATH']
-except KeyError:
-    pp = ''
-env['PYTHONPATH'] = mosq_test.get_build_root() + '/lib/python:'+pp
-
+env = mosq_test.env_add_ld_library_path()
 
 rc = 1
 connect_packet = mosq_test.gen_connect("no-psk-test-client")

@@ -30,6 +30,28 @@ def get_build_root():
         result = str(Path(__file__).resolve().parents[1])
     return result
 
+def env_add_ld_library_path(env=None):
+    p = ":".join([
+        get_build_root() + '/lib',
+        get_build_root() + '/lib/cpp',
+        os.getenv("LD_LIBRARY_PATH", "")
+    ])
+
+    if env is None:
+        env = {
+            'LD_LIBRARY_PATH': p,
+            'DYLIB_LIBRARY_PATH': p,
+        }
+    else:
+        for v in ['LD_LIBRARY_PATH', 'DYLIB_LIBRARY_PATH']:
+            try:
+                val = env[v]
+                env[v] = ":".join([val, p])
+            except KeyError:
+                env[v] = p
+
+    return env
+
 def listen_sock(port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -105,9 +127,7 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
 def start_client(filename, cmd, env=None):
     if cmd is None:
         raise ValueError
-    if env is None:
-        env = dict(os.environ)
-        env['LD_LIBRARY_PATH'] = get_build_root() + '/lib:' + get_build_root() + '/lib/cpp'
+    env = env_add_ld_library_path(env)
     if os.environ.get('MOSQ_USE_VALGRIND') is not None:
         cmd = ['valgrind', '-q', '--log-file='+filename+'.vglog'] + cmd
 

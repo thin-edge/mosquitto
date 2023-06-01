@@ -10,9 +10,9 @@ def do_test(args, stderr_expected, rc_expected):
     port = mosq_test.get_port()
 
     env = {
-            'LD_LIBRARY_PATH': mosq_test.get_build_root() + '/lib',
-            'XDG_CONFIG_HOME':'/tmp/missing'
-            }
+        'XDG_CONFIG_HOME':'/tmp/missing'
+    }
+    env = mosq_test.env_add_ld_library_path(env)
     cmd = ['../../client/mosquitto_rr'] + args
 
     sub = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)

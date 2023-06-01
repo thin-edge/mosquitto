@@ -60,8 +60,7 @@ ports = mosq_test.get_port(2)
 conf_file = os.path.basename(__file__).replace('.py', '.conf')
 write_config(conf_file, ports)
 
-env = dict(os.environ)
-env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib'
+env = mosq_test.env_add_ld_library_path()
 
 if not os.path.exists(str(ports[0])):
     os.mkdir(str(ports[0]))

@@ -39,8 +39,6 @@ def run_clients(max_clients):
                 c.wait()
 
 
-env = {}
-env["LD_LIBRARY_PATH"] = "../../lib"
-
+env = mosq_test.env_add_ld_library_path()
 #broker = subprocess.Popen(["../../src/mosquitto", "-c", "random.conf"], env=env)
 run_clients(1000)

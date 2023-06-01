@@ -16,7 +16,7 @@ def do_test(proto_ver, env):
     else:
         V = 'mqttv31'
 
-    env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib'
+    env = mosq_test.env_add_ld_library_path(env)
     cmd = [mosq_test.get_build_root() + '/client/mosquitto_sub',
             '-p', str(port),
             '-q', '1',

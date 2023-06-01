@@ -25,8 +25,7 @@ def do_test(client_cmd):
     sock.listen(5)
 
     client_args = [client_cmd, str(port)]
-    env = dict(os.environ)
-    env['LD_LIBRARY_PATH'] = mosq_test.get_build_root() + '/lib:' + mosq_test.get_build_root() + '/lib/cpp'
+    env = mosq_test.env_add_ld_library_path()
 
     client = mosq_test.start_client(filename=client_cmd.replace('/', '-'), cmd=client_args, env=env)
 
