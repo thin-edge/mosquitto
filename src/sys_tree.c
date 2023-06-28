@@ -80,9 +80,36 @@ struct metric metrics[mosq_metric_max] = {
 	{ 1, 0, "$SYS/broker/packet/out/bytes", NULL, false }, /* mosq_gauge_out_packet_bytes */
 	{ 1, 0, "$SYS/broker/connections/socket/count", NULL, false }, /* mosq_counter_socket_connections */
 	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_connect_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_connect_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_connack_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_connack_sent */
 	{ 1, 0, "$SYS/broker/publish/messages/dropped", NULL, false }, /* mosq_counter_mqtt_publish_dropped */
 	{ 1, 0, "$SYS/broker/publish/messages/received", NULL, false }, /* mosq_counter_mqtt_publish_received */
 	{ 1, 0, "$SYS/broker/publish/messages/sent", NULL, false }, /* mosq_counter_mqtt_publish_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_puback_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_puback_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pubrec_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pubrec_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pubrel_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pubrel_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pubcomp_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pubcomp_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_subscribe_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_subscribe_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_suback_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_suback_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_unsubscribe_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_unsubscribe_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_unsuback_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_unsuback_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pingreq_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pingreq_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pingresp_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_pingresp_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_disconnect_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_disconnect_sent */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_auth_received */
+	{ 1, 0, NULL, NULL, false }, /* mosq_counter_mqtt_auth_sent */
 };
 
 struct metric_load metric_loads[mosq_metric_load_max] = {

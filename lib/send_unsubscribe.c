@@ -23,6 +23,7 @@ Contributors:
 
 #ifdef WITH_BROKER
 #  include "mosquitto_broker_internal.h"
+#  include "sys_tree.h"
 #endif
 
 #include "mosquitto.h"
@@ -86,6 +87,7 @@ int send__unsubscribe(struct mosquitto *mosq, int *mid, int topic_count, char *c
 		log__printf(mosq, MOSQ_LOG_DEBUG, "Bridge %s sending UNSUBSCRIBE (Mid: %d, Topic: %s)", SAFE_PRINT(mosq->id), local_mid, topic[i]);
 	}
 # endif
+	metrics__int_inc(mosq_counter_mqtt_unsubscribe_sent, 1);
 #else
 	for(i=0; i<topic_count; i++){
 		log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending UNSUBSCRIBE (Mid: %d, Topic: %s)", SAFE_PRINT(mosq->id), local_mid, topic[i]);

@@ -51,6 +51,9 @@ int send__pingreq(struct mosquitto *mosq)
 	rc = send__simple_command(mosq, CMD_PINGREQ);
 	if(rc == MOSQ_ERR_SUCCESS){
 		mosq->ping_t = mosquitto_time();
+#ifdef WITH_BROKER
+		metrics__int_inc(mosq_counter_mqtt_pingreq_sent, 1);
+#endif
 	}
 	return rc;
 }
@@ -59,6 +62,7 @@ int send__pingresp(struct mosquitto *mosq)
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PINGRESP to %s", SAFE_PRINT(mosq->id));
+	metrics__int_inc(mosq_counter_mqtt_pingresp_sent, 1);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PINGRESP", SAFE_PRINT(mosq->id));
 #endif
@@ -69,6 +73,7 @@ int send__puback(struct mosquitto *mosq, uint16_t mid, uint8_t reason_code, cons
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBACK to %s (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
+	metrics__int_inc(mosq_counter_mqtt_puback_sent, 1);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBACK (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
 #endif
@@ -81,6 +86,7 @@ int send__pubcomp(struct mosquitto *mosq, uint16_t mid, const mosquitto_property
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBCOMP to %s (m%d)", SAFE_PRINT(mosq->id), mid);
+	metrics__int_inc(mosq_counter_mqtt_pubcomp_sent, 1);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBCOMP (m%d)", SAFE_PRINT(mosq->id), mid);
 #endif
@@ -94,6 +100,7 @@ int send__pubrec(struct mosquitto *mosq, uint16_t mid, uint8_t reason_code, cons
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBREC to %s (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
+	metrics__int_inc(mosq_counter_mqtt_pubrec_sent, 1);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBREC (m%d, rc%d)", SAFE_PRINT(mosq->id), mid, reason_code);
 #endif
@@ -108,6 +115,7 @@ int send__pubrel(struct mosquitto *mosq, uint16_t mid, const mosquitto_property 
 {
 #ifdef WITH_BROKER
 	log__printf(NULL, MOSQ_LOG_DEBUG, "Sending PUBREL to %s (m%d)", SAFE_PRINT(mosq->id), mid);
+	metrics__int_inc(mosq_counter_mqtt_pubrel_sent, 1);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending PUBREL (m%d)", SAFE_PRINT(mosq->id), mid);
 #endif

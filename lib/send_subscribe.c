@@ -23,6 +23,7 @@ Contributors:
 
 #ifdef WITH_BROKER
 #  include "mosquitto_broker_internal.h"
+#  include "sys_tree.h"
 #endif
 
 #include "mosquitto.h"
@@ -91,5 +92,8 @@ int send__subscribe(struct mosquitto *mosq, int *mid, int topic_count, char *con
 	}
 #endif
 
+#ifdef WITH_BROKER
+	metrics__int_inc(mosq_counter_mqtt_subscribe_sent, 1);
+#endif
 	return packet__queue(mosq, packet);
 }

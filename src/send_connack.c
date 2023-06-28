@@ -96,6 +96,7 @@ int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, c
 	}
 	mosquitto_property_free_all(&connack_props);
 
+	metrics__int_inc(mosq_counter_mqtt_connack_sent, 1);
 	return packet__queue(context, packet);
 }
 

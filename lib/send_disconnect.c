@@ -78,6 +78,9 @@ int send__disconnect(struct mosquitto *mosq, uint8_t reason_code, const mosquitt
 		}
 	}
 
+#ifdef WITH_BROKER
+	metrics__int_inc(mosq_counter_mqtt_disconnect_sent, 1);
+#endif
 	return packet__queue(mosq, packet);
 }
 

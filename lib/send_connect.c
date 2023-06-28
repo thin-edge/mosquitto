@@ -23,6 +23,7 @@ Contributors:
 
 #ifdef WITH_BROKER
 #  include "mosquitto_broker_internal.h"
+#  include "sys_tree.h"
 #endif
 
 #include "logging_mosq.h"
@@ -200,6 +201,7 @@ int send__connect(struct mosquitto *mosq, uint16_t keepalive, bool clean_session
 # ifdef WITH_BRIDGE
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Bridge %s sending CONNECT", SAFE_PRINT(clientid));
 # endif
+	metrics__int_inc(mosq_counter_mqtt_connect_sent, 1);
 #else
 	log__printf(mosq, MOSQ_LOG_DEBUG, "Client %s sending CONNECT", SAFE_PRINT(clientid));
 #endif
