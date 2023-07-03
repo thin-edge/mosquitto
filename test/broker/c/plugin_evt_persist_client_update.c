@@ -44,7 +44,7 @@ int mosquitto_plugin_cleanup(void *user_data, struct mosquitto_opt *opts, int op
 	(void)opts;
 	(void)opt_count;
 
-	mosquitto_callback_unregister(plg_id, MOSQ_EVT_CLIENT_OFFLINE, callback_persist_client_update, NULL);
+	mosquitto_callback_unregister(plg_id, MOSQ_EVT_PERSIST_CLIENT_UPDATE, callback_persist_client_update, NULL);
 
 	return MOSQ_ERR_SUCCESS;
 }

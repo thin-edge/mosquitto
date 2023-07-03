@@ -240,20 +240,21 @@ void context__disconnect(struct mosquitto *context, int reason)
 
 	context__send_will(context);
 	net__socket_close(context);
-	if(context->session_expiry_interval == 0){
-		plugin_persist__handle_client_delete(context);
-		/* Client session is due to be expired now */
 #ifdef WITH_BRIDGE
-		if(context->bridge == NULL)
+	if(context->bridge == NULL)
+	/* Outgoing bridge connection never expire */
 #endif
-		{
+	{
+		if(context->session_expiry_interval == 0){
+			plugin_persist__handle_client_delete(context);
+			/* Client session is due to be expired now */
 			if(context->will_delay_interval == 0){
 				/* This will be done later, after the will is published for delay>0. */
 				context__add_to_disused(context);
 			}
+		}else{
+			session_expiry__add(context);
 		}
-	}else{
-		session_expiry__add(context);
 	}
 	keepalive__remove(context);
 	mosquitto__set_state(context, mosq_cs_disconnected);
