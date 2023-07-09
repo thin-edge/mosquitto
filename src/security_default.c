@@ -1059,7 +1059,6 @@ int mosquitto_security_apply_default(void)
 	struct mosquitto__security_options *security_opts = NULL;
 #ifdef WITH_TLS
 	int i;
-	X509 *client_cert = NULL;
 	X509_NAME *name;
 	X509_NAME_ENTRY *name_entry;
 	ASN1_STRING *name_asn1 = NULL;
@@ -1134,7 +1133,7 @@ int mosquitto_security_apply_default(void)
 				mosquitto__FREE(context->username);
 				mosquitto__FREE(context->password);
 
-				client_cert = SSL_get_peer_certificate(context->ssl);
+				X509 *client_cert = SSL_get_peer_certificate(context->ssl);
 				if(!client_cert){
 					security__disconnect_auth(context);
 					continue;
@@ -1142,7 +1141,6 @@ int mosquitto_security_apply_default(void)
 				name = X509_get_subject_name(client_cert);
 				if(!name){
 					X509_free(client_cert);
-					client_cert = NULL;
 					security__disconnect_auth(context);
 					continue;
 				}
@@ -1150,7 +1148,6 @@ int mosquitto_security_apply_default(void)
 					i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
 					if(i == -1){
 						X509_free(client_cert);
-						client_cert = NULL;
 						security__disconnect_auth(context);
 						continue;
 					}
@@ -1159,7 +1156,6 @@ int mosquitto_security_apply_default(void)
 						name_asn1 = X509_NAME_ENTRY_get_data(name_entry);
 						if (name_asn1 == NULL) {
 							X509_free(client_cert);
-							client_cert = NULL;
 							security__disconnect_auth(context);
 							continue;
 						}
@@ -1170,14 +1166,12 @@ int mosquitto_security_apply_default(void)
 #endif
 						if(!context->username){
 							X509_free(client_cert);
-							client_cert = NULL;
 							security__disconnect_auth(context);
 							continue;
 						}
 						/* Make sure there isn't an embedded NUL character in the CN */
 						if ((size_t)ASN1_STRING_length(name_asn1) != strlen(context->username)) {
 							X509_free(client_cert);
-							client_cert = NULL;
 							security__disconnect_auth(context);
 							continue;
 						}
@@ -1191,7 +1185,6 @@ int mosquitto_security_apply_default(void)
 					if(!subject){
 						BIO_free(subject_bio);
 						X509_free(client_cert);
-						client_cert = NULL;
 						security__disconnect_auth(context);
 						continue;
 					}
@@ -1202,12 +1195,10 @@ int mosquitto_security_apply_default(void)
 				}
 				if(!context->username){
 					X509_free(client_cert);
-					client_cert = NULL;
 					security__disconnect_auth(context);
 					continue;
 				}
 				X509_free(client_cert);
-				client_cert = NULL;
 			}
 		}else
 #endif
