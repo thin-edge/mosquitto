@@ -84,9 +84,6 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 		store_props = tmp_msg.properties;
 
 		if(rc != MOSQ_ERR_SUCCESS){
-			if(payload_changed) mosquitto__free((void *) payload);
-			if(topic_changed) mosquitto__free((char *) topic);
-			if(properties_changed) mosquitto_property_free_all((mosquitto_property **) &store_props);
 			if(rc == MOSQ_ERR_ACL_DENIED){
 				log__printf(NULL, MOSQ_LOG_DEBUG,
 						"Denied PUBLISH to %s (q%d, r%d, '%s', ... (%ld bytes))",
@@ -96,6 +93,10 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 				log__printf(NULL, MOSQ_LOG_DEBUG,
 						"Rejected PUBLISH to %s, quota exceeded.", mosq->id);
 			}
+
+			if(payload_changed) mosquitto__free((void *) payload);
+			if(topic_changed) mosquitto__free((char *) topic);
+			if(properties_changed) mosquitto_property_free_all((mosquitto_property **) &store_props);
 
 			return MOSQ_ERR_SUCCESS;
 		}
