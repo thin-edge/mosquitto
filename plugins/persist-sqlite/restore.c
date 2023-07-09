@@ -75,10 +75,11 @@ static mosquitto_property *json_to_properties(const char *json)
 	cJSON_ArrayForEach(obj, array){
 		const char *identifier;
 
-		json_get_string(obj, "identifier", &identifier, true);
 		j_value = cJSON_GetObjectItem(obj, "value");
 
-		if(!identifier || !j_value){
+		if(json_get_string(obj, "identifier", &identifier, false) != MOSQ_ERR_SUCCESS
+				|| !j_value){
+
 			mosquitto_log_printf(MOSQ_LOG_WARNING, "Sqlite persistence: Ignoring property whilst restoring, invalid identifier / value");
 			continue;
 		}
