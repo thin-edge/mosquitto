@@ -56,6 +56,7 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mqtt_protocol.h"
 #include "memory_mosq.h"
+#include "misc_mosq.h"
 #include "net_mosq.h"
 #include "util_mosq.h"
 
@@ -333,7 +334,7 @@ static void tls_keylog_callback(const SSL *ssl, const char *line)
 	UNUSED(ssl);
 
 	if(db.tls_keylog){
-		fptr = fopen(db.tls_keylog, "at");
+		fptr = mosquitto__fopen(db.tls_keylog, "at", true);
 		if(fptr){
 			fprintf(fptr, "%s\n", line);
 			fclose(fptr);
