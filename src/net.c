@@ -339,6 +339,18 @@ static void tls_keylog_callback(const SSL *ssl, const char *line)
 		FILE *fptr;
 		fptr = mosquitto__fopen(db.tls_keylog, "at", true);
 		if(fptr){
+#ifndef WIN32
+			/* Until mosquitto__fopen enforces file permissions on all files,
+			 * enforce it here. We can enforce it here, because it isn't a
+			 * change of behaviour. */
+			struct stat statbuf;
+			if(fstat(fileno(fptr), &statbuf) < 0
+					|| statbuf.st_mode & (S_IRWXG | S_IRWXO)){
+
+				fclose(fptr);
+				return;
+			}
+#endif
 			fprintf(fptr, "%s\n", line);
 			fclose(fptr);
 		}else{
