@@ -333,15 +333,23 @@ static unsigned int psk_server_callback(SSL *ssl, const char *identity, unsigned
 #ifdef WITH_TLS
 static void tls_keylog_callback(const SSL *ssl, const char *line)
 {
-	FILE *fptr;
-
 	UNUSED(ssl);
 
 	if(db.tls_keylog){
+		FILE *fptr;
 		fptr = mosquitto__fopen(db.tls_keylog, "at", true);
 		if(fptr){
 			fprintf(fptr, "%s\n", line);
 			fclose(fptr);
+		}else{
+#ifndef WIN32
+			if(errno == ELOOP){
+				log__printf(NULL, MOSQ_LOG_INFO, "Error: keylog file must not be a symbolic link");
+			}else
+#endif
+			{
+				log__printf(NULL, MOSQ_LOG_INFO, "Error: Unable to open keylog file: %s", strerror(errno));
+			}
 		}
 	}
 }

@@ -41,6 +41,7 @@ Contributors:
 #  include <pwd.h>
 #  include <grp.h>
 #  include <unistd.h>
+#  include <fcntl.h>
 #endif
 
 #include "misc_mosq.h"
@@ -139,7 +140,28 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 		mode_t old_mask;
 
 		old_mask = umask(0077);
-		fptr = fopen(path, mode);
+
+		int open_flags = O_NOFOLLOW;
+		for(size_t i = 0; i<strlen(mode); i++){
+			if(mode[i] == 'r'){
+				open_flags |= O_RDONLY;
+			}else if(mode[i] == 'w'){
+				open_flags |= O_WRONLY;
+				open_flags |= (O_TRUNC | O_CREAT | O_EXCL);
+
+			}else if(mode[i] == 'a'){
+				open_flags |= O_WRONLY;
+				open_flags |= (O_APPEND | O_CREAT);
+			}else if(mode[i] == 't'){
+			}else if(mode[i] == 'b'){
+			}else if(mode[i] == '+'){
+				open_flags |= O_RDWR;
+			}
+		}
+		int fd = open(path, open_flags, 0600);
+		if(fd < 0) return NULL;
+		fptr = fdopen(fd, mode);
+
 		umask(old_mask);
 	}else{
 		fptr = fopen(path, mode);
