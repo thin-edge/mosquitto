@@ -51,7 +51,7 @@ all : $(MAKE_ALL)
 
 api :
 	mkdir -p api p
-	naturaldocs -o HTML api -i lib -p p
+	naturaldocs -o HTML api -i include -p p
 	rm -rf p
 
 docs :
