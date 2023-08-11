@@ -1434,7 +1434,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "bridge_tcp_user_timeout")){
 #ifdef WITH_BRIDGE
 					REQUIRE_BRIDGE(token);
-#ifdef TCP_USER_TIMEOUT
+#ifdef WITH_TCP_USER_TIMEOUT
 					if(conf__parse_int(&token, "bridge_tcp_user_timeout", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int < 0) {
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: invalid TCP user timeout value.");
