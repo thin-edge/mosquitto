@@ -38,6 +38,8 @@ Contributors:
 #  define PATH_MAX MAX_PATH
 #else
 #  include <sys/stat.h>
+#  include <pwd.h>
+#  include <grp.h>
 #  include <unistd.h>
 #endif
 
@@ -148,6 +150,60 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 		fclose(fptr);
 		return NULL;
 	}
+
+	if(restrict_read){
+		if(statbuf.st_mode & S_IRWXO){
+#ifdef WITH_BROKER
+			log__printf(NULL, MOSQ_LOG_WARNING,
+#else
+			fprintf(stderr,
+#endif
+					"Warning: File %s has world readable permissions. Future versions will refuse to load this file.",
+					path);
+#if 0
+			return NULL;
+#endif
+		}
+		if(statbuf.st_uid != getuid()){
+			char buf[4096];
+			struct passwd pw, *result;
+
+			getpwuid_r(getuid(), &pw, buf, sizeof(buf), &result);
+			if(result){
+#ifdef WITH_BROKER
+				log__printf(NULL, MOSQ_LOG_WARNING,
+#else
+				fprintf(stderr,
+#endif
+						"Warning: File %s owner is not %s. Future versions will refuse to load this file.",
+						path, result->pw_name);
+			}
+#if 0
+			// Future version
+			return NULL;
+#endif
+		}
+		if(statbuf.st_gid != getgid()){
+			char buf[4096];
+			struct group grp, *result;
+
+			getgrgid_r(getgid(), &grp, buf, sizeof(buf), &result);
+			if(result){
+#ifdef WITH_BROKER
+				log__printf(NULL, MOSQ_LOG_WARNING,
+#else
+				fprintf(stderr,
+#endif
+						"Warning: File %s group is not %s. Future versions will refuse to load this file.",
+						path, result->gr_name);
+			}
+#if 0
+			// Future version
+			return NULL
+#endif
+		}
+	}
+
 
 	if(!S_ISREG(statbuf.st_mode) && !S_ISLNK(statbuf.st_mode)){
 #ifdef WITH_BROKER

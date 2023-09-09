@@ -298,6 +298,7 @@ static void config__init_reload(struct mosquitto__config *config)
 	mosquitto__FREE(config->log_timestamp_format);
 	config->global_max_clients = -1;
 	config->global_max_connections = -1;
+	config->log_timestamp_format = NULL;
 	config->max_keepalive = 0;
 	config->max_packet_size = 0;
 	config->max_inflight_messages = 20;
@@ -1859,6 +1860,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 								log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 								return MOSQ_ERR_NOMEM;
 							}
+							cr->log_dest |= MQTT3_LOG_FILE;
 						}else{
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty \"log_dest file\" value in configuration.");
 							return MOSQ_ERR_INVAL;

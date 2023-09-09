@@ -512,7 +512,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	aclfptr = mosquitto__fopen(security_opts->acl_file, "rt", false);
+	aclfptr = mosquitto__fopen(security_opts->acl_file, "rt", true);
 	if(!aclfptr){
 		mosquitto__FREE(buf);
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open acl_file \"%s\".", security_opts->acl_file);
@@ -737,7 +737,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	pwfile = mosquitto__fopen(file, "rt", false);
+	pwfile = mosquitto__fopen(file, "rt", true);
 	if(!pwfile){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
 		mosquitto__FREE(buf);

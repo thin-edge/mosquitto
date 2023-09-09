@@ -239,9 +239,18 @@ static void mosquitto__daemonise(void)
 		exit(1);
 	}
 
-	assert(freopen("/dev/null", "r", stdin));
-	assert(freopen("/dev/null", "w", stdout));
-	assert(freopen("/dev/null", "w", stderr));
+	if(!freopen("/dev/null", "r", stdin)){
+		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdin", strerror(errno));
+		exit(1);
+	}
+	if(!freopen("/dev/null", "w", stdout)){
+		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stdout", strerror(errno));
+		exit(1);
+	}
+	if(!freopen("/dev/null", "w", stderr)){
+		log__printf(NULL, MOSQ_LOG_ERR, "Error whilst daemonising (%s): %s", "stderr", strerror(errno));
+		exit(1);
+	}
 #else
 	log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Can't start in daemon mode in Windows.");
 #endif
@@ -342,7 +351,6 @@ int main(int argc, char *argv[])
 			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to increase maximum allowed connections. This session may be limited to 512 connections.");
 		}
 	}
-
 #endif
 
 	memset(&db, 0, sizeof(struct mosquitto_db));

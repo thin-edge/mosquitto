@@ -372,7 +372,7 @@ static int client_msg_restore(struct mosquitto_sqlite *ms)
 		client_msg.clientid = (const char *)sqlite3_column_text(stmt, 0);
 		client_msg.cmsg_id = (uint64_t)sqlite3_column_int64(stmt, 1);
 		client_msg.store_id = (uint64_t)sqlite3_column_int64(stmt, 2);
-		client_msg.dup = sqlite3_column_int(stmt, 3);
+		client_msg.dup = (uint8_t)sqlite3_column_int(stmt, 3);
 		client_msg.direction = (uint8_t)sqlite3_column_int(stmt, 4);
 		client_msg.mid = (uint16_t)sqlite3_column_int(stmt, 5);
 		client_msg.qos = (uint8_t)sqlite3_column_int(stmt, 6);

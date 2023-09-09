@@ -19,7 +19,7 @@ def do_test(config_str, rc_expected, error_log_entry):
 
     try:
         broker = mosq_test.start_broker(conf_file, check_port=False)
-        mosq_test.wait_for_subprocess(broker,timeout=1)
+        mosq_test.wait_for_subprocess(broker,timeout=5)
 
         if broker.returncode != rc_expected:
             (stdo, stde) = broker.communicate()

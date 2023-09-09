@@ -424,7 +424,7 @@ int persist__restore(void)
 	subscription_count = 0;
 	client_msg_count = 0;
 
-	fptr = mosquitto__fopen(db.config->persistence_filepath, "rb", false);
+	fptr = mosquitto__fopen(db.config->persistence_filepath, "rb", true);
 	if(fptr == NULL) return MOSQ_ERR_SUCCESS;
 	rlen = fread(&header, 1, 15, fptr);
 	if(rlen == 0){

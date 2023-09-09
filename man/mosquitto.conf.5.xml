@@ -1638,9 +1638,12 @@ openssl dhparam -out dhparam.pem 2048</programlisting>
 					<term><option>keyfile</option> <replaceable>file path</replaceable></term>
 					<listitem>
 						<para>
-							Path to the PEM encoded server key. This
-							option and <option>certfile</option> must be present
-							to enable certificate based TLS encryption.
+							If <option>tls_keyform</option> equals "pem" this is the
+							path to the PEM encoded server key. This option
+							and <option>certfile</option> must be present
+							to enable certificate based TLS encryption. If
+							<option>tls_keyform</option> is "engine" this represents
+							the engine handle of the private key.
 						</para>
 						<para>
 							The private key pointed to by this option will be

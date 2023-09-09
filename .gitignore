@@ -1,3 +1,4 @@
+# .gitignore
 *.a
 *.db
 *.gcda
@@ -112,9 +113,25 @@ test/unit/lib/lib_test
 test/unit/broker/persist_read_test
 test/unit/broker/persist_write_test
 test/unit/broker/subs_test
+test/unit/tls_test
 test/unit/out/
 
 www/cache/
 __pycache__
-
 *.sync-conflict-*
+# Debian generated files
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.log
+debian/*.substvars
+debian/*mosquitto*/
+debian/*.debhelper
+debian/tmp/
+obj-*/
+
+# Emacs generated files
+*~
+
+# Others
+tmp/

@@ -24,6 +24,7 @@ Contributors:
 #include <stdio.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <inttypes.h>
 
 #include "mosquitto_broker_internal.h"
 #include "memory_mosq.h"

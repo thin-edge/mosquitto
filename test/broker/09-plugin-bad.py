@@ -18,7 +18,7 @@ def do_test(plugver, num):
     try:
         rc = 1
         broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port, check_port=False)
-        broker.wait(1)
+        broker.wait(5)
         broker.terminate()
         if broker.returncode == 13:
             rc = 0

@@ -42,6 +42,7 @@ int handle__publish(struct mosquitto *context)
 	uint8_t header = context->in_packet.command;
 	int res = 0;
 	struct mosquitto__base_msg *base_msg, *stored = NULL;
+	struct mosquitto__client_msg *cmsg_stored = NULL;
 	size_t len;
 	uint16_t slen;
 	char *topic_mount;
@@ -300,21 +301,21 @@ int handle__publish(struct mosquitto *context)
 	}
 
 	if(base_msg->data.qos > 0){
-		db__message_store_find(context, base_msg->data.source_mid, &stored);
+		db__message_store_find(context, base_msg->data.source_mid, &cmsg_stored);
 	}
 
-	if(stored && base_msg->data.source_mid != 0 &&
-			(stored->data.qos != base_msg->data.qos
-			 || stored->data.payloadlen != base_msg->data.payloadlen
-			 || strcmp(stored->data.topic, base_msg->data.topic)
-			 || memcmp(stored->data.payload, base_msg->data.payload, base_msg->data.payloadlen) )){
+	if(cmsg_stored && cmsg_stored->base_msg && base_msg->data.source_mid != 0 &&
+			(cmsg_stored->base_msg->data.qos != base_msg->data.qos
+			 || cmsg_stored->base_msg->data.payloadlen != base_msg->data.payloadlen
+			 || strcmp(cmsg_stored->base_msg->data.topic, base_msg->data.topic)
+			 || memcmp(cmsg_stored->base_msg->data.payload, base_msg->data.payload, base_msg->data.payloadlen) )){
 
 		log__printf(NULL, MOSQ_LOG_WARNING, "Reused message ID %u from %s detected. Clearing from storage.", base_msg->data.source_mid, context->id);
 		db__message_remove_incoming(context, base_msg->data.source_mid);
-		stored = NULL;
+		cmsg_stored = NULL;
 	}
 
-	if(!stored){
+	if(!cmsg_stored){
 		if(base_msg->data.qos > 0 && context->msgs_in.inflight_quota == 0){
 			/* Client isn't allowed any more incoming messages, so fail early */
 			db__msg_store_free(base_msg);
@@ -323,7 +324,7 @@ int handle__publish(struct mosquitto *context)
 
 		if(base_msg->data.qos == 0
 				|| db__ready_for_flight(context, mosq_md_in, base_msg->data.qos)
-				|| db__ready_for_queue(context, base_msg->data.qos, &context->msgs_in)){
+				){
 
 			dup = 0;
 			rc = db__message_store(context, base_msg, message_expiry_interval, mosq_mo_client);
@@ -335,10 +336,13 @@ int handle__publish(struct mosquitto *context)
 		}
 		stored = base_msg;
 		base_msg = NULL;
+		dup = 0;
 	}else{
 		db__msg_store_free(base_msg);
 		base_msg = NULL;
-		dup = 1;
+		stored = cmsg_stored->base_msg;
+		cmsg_stored->data.dup++;
+		dup = cmsg_stored->data.dup;
 	}
 
 	switch(stored->data.qos){
@@ -364,11 +368,17 @@ int handle__publish(struct mosquitto *context)
 			}else{
 				res = 0;
 			}
+
 			/* db__message_insert() returns 2 to indicate dropped message
 			 * due to queue. This isn't an error so don't disconnect them. */
 			/* FIXME - this is no longer necessary due to failing early above */
 			if(!res){
-				if(send__pubrec(context, stored->data.source_mid, 0, NULL)) rc = 1;
+				if(dup == 0 || dup == 1){
+					rc2 = send__pubrec(context, stored->data.source_mid, 0, NULL);
+					if(rc2) rc = rc2;
+				}else{
+					return MOSQ_ERR_PROTOCOL;
+				}
 			}else if(res == 1){
 				rc = 1;
 			}
@@ -392,6 +402,9 @@ process_bad_message:
 				break;
 		}
 		db__msg_store_free(base_msg);
+	}
+	if(context->out_packet_count >= db.config->max_queued_messages){
+		rc = MQTT_RC_QUOTA_EXCEEDED;
 	}
 	return rc;
 }

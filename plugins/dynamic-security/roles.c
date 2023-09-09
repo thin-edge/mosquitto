@@ -204,13 +204,14 @@ static int insert_acl_cmp(struct dynsec__acl *a, struct dynsec__acl *b)
 
 static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec__acl **acllist)
 {
-	cJSON *j_acl, *jtmp;
+	cJSON *j_acl;
 	struct dynsec__acl *acl;
-	size_t topic_len;
-	const char *acltype;
-	const char *topic;
 
 	cJSON_ArrayForEach(j_acl, j_acls){
+		const char *acltype;
+		const char *topic;
+		size_t topic_len;
+
 		if(json_get_string(j_acl, "acltype", &acltype, false) != MOSQ_ERR_SUCCESS){
 			continue;
 		}
@@ -226,6 +227,11 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 			continue;
 		}
 
+		HASH_FIND(hh, *acllist, topic, strlen(topic), acl);
+		if(acl){
+			continue;
+		}
+
 		acl = mosquitto_calloc(1, sizeof(struct dynsec__acl) + topic_len + 1);
 		if(acl == NULL){
 			return 1;
@@ -235,9 +241,9 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 		json_get_int(j_acl, "priority", &acl->priority, true, 0);
 		json_get_bool(j_acl, "allow", &acl->allow, true, false);
 
-		jtmp = cJSON_GetObjectItem(j_acl, "allow");
-		if(jtmp && cJSON_IsBool(jtmp)){
-			acl->allow = cJSON_IsTrue(jtmp);
+		bool allow;
+		if(json_get_bool(j_acl, "allow", &allow, false, false) == MOSQ_ERR_SUCCESS){
+			acl->allow = allow;
 		}
 
 		HASH_ADD_INORDER(hh, *acllist, topic, topic_len, acl, insert_acl_cmp);
@@ -249,7 +255,7 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 
 int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 {
-	cJSON *j_roles, *j_role, *jtmp, *j_acls;
+	cJSON *j_roles, *j_role, *j_acls;
 	struct dynsec__role *role;
 	size_t rolename_len;
 
@@ -305,12 +311,7 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 			}
 
 			/* Allow wildcard subs */
-			jtmp = cJSON_GetObjectItem(j_role, "allowwildcardsubs");
-			if(jtmp != NULL && cJSON_IsBool(jtmp)){
-				role->allow_wildcard_subs = cJSON_IsTrue(jtmp);
-			}else{
-				role->allow_wildcard_subs = true;
-			}
+			json_get_bool(j_role, "allowwildcardsubs", &role->allow_wildcard_subs, true, true);
 
 			/* ACLs */
 			j_acls = cJSON_GetObjectItem(j_role, "acls");

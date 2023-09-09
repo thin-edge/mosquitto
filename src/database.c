@@ -964,23 +964,24 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	return MOSQ_ERR_SUCCESS;
 }
 
-int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__base_msg **base_msg)
+int db__message_store_find(struct mosquitto *context, uint16_t mid, struct mosquitto__client_msg **client_msg)
 {
-	struct mosquitto__client_msg *client_msg;
+	struct mosquitto__client_msg *cmsg;
+
+	*client_msg = NULL;
 
 	if(!context) return MOSQ_ERR_INVAL;
 
-	*base_msg = NULL;
-	DL_FOREACH(context->msgs_in.inflight, client_msg){
-		if(client_msg->base_msg->data.source_mid == mid){
-			*base_msg = client_msg->base_msg;
+	DL_FOREACH(context->msgs_in.inflight, cmsg){
+		if(cmsg->base_msg->data.source_mid == mid){
+			*client_msg = cmsg;
 			return MOSQ_ERR_SUCCESS;
 		}
 	}
 
-	DL_FOREACH(context->msgs_in.queued, client_msg){
-		if(client_msg->base_msg->data.source_mid == mid){
-			*base_msg = client_msg->base_msg;
+	DL_FOREACH(context->msgs_in.queued, cmsg){
+		if(cmsg->base_msg->data.source_mid == mid){
+			*client_msg = cmsg;
 			return MOSQ_ERR_SUCCESS;
 		}
 	}
@@ -1084,6 +1085,7 @@ static int db__message_reconnect_reset_incoming(struct mosquitto *context)
 		}else{
 			/* Message state can be preserved here because it should match
 			 * whatever the client has got. */
+			client_msg->data.dup = 0;
 		}
 	}
 
@@ -1094,6 +1096,7 @@ static int db__message_reconnect_reset_incoming(struct mosquitto *context)
 	 * will be sent out of order.
 	 */
 	DL_FOREACH_SAFE(context->msgs_in.queued, client_msg, tmp){
+		client_msg->data.dup = 0;
 		db__msg_add_to_queued_stats(&context->msgs_in, client_msg);
 		if(db__ready_for_flight(context, mosq_md_in, client_msg->data.qos)){
 			switch(client_msg->data.qos){

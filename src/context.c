@@ -105,8 +105,8 @@ struct mosquitto *context__init(void)
 	context->address = NULL;
 	context->bridge = NULL;
 	context->msgs_in.inflight_maximum = db.config->max_inflight_messages;
-	context->msgs_out.inflight_maximum = db.config->max_inflight_messages;
 	context->msgs_in.inflight_quota = db.config->max_inflight_messages;
+	context->msgs_out.inflight_maximum = db.config->max_inflight_messages;
 	context->msgs_out.inflight_quota = db.config->max_inflight_messages;
 	context->max_qos = 2;
 #ifdef WITH_TLS
@@ -116,6 +116,24 @@ struct mosquitto *context__init(void)
 	return context;
 }
 
+static void context__cleanup_out_packets(struct mosquitto *context)
+{
+	struct mosquitto__packet *packet;
+
+	if(!context) return;
+
+	while(context->out_packet){
+		packet = context->out_packet;
+		context->out_packet = context->out_packet->next;
+		mosquitto__free(packet);
+	}
+	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
+	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
+	context->out_packet_count = 0;
+	context->out_packet_bytes = 0;
+}
+
+
 /*
  * This will result in any outgoing packets going unsent. If we're disconnected
  * forcefully then it is usually an error condition and shouldn't be a problem,
@@ -124,8 +142,6 @@ struct mosquitto *context__init(void)
  */
 void context__cleanup(struct mosquitto *context, bool force_free)
 {
-	struct mosquitto__packet *packet;
-
 	if(!context) return;
 
 	if(force_free){
@@ -140,6 +156,7 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 
 	alias__free_all(context);
 	keepalive__remove(context);
+	context__cleanup_out_packets(context);
 
 	mosquitto__FREE(context->auth_method);
 	mosquitto__FREE(context->username);
@@ -160,15 +177,7 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 		mosquitto__FREE(context->id);
 	}
 	packet__cleanup(&(context->in_packet));
-	while(context->out_packet){
-		packet = context->out_packet;
-		context->out_packet = context->out_packet->next;
-		mosquitto__FREE(packet);
-	}
-	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
-	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
-	context->out_packet_count = 0;
-	context->out_packet_bytes = 0;
+	context__cleanup_out_packets(context);
 #if defined(WITH_BROKER) && defined(__GLIBC__) && defined(WITH_ADNS)
 	if(context->adns){
 		gai_cancel(context->adns);

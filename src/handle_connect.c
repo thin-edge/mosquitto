@@ -403,6 +403,10 @@ static int will__read(struct mosquitto *context, const char *clientid, struct mo
 		will_struct->msg.topic = will_topic_mount;
 	}
 
+	if(!strncmp(will_struct->msg.topic, "$CONTROL/", strlen("$CONTROL/"))){
+		rc = MOSQ_ERR_ACL_DENIED;
+		goto error_cleanup;
+	}
 	rc = mosquitto_pub_topic_check(will_struct->msg.topic);
 	if(rc) goto error_cleanup;
 
@@ -1065,6 +1069,7 @@ handle_connect_error:
 		mosquitto__FREE(context->will->msg.payload);
 		mosquitto__FREE(context->will->msg.topic);
 		mosquitto__FREE(context->will);
+		context->will = NULL;
 	}
 	/* We return an error here which means the client is freed later on. */
 	context->clean_start = true;

@@ -299,6 +299,9 @@ BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *u
 	if(!client) return MOSQ_ERR_INVAL;
 
 	if(username){
+		if(mosquitto_validate_utf8(username, (int)strlen(username))){
+			return MOSQ_ERR_MALFORMED_UTF8;
+		}
 		u_dup = mosquitto__strdup(username);
 		if(!u_dup) return MOSQ_ERR_NOMEM;
 	}else{

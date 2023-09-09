@@ -195,7 +195,6 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	struct dynsec__group *group;
 	struct dynsec__role *role;
 	int priority;
-	const char *textname, *textdescription;
 	const char *groupname;
 	size_t groupname_len;
 
@@ -211,6 +210,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	cJSON_ArrayForEach(j_group, j_groups){
 		if(cJSON_IsObject(j_group) == true){
 			/* Group name */
+			const char *groupname;
 			if(json_get_string(j_group, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 				continue;
 			}
@@ -229,6 +229,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			strncpy(group->groupname, groupname, groupname_len+1);
 
 			/* Text name */
+			const char *textname;
 			if(json_get_string(j_group, "textname", &textname, false) == MOSQ_ERR_SUCCESS){
 				if(textname){
 					group->text_name = strdup(textname);
@@ -240,6 +241,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 			}
 
 			/* Text description */
+			const char *textdescription;
 			if(json_get_string(j_group, "textdescription", &textdescription, false) == MOSQ_ERR_SUCCESS){
 				if(textdescription){
 					group->text_description = strdup(textdescription);

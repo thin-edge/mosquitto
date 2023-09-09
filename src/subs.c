@@ -405,8 +405,8 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 				* each subleaf. Might be worth considering though. */
 				for(i=0; i<context->subs_capacity; i++){
 					if(context->subs[i] == leaf){
-						context->subs_count--;
 						mosquitto__FREE(context->subs[i]);
+						context->subs_count--;
 						break;
 					}
 				}

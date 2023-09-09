@@ -47,8 +47,6 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 	assert(db_fptr);
 	assert(context);
 
-	memset(&chunk, 0, sizeof(struct P_client_msg));
-
 	cmsg = queue;
 	while(cmsg){
 		if(!strncmp(cmsg->base_msg->data.topic, "$SYS", 4)
@@ -60,6 +58,8 @@ static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *contex
 			cmsg = cmsg->next;
 			continue;
 		}
+
+		memset(&chunk, 0, sizeof(struct P_client_msg));
 
 		chunk.F.store_id = cmsg->base_msg->data.store_id;
 		chunk.F.mid = cmsg->data.mid;
@@ -91,13 +91,13 @@ static int persist__message_store_save(FILE *db_fptr)
 
 	assert(db_fptr);
 
-	memset(&chunk, 0, sizeof(struct P_base_msg));
-
 	base_msg = db.msg_store;
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
 		if(base_msg->ref_count < 1 || base_msg->data.topic == NULL){
 			continue;
 		}
+
+		memset(&chunk, 0, sizeof(struct P_base_msg));
 
 		if(!strncmp(base_msg->data.topic, "$SYS", 4)){
 			if(base_msg->ref_count <= 1 && base_msg->dest_id_count == 0){
@@ -161,14 +161,17 @@ static int persist__client_save(FILE *db_fptr)
 
 	assert(db_fptr);
 
-	memset(&chunk, 0, sizeof(struct P_client));
-
 	HASH_ITER(hh_id, db.contexts_by_id, context, ctxt_tmp){
-		if(context && (context->clean_start == false
+		memset(&chunk, 0, sizeof(struct P_client));
+
+		if(context &&
 #ifdef WITH_BRIDGE
-				|| (context->bridge && context->bridge->clean_start_local == false)
+				((!context->bridge && context->clean_start == false)
+				|| (context->bridge && context->bridge->clean_start_local == false))
+#else
+				context->clean_start == false
 #endif
-				)){
+				){
 			chunk.F.session_expiry_time = context->session_expiry_time;
 			if(context->session_expiry_interval != 0 && context->session_expiry_interval != UINT32_MAX && context->session_expiry_time == 0){
 				chunk.F.session_expiry_time = context->session_expiry_interval + db.now_real_s;
@@ -218,8 +221,6 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 	size_t slen;
 	int rc;
 
-	memset(&sub_chunk, 0, sizeof(struct P_sub));
-
 	slen = strlen(topic) + node->topic_len + 2;
 	thistopic = mosquitto__malloc(sizeof(char)*slen);
 	if(!thistopic) return MOSQ_ERR_NOMEM;
@@ -232,6 +233,8 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 	sub = node->subs;
 	while(sub){
 		if(sub->context->clean_start == false && sub->context->id){
+			memset(&sub_chunk, 0, sizeof(struct P_sub));
+
 			sub_chunk.F.identifier = sub->identifier;
 			sub_chunk.F.id_len = (uint16_t)strlen(sub->context->id);
 			sub_chunk.F.topic_len = (uint16_t)strlen(thistopic);
@@ -275,9 +278,9 @@ static int persist__retain_save(FILE *db_fptr, struct mosquitto__retainhier *nod
 	struct P_retain retain_chunk;
 	int rc;
 
-	memset(&retain_chunk, 0, sizeof(struct P_retain));
-
 	if(node->retained && strncmp(node->retained->data.topic, "$SYS", 4)){
+		memset(&retain_chunk, 0, sizeof(struct P_retain));
+
 		/* Don't save $SYS messages. */
 		retain_chunk.F.store_id = node->retained->data.store_id;
 		rc = persist__chunk_retain_write_v6(db_fptr, &retain_chunk);

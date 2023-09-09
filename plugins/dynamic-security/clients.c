@@ -107,17 +107,12 @@ void dynsec_clients__cleanup(struct dynsec__data *data)
 
 int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 {
-	cJSON *j_clients, *j_client = NULL, *jtmp, *j_roles, *j_role;
+	cJSON *j_clients, *j_client = NULL, *j_roles, *j_role;
 	struct dynsec__client *client;
 	struct dynsec__role *role;
 	unsigned char *buf;
 	unsigned int buf_len;
 	int priority;
-	int iterations;
-	const char *username;
-	size_t username_len;
-	const char *salt;
-	const char *password;
 
 	j_clients = cJSON_GetObjectItem(tree, "clients");
 	if(j_clients == NULL){
@@ -130,10 +125,11 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 	cJSON_ArrayForEach(j_client, j_clients){
 		if(cJSON_IsObject(j_client) == true){
 			/* Username */
+			const char *username;
 			if(json_get_string(j_client, "username", &username, false) != MOSQ_ERR_SUCCESS){
 				continue;
 			}
-			username_len = strlen(username);
+			size_t username_len = strlen(username);
 			if(username_len == 0){
 				continue;
 			}
@@ -147,11 +143,14 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 			}
 			strncpy(client->username, username, username_len);
 
-			jtmp = cJSON_GetObjectItem(j_client, "disabled");
-			if(jtmp && cJSON_IsBool(jtmp)){
-				client->disabled = cJSON_IsTrue(jtmp);
+			bool disabled;
+			if(json_get_bool(j_client, "disabled", &disabled, false, false) == MOSQ_ERR_SUCCESS){
+				client->disabled = disabled;
 			}
 
+			int iterations;
+			const char *salt;
+			const char *password;
 			json_get_int(j_client, "iterations", &iterations, 0, true);
 			if(json_get_string(j_client, "salt", &salt, false) == MOSQ_ERR_SUCCESS
 					&& json_get_string(j_client, "password", &password, false) == MOSQ_ERR_SUCCESS
