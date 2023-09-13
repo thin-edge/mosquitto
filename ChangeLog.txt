@@ -76,8 +76,9 @@ Broker:
 - Add -q option to allow logging to be disabled at the command line.
 
 Plugins / plugin interface:
-- Add support for modifying outgoing messages using MOSQ_EVT_MESSAGE_OUT.
 - Add persist-sqlite plugin.
+- Add sparkplug aware plugin.
+- Add support for modifying outgoing messages using MOSQ_EVT_MESSAGE_OUT.
 - Add mosquitto_client() function for retrieving a client struct if that
   client is connected.
 - Add MOSQ_ERR_PLUGIN_IGNORE to allow plugins to register basic auth or acl

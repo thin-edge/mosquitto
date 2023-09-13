@@ -18,7 +18,7 @@ test-compile :
 ptest : test-compile msg_sequence_test
 	./test.py
 
-test : test-compile msg_sequence_test 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17
+test : test-compile msg_sequence_test 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 20
 
 msg_sequence_test:
 	./msg_sequence_test.py
@@ -306,3 +306,6 @@ endif
 	./17-control-list-listeners.py
 	./17-control-list-plugins.py
 
+20 :
+	./20-sparkplug-compliance.py
+	./20-sparkplug-aware.py
