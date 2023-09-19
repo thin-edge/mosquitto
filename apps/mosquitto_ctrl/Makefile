@@ -3,14 +3,14 @@ include ${R}/config.mk
 
 .PHONY: all install uninstall clean reallyclean
 
-CFLAGS+=
-CPPFLAGS+=-I${R}/lib -I${R}/apps/mosquitto_passwd -I${R}/plugins/dynamic-security -I${R}/plugins/common -I${R}/common
-LDFLAGS+=
-LDADD+=-lcjson -ldl ${LIBMOSQ}
+LOCAL_CFLAGS+=
+LOCAL_CPPFLAGS+=-I${R}/lib -I${R}/apps/mosquitto_passwd -I${R}/plugins/dynamic-security -I${R}/common
+LOCAL_LDFLAGS+=
+LOCAL_LDADD+=-lcjson -ldl ${LIBMOSQ}
 
 ifeq ($(WITH_THREADING),yes)
-LDFLAGS+=-pthread
-LDADD+=-lssl -lcrypto
+LOCAL_LDFLAGS+=-pthread
+LOCAL_LDADD+=-lssl -lcrypto
 endif
 
 OBJS= \
@@ -43,37 +43,37 @@ endif
 all : ${TARGET}
 
 mosquitto_ctrl : ${OBJS} ${OBJS_EXTERNAL} ${LIBMOSQ}
-	${CROSS_COMPILE}${CC} $^ -o $@ $(LDFLAGS) $(LDADD)
+	${CROSS_COMPILE}${CC} $^ -o $@ $(LOCAL_LDFLAGS) $(LOCAL_LDADD)
 
 mosquitto_ctrl_example.so : ${EXAMPLE_OBJS}
-	$(CROSS_COMPILE)$(CC) $(CPPFLAGS) $(CFLAGS) ${LDFLAGS} -shared $< -o $@
+	$(CROSS_COMPILE)$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) ${LOCAL_LDFLAGS} -fPIC -shared $< -o $@
 
 ${OBJS} : %.o: %.c mosquitto_ctrl.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 dynsec_hash.o : ${R}/plugins/dynamic-security/hash.c ${R}/plugins/dynamic-security/dynamic_security.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 example.o : example.c mosquitto_ctrl.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -fPIC -c $< -o $@
 
 get_password.o : ${R}/apps/mosquitto_passwd/get_password.c ${R}/apps/mosquitto_passwd/get_password.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 memory_mosq.o : ${R}/lib/memory_mosq.c
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 memory_public.o : ${R}/src/memory_public.c
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 ${R}/lib/libmosquitto.so.${SOVERSION} :
 	$(MAKE) -C ${R}/lib

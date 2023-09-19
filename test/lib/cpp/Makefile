@@ -3,8 +3,8 @@ include ${R}/config.mk
 
 .PHONY: all test clean reallyclean
 
-CXXFLAGS+=-I${R}/include -I${R}/test -I${R}/lib/cpp -DDEBUG -Werror -W
-LIBS=${R}/lib/libmosquitto.so.1 ${R}/lib/cpp/libmosquittopp.so.1
+LOCAL_CXXFLAGS+=-I${R}/include -I${R}/test -I${R}/lib/cpp -DDEBUG -Werror -W
+LIBS=${LIBMOSQ} ${R}/lib/cpp/libmosquittopp.so.1
 
 SRC = \
 	01-con-discon-success.cpp \
@@ -68,7 +68,6 @@ SRC = \
 	11-prop-send-payload-format.cpp \
 	11-prop-recv.cpp
 
-
 LIBS += -lssl -lcrypto
 
 TESTS = ${SRC:.cpp=.test}
@@ -76,7 +75,7 @@ TESTS = ${SRC:.cpp=.test}
 all : ${TESTS}
 
 ${TESTS} : %.test: %.cpp ${R}/test/path_helper.h
-	$(CXX) -DTEST_SOURCE_DIR='"$(realpath .)"' $< -o $@ $(CXXFLAGS) $(LIBS)
+	$(CXX) -DTEST_SOURCE_DIR='"$(realpath .)"' $< -o $@ $(LOCAL_CXXFLAGS) $(LIBS)
 
 reallyclean : clean
 	-rm -f *.orig

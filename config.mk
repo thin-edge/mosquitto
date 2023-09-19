@@ -155,7 +155,6 @@ DB_HTML_XSL=man/html.xsl
 #MANCOUNTRIES=en_GB
 
 MAKE_ALL:=mosquitto
-CPPFLAGS+=-DVERSION=\""${VERSION}\"" -I${R} -I. -I${R}/include -I${R}/common
 
 UNAME:=$(shell uname -s)
 ARCH:=$(shell uname -p)
@@ -179,6 +178,14 @@ else
 	CXXFLAGS?=-Wall -ggdb -O3 -Wconversion -Wextra
 endif
 
+LOCAL_CPPFLAGS=$(CPPFLAGS)
+LOCAL_CFLAGS=$(CFLAGS)
+LOCAL_CXXFLAGS=$(CXXFLAGS)
+LOCAL_LDFLAGS=$(LDFLAGS)
+LOCAL_LIBADD=$(LIBADD)
+
+LOCAL_CPPFLAGS+=-DVERSION=\""${VERSION}\"" -I${R} -I. -I${R}/include -I${R}/common
+
 ifneq ($(or $(findstring $(UNAME),FreeBSD), $(findstring $(UNAME),OpenBSD), $(findstring $(UNAME),NetBSD)),)
 	SEDINPLACE:=-i ""
 else
@@ -190,12 +197,12 @@ endif
 endif
 
 ifeq ($(UNAME),QNX)
-	LDADD+=-lsocket
+	LOCAL_LDADD+=-lsocket
 endif
 
 ifeq ($(UNAME),SunOS)
-	LDADD+=-lsocket -lnsl
-	LIBADD+=-lsocket -lnsl
+	LOCAL_LDADD+=-lsocket -lnsl
+	LOCAL_LIBADD+=-lsocket -lnsl
 endif
 
 ifeq ($(WITH_FUZZING),yes)
@@ -210,15 +217,15 @@ else
 endif
 
 ifeq ($(WITH_TLS),yes)
-	CPPFLAGS+=-DWITH_TLS
+	LOCAL_CPPFLAGS+=-DWITH_TLS
 	ifeq ($(WITH_TLS_PSK),yes)
-		CPPFLAGS+=-DWITH_TLS_PSK
+		LOCAL_CPPFLAGS+=-DWITH_TLS_PSK
 	endif
 endif
 
 ifeq ($(WITH_LTO),yes)
-	CFLAGS+=-flto
-	LDFLAGS+=-flto
+	LOCAL_CFLAGS+=-flto
+	LOCAL_LDFLAGS+=-flto
 endif
 
 ifeq ($(WITH_DOCS),yes)
@@ -226,20 +233,20 @@ ifeq ($(WITH_DOCS),yes)
 endif
 
 ifeq ($(WITH_JEMALLOC),yes)
-	LDADD+=-ljemalloc
+	LOCAL_LDADD+=-ljemalloc
 endif
 
 ifeq ($(WITH_UNIX_SOCKETS),yes)
-	CPPFLAGS+=-DWITH_UNIX_SOCKETS
+	LOCAL_CPPFLAGS+=-DWITH_UNIX_SOCKETS
 endif
 
 ifeq ($(WITH_WEBSOCKETS),yes)
-	CPPFLAGS+=-DWITH_WEBSOCKETS=WS_IS_BUILTIN -I${R}/deps/picohttpparser
+	LOCAL_CPPFLAGS+=-DWITH_WEBSOCKETS=WS_IS_BUILTIN -I${R}/deps/picohttpparser
 endif
 
 ifeq ($(WITH_WEBSOCKETS),lws)
-	CPPFLAGS+=-DWITH_WEBSOCKETS=WS_IS_LWS
-	LDADD+=-lwebsockets
+	LOCAL_CPPFLAGS+=-DWITH_WEBSOCKETS=WS_IS_LWS
+	LOCAL_LDADD+=-lwebsockets
 endif
 
 ifeq ($(WITH_STRIP),yes)
@@ -247,17 +254,17 @@ ifeq ($(WITH_STRIP),yes)
 endif
 
 ifeq ($(WITH_BUNDLED_DEPS),yes)
-	CPPFLAGS+=-I${R}/deps
+	LOCAL_CPPFLAGS+=-I${R}/deps
 endif
 
 ifeq ($(WITH_COVERAGE),yes)
-	CFLAGS+=-coverage
-	LDFLAGS+=-coverage
+	LOCAL_CFLAGS+=-coverage
+	LOCAL_LDFLAGS+=-coverage
 endif
 
 ifeq ($(WITH_FUZZING),yes)
 	MAKE_ALL+=fuzzing
-	CPPFLAGS+=-DWITH_FUZZING
-	CFLAGS+=-fPIC
-	LDFLAGS+=-shared $(CFLAGS)
+	LOCAL_CPPFLAGS+=-DWITH_FUZZING
+	LOCAL_CFLAGS+=-fPIC
+	LOCAL_LDFLAGS+=-shared $(LOCAL_CFLAGS)
 endif

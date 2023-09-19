@@ -4,8 +4,9 @@ include ${R}/config.mk
 .PHONY : all binary check clean reallyclean test test-compile install uninstall
 
 PLUGIN_NAME=mosquitto_persist_sqlite
-CPPFLAGS+=-I${R}/src/
-LIBADD+=-lsqlite3 -lcjson
+LOCAL_CPPFLAGS+=-I${R}/src/ -I${R}/plugins/common
+LOCAL_LIBADD+=-lsqlite3 -lcjson
+LOCAL_LDFLAGS+=-fPIC -shared
 
 OBJS = \
 	base_msgs.o \
@@ -31,13 +32,13 @@ all : ${ALL_DEPS}
 binary : ${PLUGIN_NAME}.so
 
 ${PLUGIN_NAME}.so : ${OBJS} ${OBJS_EXTERNAL}
-	${CROSS_COMPILE}${CC} $(LDFLAGS) -fPIC -shared $^ -o $@ ${LIBADD}
+	${CROSS_COMPILE}${CC} $(LOCAL_LDFLAGS) $^ -o $@ ${LOCAL_LIBADD}
 
 ${OBJS} : %.o: %.c persist_sqlite.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 reallyclean : clean
 clean:

@@ -4,13 +4,13 @@ include ${R}/make/broker.mk
 
 .PHONY: all check test test-compile clean coverage
 
-CFLAGS+=-coverage
-CPPFLAGS+=-DWITH_BROKER -I${R}/src -I${R}/test -I${R}/lib -DTEST_SOURCE_DIR='"$(realpath .)"'
-LDFLAGS+=-coverage
-LDADD+=-lcunit
+LOCAL_CFLAGS+=-coverage
+LOCAL_CPPFLAGS+=-DWITH_BROKER -I${R}/src -I${R}/test -I${R}/lib -DTEST_SOURCE_DIR='"$(realpath .)"' -I${R}/lib
+LOCAL_LDFLAGS+=-coverage
+LOCAL_LDADD+=-lcunit
 
 ifeq ($(WITH_TLS),yes)
-	LDADD+=-lssl -lcrypto
+	LOCAL_LDADD+=-lssl -lcrypto
 endif
 
 BRIDGE_TOPIC_TEST_OBJS = \
@@ -92,43 +92,49 @@ all : test-compile
 check : test
 
 bridge_topic_test : ${BRIDGE_TOPIC_TEST_OBJS} ${BRIDGE_TOPIC_OBJS}
-	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -o $@ $^ $(LDADD)
+	$(CROSS_COMPILE)$(CC) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LDADD)
 
 keepalive_test : ${KEEPALIVE_TEST_OBJS} ${KEEPALIVE_OBJS}
-	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -o $@ $^ $(LDADD)
+	$(CROSS_COMPILE)$(CC) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LDADD)
 
 persist_read_test : ${PERSIST_READ_TEST_OBJS} ${PERSIST_READ_OBJS}
-	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -o $@ $^ $(LDADD)
+	$(CROSS_COMPILE)$(CC) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LDADD)
 
 persist_write_test : ${PERSIST_WRITE_TEST_OBJS} ${PERSIST_WRITE_OBJS}
-	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -o $@ $^ $(LDADD)
+	$(CROSS_COMPILE)$(CC) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LDADD)
 
 subs_test : ${SUBS_TEST_OBJS} ${SUBS_OBJS}
-	$(CROSS_COMPILE)$(CC) $(LDFLAGS) -o $@ $^ $(LDADD)
+	$(CROSS_COMPILE)$(CC) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LDADD)
+
+keepalive_test.o : keepalive_test.c
+	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
+
+keepalive_stubs.o : keepalive_stubs.c
+	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 bridge_topic_test.o : bridge_topic_test.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 broker_stubs.o : stubs.c
-	${CROSS_COMPILE}${CC} $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 persist_read_test.o : persist_read_test.c
-	${CROSS_COMPILE}${CC} -I${R}/test $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/test $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 persist_read_stubs.o: persist_read_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 persist_write_test.o : persist_write_test.c
-	${CROSS_COMPILE}${CC} -I${R}/test $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/test $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 persist_write_stubs.o: persist_write_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 subs_test.o : subs_test.c
-	${CROSS_COMPILE}${CC} -I${R}/test $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/test $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 subs_stubs.o: subs_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 ${R}/src/bridge_topic.o : ${R}/src/bridge_topic.c
 	$(MAKE) -C ${R}/src/ bridge_topic.o

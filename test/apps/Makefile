@@ -23,3 +23,5 @@ ptest :
 reallyclean : clean
 clean :
 	$(MAKE) -C db_dump clean
+	$(MAKE) -C ctrl clean
+	$(MAKE) -C passwd clean

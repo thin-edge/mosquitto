@@ -4,14 +4,17 @@ include ${R}/config.mk
 .PHONY : all binary check clean reallyclean test install uninstall
 
 PLUGIN_NAME=mosquitto_client_properties
-PLUGIN_CFLAGS+=-I${R}/include -I${R}/
+LOCAL_CPPFLAGS+=
+LOCAL_CFLAGS+=-fPIC
+LOCAL_LDFLAGS+=-fPIC -shared
+LOCAL_LIBADD+=
 
 all : binary
 
 binary : ${PLUGIN_NAME}.so
 
 ${PLUGIN_NAME}.so : ${PLUGIN_NAME}.c
-	$(CROSS_COMPILE)$(CC) $(PLUGIN_CPPFLAGS) $(PLUGIN_CFLAGS) $(PLUGIN_LDFLAGS) -fPIC -shared $< -o $@
+	$(CROSS_COMPILE)$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) $(LOCAL_LDFLAGS) $< -o $@ $(LOCAL_LIBADD)
 
 reallyclean : clean
 clean:

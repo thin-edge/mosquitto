@@ -6,24 +6,24 @@ include ${R}/config.mk
 all : sub_callback sub_single sub_multiple
 
 sub_callback : callback.o
-	${CROSS_COMPILE}${CC} $^ -o $@ ${R}/lib/libmosquitto.so.${SOVERSION}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LIBMOSQ}
 
 sub_single : single.o
-	${CROSS_COMPILE}${CC} $^ -o $@ ${R}/lib/libmosquitto.so.${SOVERSION}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LIBMOSQ}
 
 sub_multiple : multiple.o
-	${CROSS_COMPILE}${CC} $^ -o $@ ${R}/lib/libmosquitto.so.${SOVERSION}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LIBMOSQ}
 
-callback.o : callback.c ${R}/lib/libmosquitto.so.${SOVERSION}
-	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/lib ${CFLAGS}
+callback.o : callback.c ${LIBMOSQ}
+	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/lib ${LOCAL_CFLAGS}
 
-single.o : single.c ${R}/lib/libmosquitto.so.${SOVERSION}
-	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/lib ${CFLAGS}
+single.o : single.c ${LIBMOSQ}
+	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/lib ${LOCAL_CFLAGS}
 
-multiple.o : multiple.c ${R}/lib/libmosquitto.so.${SOVERSION}
-	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/lib ${CFLAGS}
+multiple.o : multiple.c ${LIBMOSQ}
+	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/lib ${LOCAL_CFLAGS}
 
-${R}/lib/libmosquitto.so.${SOVERSION} :
+${LIBMOSQ}:
 	$(MAKE) -C ${R}/lib
 
 clean :

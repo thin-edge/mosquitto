@@ -3,8 +3,9 @@ include ${R}/config.mk
 
 .PHONY: all clean reallyclean
 
-CFLAGS=-I${R}/include -I${R}/test -Werror -ggdb
-LIBS=${R}/lib/libmosquitto.so.1
+LOCAL_CPPFLAGS+=-I${R}/test
+LOCAL_CFLAGS+=-Werror -ggdb
+LOCAL_LIBADD+=${LIBMOSQ}
 
 SRC = \
 	01-con-discon-success.c \
@@ -73,7 +74,7 @@ ifeq ($(WITH_TLS),yes)
 SRC += \
 	08-ssl-connect-cert-auth-custom-ssl-ctx.c \
 	08-ssl-connect-cert-auth-custom-ssl-ctx-default.c
-LIBS += -lssl -lcrypto
+LOCAL_LIBADD+=-lssl -lcrypto
 endif
 
 TESTS = ${SRC:.c=.test}
@@ -81,7 +82,7 @@ TESTS = ${SRC:.c=.test}
 all : ${TESTS}
 
 ${TESTS} : %.test: %.c ${R}/test/path_helper.h
-	$(CC) $< -o $@ -D TEST_SOURCE_DIR='"$(realpath .)"' $(CFLAGS) $(LIBS)
+	$(CC) $< -o $@ -D TEST_SOURCE_DIR='"$(realpath .)"' $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) $(LOCAL_LIBADD)
 
 reallyclean : clean
 	-rm -f *.orig

@@ -4,9 +4,9 @@ include ${R}/config.mk
 .PHONY : all binary check clean reallyclean test install uninstall
 
 PLUGIN_NAME=mosquitto_sparkplug_aware
-CFLAGS+=-I${R}/include -I${R}/
-LDFLAGS+=-fPIC -shared
-LDADD+=
+LOCAL_CFLAGS+=-I${R}/include -I${R}/
+LOCAL_LDFLAGS+=-fPIC -shared
+LOCAL_LDADD+=
 
 # Objects for this plugin only, built from source in this directory
 OBJS = \
@@ -21,16 +21,17 @@ all : binary
 binary : ${PLUGIN_NAME}.so
 
 ${PLUGIN_NAME}.so : ${OBJS} ${OBJS_EXTERNAL}
-	$(CROSS_COMPILE)$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ ${LDADD}
+	$(CROSS_COMPILE)$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) $(LOCAL_LDFLAGS) $^ -o $@ ${LOCAL_LDADD}
 
 ${OBJS} : %.o: %.c plugin_global.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 
 reallyclean : clean
 clean:
 	-rm -f *.o ${PLUGIN_NAME}.so *.gcda *.gcno
 
+test-compile:
 check: test
 test:
 

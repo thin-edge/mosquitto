@@ -1,10 +1,10 @@
 R=../..
 include ${R}/config.mk
 
-CFLAGS+=
-CPPFLAGS+=-I${R}/lib
-LDFLAGS+=
-LDADD+=-lcrypto
+LOCAL_CFLAGS+=
+LOCAL_CPPFLAGS+=-I${R}/lib
+LOCAL_LDFLAGS+=
+LOCAL_LDADD+=-lcrypto
 
 .PHONY: all install uninstall clean reallyclean
 
@@ -31,28 +31,28 @@ all:
 endif
 
 mosquitto_passwd : ${OBJS} ${OBJS_EXTERNAL}
-	${CROSS_COMPILE}${CC} ${LDFLAGS} $^ -o $@ $(LDADD)
+	${CROSS_COMPILE}${CC} ${LOCAL_LDFLAGS} $^ -o $@ $(LOCAL_LDADD)
 
 mosquitto_passwd.a : ${OBJS} ${OBJS_EXTERNAL}
 	${CROSS_COMPILE}$(AR) cr $@ $^
 
 ${OBJS} : %.o: %.c
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 memory_mosq.o : ${R}/lib/memory_mosq.c
-	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 memory_public.o : ${R}/src/memory_public.c
-	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
-	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
-	${CROSS_COMPILE}${CC} ${CPPFLAGS} $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 install : all
 ifeq ($(WITH_TLS),yes)

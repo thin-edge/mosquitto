@@ -1,64 +1,35 @@
 R=..
 include ${R}/config.mk
 
-CFLAGS+=
-CPPFLAGS+=
-LDFLAGS+=
-LIBADD+=-lcjson
+LOCAL_CFLAGS+=-fPIC
+LOCAL_CPPFLAGS+=
+LOCAL_LDFLAGS+=-Wl,--version-script=linker.version -Wl,-soname,libmosquitto.so.$(SOVERSION) -fPIC -shared
+LOCAL_LIBADD+=-lcjson -lc
 STATIC_LIB_DEPS:=
-
-# ------------------------------------------
-#  Platform specific
-# ------------------------------------------
-ifneq ($(UNAME),SunOS)
-	LDFLAGS+=-Wl,--version-script=linker.version -Wl,-soname,libmosquitto.so.$(SOVERSION)
-endif
-
-ifeq ($(UNAME),SunOS)
-	ifeq ($(ARCH),sparc)
-		ifeq ($(CC),cc)
-			CFLAGS+=-xc99 -KPIC
-		else
-			CFLAGS+=-fPIC
-		endif
-	endif
-	ifeq ($(ARCH),i386)
-		CFLAGS+=-fPIC
-	endif
-
-	ifeq ($(CXX),CC)
-		CXXFLAGS+=-KPIC
-	else
-		CXXFLAGS+=-fPIC
-	endif
-else
-	CFLAGS+=-fPIC
-	CXXFLAGS+=-fPIC
-endif
 
 # ------------------------------------------
 #  Compile time options
 # ------------------------------------------
 
 ifeq ($(WITH_SOCKS),yes)
-	CPPFLAGS+=-DWITH_SOCKS
+	LOCAL_CPPFLAGS+=-DWITH_SOCKS
 endif
 
 ifeq ($(WITH_SRV),yes)
-	CPPFLAGS+=-DWITH_SRV
-	LIBADD+=-lcares
+	LOCAL_CPPFLAGS+=-DWITH_SRV
+	LOCAL_LIBADD+=-lcares
 	STATIC_LIB_DEPS+=-lcares
 endif
 
 ifeq ($(WITH_THREADING),yes)
-	CFLAGS+=-pthread
-	CPPFLAGS+=-DWITH_THREADING
-	LDFLAGS+=-pthread
+	LOCAL_CFLAGS+=-pthread
+	LOCAL_CPPFLAGS+=-DWITH_THREADING
+	LOCAL_LDFLAGS+=-pthread
 	STATIC_LIB_DEPS+=-pthread
 endif
 
 ifeq ($(WITH_TLS),yes)
-	LIBADD+=-lssl -lcrypto
+	LOCAL_LIBADD+=-lssl -lcrypto
 	STATIC_LIB_DEPS:=$(STATIC_LIB_DEPS) -lssl -lcrypto
 endif
 
@@ -168,26 +139,26 @@ uninstall :
 reallyclean : clean
 
 clean :
-	-rm -f ${OBJS} libmosquitto.so.${SOVERSION} libmosquitto.so libmosquitto.a *.gcno *.gcda
+	-rm -f ${OBJS} ${OBJS_EXTERNAL} libmosquitto.so.${SOVERSION} libmosquitto.so libmosquitto.a *.gcno *.gcda
 	$(MAKE) -C cpp clean
 
 libmosquitto.so.${SOVERSION} : ${OBJS} ${OBJS_EXTERNAL}
-	${CROSS_COMPILE}$(CC) -shared $(LDFLAGS) $^ -o $@ ${LIBADD}
+	${CROSS_COMPILE}$(CC) $(LOCAL_LDFLAGS) $^ -o $@ ${LOCAL_LIBADD}
 
 libmosquitto.a : ${OBJS} ${OBJS_EXTERNAL}
 	${CROSS_COMPILE}$(AR) cr $@ $^
 
 ${OBJS} : %.o: %.c ${R}/include/mosquitto.h mosquitto_internal.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
-	${CROSS_COMPILE}$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
-	${CROSS_COMPILE}$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 time_mosq.o : ${R}/common/time_mosq.c ${R}/common/time_mosq.h
-	${CROSS_COMPILE}$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@

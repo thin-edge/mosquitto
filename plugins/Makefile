@@ -1,7 +1,8 @@
 DIRS= \
 		dynamic-security \
 		examples \
-		persist-sqlite
+		persist-sqlite \
+		sparkplug-aware
 
 .PHONY : all binary check clean reallyclean test test-compile install uninstall
 

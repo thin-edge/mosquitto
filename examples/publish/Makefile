@@ -6,18 +6,18 @@ include ${R}/config.mk
 all : basic-1 basic-websockets-1
 
 basic-1 : basic-1.o
-	${CROSS_COMPILE}${CC} $^ -o $@ ${R}/lib/libmosquitto.so.${SOVERSION}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LIBMOSQ}
 
 basic-websockets-1 : basic-websockets-1.o
-	${CROSS_COMPILE}${CC} $^ -o $@ ${R}/lib/libmosquitto.so.${SOVERSION}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LIBMOSQ}
 
-basic-1.o : basic-1.c ${R}/lib/libmosquitto.so.${SOVERSION}
-	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/include ${CPPFLAGS} ${CFLAGS}
+basic-1.o : basic-1.c ${LIBMOSQ}
+	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/include ${LOCAL_CPPFLAGS} ${LOCAL_CFLAGS}
 
-basic-websockets-1.o : basic-websockets-1.c ${R}/lib/libmosquitto.so.${SOVERSION}
-	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/include ${CPPFLAGS} ${CFLAGS}
+basic-websockets-1.o : basic-websockets-1.c ${LIBMOSQ}
+	${CROSS_COMPILE}${CC} -c $< -o $@ -I${R}/include ${LOCAL_CPPFLAGS} ${LOCAL_CFLAGS}
 
-${R}/lib/libmosquitto.so.${SOVERSION} :
+${LIBMOSQ} :
 	$(MAKE) -C ${R}/lib
 
 clean :

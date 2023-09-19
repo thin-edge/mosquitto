@@ -3,7 +3,9 @@ include ${R}/config.mk
 
 .PHONY: all test clean reallyclean
 
-CFLAGS=-I${R}/include -Wall -Werror
+LOCAL_CPPFLAGS+=-I${R}/include
+LOCAL_CFLAGS+=-Wall -Werror
+LOCAL_LDFLAGS+=-fPIC -shared
 
 PLUGIN_SRC = \
 	auth_plugin_acl.c \
@@ -68,11 +70,11 @@ TESTS = ${SRC:.c=.test}
 all : ${PLUGINS} ${TESTS}
 
 ${PLUGINS} : %.so: %.c
-	$(CC) ${CFLAGS} -fPIC -shared $< -o $@
+	$(CC) $(LOCAL_CPPFLAGS) ${LOCAL_CFLAGS} ${LOCAL_LDFLAGS} $< -o $@
 
 
 ${TESTS} : %.test: %.c
-	$(CC) ${CFLAGS} $< -o $@ ${LIBMOSQ}
+	$(CC) $(LOCAL_CPPFLAGS) ${LOCAL_CFLAGS} $< -o $@ ${LIBMOSQ}
 
 
 reallyclean : clean

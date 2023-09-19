@@ -7,25 +7,25 @@ ifeq ($(WITH_SHARED_LIBRARIES),yes)
 SHARED_DEP:=${R}/lib/libmosquitto.so.${SOVERSION}
 endif
 
-CFLAGS+=
-CPPFLAGS+=
-LDFLAGS+=
-LDADD+=-lcjson ${SHARED_DEP}
+LOCAL_CFLAGS+=
+LOCAL_CPPFLAGS+=
+LOCAL_LDFLAGS+=
+LOCAL_LDADD+=-lcjson ${SHARED_DEP}
 STATIC_LDADD+=-lcjson
 
 ifeq ($(WITH_SOCKS),yes)
-	CPPFLAGS+=-DWITH_SOCKS
+	LOCAL_CPPFLAGS+=-DWITH_SOCKS
 endif
 
 ifeq ($(WITH_THREADING),yes)
-	CFLAGS+=-pthread
-	CPPFLAGS+=-DWITH_THREADING
-	LDFLAGS+=-pthread
-	STATIC_LDLADD+=-pthread
+	LOCAL_CFLAGS+=-pthread
+	LOCAL_CPPFLAGS+=-DWITH_THREADING
+	LOCAL_LDFLAGS+=-pthread
+	STATIC_LDADD+=-pthread
 endif
 
 ifeq ($(WITH_TLS),yes)
-	LDADD+=-lssl -lcrypto
+	LOCAL_LDADD+=-lssl -lcrypto
 	STATIC_LDADD+= -lssl -lcrypto
 endif
 
@@ -44,51 +44,51 @@ static : static_pub static_sub static_rr
 	# libmosquitto only.
 
 static_pub : pub_client.o pub_shared.o client_props.o client_shared.o ${R}/lib/libmosquitto.a
-	${CROSS_COMPILE}${CC} $^ -o mosquitto_pub ${LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
+	${CROSS_COMPILE}${CC} $^ -o mosquitto_pub ${LOCAL_LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
 
 static_sub : sub_client.o sub_client_output.o client_props.o client_shared.o ${R}/lib/libmosquitto.a
-	${CROSS_COMPILE}${CC} $^ -o mosquitto_sub ${LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
+	${CROSS_COMPILE}${CC} $^ -o mosquitto_sub ${LOCAL_LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
 
 static_rr : rr_client.o client_props.o client_shared.o pub_shared.o sub_client_output.o ${R}/lib/libmosquitto.a
-	${CROSS_COMPILE}${CC} $^ -o mosquitto_rr ${LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
+	${CROSS_COMPILE}${CC} $^ -o mosquitto_rr ${LOCAL_LDFLAGS} ${STATIC_LIB_DEPS} ${STATIC_LDADD}
 
 mosquitto_pub : pub_client.o pub_shared.o client_shared.o client_props.o
-	${CROSS_COMPILE}${CC} $(LDFLAGS) $^ -o $@ $(LDADD)
+	${CROSS_COMPILE}${CC} $(LOCAL_LDFLAGS) $^ -o $@ $(LOCAL_LDADD)
 
 mosquitto_sub : sub_client.o sub_client_output.o client_shared.o client_props.o
-	${CROSS_COMPILE}${CC} $(LDFLAGS) $^ -o $@ $(LDADD)
+	${CROSS_COMPILE}${CC} $(LOCAL_LDFLAGS) $^ -o $@ $(LOCAL_LDADD)
 
 mosquitto_rr : rr_client.o client_shared.o client_props.o pub_shared.o sub_client_output.o
-	${CROSS_COMPILE}${CC} $(LDFLAGS) $^ -o $@ $(LDADD)
+	${CROSS_COMPILE}${CC} $(LOCAL_LDFLAGS) $^ -o $@ $(LOCAL_LDADD)
 
 pub_client.o : pub_client.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 pub_shared.o : pub_shared.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 sub_client.o : sub_client.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 sub_client_output.o : sub_client_output.c sub_client_output.h ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 rr_client.o : rr_client.c ${SHARED_DEP}
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 client_shared.o : client_shared.c client_shared.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 client_props.o : client_props.c client_shared.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 # The "testing" target is intended to make it easy to compile a quick client
 # for testing purposes. testing.c should not be committed as a file.
 testing : testing.o
-	${CROSS_COMPILE}${CC} $() $^ -o $@ $(LDADD) $(LDFLAGS)
+	${CROSS_COMPILE}${CC} $() $^ -o $@ $(LOCAL_LDADD) $(LOCAL_LDFLAGS)
 
 testing.o : testing.c
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 
 ${R}/lib/libmosquitto.so.${SOVERSION} :

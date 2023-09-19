@@ -1,10 +1,10 @@
 R=../..
 include ${R}/config.mk
 
-CFLAGS+=
-CPPFLAGS+=-I${R}/lib -I${R}/src -I${R}/common -DWITH_BROKER
-LDFLAGS+=
-LDADD+=-lcjson -lm
+LOCAL_CFLAGS+=
+LOCAL_CPPFLAGS+=-I${R}/lib -I${R}/src -I${R}/common -DWITH_BROKER
+LOCAL_LDFLAGS+=
+LOCAL_LDADD+=-lcjson -lm
 
 # ------------------------------------------
 #  Compile time options
@@ -40,13 +40,13 @@ all : mosquitto_db_dump
 endif
 
 mosquitto_db_dump : ${OBJS} ${BROKER_OBJS}
-	${CROSS_COMPILE}${CC} $^ -o $@ ${LDFLAGS} ${LIBS}
+	${CROSS_COMPILE}${CC} $^ -o $@ ${LOCAL_LDFLAGS} ${LOCAL_LDADD}
 
 mosquitto_db_dump.a : ${OBJS} ${BROKER_OBJS}
 	${CROSS_COMPILE}$(AR) cr $@ $^
 
 ${OBJS} : %.o:%.c db_dump.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 ${BROKER_OBJS} :
 	$(MAKE) -C ${R}/src $(notdir $@)

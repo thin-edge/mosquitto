@@ -5,12 +5,14 @@ include ${R}/config.mk
 
 PLUGIN_NAME=mosquitto_dynamic_security
 
-CFLAGS+=-fPIC
-CPPFLAGS+=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common
-LIBADD+=-lcjson
+LOCAL_CFLAGS+=-fPIC
+LOCAL_CPPFLAGS+=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common
+LOCAL_LIBADD+=-lcjson
+LOCAL_LDFLAGS+=-fPIC -shared
 
-ifeq ($(WITH_BUNDLED_DEPS),yes)
-	CPPFLAGS+=-I${R}/deps
+WITH_PW_CACHE:=yes
+ifeq ($(WITH_PW_CACHE),yes)
+        LOCAL_CPPFLAGS+=-DWITH_PW_CACHE
 endif
 
 OBJS = \
@@ -44,7 +46,6 @@ ALL_DEPS:=
 endif
 
 all : ${ALL_DEPS}
-binary : ${PLUGIN_NAME}.so
 
 ifeq ($(WITH_FUZZING),yes)
 binary : ${PLUGIN_NAME}.a
@@ -52,26 +53,32 @@ else
 binary : ${PLUGIN_NAME}.so
 endif
 
-${PLUGIN_NAME}.so : ${OBJS} ${OBJS_EXTERNAL}
-	${CROSS_COMPILE}${CC} $(LDFLAGS) -fPIC -shared $^ -o $@ ${LIBADD}
+ifeq ($(WITH_FUZZING),yes)
+binary : ${PLUGIN_NAME}.a
+else
+binary : ${PLUGIN_NAME}.so
+endif
 
 ${PLUGIN_NAME}.a : ${OBJS} ${OBJS_EXTERNAL}
 	${CROSS_COMPILE}$(AR) cr $@ $^
 
+${PLUGIN_NAME}.so : ${OBJS} ${OBJS_EXTERNAL}
+	${CROSS_COMPILE}${CC} $(LOCAL_LDFLAGS) $^ -o $@ ${LOCAL_LIBADD}
+
 ${OBJS} : %.o: %.c dynamic_security.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
-	${CROSS_COMPILE}${CC} $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 reallyclean : clean
 clean:

@@ -14,6 +14,7 @@ DISTFILES= \
 	installer/ \
 	lib/ \
 	logo/ \
+	make/ \
 	man/ \
 	misc/ \
 	plugins/ \
