@@ -41,6 +41,12 @@ write_config(conf_file, pw_file, port)
 # Generate initial password file
 passwd_cmd(["-H", "sha512", "-c", "-b", pw_file, "user1", "pass1"], port)
 passwd_cmd(["-H", "sha512-pbkdf2", pw_file, "user2"], port, input="cmd\ncmd\n")
+try:
+    # If we're root, set file ownership to "nobody", because that is the user
+    # the broker will change to.
+    os.chown(pw_file, 65534, 65534)
+except PermissionError:
+    pass
 
 # Then start broker
 broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=port, nolog=True)

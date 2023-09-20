@@ -2,6 +2,7 @@
 
 from mosq_test_helper import *
 import json
+import os
 import shutil
 
 def write_config(filename, ports):
@@ -67,6 +68,12 @@ if not os.path.exists(str(ports[0])):
 
 # Generate initial dynsec file
 ctrl_dynsec_cmd(["init", f"{ports[0]}/dynamic-security.json", "admin", "admin"], ports)
+try:
+    # If we're root, set file ownership to "nobody", because that is the user
+    # the broker will change to.
+    os.chown(f"{ports[0]}/dynamic-security.json", 65534, 65534)
+except PermissionError:
+    pass
 
 ctrl_dynsec_file_cmd(["help"], ports) # get the help, don't check the response though
 ctrl_dynsec_file_cmd(["setClientPassword", "admin", "newadmin", "-i", "10000"], ports)
