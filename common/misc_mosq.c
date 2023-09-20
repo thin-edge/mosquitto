@@ -226,8 +226,7 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 		}
 	}
 
-
-	if(!S_ISREG(statbuf.st_mode) && !S_ISLNK(statbuf.st_mode)){
+	if(!S_ISREG(statbuf.st_mode)){
 #ifdef WITH_BROKER
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: %s is not a file.", path);
 #endif
