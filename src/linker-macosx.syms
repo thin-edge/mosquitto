@@ -67,6 +67,7 @@ _mosquitto_set_clientid
 _mosquitto_set_username
 _mosquitto_strdup
 _mosquitto_string_to_property_info
+_mosquitto_strndup
 _mosquitto_sub_matches_acl
 _mosquitto_sub_matches_acl_with_pattern
 _mosquitto_sub_topic_check

@@ -44,3 +44,8 @@ BROKER_EXPORT char *mosquitto_strdup(const char *s)
 {
 	return mosquitto__strdup(s);
 }
+
+BROKER_EXPORT char *mosquitto_strndup(const char *s, size_t n)
+{
+	return mosquitto__strndup(s,n);
+}

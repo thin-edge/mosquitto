@@ -570,6 +570,11 @@ mosq_EXPORT void *mosquitto_realloc(void *ptr, size_t size);
  */
 mosq_EXPORT char *mosquitto_strdup(const char *s);
 
+/*
+ * Function: mosquitto_strndup
+ */
+mosq_EXPORT char *mosquitto_strndup(const char *s, size_t n);
+
 /* =========================================================================
  *
  * Section: Utility Functions
