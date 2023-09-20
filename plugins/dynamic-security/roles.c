@@ -837,7 +837,6 @@ int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_con
 	const char *rolename;
 	const char *text_name, *text_description;
 	struct dynsec__role *role;
-	char *str;
 	cJSON *j_acls;
 	bool allow_wildcard_subs;
 	bool do_kick = false;
@@ -862,7 +861,7 @@ int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_con
 	}
 
 	if(json_get_string(cmd->j_command, "textname", &text_name, false) == MOSQ_ERR_SUCCESS){
-		str = mosquitto_strdup(text_name);
+		char *str = mosquitto_strdup(text_name);
 		if(str == NULL){
 			mosquitto_control_command_reply(cmd, "Internal error");
 			return MOSQ_ERR_NOMEM;
@@ -872,7 +871,7 @@ int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_con
 	}
 
 	if(json_get_string(cmd->j_command, "textdescription", &text_description, false) == MOSQ_ERR_SUCCESS){
-		str = mosquitto_strdup(text_description);
+		char *str = mosquitto_strdup(text_description);
 		if(str == NULL){
 			mosquitto_control_command_reply(cmd, "Internal error");
 			return MOSQ_ERR_NOMEM;

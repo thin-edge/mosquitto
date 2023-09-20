@@ -191,12 +191,11 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	cJSON *j_groups, *j_group;
 	cJSON *j_clientlist;
 	cJSON *j_roles;
+	const char *groupname;
 
 	struct dynsec__group *group;
 	struct dynsec__role *role;
 	int priority;
-	const char *groupname;
-	size_t groupname_len;
 
 	j_groups = cJSON_GetObjectItem(tree, "groups");
 	if(j_groups == NULL){
@@ -210,7 +209,7 @@ int dynsec_groups__config_load(struct dynsec__data *data, cJSON *tree)
 	cJSON_ArrayForEach(j_group, j_groups){
 		if(cJSON_IsObject(j_group) == true){
 			/* Group name */
-			const char *groupname;
+			size_t groupname_len;
 			if(json_get_string(j_group, "groupname", &groupname, false) != MOSQ_ERR_SUCCESS){
 				continue;
 			}
@@ -987,10 +986,10 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_co
 
 	j_clients = cJSON_GetObjectItem(cmd->j_command, "clients");
 	if(j_clients && cJSON_IsArray(j_clients)){
-		const char *username;
 		/* Iterate over array to check clients are valid before proceeding */
 		cJSON_ArrayForEach(j_client, j_clients){
 			if(cJSON_IsObject(j_client)){
+				const char *username;
 				if(json_get_string(j_client, "username", &username, false) == MOSQ_ERR_SUCCESS){
 					client = dynsec_clients__find(data, username);
 					if(client == NULL){
@@ -1013,6 +1012,7 @@ int dynsec_groups__process_modify(struct dynsec__data *data, struct mosquitto_co
 		/* Now we can add the new clients to the group */
 		cJSON_ArrayForEach(j_client, j_clients){
 			if(cJSON_IsObject(j_client)){
+				const char *username;
 				if(json_get_string(j_client, "username", &username, false) == MOSQ_ERR_SUCCESS){
 					json_get_int(j_client, "priority", &priority, true, -1);
 					dynsec_groups__add_client(data, username, groupname, priority, false);
