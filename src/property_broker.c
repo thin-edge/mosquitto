@@ -136,6 +136,68 @@ int property__process_will(struct mosquitto *context, struct mosquitto_message_a
 }
 
 
+int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval)
+{
+	mosquitto_property *p, *p_prev;
+	mosquitto_property *msg_properties_last;
+
+	p = *props;
+	p_prev = NULL;
+	base_msg->data.properties = NULL;
+	msg_properties_last = NULL;
+	while(p){
+		switch(mosquitto_property_identifier(p)){
+			case MQTT_PROP_CONTENT_TYPE:
+			case MQTT_PROP_CORRELATION_DATA:
+			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
+			case MQTT_PROP_RESPONSE_TOPIC:
+			case MQTT_PROP_USER_PROPERTY:
+				if(base_msg->data.properties){
+					msg_properties_last->next = p;
+					msg_properties_last = p;
+				}else{
+					base_msg->data.properties = p;
+					msg_properties_last = p;
+				}
+				if(p_prev){
+					p_prev->next = mosquitto_property_next(p);
+					p = mosquitto_property_next(p_prev);
+				}else{
+					*props = mosquitto_property_next(p);
+					p = *props;
+				}
+				msg_properties_last->next = NULL;
+				break;
+
+			case MQTT_PROP_TOPIC_ALIAS:
+				*topic_alias = mosquitto_property_int16_value(p);
+				p_prev = p;
+				p = mosquitto_property_next(p);
+				break;
+
+			case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
+				*message_expiry_interval = mosquitto_property_int32_value(p);
+				p_prev = p;
+				p = mosquitto_property_next(p);
+				break;
+
+			case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
+				if(mosquitto_property_varint_value(p) == 0){
+					return MOSQ_ERR_PROTOCOL;
+				}
+				p_prev = p;
+				p = mosquitto_property_next(p);
+				break;
+
+			default:
+				p = mosquitto_property_next(p);
+				break;
+		}
+	}
+
+	return MOSQ_ERR_SUCCESS;
+}
+
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for DISCONNECT are present here. */
 int property__process_disconnect(struct mosquitto *context, mosquitto_property **props)

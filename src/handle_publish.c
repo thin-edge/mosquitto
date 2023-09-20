@@ -47,8 +47,6 @@ int handle__publish(struct mosquitto *context)
 	uint16_t slen;
 	char *topic_mount;
 	mosquitto_property *properties = NULL;
-	mosquitto_property *p, *p_prev;
-	mosquitto_property *msg_properties_last;
 	uint32_t message_expiry_interval = 0;
 	int topic_alias = -1;
 	uint8_t reason_code = 0;
@@ -124,60 +122,11 @@ int handle__publish(struct mosquitto *context)
 			return rc;
 		}
 
-		p = properties;
-		p_prev = NULL;
-		base_msg->data.properties = NULL;
-		msg_properties_last = NULL;
-		while(p){
-			switch(mosquitto_property_identifier(p)){
-				case MQTT_PROP_CONTENT_TYPE:
-				case MQTT_PROP_CORRELATION_DATA:
-				case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-				case MQTT_PROP_RESPONSE_TOPIC:
-				case MQTT_PROP_USER_PROPERTY:
-					if(base_msg->data.properties){
-						msg_properties_last->next = p;
-						msg_properties_last = p;
-					}else{
-						base_msg->data.properties = p;
-						msg_properties_last = p;
-					}
-					if(p_prev){
-						p_prev->next = mosquitto_property_next(p);
-						p = mosquitto_property_next(p_prev);
-					}else{
-						properties = mosquitto_property_next(p);
-						p = properties;
-					}
-					msg_properties_last->next = NULL;
-					break;
-
-				case MQTT_PROP_TOPIC_ALIAS:
-					topic_alias = mosquitto_property_int16_value(p);
-					p_prev = p;
-					p = mosquitto_property_next(p);
-					break;
-
-				case MQTT_PROP_MESSAGE_EXPIRY_INTERVAL:
-					message_expiry_interval = mosquitto_property_int32_value(p);
-					p_prev = p;
-					p = mosquitto_property_next(p);
-					break;
-
-				case MQTT_PROP_SUBSCRIPTION_IDENTIFIER:
-					if(mosquitto_property_varint_value(p) == 0){
-						mosquitto_property_free_all(&properties);
-						db__msg_store_free(base_msg);
-						return MOSQ_ERR_PROTOCOL;
-					}
-					p_prev = p;
-					p = mosquitto_property_next(p);
-					break;
-
-				default:
-					p = mosquitto_property_next(p);
-					break;
-			}
+		rc = property__process_publish(base_msg, &properties, &topic_alias, &message_expiry_interval);
+		if(rc){
+			mosquitto_property_free_all(&properties);
+			db__msg_store_free(base_msg);
+			return MOSQ_ERR_PROTOCOL;
 		}
 	}
 	mosquitto_property_free_all(&properties);
