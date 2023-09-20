@@ -19,12 +19,18 @@ Contributors:
 #define MOSQUITTO_CTRL_H
 
 #include <cjson/cJSON.h>
+#ifndef __cplusplus
 #include <stdbool.h>
+#endif
 
 #include "mosquitto.h"
 
 #define PORT_UNDEFINED -1
 #define PORT_UNIX 0
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct mosq_config {
 	char *id;
@@ -122,5 +128,9 @@ int dynsec_role__remove_acl(int argc, char *argv[], cJSON *j_command);
 /* Functions to implement as an external module: */
 void ctrl_help(void);
 int ctrl_main(int argc, char *argv[], struct mosq_ctrl *ctrl);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
