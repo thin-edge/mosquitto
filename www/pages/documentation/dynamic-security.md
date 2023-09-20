@@ -237,7 +237,9 @@ advised to use unique priorities per object type.
 When an event occurs that needs an ACL check, the ACLs for that ACL type are
 checked in order until there is a matching ACL for the topic in question.
 
-Within each role that is checked, the ACLs are checked in priority order.
+Within each role that is checked, the ACLs are checked in priority order. If
+ACLs have identical priority, they are evaluated in the order shown in the
+`getRole` command.
 
 The roles assigned to a client are checked first, in priority order.
 Each client group is checked in priority order, with all of the roles in a
