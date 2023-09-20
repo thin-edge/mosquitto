@@ -119,9 +119,8 @@ static void print_list(cJSON *j_response, const char *arrayname, const char *key
 	}
 
 	cJSON_ArrayForEach(j_elem, j_array){
-		const char *stmp;
-
 		if(cJSON_IsObject(j_elem)){
+            const char *stmp;
 			if(json_get_string(j_elem, keyname, &stmp, false) == MOSQ_ERR_SUCCESS){
 				printf("%s\n", stmp);
 			}
@@ -182,7 +181,6 @@ static void print_client(cJSON *j_response)
 {
 	cJSON *j_data, *j_client, *jtmp;
 	const int label_width = strlen( "Connections:");
-	const char *stmp;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -196,14 +194,16 @@ static void print_client(cJSON *j_response)
 		return;
 	}
 
-	if(json_get_string(j_client, "username", &stmp, false) != MOSQ_ERR_SUCCESS){
+	const char *username;
+	if(json_get_string(j_client, "username", &username, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
-	printf("%-*s %s\n",  label_width, "Username:", stmp);
+	printf("%-*s %s\n",  label_width, "Username:", username);
 
-	if(json_get_string(j_client, "clientid", &stmp, false) == MOSQ_ERR_SUCCESS){
-		printf("%-*s %s\n",  label_width, "Clientid:", stmp);
+	const char *clientid;
+	if(json_get_string(j_client, "clientid", &clientid, false) == MOSQ_ERR_SUCCESS){
+		printf("%-*s %s\n",  label_width, "Clientid:", clientid);
 	}else{
 		printf("Clientid:\n");
 	}
@@ -252,7 +252,6 @@ static void print_role(cJSON *j_response)
 {
 	cJSON *j_data, *j_role, *j_array, *j_elem, *jtmp;
 	bool first;
-	const char *stmp;
 
 	j_data = cJSON_GetObjectItem(j_response, "data");
 	if(j_data == NULL || !cJSON_IsObject(j_data)){
@@ -266,32 +265,35 @@ static void print_role(cJSON *j_response)
 		return;
 	}
 
-	if(json_get_string(j_role, "rolename", &stmp, false) != MOSQ_ERR_SUCCESS){
+	const char *rolename;
+	if(json_get_string(j_role, "rolename", &rolename, false) != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error: Invalid response from server.\n");
 		return;
 	}
-	printf("Rolename: %s\n", stmp);
+	printf("Rolename: %s\n", rolename);
 
 	j_array = cJSON_GetObjectItem(j_role, "acls");
 	if(j_array && cJSON_IsArray(j_array)){
 		first = true;
 		cJSON_ArrayForEach(j_elem, j_array){
-			const char *stmp;
+			const char *acltype;
 
-			if(json_get_string(j_elem, "acltype", &stmp, false) == MOSQ_ERR_SUCCESS){
+			if(json_get_string(j_elem, "acltype", &acltype, false) == MOSQ_ERR_SUCCESS){
 				if(first){
 					first = false;
-					printf("ACLs:     %-20s", stmp);
+					printf("ACLs:     %-20s", acltype);
 				}else{
-					printf("          %-20s", stmp);
+					printf("          %-20s", acltype);
 				}
 
 				jtmp = cJSON_GetObjectItem(j_elem, "allow");
 				if(jtmp && cJSON_IsBool(jtmp)){
 					printf(" : %s", cJSON_IsTrue(jtmp)?"allow":"deny ");
 				}
-				if(json_get_string(j_elem, "topic", &stmp, false) == MOSQ_ERR_SUCCESS){
-					printf(" : %s", stmp);
+
+				const char *topic;
+				if(json_get_string(j_elem, "topic", &topic, false) == MOSQ_ERR_SUCCESS){
+					printf(" : %s", topic);
 				}
 				jtmp = cJSON_GetObjectItem(j_elem, "priority");
 				if(jtmp && cJSON_IsNumber(jtmp)){
