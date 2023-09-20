@@ -46,8 +46,8 @@ void mosquitto_control_send_response(cJSON *tree, const char *topic)
 
 static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, struct mosquitto *context, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata))
 {
-	cJSON *aiter, *j_tmp;;
-	char *command;
+	cJSON *aiter, *j_tmp;
+	const char *command;
 
 	cJSON_ArrayForEach(aiter, commands){
 		cmd->command_name = "Unknown command";
