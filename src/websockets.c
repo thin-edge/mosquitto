@@ -162,11 +162,7 @@ static int callback_mqtt(
 				return -1;
 			}
 
-			if (lws_hdr_copy(wsi, ip_addr_buff, sizeof(ip_addr_buff), WSI_TOKEN_X_FORWARDED_FOR) > 0) {
-				mosq->address = mosquitto__strdup(ip_addr_buff);
-			} else {
-				easy_address(lws_get_socket_fd(wsi), mosq);
-			}
+			easy_address(lws_get_socket_fd(wsi), mosq);
 			if(!mosq->address){
 				/* getpeername and inet_ntop failed and not a bridge */
 				mosquitto__FREE(mosq);

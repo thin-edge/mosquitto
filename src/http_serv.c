@@ -61,18 +61,6 @@ int http__write(struct mosquitto *mosq)
 }
 
 
-static int first_entry(const char *s, int len)
-{
-	int i;
-
-	for(i=0; i<len; i++){
-		if(s[i] == '\0' || s[i] == ','){
-			return i;
-		}
-	}
-	return len;
-}
-
 int http__read(struct mosquitto *mosq)
 {
 	ssize_t read_length;
@@ -93,8 +81,6 @@ int http__read(struct mosquitto *mosq)
 	int rc;
 	const char *subprotocol = NULL;
 	int subprotocol_len;
-	const char *forwarded_for = NULL;
-	int forwarded_for_len;
 
 	if(!mosq){
 		return MOSQ_ERR_INVAL;
@@ -204,16 +190,17 @@ int http__read(struct mosquitto *mosq)
 				subprotocol_len = (int)http_headers[i].value_len;
 			}
 		}else if(!strncasecmp(http_headers[i].name, "X-Forwarded-For", http_headers[i].name_len)){
-			forwarded_for = http_headers[i].value;
-			forwarded_for_len = first_entry(forwarded_for, (int)http_headers[i].value_len);
-
-			mosquitto__FREE(mosq->address);
-			mosq->address = mosquitto__malloc((size_t)forwarded_for_len+1);
-			if(!mosq->address){
-				return MOSQ_ERR_NOMEM;
-			}
-			strncpy(mosq->address, forwarded_for, (size_t)forwarded_for_len);
-			mosq->address[forwarded_for_len] = '\0';
+			/* Before implementing this, refer to:
+			 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For
+			 *
+			 * At the very least, a trusted proxy count must be used. A trusted
+			 * proxy list would ideally be used.
+			 *
+			 * Problematic for us is that if the listener is directly
+			 * connectable, then the use of this header is insecure. We can't
+			 * control that, so we have to make it very clear to the end user
+			 * that this is the case.
+			 */
 		}else if(!strncasecmp(http_headers[i].name, "Origin", http_headers[i].name_len)){
 			if(mosq->listener){
 				bool have_match = false;
