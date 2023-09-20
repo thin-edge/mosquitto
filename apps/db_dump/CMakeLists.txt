@@ -1,5 +1,5 @@
 add_executable(mosquitto_db_dump
-	db_dump.c
+	db_dump.c db_dump.h
 	print.c
 	stubs.c
 
