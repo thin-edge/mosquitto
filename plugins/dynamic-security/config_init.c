@@ -74,7 +74,7 @@ static int get_password_from_init_file(struct dynsec__data *data, char **pw)
 		*pw = NULL;
 		return MOSQ_ERR_SUCCESS;
 	}
-	fptr = fopen(data->password_init_file, "rt");
+	fptr = mosquitto__fopen(data->password_init_file, "rt", true);
 	if(!fptr){
 		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Unable to get initial password from '%s', file not accessible.", data->password_init_file);
 		return MOSQ_ERR_INVAL;
