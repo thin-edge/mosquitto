@@ -33,6 +33,7 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 
 	memset(&event_data, 0, sizeof(event_data));
 
+	// Using DL_FOREACH_SAFE here, as tick callbacks might unregister themself
 	DL_FOREACH_SAFE(opts->plugin_callbacks.tick, cb_base, cb_next){
 		mosquitto_time_ns(&event_data.now_s, &event_data.now_ns);
 		event_data.next_s = 0;
