@@ -20,7 +20,7 @@ int callback_client_offline(int event, void *event_data, void *user_data)
 		abort();
 	}
 	clientid = mosquitto_client_id(ed->client);
-	mosquitto_broker_publish_copy(NULL, "evt/client/offline", strlen(clientid), clientid, 0, false, NULL);
+	mosquitto_broker_publish_copy(NULL, "evt/client/offline", (int)strlen(clientid), clientid, 0, false, NULL);
 
 	return MOSQ_ERR_SUCCESS;
 }

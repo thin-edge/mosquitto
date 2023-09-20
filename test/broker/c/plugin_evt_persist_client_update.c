@@ -20,7 +20,7 @@ int callback_persist_client_update(int event, void *event_data, void *user_data)
 		abort();
 	}
 	clientid = ed->data.clientid;
-	mosquitto_broker_publish_copy(NULL, "evt/persist/client/update", strlen(clientid), clientid, 0, false, NULL);
+	mosquitto_broker_publish_copy(NULL, "evt/persist/client/update", (int)strlen(clientid), clientid, 0, false, NULL);
 
 	return MOSQ_ERR_SUCCESS;
 }

@@ -21,7 +21,7 @@ int callback_message_in(int event, void *event_data, void *user_data)
 
 	ed->topic = mosquitto_strdup("fixed-topic");
 	ed->payload = mosquitto_strdup("new-message");
-	ed->payloadlen = strlen(ed->payload);
+	ed->payloadlen = (uint32_t)strlen(ed->payload);
 
 	ed->properties = NULL;
 	if(mosquitto_property_add_string_pair(&ed->properties, MQTT_PROP_USER_PROPERTY, "key", "value")) abort();
