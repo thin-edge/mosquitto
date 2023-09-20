@@ -11,8 +11,13 @@
 static int run = -1;
 static int proto_ver;
 
+#ifndef UNUSED
+#  define UNUSED(A) (void)(A)
+#endif
+
 static void signal_handler(int s)
 {
+	UNUSED(s);
 	run = 0;
 }
 
@@ -45,6 +50,8 @@ static void msg_test(const struct mosquitto_message *msg)
 
 static void on_pre_connect(struct mosquitto *mosq, void *obj)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
 }
 
 static void on_connect(struct mosquitto *mosq, void *obj, int rc)
@@ -249,6 +256,10 @@ static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosqui
 
 static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	int tot = 0;
 
 	UNUSED(mosq);
@@ -262,6 +273,10 @@ static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_cou
 
 static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos, const mosquitto_property *props)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	int tot = 0;
 
 	UNUSED(mosq);
@@ -292,6 +307,10 @@ static void on_unsubscribe_v5(struct mosquitto *mosq, void *obj, int mid, const 
 
 static void on_unsubscribe2_v5(struct mosquitto *mosq, void *obj, int mid, int reason_code_count, const int *reason_codes, const mosquitto_property *props)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(mid);
+
 	int sum = 0;
 	prop_test(props);
 	for(int i=0; i<reason_code_count; i++){
@@ -305,11 +324,19 @@ static void on_unsubscribe2_v5(struct mosquitto *mosq, void *obj, int mid, int r
 
 static void on_log(struct mosquitto *mosq, void *obj, int level, const char *str)
 {
+	UNUSED(mosq);
+	UNUSED(obj);
+	UNUSED(level);
+
 	if(str == NULL){
 		printf("bad on_log\n");
 		exit(1);
 	}
-	int i = strlen(str);
+	size_t i = strlen(str);
+	if (i == SIZE_MAX){
+		printf("too large on_log\n");
+		exit(1);
+	}
 }
 
 

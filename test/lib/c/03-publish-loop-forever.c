@@ -8,8 +8,9 @@ static int run = -1;
 
 static void on_connect_v5(struct mosquitto *mosq, void *obj, int rc, int flags, const mosquitto_property *properties)
 {
-	(void)mosq;
 	(void)obj;
+	(void)flags;
+	(void)properties;
 
 	if(rc){
 		exit(1);
@@ -29,13 +30,20 @@ static void on_disconnect_v5(struct mosquitto *mosq, void *obj, int rc, const mo
 
 static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos, const mosquitto_property *props)
 {
+	(void)obj;
+	(void)mid;
+	(void)qos_count;
+	(void)granted_qos;
+	(void)props;
+
 	mosquitto_publish_v5(mosq, NULL, "loop/test", strlen("message"), "message", 0, false, NULL);
 }
 
 static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg, const mosquitto_property *properties)
 {
-	(void)mosq;
 	(void)obj;
+	(void)msg;
+	(void)properties;
 
 	mosquitto_disconnect(mosq);
 }
