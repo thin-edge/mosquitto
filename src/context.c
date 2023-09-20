@@ -268,6 +268,7 @@ void context__disconnect(struct mosquitto *context, int reason)
 	keepalive__remove(context);
 	mosquitto__set_state(context, mosq_cs_disconnected);
 	alias__free_all(context);
+	context__cleanup_out_packets(context);
 }
 
 void context__add_to_disused(struct mosquitto *context)
