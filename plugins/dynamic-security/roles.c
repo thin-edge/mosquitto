@@ -338,7 +338,7 @@ int dynsec_roles__config_load(struct dynsec__data *data, cJSON *tree)
 }
 
 
-int dynsec_roles__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *rolename;
 	const char *text_name, *text_description;
@@ -432,8 +432,8 @@ int dynsec_roles__process_create(struct dynsec__data *data, struct mosquitto_con
 
 	mosquitto_control_command_reply(cmd, NULL);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | createRole | rolename=%s",
 			admin_clientid, admin_username, rolename);
 
@@ -471,7 +471,7 @@ static void role__remove_all_groups(struct dynsec__data *data, struct dynsec__ro
 	}
 }
 
-int dynsec_roles__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *rolename;
 	struct dynsec__role *role;
@@ -494,8 +494,8 @@ int dynsec_roles__process_delete(struct dynsec__data *data, struct mosquitto_con
 		dynsec__config_batch_save(data);
 		mosquitto_control_command_reply(cmd, NULL);
 
-		admin_clientid = mosquitto_client_id(context);
-		admin_username = mosquitto_client_username(context);
+		admin_clientid = mosquitto_client_id(cmd->client);
+		admin_username = mosquitto_client_username(cmd->client);
 		mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | deleteRole | rolename=%s",
 				admin_clientid, admin_username, rolename);
 
@@ -539,7 +539,7 @@ static cJSON *add_role_to_json(struct dynsec__role *role, bool verbose)
 	return j_role;
 }
 
-int dynsec_roles__process_list(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_list(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	bool verbose;
 	struct dynsec__role *role, *role_tmp = NULL;
@@ -592,8 +592,8 @@ int dynsec_roles__process_list(struct dynsec__data *data, struct mosquitto_contr
 
 	cJSON_AddItemToArray(cmd->j_responses, tree);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | listRoles | verbose=%s | count=%d | offset=%d",
 			admin_clientid, admin_username, verbose?"true":"false", count, offset);
 
@@ -601,7 +601,7 @@ int dynsec_roles__process_list(struct dynsec__data *data, struct mosquitto_contr
 }
 
 
-int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *rolename;
 	struct dynsec__role *role;
@@ -686,8 +686,8 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_co
 
 	role__kick_all(data, role);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | addRoleACL | rolename=%s | acltype=%s | topic=%s | priority=%d | allow=%s",
 			admin_clientid, admin_username, rolename, acltype, topic, acl->priority, acl->allow?"true":"false");
 
@@ -695,7 +695,7 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_co
 }
 
 
-int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *rolename;
 	struct dynsec__role *role;
@@ -763,8 +763,8 @@ int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct mosquitto
 
 		role__kick_all(data, role);
 
-		admin_clientid = mosquitto_client_id(context);
-		admin_username = mosquitto_client_username(context);
+		admin_clientid = mosquitto_client_id(cmd->client);
+		admin_username = mosquitto_client_username(cmd->client);
 		mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | removeRoleACL | rolename=%s | acltype=%s | topic=%s",
 				admin_clientid, admin_username, rolename, acltype, topic);
 
@@ -776,7 +776,7 @@ int dynsec_roles__process_remove_acl(struct dynsec__data *data, struct mosquitto
 }
 
 
-int dynsec_roles__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *rolename;
 	struct dynsec__role *role;
@@ -823,8 +823,8 @@ int dynsec_roles__process_get(struct dynsec__data *data, struct mosquitto_contro
 	cJSON_AddItemToObject(j_data, "role", j_role);
 	cJSON_AddItemToArray(cmd->j_responses, tree);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | getRole | rolename=%s",
 			admin_clientid, admin_username, rolename);
 
@@ -832,7 +832,7 @@ int dynsec_roles__process_get(struct dynsec__data *data, struct mosquitto_contro
 }
 
 
-int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *rolename;
 	const char *text_name, *text_description;
@@ -932,8 +932,8 @@ int dynsec_roles__process_modify(struct dynsec__data *data, struct mosquitto_con
 
 	mosquitto_control_command_reply(cmd, NULL);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | modifyRole | rolename=%s",
 			admin_clientid, admin_username, rolename);
 

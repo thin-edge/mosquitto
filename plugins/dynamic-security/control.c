@@ -35,80 +35,80 @@ Contributors:
 
 #define RESPONSE_TOPIC "$CONTROL/dynamic-security/v1/response"
 
-static int dynsec__handle_command(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata)
+static int dynsec__handle_command(struct mosquitto_control_cmd *cmd, void *userdata)
 {
 	struct dynsec__data *data = userdata;
 	int rc = MOSQ_ERR_SUCCESS;
 
 	/* Plugin */
 	if(!strcasecmp(cmd->command_name, "setDefaultACLAccess")){
-		rc = dynsec__process_set_default_acl_access(data, cmd, context);
+		rc = dynsec__process_set_default_acl_access(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "getDefaultACLAccess")){
-		rc = dynsec__process_get_default_acl_access(data, cmd, context);
+		rc = dynsec__process_get_default_acl_access(data, cmd);
 
 	/* Clients */
 	}else if(!strcasecmp(cmd->command_name, "createClient")){
-		rc = dynsec_clients__process_create(data, cmd, context);
+		rc = dynsec_clients__process_create(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "deleteClient")){
-		rc = dynsec_clients__process_delete(data, cmd, context);
+		rc = dynsec_clients__process_delete(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "getClient")){
-		rc = dynsec_clients__process_get(data, cmd, context);
+		rc = dynsec_clients__process_get(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "listClients")){
-		rc = dynsec_clients__process_list(data, cmd, context);
+		rc = dynsec_clients__process_list(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "modifyClient")){
-		rc = dynsec_clients__process_modify(data, cmd, context);
+		rc = dynsec_clients__process_modify(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "setClientPassword")){
-		rc = dynsec_clients__process_set_password(data, cmd, context);
+		rc = dynsec_clients__process_set_password(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "setClientId")){
-		rc = dynsec_clients__process_set_id(data, cmd, context);
+		rc = dynsec_clients__process_set_id(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "addClientRole")){
-		rc = dynsec_clients__process_add_role(data, cmd, context);
+		rc = dynsec_clients__process_add_role(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "removeClientRole")){
-		rc = dynsec_clients__process_remove_role(data, cmd, context);
+		rc = dynsec_clients__process_remove_role(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "enableClient")){
-		rc = dynsec_clients__process_enable(data, cmd, context);
+		rc = dynsec_clients__process_enable(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "disableClient")){
-		rc = dynsec_clients__process_disable(data, cmd, context);
+		rc = dynsec_clients__process_disable(data, cmd);
 
 	/* Groups */
 	}else if(!strcasecmp(cmd->command_name, "addGroupClient")){
-		rc = dynsec_groups__process_add_client(data, cmd, context);
+		rc = dynsec_groups__process_add_client(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "createGroup")){
-		rc = dynsec_groups__process_create(data, cmd, context);
+		rc = dynsec_groups__process_create(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "deleteGroup")){
-		rc = dynsec_groups__process_delete(data, cmd, context);
+		rc = dynsec_groups__process_delete(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "getGroup")){
-		rc = dynsec_groups__process_get(data, cmd, context);
+		rc = dynsec_groups__process_get(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "listGroups")){
-		rc = dynsec_groups__process_list(data, cmd, context);
+		rc = dynsec_groups__process_list(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "modifyGroup")){
-		rc = dynsec_groups__process_modify(data, cmd, context);
+		rc = dynsec_groups__process_modify(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "removeGroupClient")){
-		rc = dynsec_groups__process_remove_client(data, cmd, context);
+		rc = dynsec_groups__process_remove_client(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "addGroupRole")){
-		rc = dynsec_groups__process_add_role(data, cmd, context);
+		rc = dynsec_groups__process_add_role(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "removeGroupRole")){
-		rc = dynsec_groups__process_remove_role(data, cmd, context);
+		rc = dynsec_groups__process_remove_role(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "setAnonymousGroup")){
-		rc = dynsec_groups__process_set_anonymous_group(data, cmd, context);
+		rc = dynsec_groups__process_set_anonymous_group(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "getAnonymousGroup")){
-		rc = dynsec_groups__process_get_anonymous_group(data, cmd, context);
+		rc = dynsec_groups__process_get_anonymous_group(data, cmd);
 
 	/* Roles */
 	}else if(!strcasecmp(cmd->command_name, "createRole")){
-		rc = dynsec_roles__process_create(data, cmd, context);
+		rc = dynsec_roles__process_create(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "getRole")){
-		rc = dynsec_roles__process_get(data, cmd, context);
+		rc = dynsec_roles__process_get(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "listRoles")){
-		rc = dynsec_roles__process_list(data, cmd, context);
+		rc = dynsec_roles__process_list(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "modifyRole")){
-		rc = dynsec_roles__process_modify(data, cmd, context);
+		rc = dynsec_roles__process_modify(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "deleteRole")){
-		rc = dynsec_roles__process_delete(data, cmd, context);
+		rc = dynsec_roles__process_delete(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "addRoleACL")){
-		rc = dynsec_roles__process_add_acl(data, cmd, context);
+		rc = dynsec_roles__process_add_acl(data, cmd);
 	}else if(!strcasecmp(cmd->command_name, "removeRoleACL")){
-		rc = dynsec_roles__process_remove_acl(data, cmd, context);
+		rc = dynsec_roles__process_remove_acl(data, cmd);
 
 	/* Unknown */
 	}else{

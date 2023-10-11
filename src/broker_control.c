@@ -37,7 +37,7 @@ Contributors:
 
 static mosquitto_plugin_id_t plg_id;
 
-static int broker__handle_control(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata);
+static int broker__handle_control(struct mosquitto_control_cmd *cmd, void *userdata);
 
 static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 {
@@ -77,7 +77,7 @@ static int add_plugin_info(cJSON *j_plugins, mosquitto_plugin_id_t *pid)
 }
 
 
-static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 {
 	cJSON *tree, *j_data, *j_plugins;
 	const char *admin_clientid, *admin_username;
@@ -89,8 +89,8 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd, struc
 		return MOSQ_ERR_NOMEM;
 	}
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listPlugins",
 			admin_clientid, admin_username);
 
@@ -164,7 +164,7 @@ static int add_listener(cJSON *j_listeners, struct mosquitto__listener *listener
 }
 
 
-static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 {
 	cJSON *tree, *j_data, *j_listeners;
 	const char *admin_clientid, *admin_username;
@@ -176,8 +176,8 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd, str
 		return MOSQ_ERR_NOMEM;
 	}
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "Broker: %s/%s | listListeners",
 			admin_clientid, admin_username);
 
@@ -250,16 +250,16 @@ void broker_control__reload(void)
  * #
  * ################################################################ */
 
-static int broker__handle_control(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata)
+static int broker__handle_control(struct mosquitto_control_cmd *cmd, void *userdata)
 {
 	int rc = MOSQ_ERR_SUCCESS;
 
 	UNUSED(userdata);
 
 	if(!strcasecmp(cmd->command_name, "listPlugins")){
-		rc = broker__process_list_plugins(cmd, context);
+		rc = broker__process_list_plugins(cmd);
 	}else if(!strcasecmp(cmd->command_name, "listListeners")){
-		rc = broker__process_list_listeners(cmd, context);
+		rc = broker__process_list_listeners(cmd);
 
 	/* Unknown */
 	}else{

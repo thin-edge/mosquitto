@@ -44,7 +44,7 @@ void mosquitto_control_send_response(cJSON *tree, const char *topic)
 }
 
 
-static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, struct mosquitto *context, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata))
+static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
 {
 	cJSON *aiter, *j_tmp;
 	const char *command;
@@ -69,7 +69,7 @@ static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, s
 					}
 				}
 
-				cmd_cb(cmd, context, userdata);
+				cmd_cb(cmd, userdata);
 			}else{
 				mosquitto_control_command_reply(cmd, "Missing command");
 				return MOSQ_ERR_INVAL;
@@ -83,7 +83,7 @@ static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, s
 }
 
 int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
-		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata))
+		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
 
 {
 	struct mosquitto_evt_control *ed = event_data;
@@ -97,6 +97,7 @@ int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data,
 
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.command_name = "Unknown command";
+	cmd.client = ed->client;
 
 	/* Create object for responses */
 	j_response_tree = cJSON_CreateObject();
@@ -132,7 +133,7 @@ int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data,
 	}
 
 	/* Handle commands */
-	control__generic_handle_commands(&cmd, ed->client, commands, userdata, cmd_cb);
+	control__generic_handle_commands(&cmd, commands, userdata, cmd_cb);
 	cJSON_Delete(tree);
 
 	mosquitto_control_send_response(j_response_tree, response_topic);

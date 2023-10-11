@@ -33,7 +33,7 @@ Contributors:
 
 #include "dynamic_security.h"
 
-int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	cJSON *j_actions, *j_action;
 	bool allow;
@@ -46,8 +46,8 @@ int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct mos
 		return MOSQ_ERR_INVAL;
 	}
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 
 	cJSON_ArrayForEach(j_action, j_actions){
 		if(json_get_string(j_action, "acltype", &acltype, false) == MOSQ_ERR_SUCCESS
@@ -73,7 +73,7 @@ int dynsec__process_set_default_acl_access(struct dynsec__data *data, struct mos
 }
 
 
-int dynsec__process_get_default_acl_access(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec__process_get_default_acl_access(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	cJSON *tree, *jtmp, *j_data, *j_acls, *j_acl;
 	const char *admin_clientid, *admin_username;
@@ -84,8 +84,8 @@ int dynsec__process_get_default_acl_access(struct dynsec__data *data, struct mos
 		return MOSQ_ERR_NOMEM;
 	}
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | getDefaultACLAccess",
 			admin_clientid, admin_username);
 

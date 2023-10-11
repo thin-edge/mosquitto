@@ -42,6 +42,7 @@ extern "C" {
  * ========================================================================= */
 
 struct mosquitto_control_cmd{
+	struct mosquitto *client;
 	cJSON *j_responses;
 	cJSON *j_command;
 	char *correlation_data;
@@ -51,7 +52,7 @@ struct mosquitto_control_cmd{
 mosq_EXPORT void mosquitto_control_command_reply(struct mosquitto_control_cmd *cmd, const char *error);
 mosq_EXPORT void mosquitto_control_send_response(cJSON *tree, const char* topic);
 mosq_EXPORT int mosquitto_control_generic_callback(struct mosquitto_evt_control *event_data, const char *response_topic, void *userdata,
-		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, struct mosquitto *context, void *userdata));
+		int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata));
 
 #ifdef __cplusplus
 }

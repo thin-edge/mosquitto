@@ -308,7 +308,7 @@ int dynsec_clients__config_save(struct dynsec__data *data, cJSON *tree)
 }
 
 
-int dynsec_clients__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_create(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username, *password, *clientid = NULL;
 	const char *text_name, *text_description;
@@ -450,8 +450,8 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct mosquitto_c
 
 	mosquitto_control_command_reply(cmd, NULL);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | createClient | username=%s | password=%s",
 			admin_clientid, admin_username, username, password?"*****":"no password");
 
@@ -459,7 +459,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct mosquitto_c
 }
 
 
-int dynsec_clients__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_delete(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username;
 	struct dynsec__client *client;
@@ -481,8 +481,8 @@ int dynsec_clients__process_delete(struct dynsec__data *data, struct mosquitto_c
 		/* Enforce any changes */
 		dynsec_kicklist__add(data, username);
 
-		admin_clientid = mosquitto_client_id(context);
-		admin_username = mosquitto_client_username(context);
+		admin_clientid = mosquitto_client_id(cmd->client);
+		admin_username = mosquitto_client_username(cmd->client);
 		mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | deleteClient | username=%s",
 				admin_clientid, admin_username, username);
 
@@ -493,7 +493,7 @@ int dynsec_clients__process_delete(struct dynsec__data *data, struct mosquitto_c
 	}
 }
 
-int dynsec_clients__process_disable(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_disable(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username;
 	struct dynsec__client *client;
@@ -521,8 +521,8 @@ int dynsec_clients__process_disable(struct dynsec__data *data, struct mosquitto_
 	dynsec__config_batch_save(data);
 	mosquitto_control_command_reply(cmd, NULL);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | disableClient | username=%s",
 			admin_clientid, admin_username, username);
 
@@ -530,7 +530,7 @@ int dynsec_clients__process_disable(struct dynsec__data *data, struct mosquitto_
 }
 
 
-int dynsec_clients__process_enable(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_enable(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username;
 	struct dynsec__client *client;
@@ -556,8 +556,8 @@ int dynsec_clients__process_enable(struct dynsec__data *data, struct mosquitto_c
 	dynsec__config_batch_save(data);
 	mosquitto_control_command_reply(cmd, NULL);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | enableClient | username=%s",
 			admin_clientid, admin_username, username);
 
@@ -565,7 +565,7 @@ int dynsec_clients__process_enable(struct dynsec__data *data, struct mosquitto_c
 }
 
 
-int dynsec_clients__process_set_id(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_set_id(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username, *clientid;
 	char *clientid_heap = NULL;
@@ -619,8 +619,8 @@ int dynsec_clients__process_set_id(struct dynsec__data *data, struct mosquitto_c
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | setClientId | username=%s | clientid=%s",
 			admin_clientid, admin_username, username, client->clientid);
 
@@ -641,7 +641,7 @@ static int client__set_password(struct dynsec__client *client, const char *passw
 	}
 }
 
-int dynsec_clients__process_set_password(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_set_password(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username, *password;
 	struct dynsec__client *client;
@@ -679,8 +679,8 @@ int dynsec_clients__process_set_password(struct dynsec__data *data, struct mosqu
 		/* Enforce any changes */
 		dynsec_kicklist__add(data, username);
 
-		admin_clientid = mosquitto_client_id(context);
-		admin_username = mosquitto_client_username(context);
+		admin_clientid = mosquitto_client_id(cmd->client);
+		admin_username = mosquitto_client_username(cmd->client);
 		mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | setClientPassword | username=%s | password=******",
 				admin_clientid, admin_username, username);
 	}else{
@@ -708,7 +708,7 @@ static void client__remove_all_roles(struct dynsec__client *client)
 	}
 }
 
-int dynsec_clients__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_modify(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username;
 	char *clientid = NULL;
@@ -875,8 +875,8 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct mosquitto_c
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | modifyClient | username=%s",
 			admin_clientid, admin_username, username);
 	return MOSQ_ERR_SUCCESS;
@@ -1005,7 +1005,7 @@ static cJSON *add_client_to_json(struct dynsec__client *client, bool verbose)
 }
 
 
-int dynsec_clients__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_get(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username;
 	struct dynsec__client *client;
@@ -1052,8 +1052,8 @@ int dynsec_clients__process_get(struct dynsec__data *data, struct mosquitto_cont
 	cJSON_AddItemToObject(j_data, "client", j_client);
 	cJSON_AddItemToArray(cmd->j_responses, tree);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | getClient | username=%s",
 			admin_clientid, admin_username, username);
 
@@ -1061,7 +1061,7 @@ int dynsec_clients__process_get(struct dynsec__data *data, struct mosquitto_cont
 }
 
 
-int dynsec_clients__process_list(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_list(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	bool verbose;
 	struct dynsec__client *client, *client_tmp;
@@ -1113,8 +1113,8 @@ int dynsec_clients__process_list(struct dynsec__data *data, struct mosquitto_con
 	}
 	cJSON_AddItemToArray(cmd->j_responses, tree);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | listClients | verbose=%s | count=%d | offset=%d",
 			admin_clientid, admin_username, verbose?"true":"false", count, offset);
 
@@ -1122,7 +1122,7 @@ int dynsec_clients__process_list(struct dynsec__data *data, struct mosquitto_con
 }
 
 
-int dynsec_clients__process_add_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_add_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username, *rolename;
 	struct dynsec__client *client;
@@ -1171,8 +1171,8 @@ int dynsec_clients__process_add_role(struct dynsec__data *data, struct mosquitto
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | addClientRole | username=%s | rolename=%s | priority=%d",
 			admin_clientid, admin_username, username, rolename, priority);
 
@@ -1180,7 +1180,7 @@ int dynsec_clients__process_add_role(struct dynsec__data *data, struct mosquitto
 }
 
 
-int dynsec_clients__process_remove_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd, struct mosquitto *context)
+int dynsec_clients__process_remove_role(struct dynsec__data *data, struct mosquitto_control_cmd *cmd)
 {
 	const char *username, *rolename;
 	struct dynsec__client *client;
@@ -1225,8 +1225,8 @@ int dynsec_clients__process_remove_role(struct dynsec__data *data, struct mosqui
 	/* Enforce any changes */
 	dynsec_kicklist__add(data, username);
 
-	admin_clientid = mosquitto_client_id(context);
-	admin_username = mosquitto_client_username(context);
+	admin_clientid = mosquitto_client_id(cmd->client);
+	admin_username = mosquitto_client_username(cmd->client);
 	mosquitto_log_printf(MOSQ_LOG_INFO, "dynsec: %s/%s | removeClientRole | username=%s | rolename=%s",
 			admin_clientid, admin_username, username, rolename);
 
