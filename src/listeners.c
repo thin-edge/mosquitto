@@ -184,12 +184,19 @@ static int listeners__start_local_only(void)
 	int i;
 	int rc;
 	struct mosquitto__listener *listeners;
+	size_t count;
 
-	listeners = mosquitto__realloc(db.config->listeners, 2*sizeof(struct mosquitto__listener));
+	if(db.config->cmd_port_count == 0){
+		count = 2;
+	}else{
+		count = (size_t)(db.config->cmd_port_count*2);
+	}
+
+	listeners = mosquitto__realloc(db.config->listeners, count*sizeof(struct mosquitto__listener));
 	if(listeners == NULL){
 		return MOSQ_ERR_NOMEM;
 	}
-	memset(listeners, 0, 2*sizeof(struct mosquitto__listener));
+	memset(listeners, 0, count*sizeof(struct mosquitto__listener));
 	db.config->listener_count = 0;
 	db.config->listeners = listeners;
 
