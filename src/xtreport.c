@@ -39,7 +39,6 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 	long pkt_count, pkt_bytes;
 	long cmsg_count;
 	long cmsg_bytes;
-	struct mosquitto__packet *pkt_tmp;
 	long tBytes;
 
 	pkt_count = 1;
@@ -72,7 +71,7 @@ static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_
 	int topic_count;
 	char *topics[100];
 
-	for(i=0; i<context->sub_count; i++){
+	for(i=0; i<context->subs_count; i++){
 		if(context->subs && context->subs[i]){
 			subhier = context->subs[i]->hier;
 			topic_count = 0;
@@ -176,7 +175,7 @@ void xtreport(void)
 
 	HASH_ITER(hh, db.msg_store, base_msg, base_msg_tmp){
 		if(base_msg->ref_count > 1){
-			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->db_id);
+			fprintf(fptr, "cfn=(%d) %" PRIu64 "\n", fn_index_max, base_msg->data.store_id);
 			fprintf(fptr, "calls=%d %d\n", base_msg->ref_count, fn_index_max);
 			fprintf(fptr, "%d 0 0 0 0 0 0 0 %d 0 0 0\n", fn_index_max, base_msg->ref_count);
 			fn_index_max++;
