@@ -240,6 +240,10 @@ static int topic_matches_sub(const char *sub, const char *topic, const char *cli
 				pattern_check++;
 				topic++;
 			}
+			if(pattern_check[0] != '\0'){
+				/* substituted pattern part smaller than publish topic part, so fail */
+				return MOSQ_ERR_SUCCESS;
+			}
 			if((sub[0] == '\0' && topic[0] == '\0') ||
 					(sub[0] == '/' && sub[1] == '#' && sub[2] == '\0' && topic[0] == '\0')
 					){
@@ -411,6 +415,10 @@ static int sub_matches_acl(const char *acl, const char *sub, const char *clienti
 				}
 				pattern_check++;
 				sub++;
+			}
+			if(pattern_check[0] != '\0'){
+				/* substituted pattern part smaller than publish topic part, so fail */
+				return MOSQ_ERR_SUCCESS;
 			}
 			if(sub[0] == '\0' && (acl[0] == '\0' ||
 					(acl[0] == '/' && acl[1] == '#' && acl[2] == '\0'))

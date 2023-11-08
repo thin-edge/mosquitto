@@ -52,17 +52,23 @@ ${TEST_OBJS} : %.o: %.c
 lib_stubs.o : stubs.c
 	${CROSS_COMPILE}$(CC) $(LIB_LOCAL_CPPFLAGS) $(LIB_LOCAL_CFLAGS) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
+${R}/lib/memory_mosq.o : ${R}/lib/memory_mosq.c
+	$(MAKE) -C ${R}/lib/ memory_mosq.o
+
 ${R}/lib/misc_mosq.o : ${R}/common/misc_mosq.c
 	$(MAKE) -C ${R}/lib/ misc_mosq.o
 
 ${R}/lib/packet_datatypes.o : ${R}/lib/packet_datatypes.c
 	$(MAKE) -C ${R}/lib/ packet_datatypes.o
 
+${R}/lib/packet_mosq.o : ${R}/lib/packet_mosq.c
+	$(MAKE) -C ${R}/lib/ packet_mosq.o
+
 ${R}/lib/property_mosq.o : ${R}/lib/property_mosq.c
 	$(MAKE) -C ${R}/lib/ property_mosq.o
 
 ${R}/lib/strings_mosq.o : ${R}/lib/strings_mosq.c
-	$(MAKE) -C ${R}/lib/ util_mosq.o
+	$(MAKE) -C ${R}/lib/ strings_mosq.o
 
 ${R}/lib/util_mosq.o : ${R}/lib/util_mosq.c
 	$(MAKE) -C ${R}/lib/ util_mosq.o

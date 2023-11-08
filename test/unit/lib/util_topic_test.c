@@ -3,6 +3,15 @@
 
 #include <util_mosq.h>
 
+struct topic_test{
+	const char *topic_filter;
+	const char *topic;
+	const char *clientid;
+	const char *username;
+	int rc;
+	bool match;
+};
+
 static void match_helper(const char *sub, const char *topic)
 {
 	int rc;
@@ -613,6 +622,147 @@ static void TEST_topic_pattern_wildcard(void)
 	CU_ASSERT_EQUAL(match, false);
 }
 
+static void TEST_topic_pattern_substring_beginning(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"%c/#", "g/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "gu/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "gue/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "gues/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "guest/test", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"%c/#", "guestt/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%c/#", "geest/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"%u/#", "g/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "gu/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "gue/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "gues/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "guest/test", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"%u/#", "guestt/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%u/#", "geest/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_topic_matches_sub_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+static void TEST_topic_pattern_substring_middle(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"clients/%c/#", "clients/g/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/gu/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/gue/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/gues/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/guest/test", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"clients/%c/#", "clients/guestt/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%c/#", "clients/geest/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"clients/%u/#", "clients/g/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/gu/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/gue/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/gues/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/guest/test", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"clients/%u/#", "clients/guestt/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%u/#", "clients/geest/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_topic_matches_sub_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+static void TEST_topic_pattern_substring_end(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"clients/%c", "clients/g", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/gu", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/gue", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/gues", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/guest", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"clients/%c", "clients/guestt", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%c", "clients/geest", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"clients/%u", "clients/g", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/gu", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/gue", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/gues", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/guest", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"clients/%u", "clients/guestt", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%u", "clients/geest", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_topic_matches_sub_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+static void TEST_topic_pattern_substring_only(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"%c", "g", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "gu", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "gue", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "gues", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "guest", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"%c", "guestt", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%c", "geest", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"%u", "g", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "gu", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "gue", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "gues", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "guest", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"%u", "guestt", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%u", "geest", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_topic_matches_sub_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+
 /* ========================================================================
  * SUB MATCHES ACL PATTERNS
  * ======================================================================== */
@@ -1037,6 +1187,147 @@ static void TEST_acl_pattern_wildcard_wildcard(void)
 	CU_ASSERT_EQUAL(match, false);
 }
 
+static void TEST_acl_pattern_substring_beginning(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"%c/#", "g/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "gu/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "gue/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "gues/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c/#", "guest/test", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"%c/#", "guestt/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%c/#", "geest/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"%u/#", "g/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "gu/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "gue/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "gues/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u/#", "guest/test", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"%u/#", "guestt/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%u/#", "geest/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_sub_matches_acl_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+static void TEST_acl_pattern_substring_middle(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"clients/%c/#", "clients/g/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/gu/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/gue/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/gues/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c/#", "clients/guest/test", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"clients/%c/#", "clients/guestt/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%c/#", "clients/geest/test", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"clients/%u/#", "clients/g/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/gu/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/gue/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/gues/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u/#", "clients/guest/test", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"clients/%u/#", "clients/guestt/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%u/#", "clients/geest/test", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_sub_matches_acl_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+static void TEST_acl_pattern_substring_end(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"clients/%c", "clients/g", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/gu", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/gue", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/gues", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"clients/%c", "clients/guest", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"clients/%c", "clients/guestt", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%c", "clients/geest", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"clients/%u", "clients/g", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/gu", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/gue", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/gues", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"clients/%u", "clients/guest", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"clients/%u", "clients/guestt", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"clients/%u", "clients/geest", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_sub_matches_acl_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+static void TEST_acl_pattern_substring_only(void)
+{
+	const struct topic_test tests[] = {
+		/* topic part matching substring of client id */
+		{"%c", "g", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "gu", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "gue", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "gues", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		{"%c", "guest", "guest", NULL, MOSQ_ERR_SUCCESS, true},
+		{"%c", "guestt", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%c", "geest", "guest", NULL, MOSQ_ERR_SUCCESS, false},
+
+		/* topic part matching substring of client id */
+		{"%u", "g", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "gu", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "gue", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "gues", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		{"%u", "guest", NULL, "guest", MOSQ_ERR_SUCCESS, true},
+		{"%u", "guestt", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+		/* topic part partial matching substring of client id */
+		{"%u", "geest", NULL, "guest", MOSQ_ERR_SUCCESS, false},
+	};
+
+	for(size_t i=0; i<sizeof(tests)/sizeof(struct topic_test); i++){
+		bool match;
+		int rc = mosquitto_sub_matches_acl_with_pattern(
+				tests[i].topic_filter, tests[i].topic,
+				tests[i].clientid, tests[i].username,
+				&match);
+		CU_ASSERT_EQUAL(rc, tests[i].rc);
+		CU_ASSERT_EQUAL(match, tests[i].match);
+	}
+}
+
+
 /* ========================================================================
  * PUB TOPIC CHECK
  * ======================================================================== */
@@ -1192,12 +1483,20 @@ int init_util_topic_tests(void)
 			|| !CU_add_test(test_suite, "Pattern topic: username", TEST_topic_pattern_username)
 			|| !CU_add_test(test_suite, "Pattern topic: both", TEST_topic_pattern_both)
 			|| !CU_add_test(test_suite, "Pattern topic: wildcard", TEST_topic_pattern_wildcard)
+			|| !CU_add_test(test_suite, "Pattern topic: substring beginning", TEST_topic_pattern_substring_beginning)
+			|| !CU_add_test(test_suite, "Pattern topic: substring middle", TEST_topic_pattern_substring_middle)
+			|| !CU_add_test(test_suite, "Pattern topic: substring end", TEST_topic_pattern_substring_end)
+			|| !CU_add_test(test_suite, "Pattern topic: substring only", TEST_topic_pattern_substring_only)
 			|| !CU_add_test(test_suite, "Pattern acl: Empty input", TEST_acl_pattern_empty_input)
 			|| !CU_add_test(test_suite, "Pattern acl: clientid", TEST_acl_pattern_clientid)
 			|| !CU_add_test(test_suite, "Pattern acl: username", TEST_acl_pattern_username)
 			|| !CU_add_test(test_suite, "Pattern acl: both", TEST_acl_pattern_both)
 			|| !CU_add_test(test_suite, "Pattern acl: wildcard", TEST_acl_pattern_wildcard)
 			|| !CU_add_test(test_suite, "Pattern acl: wildcard vs wildcard", TEST_acl_pattern_wildcard_wildcard)
+			|| !CU_add_test(test_suite, "Pattern acl: substring", TEST_acl_pattern_substring_beginning)
+			|| !CU_add_test(test_suite, "Pattern acl: substring", TEST_acl_pattern_substring_middle)
+			|| !CU_add_test(test_suite, "Pattern acl: substring", TEST_acl_pattern_substring_end)
+			|| !CU_add_test(test_suite, "Pattern acl: substring", TEST_acl_pattern_substring_only)
 			|| !CU_add_test(test_suite, "Sub matching: Empty input", TEST_sub_match_empty_input)
 			|| !CU_add_test(test_suite, "Sub matching: normal", TEST_sub_match_acl)
 			){
