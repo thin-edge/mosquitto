@@ -118,13 +118,18 @@ int pw__hash(const char *password, struct mosquitto_pw *pw, bool new_password, i
 
 int pw__memcmp_const(const void *a, const void *b, size_t len)
 {
-	size_t i;
+#ifdef WITH_TLS
+	return CRYPTO_memcmp(a, b, len);
+#else
 	int rc = 0;
+	const volatile char *ac = a;
+	const volatile char *bc = b;
 
 	if(!a || !b) return 1;
 
-	for(i=0; i<len; i++){
-		rc |= ((char *)a)[i] ^ ((char *)b)[i];
+	for(size_t i=0; i<len; i++){
+		rc |= ((char *)ac)[i] ^ ((char *)bc)[i];
 	}
 	return rc;
+#endif
 }
