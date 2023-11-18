@@ -60,7 +60,7 @@ def listen_sock(port):
     sock.listen(5)
     return sock
 
-def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost", env=None, check_port=True):
+def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, nolog=False, checkhost="localhost", env=None, check_port=True, cmd_args=None):
     global vg_index
     global vg_logfiles
 
@@ -93,6 +93,9 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
         vg_logfiles.append(logfile)
         vg_index += 1
         delay = 1
+
+    if cmd_args:
+        cmd.extend(cmd_args)
 
     #print(port)
     #print(cmd)

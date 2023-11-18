@@ -39,6 +39,7 @@ def do_test_broker_failure(conf_file : str, config : list, rc_expected : int, er
             f.write("\n")
     try:
         broker = mosq_test.start_broker(conf_file, use_conf=True, expect_fail=True, cmd_args=cmd_args)
+        broker.wait(2)
         if broker.returncode != rc_expected:
             (stdo, stde) = broker.communicate()
             print(stde.decode('utf-8'))
