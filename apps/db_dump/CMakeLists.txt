@@ -26,7 +26,12 @@ target_include_directories(mosquitto_db_dump PRIVATE
 	"${mosquitto_SOURCE_DIR}/include"
 	"${mosquitto_SOURCE_DIR}/lib"
 	"${mosquitto_SOURCE_DIR}/src"
+	"${OPENSSL_INCLUDE_DIR}"
 )
+
+if(WITH_TLS)
+	target_link_libraries(mosquitto_db_dump PRIVATE config-header OpenSSL::SSL)
+endif()
 
 install(TARGETS mosquitto_db_dump
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
