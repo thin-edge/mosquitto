@@ -86,9 +86,6 @@ typedef SSIZE_T ssize_t;
 #  define HAVE_PTHREAD_CANCEL
 #endif
 
-#include <cjson/cJSON.h>
-#define CJSON_VERSION_FULL (CJSON_VERSION_MAJOR*1000000+CJSON_VERSION_MINOR*1000+CJSON_VERSION_PATCH)
-
 #define WS_IS_LWS 1
 #define WS_IS_BUILTIN 2
 

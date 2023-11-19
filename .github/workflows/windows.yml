@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: DaveGamble/cJSON
-          ref: v1.7.15
+          ref: v1.7.16
 
       - name: Configure CMake cJSON
         run: cmake -B ${{github.workspace}}/build64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DENABLE_CJSON_TEST=OFF -DBUILD_SHARED_LIBS=OFF -DBUILD_SHARED_AND_STATIC_LIBS=OFF -DCJSON_BUILD_SHARED_LIBS=OFF -DCJSON_OVERRIDE_BUILD_SHARED_LIBS=OFF -DCMAKE_GENERATOR_PLATFORM=x64

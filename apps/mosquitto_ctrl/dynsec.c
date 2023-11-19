@@ -18,6 +18,8 @@ Contributors:
 #include "config.h"
 
 #include <cjson/cJSON.h>
+#define CJSON_VERSION_FULL (CJSON_VERSION_MAJOR*1000000+CJSON_VERSION_MINOR*1000+CJSON_VERSION_PATCH)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
