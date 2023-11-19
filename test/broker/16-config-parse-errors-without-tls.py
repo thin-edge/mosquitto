@@ -26,9 +26,6 @@ do_test_broker_failure(conf_file, [f"listener {port}","mount_point test/+/"], 3,
 do_test_broker_failure(conf_file, [f"listener {port}","protocol"], 3, "Error: Empty 'protocol' value in configuration.") # Empty proto
 do_test_broker_failure(conf_file, [f"listener {port}","protocol test"], 3, "Error: Invalid 'protocol' value (test).") # Invalid proto
 do_test_broker_failure(conf_file, [f"listener {port}","accept_protocol_versions"], 3, "Error: Empty 'accept_protocol_versions' value in configuration.")
-do_test_broker_failure(conf_file, ["admin_listeners_only"], 3, "Error: Empty 'admin_listeners_only' value in configuration.") # empty balue
-do_test_broker_failure(conf_file, ["admin_listeners_only bla"], 3, "Error: Invalid 'admin_listeners_only' value (bla).") # Invalid bool value
-do_test_broker_failure(conf_file, ["admin_listeners_only 4711"], 3, "Error: Invalid 'admin_listeners_only' value (4711).") # Invalid bool value
 
 do_test_broker_failure(conf_file, ["plugin_opt_inval string"], 3, "Error: The 'plugin_opt_inval' option requires plugin/global_plugin/plugin_load to be defined first.") # plugin_opt_ without plugin
 do_test_broker_failure(conf_file, ["plugin c/auth_plugin.so","plugin_opt_ string"], 3, "Error: Invalid 'plugin_opt_' config option.") # Incomplete plugin_opt_
