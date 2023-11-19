@@ -29,6 +29,12 @@ target_include_directories(mosquitto_db_dump PRIVATE
 	"${OPENSSL_INCLUDE_DIR}"
 )
 
+if(WITH_BUNDLED_DEPS)
+	target_include_directories(mosquitto_db_dump PRIVATE
+		"${mosquitto_SOURCE_DIR}/deps"
+	)
+endif()
+
 if(WITH_TLS)
 	target_link_libraries(mosquitto_db_dump PRIVATE config-header OpenSSL::SSL)
 endif()
