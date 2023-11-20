@@ -34,7 +34,7 @@ enum mosquitto_pwhash_type{
 	pw_argon2id = 8,
 };
 
-#define PW_DEFAULT_ITERATIONS 101
+#define PW_DEFAULT_ITERATIONS 210000
 
 struct mosquitto_pw{
 	union {
