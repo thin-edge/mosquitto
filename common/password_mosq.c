@@ -106,6 +106,8 @@ static int pw__create_argon2id(struct mosquitto_pw *pw, const char *password)
 		return MOSQ_ERR_UNKNOWN;
 	}
 #else
+	UNUSED(pw);
+	UNUSED(password);
 	return MOSQ_ERR_NOT_SUPPORTED;
 #endif
 }
@@ -122,6 +124,8 @@ static int pw__verify_argon2id(struct mosquitto_pw *pw, const char *password)
 		return MOSQ_ERR_AUTH;
 	}
 #else
+	UNUSED(pw);
+	UNUSED(password);
 	return MOSQ_ERR_NOT_SUPPORTED;
 #endif
 }
@@ -139,6 +143,8 @@ static int pw__decode_argon2id(struct mosquitto_pw *pw, const char *password)
 		return MOSQ_ERR_NOMEM;
 	}
 #else
+	UNUSED(pw);
+	UNUSED(password);
 	return MOSQ_ERR_NOT_SUPPORTED;
 #endif
 }
@@ -471,7 +477,11 @@ int pw__create(struct mosquitto_pw *pw, const char *password)
 		case pw_sha512:
 			return pw__create_sha512(pw, password);
 		default:
+#ifdef WITH_ARGON2
 			return pw__create_argon2id(pw, password);
+#else
+			return pw__create_sha512_pbkdf2(pw, password);
+#endif
 	}
 
 	return MOSQ_ERR_INVAL;

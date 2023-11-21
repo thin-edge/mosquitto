@@ -564,10 +564,8 @@ static cJSON *init_add_client(const char *username, const char *password, const 
 {
 	cJSON *j_client, *j_roles, *j_role;
 	struct mosquitto_pw pw;
-	char buf[10];
 
 	memset(&pw, 0, sizeof(pw));
-	pw.hashtype = pw_sha512_pbkdf2;
 
 	if(pw__create(&pw, password) != MOSQ_ERR_SUCCESS){
 		return NULL;
@@ -578,7 +576,6 @@ static cJSON *init_add_client(const char *username, const char *password, const 
 		return NULL;
 	}
 
-	snprintf(buf, sizeof(buf), "%d", PW_DEFAULT_ITERATIONS);
 	if(cJSON_AddStringToObject(j_client, "username", username) == NULL
 			|| cJSON_AddStringToObject(j_client, "textName", "Dynsec admin user") == NULL
 			){
