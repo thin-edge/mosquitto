@@ -17,12 +17,12 @@ Contributors:
 */
 
 /*
- * File: mosquitto_control.h
+ * File: mosquitto/control.h
  *
  * This header contains functions for use by plugins using the CONTROL event.
  */
-#ifndef MOSQUITTO_CONTROL_H
-#define MOSQUITTO_CONTROL_H
+#ifndef MOSQUITTO_BROKER_CONTROL_H
+#define MOSQUITTO_BROKER_CONTROL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,9 +30,9 @@ extern "C" {
 
 #include <cjson/cJSON.h>
 
-#include <mosquitto_broker.h>
+#include <mosquitto/broker.h>
 #include <mosquitto.h>
-#include <mqtt_protocol.h>
+#include <mosquitto/mqtt_protocol.h>
 
 
 /* =========================================================================

@@ -7,7 +7,7 @@ Copyright (c) 2023 Cedalo Gmbh
 #include <stdio.h>
 #include <string.h>
 
-#include "mosquitto_broker.h"
+#include "mosquitto/broker.h"
 #include "plugin_global.h"
 
 int plugin__message_in_callback(int event, void *event_data, void *user_data)

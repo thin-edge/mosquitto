@@ -27,14 +27,9 @@ Contributors:
 #include <sys/stat.h>
 #include <openssl/rand.h>
 
-#include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
-#include "mqtt_protocol.h"
-#include "misc_mosq.h"
-
 #include "dynamic_security.h"
+#include "json_help.h"
+#include "misc_mosq.h"
 
 const char pw_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=_+[]{}@#~,./<>?";
 

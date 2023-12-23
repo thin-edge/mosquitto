@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 
 static int run = -1;
 static int first_connection = 1;

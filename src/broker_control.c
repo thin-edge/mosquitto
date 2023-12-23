@@ -29,11 +29,11 @@ Contributors:
 #include "json_help.h"
 #include "mosquitto.h"
 #include "mosquitto_broker_internal.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_control.h"
-#include "mosquitto_plugin.h"
+#include "mosquitto/broker.h"
+#include "mosquitto/broker_control.h"
+#include "mosquitto/broker_plugin.h"
 #include "memory_mosq.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 
 static mosquitto_plugin_id_t plg_id;
 

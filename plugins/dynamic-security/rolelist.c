@@ -26,9 +26,6 @@ Contributors:
 
 #include "dynamic_security.h"
 #include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-
 
 /* ################################################################
  * #

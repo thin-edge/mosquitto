@@ -17,7 +17,7 @@ Contributors:
 */
 #include "config.h"
 
-#include "mosquitto_broker.h"
+#include "mosquitto/broker.h"
 #include "memory_mosq.h"
 
 BROKER_EXPORT void *mosquitto_calloc(size_t nmemb, size_t size)

@@ -47,7 +47,7 @@ Contributors:
 #include "misc_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 
 #include "utlist.h"
 

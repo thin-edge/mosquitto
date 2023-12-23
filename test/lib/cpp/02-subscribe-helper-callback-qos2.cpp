@@ -1,7 +1,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 
 #define QOS 2
 static int mydata = 1;

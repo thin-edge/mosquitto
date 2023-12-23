@@ -26,7 +26,7 @@ Contributors:
 #endif
 
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 
 const char *mosquitto_strerror(int mosq_errno)
 {

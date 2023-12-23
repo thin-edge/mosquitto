@@ -27,7 +27,7 @@ Contributors:
 #include <time.h>
 
 #include <mosquitto.h>
-#include <mqtt_protocol.h>
+#include <mosquitto/mqtt_protocol.h>
 #include "mosquitto_ctrl.h"
 
 static int run = 1;

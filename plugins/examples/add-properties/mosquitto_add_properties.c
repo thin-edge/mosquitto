@@ -37,10 +37,7 @@ Contributors:
 #include <stdio.h>
 #include <time.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 #define TS_BUF_LEN (14+1)  // 14 characters in unix epoch (ms) is ≈16 Nov 5138
 #define PLUGIN_NAME "add-properties"

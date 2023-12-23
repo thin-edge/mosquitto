@@ -21,7 +21,7 @@ Contributors:
 #include <stdint.h>
 #include <string.h>
 
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"

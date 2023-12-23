@@ -24,8 +24,6 @@ Contributors:
 #include <openssl/rand.h>
 
 #include "dynamic_security.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
 
 
 /* ################################################################

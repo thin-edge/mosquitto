@@ -39,10 +39,7 @@ Contributors:
 #include <time.h>
 #include <uthash.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 #define PLUGIN_NAME "delayed-auth"
 #define PLUGIN_VERSION "1.0"

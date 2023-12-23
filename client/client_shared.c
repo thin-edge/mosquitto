@@ -35,7 +35,6 @@ Contributors:
 #endif
 
 #include <mosquitto.h>
-#include <mqtt_protocol.h>
 #include "client_shared.h"
 
 #ifdef WITH_SOCKS

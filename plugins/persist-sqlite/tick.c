@@ -20,9 +20,9 @@ Contributors:
 #include <sqlite3.h>
 #include <stdlib.h>
 
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "mosquitto.h"
-#include "mosquitto_broker.h"
+#include "mosquitto/broker.h"
 #include "persist_sqlite.h"
 
 int persist_sqlite__tick_cb(int event, void *event_data, void *userdata)

@@ -174,9 +174,64 @@ configure_file(libmosquittopp.pc.in libmosquittopp.pc @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libmosquittopp.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
 # ========================================
+# Install headers
+# ========================================
+install(
+	FILES
+	${mosquitto_SOURCE_DIR}/include/mosquitto.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto_broker.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto_plugin.h
+	${mosquitto_SOURCE_DIR}/include/mosquittopp.h
+	${mosquitto_SOURCE_DIR}/include/mqtt_protocol.h
+	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+)
+install(
+	FILES
+	${mosquitto_SOURCE_DIR}/include/mosquitto/broker.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto/broker_control.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto/broker_plugin.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto/libmosquittopp.h
+	${mosquitto_SOURCE_DIR}/include/mosquitto/mqtt_protocol.h
+	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/mosquitto"
+)
+
+# ========================================
 # Testing
 # ========================================
 if(WITH_TESTS)
 	enable_testing()
 	add_subdirectory(test)
 endif()
+include
+include/mosquitto_plugin.h
+include/mosquitto.h
+include/mosquittopp.h
+include/mqtt_protocol.h
+include/mosquitto_broker.h
+include/mosquitto
+include/mosquitto/libmosquitto_unsubscribe.h
+include/mosquitto/libmosquitto.h
+include/mosquitto/libmosquitto_loop.h
+include/mosquitto/libmosquitto_subscribe.h
+include/mosquitto/libcommon_topic.h
+include/mosquitto/libmosquitto_socks.h
+include/mosquitto/libmosquitto_helpers.h
+include/mosquitto/libmosquittopp.h
+include/mosquitto/broker.h
+include/mosquitto/libmosquitto_options.h
+include/mosquitto/broker_control.h
+include/mosquitto/libcommon_string.h
+include/mosquitto/libcommon_properties.h
+include/mosquitto/libmosquitto_create_delete.h
+include/mosquitto/mqtt_protocol.h
+include/mosquitto/libmosquitto_will.h
+include/mosquitto/broker_plugin.h
+include/mosquitto/libmosquitto_message.h
+include/mosquitto/libmosquitto_publish.h
+include/mosquitto/libmosquitto_callbacks.h
+include/mosquitto/libcommon_utf8.h
+include/mosquitto/libmosquitto_auth.h
+include/mosquitto/libmosquitto_connect.h
+include/mosquitto/defs.h
+include/mosquitto/libcommon.h
+include/mosquitto/libmosquitto_tls.h

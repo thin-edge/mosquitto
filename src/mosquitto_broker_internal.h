@@ -35,8 +35,8 @@ Contributors:
 #endif
 
 #include "mosquitto_internal.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
+#include "mosquitto/broker.h"
+#include "mosquitto/broker_plugin.h"
 #include "mosquitto.h"
 #include "logging_mosq.h"
 #include "password_mosq.h"

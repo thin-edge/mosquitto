@@ -109,6 +109,13 @@ endif
 	$(INSTALL) -m 644 aclfile.example "${DESTDIR}/etc/mosquitto/aclfile.example"
 	$(INSTALL) -m 644 pwfile.example "${DESTDIR}/etc/mosquitto/pwfile.example"
 	$(INSTALL) -m 644 pskfile.example "${DESTDIR}/etc/mosquitto/pskfile.example"
+	$(INSTALL) -d "${DESTDIR}$(prefix)/include/mosquitto"
+	$(INSTALL) include/mosquitto/*.h "${DESTDIR}${prefix}/include/mosquitto/"
+	$(INSTALL) include/mosquitto.h "${DESTDIR}${prefix}/include/mosquitto.h"
+	$(INSTALL) include/mosquitto_broker.h "${DESTDIR}${prefix}/include/mosquitto_broker.h"
+	$(INSTALL) include/mosquitto_plugin.h "${DESTDIR}${prefix}/include/mosquitto_plugin.h"
+	$(INSTALL) include/mosquittopp.h "${DESTDIR}${prefix}/include/mosquittopp.h"
+	$(INSTALL) include/mqtt_protocol.h "${DESTDIR}${prefix}/include/mqtt_protocol.h"
 
 uninstall :
 	set -e; for d in ${DIRS}; do $(MAKE) -C $${d} uninstall; done
@@ -116,6 +123,16 @@ uninstall :
 	rm -f "${DESTDIR}/etc/mosquitto/aclfile.example"
 	rm -f "${DESTDIR}/etc/mosquitto/pwfile.example"
 	rm -f "${DESTDIR}/etc/mosquitto/pskfile.example"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto/broker.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto/broker_control.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto/broker_plugin.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto/libmosquittopp.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto/mqtt_protocol.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto_broker.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquitto_plugin.h"
+	rm -f "${DESTDIR}${prefix}/include/mosquittopp.h"
+	rm -f "${DESTDIR}${prefix}/include/mqtt_protocol.h"
 
 dist : reallyclean
 	set -e; for d in ${DISTDIRS}; do $(MAKE) -C $${d} dist; done

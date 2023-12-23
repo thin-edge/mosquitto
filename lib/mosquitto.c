@@ -35,7 +35,7 @@ Contributors:
 #include "mosquitto_internal.h"
 #include "memory_mosq.h"
 #include "messages_mosq.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "will_mosq.h"

@@ -1,7 +1,7 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "property_mosq.h"
 #include "packet_mosq.h"
 

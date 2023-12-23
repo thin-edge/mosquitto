@@ -279,9 +279,3 @@ endif()
 install(TARGETS mosquitto
 	RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}"
 )
-install(
-	FILES
-	${mosquitto_SOURCE_DIR}/include/mosquitto_broker.h
-	${mosquitto_SOURCE_DIR}/include/mosquitto_plugin.h
-	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-)

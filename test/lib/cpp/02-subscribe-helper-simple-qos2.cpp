@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 
 #define QOS 2
 

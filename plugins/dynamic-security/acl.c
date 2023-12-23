@@ -18,10 +18,9 @@ Contributors:
 
 #include "config.h"
 
+#include "mosquitto/broker_plugin.h"
+
 #include "dynamic_security.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 
 typedef int (*MOSQ_FUNC_acl_check)(struct dynsec__data *data, struct mosquitto_evt_acl_check *, struct dynsec__rolelist *);
 

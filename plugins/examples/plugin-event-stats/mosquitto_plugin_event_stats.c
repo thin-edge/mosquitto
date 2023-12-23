@@ -35,8 +35,7 @@ Contributors:
 #include <stdio.h>
 #include <string.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
+#include "mosquitto.h"
 
 #define PLUGIN_NAME "plugin-event-stats"
 #define PLUGIN_VERSION "1.0"

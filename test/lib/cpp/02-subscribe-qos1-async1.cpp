@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 
 /* mosquitto_connect_async() test, with mosquitto_loop_start() called before mosquitto_connect_async(). */
 

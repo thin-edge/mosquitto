@@ -41,10 +41,7 @@ Contributors:
 #include <string.h>
 #include <uthash.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 #define PLUGIN_NAME "payload-ban"
 #define PLUGIN_VERSION "1.0"

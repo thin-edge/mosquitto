@@ -90,6 +90,7 @@ parts:
       - usr/include/mosquitto_broker.h
       - usr/include/mosquitto_plugin.h
       - usr/include/mqtt_protocol.h
+      - usr/include/mosquitto/*.h
 
   lws:
     after:

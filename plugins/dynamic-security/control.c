@@ -25,13 +25,8 @@ Contributors:
 #include <string.h>
 #include <sys/stat.h>
 
-#include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
-#include "mqtt_protocol.h"
-
 #include "dynamic_security.h"
+#include "json_help.h"
 
 #define RESPONSE_TOPIC "$CONTROL/dynamic-security/v1/response"
 

@@ -20,7 +20,7 @@ Contributors:
 #include <sqlite3.h>
 
 #include "mosquitto.h"
-#include "mosquitto_broker.h"
+#include "mosquitto/broker.h"
 #include "persist_sqlite.h"
 
 int persist_sqlite__retain_msg_set_cb(int event, void *event_data, void *userdata)

@@ -18,11 +18,6 @@ Contributors:
 
 #include "config.h"
 
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
-#include "mqtt_protocol.h"
-
 #include "dynamic_security.h"
 
 int dynsec__tick_callback(int event, void *event_data, void *userdata)

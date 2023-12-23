@@ -1,8 +1,8 @@
 #include "config.h"
 
-#include <mqtt_protocol.h>
-#include <mosquitto_broker.h>
-#include <mosquitto_control.h>
+#include <mosquitto/mqtt_protocol.h>
+#include <mosquitto/broker.h>
+#include <mosquitto/broker_control.h>
 
 #include <stdlib.h>
 #include <string.h>

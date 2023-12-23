@@ -21,7 +21,7 @@ Contributors:
 
 #include "persist_sqlite.h"
 #include "mosquitto.h"
-#include "mosquitto_broker.h"
+#include "mosquitto/broker.h"
 
 static int create_tables(struct mosquitto_sqlite *ms)
 {

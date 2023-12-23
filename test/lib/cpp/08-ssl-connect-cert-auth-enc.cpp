@@ -1,6 +1,6 @@
 #include <cassert>
 #include <cstring>
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 #include "path_helper.h"
 
 static int run = -1;

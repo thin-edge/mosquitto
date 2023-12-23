@@ -188,6 +188,7 @@ Build:
 - Add an CMake option `WITH_LTO` to enable/disable link time optimization.
 - Set C99 as the explicit, rather than implicit, build standard.
 - cJSON is now a required dependency.
+- Refactored headers for easier discovery.
 
 
 2.0.17 - 2023-08-22

@@ -5,10 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 #define PLUGIN_NAME "print-ip-on-publish"
 #define PLUGIN_VERSION "1.0"

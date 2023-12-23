@@ -22,7 +22,7 @@ Contributors:
 #include <string.h>
 
 #include "logging_mosq.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "memory_mosq.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"

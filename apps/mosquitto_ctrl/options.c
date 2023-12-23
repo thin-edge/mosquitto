@@ -35,7 +35,6 @@ Contributors:
 #endif
 
 #include <mosquitto.h>
-#include <mqtt_protocol.h>
 #include "mosquitto_ctrl.h"
 #include "get_password.h"
 

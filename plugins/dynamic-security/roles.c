@@ -30,9 +30,6 @@ Contributors:
 
 #include "dynamic_security.h"
 #include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-
 
 static cJSON *add_role_to_json(struct dynsec__role *role, bool verbose);
 static void role__remove_all_clients(struct dynsec__data *data, struct dynsec__role *role);

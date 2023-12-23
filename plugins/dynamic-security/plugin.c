@@ -28,13 +28,10 @@ Contributors:
 #  include <strings.h>
 #endif
 
-#include "json_help.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/broker_plugin.h"
 
 #include "dynamic_security.h"
+#include "json_help.h"
 
 MOSQUITTO_PLUGIN_DECLARE_VERSION(5);
 

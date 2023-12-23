@@ -31,7 +31,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto.h"
-#include "mosquitto_broker.h"
 #include "base64_mosq.h"
 #include "memory_mosq.h"
 

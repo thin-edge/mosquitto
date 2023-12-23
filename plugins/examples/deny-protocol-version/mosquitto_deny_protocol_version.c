@@ -49,10 +49,7 @@ Contributors:
 #include <stdio.h>
 #include <string.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 static mosquitto_plugin_id_t *mosq_pid = NULL;
 

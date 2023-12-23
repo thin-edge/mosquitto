@@ -28,7 +28,6 @@ Contributors:
 #include "messages_mosq.h"
 #include "memory_mosq.h"
 #include "packet_mosq.h"
-#include "mqtt_protocol.h"
 #include "net_mosq.h"
 #include "send_mosq.h"
 #include "socks_mosq.h"

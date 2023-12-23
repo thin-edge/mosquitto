@@ -23,7 +23,7 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "property_mosq.h"
 
 /* Process the incoming properties, we should be able to assume that only valid

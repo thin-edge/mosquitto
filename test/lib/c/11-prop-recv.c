@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mosquitto.h>
-#include <mqtt_protocol.h>
+#include <mosquitto/mqtt_protocol.h>
 
 static int run = -1;
 static int qos = -1;

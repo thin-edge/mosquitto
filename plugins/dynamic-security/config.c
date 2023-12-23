@@ -25,14 +25,9 @@ Contributors:
 #include <string.h>
 #include <sys/stat.h>
 
+#include "dynamic_security.h"
 #include "json_help.h"
 #include "misc_mosq.h"
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
-#include "mqtt_protocol.h"
-
-#include "dynamic_security.h"
 
 static int dynsec__general_config_load(struct dynsec__data *data, cJSON *tree)
 {

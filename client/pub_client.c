@@ -32,7 +32,6 @@ Contributors:
 #define snprintf sprintf_s
 #endif
 
-#include <mqtt_protocol.h>
 #include <mosquitto.h>
 #include "client_shared.h"
 #include "pub_shared.h"

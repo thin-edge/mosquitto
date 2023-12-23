@@ -36,10 +36,7 @@ Contributors:
 #include <time.h>
 #include <uthash.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 MOSQUITTO_PLUGIN_DECLARE_VERSION(5);
 

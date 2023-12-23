@@ -7,8 +7,8 @@ Copyright (c) 2023 Cedalo Gmbh
 #include <stdlib.h>
 #include <string.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
+#include "mosquitto/broker.h"
+#include "mosquitto/broker_plugin.h"
 #include "plugin_global.h"
 
 MOSQUITTO_PLUGIN_DECLARE_VERSION(5);

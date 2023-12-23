@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <cstring>
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 
 void print_error(const char *topic, char **topics, int topic_count)
 {

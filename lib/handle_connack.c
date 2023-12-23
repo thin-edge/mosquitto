@@ -21,11 +21,10 @@ Contributors:
 #include <assert.h>
 
 #include "callbacks.h"
-#include "mosquitto.h"
 #include "logging_mosq.h"
 #include "memory_mosq.h"
 #include "messages_mosq.h"
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"

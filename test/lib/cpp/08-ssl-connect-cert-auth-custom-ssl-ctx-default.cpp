@@ -1,6 +1,6 @@
 #include <cassert>
 #include <signal.h>
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 #include <openssl/ssl.h>
 #include "path_helper.h"
 

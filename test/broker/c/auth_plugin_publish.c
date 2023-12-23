@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mqtt_protocol.h>
+#include <mosquitto/mqtt_protocol.h>
 #include <mosquitto.h>
-#include <mosquitto_broker.h>
-#include <mosquitto_plugin.h>
+#include <mosquitto/broker.h>
+#include <mosquitto/broker_plugin.h>
 
 int mosquitto_auth_plugin_version(void)
 {

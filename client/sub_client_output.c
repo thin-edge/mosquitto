@@ -50,7 +50,6 @@ Contributors:
 #endif
 
 #include <mosquitto.h>
-#include <mqtt_protocol.h>
 #include "client_shared.h"
 #include "sub_client_output.h"
 

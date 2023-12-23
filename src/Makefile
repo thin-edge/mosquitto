@@ -256,9 +256,6 @@ will_mosq.o : ${R}/lib/will_mosq.c ${R}/lib/will_mosq.h
 install : all
 	$(INSTALL) -d "${DESTDIR}$(prefix)/sbin"
 	$(INSTALL) ${STRIP_OPTS} mosquitto "${DESTDIR}${prefix}/sbin/mosquitto"
-	$(INSTALL) -d "${DESTDIR}$(prefix)/include"
-	$(INSTALL) ${R}/include/mosquitto_broker.h "${DESTDIR}${prefix}/include/mosquitto_broker.h"
-	$(INSTALL) ${R}/include/mosquitto_plugin.h "${DESTDIR}${prefix}/include/mosquitto_plugin.h"
 
 uninstall :
 	-rm -f "${DESTDIR}${prefix}/sbin/mosquitto"

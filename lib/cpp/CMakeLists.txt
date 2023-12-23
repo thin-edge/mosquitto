@@ -1,4 +1,4 @@
-set(CPP_SRC mosquittopp.cpp ../../include/mosquittopp.h)
+set(CPP_SRC mosquittopp.cpp ../../include/mosquitto/libmosquittopp.h)
 
 add_library(mosquittopp SHARED
 	${CPP_SRC}
@@ -64,5 +64,3 @@ if(WITH_STATIC_LIBRARIES)
 		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	)
 endif()
-
-install(FILES ${mosquitto_SOURCE_DIR}/include/mosquittopp.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")

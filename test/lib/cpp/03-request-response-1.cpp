@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 
 #define QOS 0
 

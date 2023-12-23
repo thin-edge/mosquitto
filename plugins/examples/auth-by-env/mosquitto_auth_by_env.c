@@ -29,10 +29,7 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 
-#include "mosquitto_broker.h"
-#include "mosquitto_plugin.h"
 #include "mosquitto.h"
-#include "mqtt_protocol.h"
 
 #define ENV_MOSQUITTO_PASSWORD "MOSQUITTO_PASSWORD"
 

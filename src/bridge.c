@@ -41,7 +41,7 @@ Contributors:
 #include <ws2tcpip.h>
 #endif
 
-#include "mqtt_protocol.h"
+#include "mosquitto/mqtt_protocol.h"
 #include "mosquitto.h"
 #include "mosquitto_broker_internal.h"
 #include "mosquitto_internal.h"

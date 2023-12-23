@@ -29,7 +29,7 @@ set(C_SRC
 	../common/misc_mosq.c ../common/misc_mosq.h
 	mosquitto.c ../include/mosquitto.h
 	mosquitto_internal.h
-	../include/mqtt_protocol.h
+	../include/mosquitto/mqtt_protocol.h
 	net_mosq_ocsp.c net_mosq.c net_mosq.h
 	net_ws.c
 	options.c
@@ -168,6 +168,3 @@ if(WITH_STATIC_LIBRARIES)
 		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	)
 endif()
-
-install(FILES ${mosquitto_SOURCE_DIR}/include/mosquitto.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-install(FILES ${mosquitto_SOURCE_DIR}/include/mqtt_protocol.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")

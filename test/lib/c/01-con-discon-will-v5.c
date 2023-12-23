@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mqtt_protocol.h>
+#include <mosquitto/mqtt_protocol.h>
 #include <mosquitto.h>
 
 static int run = -1;

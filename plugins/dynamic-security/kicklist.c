@@ -21,9 +21,6 @@ Contributors:
 #include <stdio.h>
 #include <utlist.h>
 
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-
 #include "dynamic_security.h"
 
 int dynsec_kicklist__add(struct dynsec__data *data, const char *username)

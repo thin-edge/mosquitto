@@ -1,6 +1,6 @@
 #include <cassert>
 #include <errno.h>
-#include <mosquittopp.h>
+#include <mosquitto/libmosquittopp.h>
 #include "path_helper.h"
 
 class mosquittopp_test : public mosqpp::mosquittopp

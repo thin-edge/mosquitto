@@ -21,7 +21,7 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "mosquitto_broker.h"
+#include "mosquitto/broker.h"
 #include "time_mosq.h"
 #include "utlist.h"
 

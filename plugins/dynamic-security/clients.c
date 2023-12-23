@@ -22,11 +22,8 @@ Contributors:
 #include <stdio.h>
 #include <uthash.h>
 
-#include "mosquitto.h"
-#include "mosquitto_broker.h"
-#include "json_help.h"
-
 #include "dynamic_security.h"
+#include "json_help.h"
 
 struct connection_array_context{
 	const char *username;
