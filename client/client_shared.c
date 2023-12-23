@@ -25,13 +25,14 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 #ifndef WIN32
-#include <unistd.h>
-#include <strings.h>
+#  include <signal.h>
+#  include <strings.h>
+#  include <unistd.h>
 #else
-#include <process.h>
-#include <winsock2.h>
-#define snprintf sprintf_s
-#define strncasecmp _strnicmp
+#  include <process.h>
+#  include <winsock2.h>
+#  define snprintf sprintf_s
+#  define strncasecmp _strnicmp
 #endif
 
 #include <mosquitto.h>
@@ -1475,6 +1476,10 @@ int client_connect(struct mosquitto *mosq, struct mosq_config *cfg)
 #endif
 	int rc;
 	int port;
+
+#ifndef WIN32
+	signal(SIGPIPE, SIG_IGN);
+#endif
 
 	if(cfg->port == PORT_UNDEFINED){
 #ifdef WITH_TLS

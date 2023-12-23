@@ -883,7 +883,7 @@ def client_test(client_cmd, client_args, callback, cb_data):
 
     rc = 1
 
-    sock = listen_sock(port);
+    sock = listen_sock(port)
 
     args = [get_build_root() + "/test/lib/" + client_cmd, str(port)]
     if client_args is not None:
@@ -899,13 +899,14 @@ def client_test(client_cmd, client_args, callback, cb_data):
         rc = 0
 
         conn.close()
-    except mosq_test.TestError:
-        pass
+    except TestError as err:
+        print(err)
     except Exception as err:
         print(err)
         raise
     finally:
-        if wait_for_subprocess(client):
+        client_rc = wait_for_subprocess(client)
+        if client_rc:
             print("test client not finished")
             rc=1
         sock.close()
@@ -913,7 +914,7 @@ def client_test(client_cmd, client_args, callback, cb_data):
             (o, e) = client.communicate()
             print(o)
             print(e)
-            print(f"Fail: {client_cmd}")
+            print(f"Fail: {client_cmd} rc={rc}, client_rc={client_rc}")
             exit(rc)
 
 

@@ -45,6 +45,13 @@ int net__socket_close(struct mosquitto *mosq)
 	return MOSQ_ERR_SUCCESS;
 }
 
+int net__socket_shutdown(struct mosquitto *mosq)
+{
+	UNUSED(mosq);
+
+	return MOSQ_ERR_SUCCESS;
+}
+
 int send__pingreq(struct mosquitto *mosq)
 {
 	UNUSED(mosq);

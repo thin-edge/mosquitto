@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mosquitto.h>
+#ifndef WIN32
+#  include <signal.h>
+#endif
 
 static int run = -1;
 static int sent_mid;
@@ -25,7 +28,6 @@ static void on_publish(struct mosquitto *mosq, void *obj, int mid)
 
 	if(mid == sent_mid){
 		mosquitto_disconnect(mosq);
-		run = 0;
 	}else{
 		exit(1);
 	}
@@ -49,6 +51,10 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	port = atoi(argv[1]);
+
+#ifndef WIN32
+	signal(SIGPIPE, SIG_IGN);
+#endif
 
 	mosquitto_lib_init();
 

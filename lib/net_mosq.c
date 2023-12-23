@@ -268,6 +268,24 @@ int net__socket_close(struct mosquitto *mosq)
 }
 
 
+/* Shutdown a socket.
+ * Returns 1 on failure (context is NULL)
+ * Returns 0 on success.
+ */
+int net__socket_shutdown(struct mosquitto *mosq)
+{
+	int rc = 0;
+
+	assert(mosq);
+
+	if(net__is_connected(mosq)){
+		rc = COMPAT_SHUTDOWN(mosq->sock);
+	}
+
+	return rc;
+}
+
+
 #ifdef FINAL_WITH_TLS_PSK
 static unsigned int psk_client_callback(SSL *ssl, const char *hint,
 		char *identity, unsigned int max_identity_len,
