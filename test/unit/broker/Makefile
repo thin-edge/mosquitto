@@ -148,6 +148,9 @@ ${R}/src/memory_mosq.o : ${R}/lib/memory_mosq.c
 ${R}/src/memory_public.o : ${R}/src/memory_public.c
 	$(MAKE) -C ${R}/src/ memory_public.o
 
+${R}/src/misc_mosq.o : ${R}/common/misc_mosq.c
+	$(MAKE) -C ${R}/src/ misc_mosq.o
+
 ${R}/src/packet_datatypes.o : ${R}/lib/packet_datatypes.c
 	$(MAKE) -C ${R}/src/ packet_datatypes.o
 
