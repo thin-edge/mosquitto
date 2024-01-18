@@ -15,7 +15,7 @@ endif
 
 BRIDGE_TOPIC_TEST_OBJS = \
 		bridge_topic_test.o \
-		broker_stubs.o \
+		stubs.o \
 
 BRIDGE_TOPIC_OBJS = \
 		${R}/src/bridge_topic.o \
@@ -106,35 +106,22 @@ persist_write_test : ${PERSIST_WRITE_TEST_OBJS} ${PERSIST_WRITE_OBJS}
 subs_test : ${SUBS_TEST_OBJS} ${SUBS_OBJS}
 	$(CROSS_COMPILE)$(CC) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LDADD)
 
-keepalive_test.o : keepalive_test.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
-keepalive_stubs.o : keepalive_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
+${BRIDGE_TOPIC_TEST_OBJS} : %.o: %.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-bridge_topic_test.o : bridge_topic_test.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
+${KEEPALIVE_TEST_OBJS} : %.o: %.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-broker_stubs.o : stubs.c
-	${CROSS_COMPILE}${CC} $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
+${PERSIST_READ_TEST_OBJS} : %.o: %.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-persist_read_test.o : persist_read_test.c
-	${CROSS_COMPILE}${CC} -I${R}/test $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
+${PERSIST_WRITE_TEST_OBJS} : %.o: %.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-persist_read_stubs.o: persist_read_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
+${SUBS_TEST_OBJS} : %.o: %.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-persist_write_test.o : persist_write_test.c
-	${CROSS_COMPILE}${CC} -I${R}/test $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
-
-persist_write_stubs.o: persist_write_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
-
-subs_test.o : subs_test.c
-	${CROSS_COMPILE}${CC} -I${R}/test $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
-
-subs_stubs.o: subs_stubs.c
-	${CROSS_COMPILE}${CC} -I${R}/src $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) -c $< -o $@
 
 ${R}/src/bridge_topic.o : ${R}/src/bridge_topic.c
 	$(MAKE) -C ${R}/src/ bridge_topic.o
