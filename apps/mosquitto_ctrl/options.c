@@ -889,9 +889,11 @@ static int mosquitto__parse_socks_url(struct mosq_config *cfg, char *url)
 	}
 
 	if(mosquitto__urldecode(username)){
+		fprintf(stderr, "Error: Invalid URL encoding in username.\n");
 		goto cleanup;
 	}
 	if(mosquitto__urldecode(password)){
+		fprintf(stderr, "Error: Invalid URL encoding in password.\n");
 		goto cleanup;
 	}
 	if(port){
