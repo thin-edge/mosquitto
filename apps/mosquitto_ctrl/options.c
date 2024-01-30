@@ -593,26 +593,22 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 		rc = get_password(prompt, NULL, false, password, sizeof(password));
 		if(rc){
 			fprintf(stderr, "Error getting password.\n");
-			mosquitto_lib_cleanup();
 			return 1;
 		}
 		cfg->password = strdup(password);
 		if(cfg->password == NULL){
 			fprintf(stderr, "Error: Out of memory.\n");
-			mosquitto_lib_cleanup();
 			return 1;
 		}
 	}
 
 	if((cfg->username || cfg->password) && mosquitto_username_pw_set(mosq, cfg->username, cfg->password)){
 		fprintf(stderr, "Error: Problem setting username and/or password.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 #ifdef WITH_TLS
 	if(cfg->keyform && mosquitto_string_option(mosq, MOSQ_OPT_TLS_KEYFORM, cfg->keyform)){
 		fprintf(stderr, "Error: Problem setting key form, it must be one of 'pem' or 'engine'.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 	if(cfg->cafile || cfg->capath){
@@ -623,7 +619,6 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 			}else{
 				fprintf(stderr, "Error: Problem setting TLS options: %s.\n", mosquitto_strerror(rc));
 			}
-			mosquitto_lib_cleanup();
 			return 1;
 		}
 	}
@@ -634,29 +629,24 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 	}
 	if(cfg->tls_engine && mosquitto_string_option(mosq, MOSQ_OPT_TLS_ENGINE, cfg->tls_engine)){
 		fprintf(stderr, "Error: Problem setting TLS engine, is %s a valid engine?\n", cfg->tls_engine);
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 	if(cfg->tls_engine_kpass_sha1 && mosquitto_string_option(mosq, MOSQ_OPT_TLS_ENGINE_KPASS_SHA1, cfg->tls_engine_kpass_sha1)){
 		fprintf(stderr, "Error: Problem setting TLS engine key pass sha, is it a 40 character hex string?\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 	if(cfg->tls_alpn && mosquitto_string_option(mosq, MOSQ_OPT_TLS_ALPN, cfg->tls_alpn)){
 		fprintf(stderr, "Error: Problem setting TLS ALPN protocol.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 #  ifdef FINAL_WITH_TLS_PSK
 	if(cfg->psk && mosquitto_tls_psk_set(mosq, cfg->psk, cfg->psk_identity, NULL)){
 		fprintf(stderr, "Error: Problem setting TLS-PSK options.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 #  endif
 	if((cfg->tls_version || cfg->ciphers) && mosquitto_tls_opts_set(mosq, 1, cfg->tls_version, cfg->ciphers)){
 		fprintf(stderr, "Error: Problem setting TLS options, check the options are valid.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 #endif
@@ -664,7 +654,6 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 	if(cfg->socks5_host){
 		rc = mosquitto_socks5_set(mosq, cfg->socks5_host, cfg->socks5_port, cfg->socks5_username, cfg->socks5_password);
 		if(rc){
-			mosquitto_lib_cleanup();
 			return rc;
 		}
 	}
@@ -712,7 +701,6 @@ int client_connect(struct mosquitto *mosq, struct mosq_config *cfg)
 		}else{
 			fprintf(stderr, "Unable to connect (%s).\n", mosquitto_strerror(rc));
 		}
-		mosquitto_lib_cleanup();
 		return rc;
 	}
 	return MOSQ_ERR_SUCCESS;
