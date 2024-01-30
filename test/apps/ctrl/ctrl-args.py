@@ -26,6 +26,7 @@ do_test(["-A"], 1, response="Error: -A argument given but no address specified.\
 do_test(["-A", "127.0.0.1"], 1) # Gives generic help
 do_test(["--cafile"], 1, response="Error: --cafile argument given but no file specified.\n\n")
 do_test(["--cafile", ssl_dir / "all-ca.crt"], 1) # Gives generic help
+do_test(["--cafile", "missing", "broker", "listListeners"], 1, "Error: Problem setting TLS options: File not found.\n")
 do_test(["--capath"], 1, response="Error: --capath argument given but no directory specified.\n\n")
 do_test(["--capath", ssl_dir], 1) # Gives generic help
 do_test(["--cert"], 1, response="Error: --cert argument given but no file specified.\n\n")
@@ -44,7 +45,9 @@ do_test(["-i"], 1, response="Error: -i argument given but no id specified.\n\n")
 do_test(["-i", "clientid"], 1) # Gives generic help
 do_test(["--insecure"], 1) # Gives generic help
 do_test(["--keyform"], 1, response="Error: --keyform argument given but no keyform specified.\n\n")
-do_test(["--keyform", "key"], 1) # Gives generic help
+do_test(["--keyform", "key"], 1, response="Error: If keyform is set, keyfile must be also specified.\n")
+do_test(["--keyform", "key", "--cafile", "file", "--cert", "file", "--key", "file", "broker", "listListeners"], 1,
+        response="Error: Problem setting key form, it must be one of 'pem' or 'engine'.\n")
 do_test(['-L'], 1, response="Error: -L argument given but no URL specified.\n\n")
 do_test(['-L', 'invalid://'], 1, response="Error: Unsupported URL scheme.\n\n")
 do_test(['-L', 'mqtt://localhost'], 1, response="Error: Invalid URL for -L argument specified - topic missing.\n")
@@ -61,6 +64,36 @@ do_test(["-p", "-1"], 1, response="Error: Invalid port given: -1\n")
 do_test(["-p", "65536"], 1, response="Error: Invalid port given: 65536\n")
 do_test(["-P"], 1, response="Error: -P argument given but no password specified.\n\n")
 do_test(["-P", "password"], 1) # Gives generic help
+do_test(["--proxy"], 1, response="Error: --proxy argument given but no proxy url specified.\n\n")
+do_test(["--proxy", "mqtt://localhost"], 1, response="Error: Unsupported proxy protocol: mqtt://localhost\n")
+do_test(["--proxy", "socks5h://"], 1, response="Error: Invalid proxy.\n")
+do_test(["--proxy", "socks5h://localhost:0"], 1, response="Error: Invalid proxy port 0\n")
+do_test(["--proxy", "socks5h://localhost:65536"], 1, response="Error: Invalid proxy port 65536\n")
+do_test(["--proxy", "socks5h://localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username@localhost@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username@localhost:localhost:1080"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://localhost:1080"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username:password@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username:password@localhost:1080"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://:"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://@"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username%@localhost"], 1, response="Error: Invalid URL encoding in username.\n")
+do_test(["--proxy", "socks5h://username%25@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://%25username@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://user%3aname@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://user%40name@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username%41@localhost"], 1, response="Error: Invalid URL encoding in username.\n")
+do_test(["--proxy", "socks5h://username:password%@localhost"], 1, response="Error: Invalid URL encoding in password.\n")
+do_test(["--proxy", "socks5h://username:password%25@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username:%25password@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username:password%3a@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username:password%40@localhost"], 1) # Gives generic help
+do_test(["--proxy", "socks5h://username:password%41@localhost"], 1, response="Error: Invalid URL encoding in password.\n")
+do_test(["--psk"], 1, response="Error: --psk argument given but no key specified.\n\n")
+do_test(["--psk", "missing.psk"], 1, response="Error: --psk-identity required if --psk used.\n")
+do_test(["--psk-identity"], 1, response="Error: --psk-identity argument given but no identity specified.\n\n")
+do_test(["--cafile", ssl_dir / "all-ca.crt", "--psk", "missing.psk", "--psk-identity", "identity"], 1, response="Error: Only one of --psk or --cafile/--capath may be used at once.\n")
 do_test(["-q"], 1, response="Error: -q argument given but no QoS specified.\n\n")
 do_test(["-q", "1"], 1) # Gives generic help
 do_test(["-q", "-1"], 1, response="Error: Invalid QoS given: -1\n")
