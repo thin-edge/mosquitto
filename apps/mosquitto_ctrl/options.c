@@ -622,11 +622,7 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 			return 1;
 		}
 	}
-	if(cfg->insecure && mosquitto_tls_insecure_set(mosq, true)){
-		fprintf(stderr, "Error: Problem setting TLS insecure option.\n");
-		mosquitto_lib_cleanup();
-		return 1;
-	}
+	mosquitto_tls_insecure_set(mosq, cfg->insecure);
 	if(cfg->tls_engine && mosquitto_string_option(mosq, MOSQ_OPT_TLS_ENGINE, cfg->tls_engine)){
 		fprintf(stderr, "Error: Problem setting TLS engine, is %s a valid engine?\n", cfg->tls_engine);
 		return 1;
