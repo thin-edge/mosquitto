@@ -32,7 +32,7 @@ jobs:
         run: cmake --install ${{github.workspace}}/build64 --config ${{env.BUILD_TYPE}}
 
       - name: Upload cJSON
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cjson-bin
           path: C:\Program Files\cJSON
@@ -40,14 +40,14 @@ jobs:
   sqlite3:
     runs-on: windows-2022
     steps:
-      - uses: suisei-cn/actions-download-file@v1.4.0
+      - uses: suisei-cn/actions-download-file@v1.6.0
         id: sqlitesrc
         name: Download sqlite source
         with:
           url: https://www.sqlite.org/2023/sqlite-amalgamation-3440000.zip
           target: download/
 
-      - uses: suisei-cn/actions-download-file@v1.4.0
+      - uses: suisei-cn/actions-download-file@v1.6.0
         id: sqlitebin
         name: Download sqlite dll
         with:
@@ -69,7 +69,7 @@ jobs:
         run: lib.exe /def:"C:\Program Files\sqlite\sqlite3.def" /machine:x64 /out:"C:\Program Files\sqlite\sqlite3.lib"
 
       - name: Upload sqlite
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sqlite-bin
           path: C:\Program Files\sqlite
@@ -89,13 +89,13 @@ jobs:
         run: choco install openssl
 
       - name: Download cJSON
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: cjson-bin
           path: C:\Program Files\cJSON
 
       - name: Download sqlite
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sqlite-bin
           path: C:\Program Files\sqlite
@@ -106,7 +106,7 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build64 --config ${{env.BUILD_TYPE}}
 
-      - uses: suisei-cn/actions-download-file@v1.4.0
+      - uses: suisei-cn/actions-download-file@v1.6.0
         id: vcredist
         name: Download VC redistributable
         with:
@@ -119,7 +119,7 @@ jobs:
           script-file: ${{github.workspace}}/installer/mosquitto64.nsi
 
       - name: Upload installer to artifacts
-        uses: actions/upload-artifact/@v3
+        uses: actions/upload-artifact@v4
         with:
           name: installer
           path: ${{ github.workspace }}/installer/mosquitto*.exe
