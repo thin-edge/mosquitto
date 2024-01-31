@@ -8,10 +8,19 @@ LOCAL_CPPFLAGS+=-I${R}/lib -I${R}/apps/mosquitto_passwd -I${R}/plugins/dynamic-s
 LOCAL_LDFLAGS+=
 LOCAL_LDADD+=-lcjson -ldl ${LIBMOSQ} ${LIB_ARGON2}
 
+# ------------------------------------------
+#  Compile time options
+# ------------------------------------------
+
+ifeq ($(WITH_SOCKS),yes)
+	LOCAL_CPPFLAGS+=-DWITH_SOCKS
+endif
+
 ifeq ($(WITH_THREADING),yes)
 LOCAL_LDFLAGS+=-pthread
 LOCAL_LDADD+=-lssl -lcrypto
 endif
+
 
 OBJS= \
 	mosquitto_ctrl.o \
