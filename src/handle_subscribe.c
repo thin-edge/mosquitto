@@ -176,7 +176,6 @@ int handle__subscribe(struct mosquitto *context)
 				sub.topic_filter = sub_mount;
 
 			}
-			log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (QoS %d)", sub.topic_filter, qos);
 
 			allowed = true;
 			rc2 = mosquitto_acl_check(context, sub.topic_filter, 0, NULL, qos, false, MOSQ_ACL_SUBSCRIBE);
@@ -194,6 +193,11 @@ int handle__subscribe(struct mosquitto *context)
 				default:
 					mosquitto__FREE(sub.topic_filter);
 					return rc2;
+			}
+			if(qos > 127){
+				log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (denied)", sub.topic_filter);
+			}else{
+				log__printf(NULL, MOSQ_LOG_DEBUG, "\t%s (QoS %d)", sub.topic_filter, qos);
 			}
 
 			if(allowed){
