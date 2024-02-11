@@ -231,6 +231,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 						const char *rolename;
 						if(json_get_string(j_role, "rolename", &rolename, false) == MOSQ_ERR_SUCCESS){
 							json_get_int(j_role, "priority", &priority, true, -1);
+							if(priority > PRIORITY_MAX) priority = PRIORITY_MAX;
 							role = dynsec_roles__find(data, rolename);
 							dynsec_rolelist__client_add(client, role, priority);
 						}
@@ -447,6 +448,7 @@ int dynsec_clients__process_create(struct dynsec__data *data, struct mosquitto_c
 				const char *groupname;
 				if(json_get_string(j_group, "groupname", &groupname, false) == MOSQ_ERR_SUCCESS){
 					json_get_int(j_group, "priority", &priority, true, -1);
+					if(priority > PRIORITY_MAX) priority = PRIORITY_MAX;
 					rc = dynsec_groups__add_client(data, username, groupname, priority, false);
 					if(rc == ERR_GROUP_NOT_FOUND){
 						mosquitto_control_command_reply(cmd, "Group not found");
@@ -841,6 +843,7 @@ int dynsec_clients__process_modify(struct dynsec__data *data, struct mosquitto_c
 				const char *groupname;
 				if(json_get_string(j_group, "groupname", &groupname, false) == MOSQ_ERR_SUCCESS){
 					json_get_int(j_group, "priority", &priority, true, -1);
+					if(priority > PRIORITY_MAX) priority = PRIORITY_MAX;
 					dynsec_groups__add_client(data, username, groupname, priority, false);
 				}
 			}
@@ -1164,6 +1167,7 @@ int dynsec_clients__process_add_role(struct dynsec__data *data, struct mosquitto
 		return MOSQ_ERR_INVAL;
 	}
 	json_get_int(cmd->j_command, "priority", &priority, true, -1);
+	if(priority > PRIORITY_MAX) priority = PRIORITY_MAX;
 
 	client = dynsec_clients__find(data, username);
 	if(client == NULL){

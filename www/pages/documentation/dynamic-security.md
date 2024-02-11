@@ -226,7 +226,7 @@ applied.
 The order in which checks are made is determined in part by the `priority` of
 groups, roles and ACLs. Each client group has a priority, each client role and
 group role has a priority, and each ACL within a role has a priority. If not
-set explicitly, priorities will default to -1.
+set explicitly, priorities will default to -1. Priority has a maximum of 100000.
 
 For each of the group, role, and ACL objects, checks are made in priority order
 from the highest numerical value to the lowest numerical value. If two objects
