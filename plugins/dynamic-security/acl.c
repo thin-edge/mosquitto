@@ -18,7 +18,7 @@ Contributors:
 
 #include "config.h"
 
-#include "mosquitto/broker_plugin.h"
+#include "mosquitto.h"
 
 #include "dynamic_security.h"
 

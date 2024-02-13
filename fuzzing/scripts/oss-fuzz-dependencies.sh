@@ -21,4 +21,4 @@
 # currently part of fuzz testing. Once it is part of fuzz testing, sqlite will
 # need to be built statically.
 apt-get update && apt-get install -y libargon2-dev libtool-bin make libsqlite3-dev
-git clone https://github.com/DaveGamble/cJSON ${SRC}/cJSON
+git clone https://github.com/ralight/cJSON ${SRC}/cJSON

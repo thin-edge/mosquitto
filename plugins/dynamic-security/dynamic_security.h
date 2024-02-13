@@ -21,8 +21,6 @@ Contributors:
 #include <cjson/cJSON.h>
 #include <uthash.h>
 #include "mosquitto.h"
-#include "mosquitto/broker.h"
-#include "mosquitto/broker_control.h"
 #include "password_mosq.h"
 #include "base64_mosq.h"
 

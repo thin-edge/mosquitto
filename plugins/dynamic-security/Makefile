@@ -7,7 +7,7 @@ PLUGIN_NAME=mosquitto_dynamic_security
 
 LOCAL_CFLAGS+=-fPIC
 LOCAL_CPPFLAGS+=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common
-LOCAL_LIBADD+=-lcjson
+LOCAL_LIBADD+=-lcjson -lm
 LOCAL_LDFLAGS+=-fPIC -shared
 
 WITH_PW_CACHE:=yes

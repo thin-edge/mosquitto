@@ -28,7 +28,7 @@ Contributors:
 #  include <strings.h>
 #endif
 
-#include "mosquitto/broker_plugin.h"
+#include "mosquitto.h"
 
 #include "dynamic_security.h"
 #include "json_help.h"

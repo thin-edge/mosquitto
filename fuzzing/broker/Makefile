@@ -11,7 +11,7 @@ LOCAL_CPPFLAGS+=-I${R}/include/ -I${R}/src -I${R}/lib -I${R} -I${R}/common -I${R
 	-DWITH_SYS_TREE -DWITH_TLS -DWITH_TLS_PSK -DWITH_UNIX_SOCKETS -DWITH_WEBSOCKETS=WS_IS_BUILTIN
 LOCAL_CXXFLAGS+=-g -Wall -Werror -pthread
 LOCAL_LDFLAGS+=
-LOCAL_LIBADD+=$(LIB_FUZZING_ENGINE) ${R}/src/mosquitto_broker.a -lssl -lcrypto -lcjson
+LOCAL_LIBADD+=$(LIB_FUZZING_ENGINE) ${R}/src/mosquitto_broker.a -lssl -lcrypto -lcjson -largon2 -lm
 
 all: $(FUZZERS)
 

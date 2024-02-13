@@ -26,7 +26,7 @@ Contributors:
 extern "C" {
 #endif
 
-#include <mosquitto_plugin.h>
+#include <mosquitto.h>
 #include <mosquitto_broker_internal.h>
 
 #ifdef __cplusplus
