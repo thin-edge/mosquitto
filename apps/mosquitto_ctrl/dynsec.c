@@ -606,7 +606,7 @@ static cJSON *init_add_client(const char *username, const char *password, const 
 			return NULL;
 		}
 
-		if(cJSON_AddStringToObject(j_client, "encoded_password", pw.encoded_password)){
+		if(cJSON_AddStringToObject(j_client, "encoded_password", pw.encoded_password) == NULL){
 			free(pw.encoded_password);
 			cJSON_Delete(j_client);
 			return NULL;
