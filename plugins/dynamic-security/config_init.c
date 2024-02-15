@@ -182,7 +182,7 @@ static int generate_password(struct dynsec__data *data, cJSON *j_client, char **
 			return MOSQ_ERR_UNKNOWN;
 		}
 
-		if(cJSON_AddStringToObject(j_client, "encoded_password", pw.encoded_password)){
+		if(cJSON_AddStringToObject(j_client, "encoded_password", pw.encoded_password) == NULL){
 			free(pw.encoded_password);
 			free(*password);
 			*password = NULL;
