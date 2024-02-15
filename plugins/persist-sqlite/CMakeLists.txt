@@ -1,11 +1,7 @@
-if(SQLITE3_FOUND AND CJSON_FOUND)
-	set(CLIENT_INC
-		"${mosquitto_SOURCE_DIR}/deps"
-		"${mosquitto_SOURCE_DIR}/include"
-		"${mosquitto_SOURCE_DIR}/src"
-	)
+if(SQLITE3_FOUND)
+	set(PLUGIN_NAME "mosquitto_persist_sqlite")
 
-	add_library(mosquitto_persist_sqlite MODULE
+	set(SRCLIST
 		base_msgs.c
 		clients.c
 		client_msgs.c
@@ -18,26 +14,12 @@ if(SQLITE3_FOUND AND CJSON_FOUND)
 		tick.c
 	)
 
-	target_include_directories(mosquitto_persist_sqlite PRIVATE
-		${CLIENT_INC}
-		"${mosquitto_SOURCE_DIR}/common"
+	set(INCLIST )
+
+	set(LINKLIST
+		cJSON
+		SQLite::SQLite3
 	)
 
-	set_target_properties(mosquitto_persist_sqlite PROPERTIES
-		PREFIX ""
-		POSITION_INDEPENDENT_CODE 1
-	)
-
-	target_link_libraries(mosquitto_persist_sqlite
-		PRIVATE
-			common-options
-			SQLite::SQLite3
-			cJSON
-	)
-	target_link_libraries(mosquitto_persist_sqlite PRIVATE mosquitto)
-
-	install(TARGETS mosquitto_persist_sqlite
-		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-	)
+	plugin_helper("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
 endif()
