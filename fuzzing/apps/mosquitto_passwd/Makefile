@@ -1,4 +1,6 @@
 R=../../..
+include ${R}/fuzzing/config.mk
+
 .PHONY: all clean
 
 FUZZERS:= \

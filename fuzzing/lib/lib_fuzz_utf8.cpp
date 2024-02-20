@@ -19,6 +19,6 @@ Contributors:
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-	mosquitto_validate_utf8((const char *)data, size);
+	mosquitto_validate_utf8((const char *)data, (int)size);
 	return 0;
 }

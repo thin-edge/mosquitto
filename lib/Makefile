@@ -159,3 +159,6 @@ password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
 
 time_mosq.o : ${R}/common/time_mosq.c ${R}/common/time_mosq.h
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
+
+${R}/deps/picohttpparser/picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c
+	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@

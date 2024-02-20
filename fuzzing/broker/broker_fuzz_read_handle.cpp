@@ -72,8 +72,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 	context->in_packet.command = data_heap[0];
 	context->in_packet.payload = (uint8_t *)data_heap;
-	context->in_packet.packet_length = size;
-	context->in_packet.remaining_length = size-1;
+	context->in_packet.packet_length = (uint32_t )size; /* Safe cast, because we've already limited the size */
+	context->in_packet.remaining_length = (uint32_t )(size-1);
 	context->in_packet.pos = 1;
 
 	handle__packet(context);
