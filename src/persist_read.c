@@ -546,9 +546,14 @@ static int persist__restore_sub(const struct mosquitto_subscription *sub)
 {
 	struct mosquitto *context;
 
-	assert(sub);
-	assert(sub->clientid);
-	assert(sub->topic_filter);
+	if(!sub->clientid){
+		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no client id, ignoring.");
+		return MOSQ_ERR_SUCCESS;
+	}
+	if(!sub->topic_filter){
+		log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Persistence found a subscription with no topic filter, ignoring.");
+		return MOSQ_ERR_SUCCESS;
+	}
 
 	context = persist__find_or_add_context(sub->clientid, 0);
 	if(!context) return 1;

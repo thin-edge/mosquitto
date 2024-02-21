@@ -18,7 +18,6 @@ Contributors:
 
 #include "config.h"
 
-#include <assert.h>
 #include <time.h>
 #ifdef __APPLE__
 #include <sys/socket.h>

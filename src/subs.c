@@ -368,9 +368,10 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			 * but that would involve keeping a copy of the topic string in
 			 * each subleaf. Might be worth considering though. */
 			for(i=0; i<context->subs_capacity; i++){
-				if(context->subs[i] == leaf){
+				if(context->subs[i] && context->subs[i]->hier == subhier){
 					context->subs_count--;
-					mosquitto__FREE(context->subs[i]);
+					mosquitto__free(context->subs[i]);
+					context->subs[i] = NULL;
 					break;
 				}
 			}
@@ -404,8 +405,12 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 				* but that would involve keeping a copy of the topic string in
 				* each subleaf. Might be worth considering though. */
 				for(i=0; i<context->subs_capacity; i++){
-					if(context->subs[i] == leaf){
-						mosquitto__FREE(context->subs[i]);
+					if(context->subs[i]
+							&& context->subs[i]->hier == subhier
+							&& context->subs[i]->shared == shared){
+
+						mosquitto__free(context->subs[i]);
+						context->subs[i] = NULL;
 						context->subs_count--;
 						break;
 					}

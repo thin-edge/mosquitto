@@ -38,6 +38,20 @@ MOSQUITTO_PLUGIN_DECLARE_VERSION(5);
 static struct dynsec__data dynsec_data;
 static mosquitto_plugin_id_t *plg_id = NULL;
 
+#ifdef WIN32
+#  include <winsock2.h>
+#  include <aclapi.h>
+#  include <io.h>
+#  include <lmcons.h>
+#  include <fcntl.h>
+#  define PATH_MAX MAX_PATH
+#else
+#  include <sys/stat.h>
+#  include <pwd.h>
+#  include <grp.h>
+#  include <unistd.h>
+#endif
+
 int mosquitto_plugin_init(mosquitto_plugin_id_t *identifier, void **user_data, struct mosquitto_opt *options, int option_count)
 {
 	int i;

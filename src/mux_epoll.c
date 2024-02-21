@@ -21,12 +21,17 @@ Contributors:
 
 #ifdef WITH_EPOLL
 
-#define MAX_EVENTS 1000
-#define _GNU_SOURCE
+#ifndef WIN32
+#  define _GNU_SOURCE
+#endif
+
+#ifndef WIN32
+#  include <sys/epoll.h>
+#  define MAX_EVENTS 1000
+#endif
 
 #include <errno.h>
 #include <signal.h>
-#include <sys/epoll.h>
 
 #include "mosquitto_broker_internal.h"
 #include "mux.h"
