@@ -1005,21 +1005,21 @@ mosquitto_sub -t 'bbc/#' -T bbc/bbc1 --remove-retained</programlisting>
 		<refsect2>
 			<title>Floating point number printing consideration</title>
 				<para>
-					Mosquitto supports only IEEE754 floating point standard as
+					mosquitto_sub supports only the IEEE754 floating point standard as
 					described in Annex F of ISO/IEC 9899:1999. Don't try to
-					use %f or %d if publisher's platform uses different
+					use %f or %d if the platform of the publisher uses a different
 					floating point representation standard than IEEE754 or you
 					will get invalid data. If you are unsure what floating
-					representation your platform is using, then it's most
-					likely IEEE754. If you get malformed and unexpected values,
-					check if float number in payload from publisher is encoded
-					in IEEE754.
+					representation your platform is using, then it is most
+					likely IEEE754. If you get malformed or unexpected values,
+                    check if the floating point number in the payload from the
+                    publisher is encoded in IEEE754.
 				</para>
 				<para>
-					If want to print floats, make sure you subscribe only
+					If want to print floats, make sure you only subscribe
 					to topics that send only IEEE754 formatted floats.
-					Mosquitto is very strict about floats and if anything
-					that is not float is received, an error message will
+					mosquitto_sub is very strict about floats and if anything
+					that is not a float is received, an error message will
 					be printed.
 				</para>
 		</refsect2>
