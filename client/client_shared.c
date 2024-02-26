@@ -511,37 +511,6 @@ int client_config_load(struct mosq_config *cfg, int pub_or_sub, int argc, char *
 		}
 	}
 
-	rc = mosquitto_property_check_all(CMD_CONNECT, cfg->connect_props);
-	if(rc){
-		err_printf(cfg, "Error in CONNECT properties: %s\n", mosquitto_strerror(rc));
-		return 1;
-	}
-	rc = mosquitto_property_check_all(CMD_PUBLISH, cfg->publish_props);
-	if(rc){
-		err_printf(cfg, "Error in PUBLISH properties: %s\n", mosquitto_strerror(rc));
-		return 1;
-	}
-	rc = mosquitto_property_check_all(CMD_SUBSCRIBE, cfg->subscribe_props);
-	if(rc){
-		err_printf(cfg, "Error in SUBSCRIBE properties: %s\n", mosquitto_strerror(rc));
-		return 1;
-	}
-	rc = mosquitto_property_check_all(CMD_UNSUBSCRIBE, cfg->unsubscribe_props);
-	if(rc){
-		err_printf(cfg, "Error in UNSUBSCRIBE properties: %s\n", mosquitto_strerror(rc));
-		return 1;
-	}
-	rc = mosquitto_property_check_all(CMD_DISCONNECT, cfg->disconnect_props);
-	if(rc){
-		err_printf(cfg, "Error in DISCONNECT properties: %s\n", mosquitto_strerror(rc));
-		return 1;
-	}
-	rc = mosquitto_property_check_all(CMD_WILL, cfg->will_props);
-	if(rc){
-		err_printf(cfg, "Error in Will properties: %s\n", mosquitto_strerror(rc));
-		return 1;
-	}
-
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -920,12 +889,7 @@ int client_config_line_proc(struct mosq_config *cfg, int pub_or_sub, int argc, c
 			}
 			cfg->eol = false;
 		}else if(!strcmp(argv[i], "-o")){
-			if(i==argc-1){
-				fprintf(stderr, "Error: -o argument given but no options file specified.\n\n");
-				return 1;
-			}else{
-				/* Already handled */
-			}
+			/* Already handled */
 			i++;
 		}else if(!strcmp(argv[i], "-p") || !strcmp(argv[i], "--port")){
 			if(i==argc-1){

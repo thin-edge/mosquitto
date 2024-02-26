@@ -104,6 +104,8 @@ if __name__ == '__main__':
     do_test(['-V', '5', '-D', 'subscribe', 'subscription-identifier', '-1'], "Error: Property value (-1) out of range for property subscription-identifier.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'subscribe', 'subscription-identifier', '4294967296'], "Error: Property value (4294967296) out of range for property subscription-identifier.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'subscribe', 'topic-alias', '1'], "Error: topic-alias property not allowed for subscribe in --property argument.\n\n" + helps, 1)
+    do_test(['-V', '5', '-D', 'auth', 'authentication-method', '1'], "Error: authentication-method property not supported for auth in --property argument.\n\n" + helps, 1)
+    do_test(['-V', '5', '-D', 'puback', 'reason-string', '1'], "Error: reason-string property not supported for puback in --property argument.\n\n" + helps, 1)
     do_test(['-T', '++'], "Error: Invalid filter topic '++', are all '+' and '#' wildcards correct?\n" + helps, 1)
     do_test(['-U', '++'], "Error: Invalid unsubscribe topic '++', are all '+' and '#' wildcards correct?\n" + helps, 1)
     do_test(['-V', '0'], "Error: Invalid protocol version argument given.\n\n" + helps, 1)

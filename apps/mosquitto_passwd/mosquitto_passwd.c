@@ -107,13 +107,6 @@ static FILE *mpw_tmpfile(void)
 }
 #endif
 
-int log__printf(void *mosq, unsigned int level, const char *fmt, ...)
-{
-	/* Stub for misc_mosq.c */
-	UNUSED(mosq); UNUSED(level); UNUSED(fmt); return 0;
-}
-
-
 static void print_usage(void)
 {
 	printf("mosquitto_passwd is a tool for managing password files for mosquitto.\n\n");
@@ -205,16 +198,14 @@ static int pwfile_iterate(FILE *fptr, FILE *ftmp,
 		line++;
 		username = strtok(buf, ":");
 		password = strtok(NULL, ":");
-		if(username == NULL || password == NULL){
-			fprintf(stderr, "Error: Corrupt password file at line %d.\n", line);
-			free(lbuf);
-			free(buf);
-			return 1;
+		if(username && password){
+			username = misc__trimblanks(username);
+			password = misc__trimblanks(password);
 		}
-		username = misc__trimblanks(username);
-		password = misc__trimblanks(password);
 
-		if(strlen(username) == 0 || strlen(password) == 0){
+		if(username == NULL || strlen(username) == 0
+				|| password == NULL || strlen(password) == 0){
+
 			fprintf(stderr, "Error: Corrupt password file at line %d.\n", line);
 			free(lbuf);
 			free(buf);
@@ -370,10 +361,6 @@ static int create_backup(char *backup_file, FILE *fptr)
 	int fd;
 	umask(077);
 	fd = mkstemp(backup_file);
-	if(fd < 0){
-		fprintf(stderr, "Error creating backup password file \"%s\", not continuing.\n", backup_file);
-		return 1;
-	}
 	fbackup = fdopen(fd, "wt");
 #endif
 	if(!fbackup){
@@ -660,15 +647,10 @@ int main(int argc, char *argv[])
 				rc = update_pwuser(fptr, ftmp, username, password_cmd, iterations);
 			}else{
 				rc = get_password("Password: ", "Reenter password: ", false, password, MAX_BUFFER_LEN);
-				if(rc){
-					fclose(fptr);
-					fclose(ftmp);
-					unlink(backup_file);
-					free(backup_file);
-					return rc;
+				if(rc == 0){
+					/* Update password for individual user */
+					rc = update_pwuser(fptr, ftmp, username, password, iterations);
 				}
-				/* Update password for individual user */
-				rc = update_pwuser(fptr, ftmp, username, password, iterations);
 			}
 		}
 		if(rc){
@@ -680,19 +662,18 @@ int main(int argc, char *argv[])
 		}
 
 		if(copy_contents(ftmp, fptr)){
-			fclose(fptr);
-			fclose(ftmp);
 			fprintf(stderr, "Error occurred updating password file.\n");
 			fprintf(stderr, "Password file may be corrupt, check the backup file: %s.\n", backup_file);
-			free(backup_file);
-			return 1;
+			rc = 1;
 		}
 		fclose(fptr);
 		fclose(ftmp);
 
-		/* Everything was ok so backup no longer needed. May contain old
-		 * passwords so shouldn't be kept around. */
-		unlink(backup_file);
+		if(rc == 0){
+			/* Everything was ok so backup no longer needed. May contain old
+			 * passwords so shouldn't be kept around. */
+			unlink(backup_file);
+		}
 		free(backup_file);
 	}
 

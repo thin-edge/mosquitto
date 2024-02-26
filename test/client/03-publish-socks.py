@@ -16,7 +16,7 @@ def do_test(proto_ver, host):
         print("microsocks not found, skipping test")
         sys.exit(0)
 
-    cmd = ['microsocks', '-1', '-i', host, '-u', 'user', '-P', 'password', '-p', str(port1)]
+    cmd = ['microsocks', '-1', '-i', host, '-u', 'user', '-P', 'pass:word', '-p', str(port1)]
     if b"bindaddr" in proxy.stderr:
         cmd += ['-b', host]
     else:
@@ -47,7 +47,7 @@ def do_test(proto_ver, host):
             '-t', '03/pub/proxy/test',
             '-m', 'message',
             '-V', V,
-            '--proxy', f'socks5h://user:password@{host}:{port1}'
+            '--proxy', f'socks5h://user:pass%3Aword@{host}:{port1}'
             ]
 
     mid = 1

@@ -136,18 +136,6 @@ static void my_subscribe_callback(struct mosquitto *mosq, void *obj, int mid, in
 }
 
 
-void my_publish_callback(struct mosquitto *mosq, void *obj, int mid, int reason_code, const mosquitto_property *properties)
-{
-	UNUSED(mosq);
-	UNUSED(obj);
-	UNUSED(mid);
-	UNUSED(reason_code);
-	UNUSED(properties);
-
-	client_state = rr_s_wait_for_response;
-}
-
-
 static void print_version(void)
 {
 	int major, minor, revision;

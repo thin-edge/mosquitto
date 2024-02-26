@@ -101,6 +101,7 @@ if __name__ == '__main__':
     do_test(['-V', '5', '-D', 'connect', 'receive-maximum', '65536'], "Error: Property value (65536) out of range for property receive-maximum.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect', 'session-expiry-interval', '-1'], "Error: Property value (-1) out of range for property session-expiry-interval.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'connect', 'session-expiry-interval', '4294967296'], "Error: Property value (4294967296) out of range for property session-expiry-interval.\n\n" + helps, 1)
+    do_test(['-V', '5', '-D', 'connect', 'subscription-identifier', '1'], "Error: subscription-identifier property not allowed for connect in --property argument.\n\n" + helps, 1)
     do_test(['-V', '5', '-D', 'publish', 'subscription-identifier', '1'], "Error: subscription-identifier property not supported for publish in --property argument.\n\n" + helps, 1)
 
     # Unknown options

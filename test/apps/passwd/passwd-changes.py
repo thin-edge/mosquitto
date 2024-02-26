@@ -18,18 +18,19 @@ def client_check(port, username, password, rc):
     sock.close()
 
 
-def passwd_cmd(args, port, response=None, input=None):
+def passwd_cmd(args, port, response=None, input=None, expected_rc=0):
     proc = subprocess.run([mosq_test.get_build_root()+"/apps/mosquitto_passwd/mosquitto_passwd"]
                     + args,
                     capture_output=True, encoding='utf-8', timeout=2, input=input)
 
     if response is not None:
-        if proc.stdout != response:
-            print(len(proc.stdout))
-            print(len(response))
+        if proc.stdout != response and proc.stderr != response:
+            print(f"stdout: {proc.stdout}")
+            print(f"stderr: {proc.stderr}")
+            print(f"expected: {response}")
             raise ValueError(proc.stdout)
 
-    if proc.returncode != 0:
+    if proc.returncode != expected_rc:
         raise ValueError(args)
 
 
@@ -91,6 +92,7 @@ try:
 
     # Delete user
     passwd_cmd(["-D", pw_file, "user2"], port)
+    passwd_cmd(["-D", pw_file, "user2"], port, response="Warning: User user2 not found in password file.\n", expected_rc=1)
     broker.send_signal(signal.SIGHUP)
 
     client_check(port, "user1", "badpass", 5)

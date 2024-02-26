@@ -79,17 +79,16 @@ static int gets_quiet(char *s, int len)
 
 	return 0;
 #else
-	struct termios ts_quiet, ts_orig;
+	struct termios ts_quiet;
 	char *rs;
 
 	memset(s, 0, (size_t)len);
-	tcgetattr(0, &ts_orig);
-	ts_quiet = ts_orig;
+	tcgetattr(0, &ts_quiet);
 	ts_quiet.c_lflag &= (unsigned int)(~(ECHO | ICANON));
 	tcsetattr(0, TCSANOW, &ts_quiet);
 
 	rs = fgets(s, len, stdin);
-	tcsetattr(0, TCSANOW, &ts_orig);
+	get_password__reset_term();
 
 	if(!rs){
 		return 1;
