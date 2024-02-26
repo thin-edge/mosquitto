@@ -396,7 +396,6 @@ void config__cleanup(struct mosquitto__config *config)
 			mosquitto__FREE(config->listeners[i].ciphers_tls13);
 			mosquitto__FREE(config->listeners[i].psk_hint);
 			mosquitto__FREE(config->listeners[i].crlfile);
-			mosquitto__FREE(config->listeners[i].dhparamfile);
 			mosquitto__FREE(config->listeners[i].tls_version);
 			mosquitto__FREE(config->listeners[i].tls_engine);
 			mosquitto__FREE(config->listeners[i].tls_engine_kpass_sha1);
@@ -1605,13 +1604,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
 #endif
 				}else if(!strcmp(token, "dhparamfile")){
-#ifdef WITH_TLS
-					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					mosquitto__FREE(cur_listener->dhparamfile);
-					if(conf__parse_string(&token, "dhparamfile", &cur_listener->dhparamfile, &saveptr)) return MOSQ_ERR_INVAL;
-#else
-					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
-#endif
+					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: dhparamfile is no longer required.");
 				}else if(!strcmp(token, "disable_client_cert_date_checks")){
 #ifdef WITH_TLS
 					REQUIRE_LISTENER(token);

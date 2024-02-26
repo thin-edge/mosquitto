@@ -190,6 +190,7 @@ Build:
 - Set C99 as the explicit, rather than implicit, build standard.
 - cJSON is now a required dependency.
 - Refactored headers for easier discovery.
+- Support for openssl < 3.0 removed.
 
 
 2.0.19 - 2023-11-xx

@@ -80,7 +80,7 @@ int http__read(struct mosquitto *mosq)
 	struct mosquitto__packet *packet;
 	int rc;
 	const char *subprotocol = NULL;
-	int subprotocol_len;
+	int subprotocol_len = 0;
 
 	if(!mosq){
 		return MOSQ_ERR_INVAL;

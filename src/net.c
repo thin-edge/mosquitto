@@ -369,24 +369,13 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 {
 	char buf[256];
 	int rc;
-#if OPENSSL_VERSION_NUMBER >= 0x30000000
-	BIO *bio;
-	EVP_PKEY *dhparam = NULL;
-#else
-	FILE *dhparamfile;
-	DH *dhparam = NULL;
-#endif
 
 	if(listener->ssl_ctx){
 		SSL_CTX_free(listener->ssl_ctx);
 		listener->ssl_ctx = NULL;
 	}
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-	listener->ssl_ctx = SSL_CTX_new(SSLv23_server_method());
-#else
 	listener->ssl_ctx = SSL_CTX_new(TLS_server_method());
-#endif
 
 	if(!listener->ssl_ctx){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to create TLS context.");
@@ -419,11 +408,6 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unsupported tls_version \"%s\".", listener->tls_version);
 		return MOSQ_ERR_TLS;
 	}
-	/* Use a new key when using temporary/ephemeral DH parameters.
-	 * This shouldn't be necessary, but we can't guarantee that `dhparam` has
-	 * been generated using strong primes.
-	 */
-	SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_SINGLE_DH_USE);
 
 #ifdef SSL_OP_NO_COMPRESSION
 	/* Disable compression */
@@ -439,14 +423,7 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 	SSL_CTX_set_mode(listener->ssl_ctx, SSL_MODE_RELEASE_BUFFERS);
 #endif
 
-#ifdef WITH_EC
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L && OPENSSL_VERSION_NUMBER < 0x10100000L
-	SSL_CTX_set_ecdh_auto(listener->ssl_ctx, 1);
-#endif
-#endif
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 	SSL_CTX_set_dh_auto(listener->ssl_ctx, 1);
-#endif
 
 #ifdef SSL_OP_NO_RENEGOTIATION
 	SSL_CTX_set_options(listener->ssl_ctx, SSL_OP_NO_RENEGOTIATION);
@@ -476,7 +453,6 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 			return MOSQ_ERR_TLS;
 		}
 	}
-#if OPENSSL_VERSION_NUMBER >= 0x10101000 && (!defined(LIBRESSL_VERSION_NUMBER) || LIBRESSL_VERSION_NUMBER > 0x3040000FL)
 	if(listener->ciphers_tls13){
 		rc = SSL_CTX_set_ciphersuites(listener->ssl_ctx, listener->ciphers_tls13);
 		if(rc == 0){
@@ -484,44 +460,7 @@ int net__tls_server_ctx(struct mosquitto__listener *listener)
 			return MOSQ_ERR_TLS;
 		}
 	}
-#endif
 
-	if(listener->dhparamfile){
-#if OPENSSL_VERSION_NUMBER >= 0x30000000
-		bio = BIO_new_file(listener->dhparamfile, "r");
-		if(!bio){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
-			return MOSQ_ERR_TLS;
-		}
-		dhparam = EVP_PKEY_new();
-		if(dhparam == NULL || !PEM_read_bio_Parameters(bio, &dhparam)){
-			BIO_free(bio);
-			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
-			net__print_ssl_error(NULL);
-			return MOSQ_ERR_TLS;
-		}
-		BIO_free(bio);
-		if(dhparam == NULL || SSL_CTX_set0_tmp_dh_pkey(listener->ssl_ctx, dhparam) != 1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
-			net__print_ssl_error(NULL);
-			return MOSQ_ERR_TLS;
-		}
-#else
-		dhparamfile = mosquitto__fopen(listener->dhparamfile, "r", true);
-		if(!dhparamfile){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
-			return MOSQ_ERR_TLS;
-		}
-		dhparam = PEM_read_DHparams(dhparamfile, NULL, NULL, NULL);
-		fclose(dhparamfile);
-
-		if(dhparam == NULL || SSL_CTX_set_tmp_dh(listener->ssl_ctx, dhparam) != 1){
-			log__printf(NULL, MOSQ_LOG_ERR, "Error loading dhparamfile \"%s\".", listener->dhparamfile);
-			net__print_ssl_error(NULL);
-			return MOSQ_ERR_TLS;
-		}
-#endif
-	}
 	return MOSQ_ERR_SUCCESS;
 }
 #endif
@@ -662,20 +601,6 @@ int net__tls_load_verify(struct mosquitto__listener *listener)
 #ifdef WITH_TLS
 	int rc;
 
-#  if OPENSSL_VERSION_NUMBER < 0x30000000L
-	if(listener->cafile || listener->capath){
-		rc = SSL_CTX_load_verify_locations(listener->ssl_ctx, listener->cafile, listener->capath);
-		if(rc == 0){
-			if(listener->cafile && listener->capath){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\" and capath \"%s\".", listener->cafile, listener->capath);
-			}else if(listener->cafile){
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\".", listener->cafile);
-			}else{
-				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check capath \"%s\".", listener->capath);
-			}
-		}
-	}
-#  else
 	if(listener->cafile){
 		rc = SSL_CTX_load_verify_file(listener->ssl_ctx, listener->cafile);
 		if(rc == 0){
@@ -692,7 +617,6 @@ int net__tls_load_verify(struct mosquitto__listener *listener)
 			return MOSQ_ERR_TLS;
 		}
 	}
-#  endif
 
 #  if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 	if(net__load_engine(listener)){

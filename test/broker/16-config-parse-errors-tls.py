@@ -26,8 +26,6 @@ do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.cr
 do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.crt","keyfile ../ssl/server.key","tls_version invalid"], port, 1) # invalid tls_version
 
 do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.crt","keyfile ../ssl/server.key","crlfile invalid"], port, 1) # missing crl file
-do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.crt","keyfile ../ssl/server.key","dhparamfile invalid"], port, 1) # missing dh param file
-do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.crt","keyfile ../ssl/server.key","dhparamfile ./16-config-parse-errors.py"], port, 1) # invalid dh param file
 do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.crt","keyfile ../ssl/server.key","ciphers invalid"], port, 1) # invalid ciphers
 do_test_broker_failure(conf_file, [f"listener {port}","certfile ../ssl/server.crt","keyfile ../ssl/server.key","ciphers_tls1.3 invalid"], port, 1) # invalid ciphers_tls1.3
 
