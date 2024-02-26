@@ -38,7 +38,7 @@ void mosquittopp_test::on_publish(int mid)
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 	int rc;
 
 	assert(argc == 2);

@@ -41,7 +41,7 @@ void mosquittopp_test::on_publish_v5(int mid, int reason_code, const mosquitto_p
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 
 	assert(argc == 2);
 	int port = atoi(argv[1]);

@@ -42,7 +42,7 @@ void mosquittopp_test::on_subscribe(int mid, int qos_count, const int *granted_q
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 
 	assert(argc == 2);
 	int port = atoi(argv[1]);

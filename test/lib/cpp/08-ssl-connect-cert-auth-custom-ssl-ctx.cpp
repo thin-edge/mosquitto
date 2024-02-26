@@ -43,7 +43,7 @@ void mosquittopp_test::on_disconnect(int rc)
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 	SSL_CTX *ssl_ctx;
 	assert(argc == 2);
 	int port = atoi(argv[1]);

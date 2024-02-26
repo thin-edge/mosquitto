@@ -38,7 +38,7 @@ void mosquittopp_test::on_disconnect_v5(int rc, const mosquitto_property *props)
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 	mosquitto_property *props = NULL;
 	int rc;
 

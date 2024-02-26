@@ -58,7 +58,7 @@ void mosquittopp_test::on_message_v5(const struct mosquitto_message *msg, const 
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 	int rc;
 
 	assert(argc == 3);

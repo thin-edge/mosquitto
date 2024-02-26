@@ -59,7 +59,7 @@ void mosquittopp_test::on_message(const struct mosquitto_message *msg)
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 
 	assert(argc == 2);
 	int port = atoi(argv[1]);

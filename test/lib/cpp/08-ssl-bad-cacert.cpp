@@ -14,7 +14,7 @@ mosquittopp_test::mosquittopp_test(const char *id) : mosqpp::mosquittopp(id)
 
 int main(int argc, char *argv[])
 {
-	struct mosquittopp_test *mosq;
+	mosquittopp_test *mosq;
 	int rc = 1;
 
 	assert(argc == 2);
