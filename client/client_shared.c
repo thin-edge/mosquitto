@@ -47,6 +47,12 @@ static void tls_keylog_callback(const SSL *ssl, const char *line);
 static int tls_ex_index_cfg = -1;
 #endif
 
+const char hexseplist[32] = {
+	'!', '"', '#', '$', '&', '\'', '(', ')',
+	'*', '+', ',', '-', '.', '/', ':', ';',
+	'<', '=', '>', '?', '@', '[', '\\', ']',
+	'^', '_', '`', '{', '|', '}', '~', ' ',
+};
 
 static int check_format(const char *str)
 {
@@ -97,6 +103,14 @@ static int check_format(const char *str)
 							fprintf(stderr, "Error: Incomplete format specifier.\n");
 							return 1;
 						}
+					}
+				}
+
+				/* Hex field separator character */
+				for(size_t j=0; j<sizeof(hexseplist); j++){
+					if(str[i+1] == hexseplist[j]){
+						i++;
+						break;
 					}
 				}
 

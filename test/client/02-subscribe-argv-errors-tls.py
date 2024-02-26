@@ -40,3 +40,4 @@ if __name__ == '__main__':
     do_test(['--tls-engine'], "Error: --tls-engine argument given but no engine_id specified.\n\n" + helps, 1)
     do_test(['--tls-engine-kpass-sha1'], "Error: --tls-engine-kpass-sha1 argument given but no kpass sha1 specified.\n\n" + helps, 1)
     do_test(['--tls-version'], "Error: --tls-version argument given but no version specified.\n\n" + helps, 1)
+    do_test(['--tls-keylog'], "Error: --tls-keylog argument given but no file specified.\n\n" + helps, 1)

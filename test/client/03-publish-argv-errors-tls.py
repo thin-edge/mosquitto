@@ -48,5 +48,5 @@ if __name__ == '__main__':
     do_test(['--tls-engine-kpass-sha1', 'hash'], "Error: when using tls-engine-kpass-sha1, both tls-engine and keyform must also be provided.\n" + helps, 1)
 
     # Invalid values
-    do_test(['-t','topic','-m','1', '--cafile', 'missing'], "Error: Problem setting TLS options: File not found.\n", 1)
+    do_test(['--tls-keylog', 'keylog', '-t','topic','-m','1', '--cafile', 'missing'], "Error: Problem setting TLS options: File not found.\n", 1)
 

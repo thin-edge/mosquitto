@@ -55,6 +55,14 @@ Contributors:
 
 extern struct mosq_config cfg;
 
+struct fieldoptions{
+	int field_width;
+	int precision;
+	char hexsepchar;
+	char align;
+	char pad;
+};
+
 struct watch_topic{
 	UT_hash_handle hh;
 	char *topic;
@@ -102,45 +110,64 @@ static int get_time(struct tm **ti, long *ns)
 }
 
 
-static void write_payload(const unsigned char *payload, int payloadlen, int hex, char align, char pad, int field_width, int precision)
+static const signed char nibble_to_hex[] = {
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+};
+
+static void hexsep(int xpos, int precision, char sepchar)
+{
+	if(precision > 0 && xpos%precision == (precision-1)){
+		putchar(sepchar);
+	}
+}
+
+static void write_payload(const unsigned char *payload, int payloadlen, int hex, struct fieldoptions *fopts)
 {
 	int i;
 	int padlen;
 
-	UNUSED(precision); /* FIXME - use or remove */
-
-	if(field_width > 0){
-		if(payloadlen > field_width){
-			payloadlen = field_width;
+	if(fopts->field_width > 0){
+		if(payloadlen > fopts->field_width){
+			payloadlen = fopts->field_width;
 		}
 		if(hex > 0){
-			padlen = field_width - payloadlen*2;
+			padlen = fopts->field_width - payloadlen*2;
 		}else{
-			padlen = field_width - payloadlen;
+			padlen = fopts->field_width - payloadlen;
 		}
 	}else{
-		padlen = field_width - payloadlen;
+		padlen = fopts->field_width - payloadlen;
 	}
 
-	if(align != '-'){
+	int xpos = 0;
+	if(fopts->align != '-'){
 		for(i=0; i<padlen; i++){
-			putchar(pad);
+			putchar(fopts->pad);
+			if(hex > 0){
+				hexsep(xpos, fopts->precision, fopts->hexsepchar);
+			}
+			xpos++;
 		}
 	}
 
 	if(hex == 0){
 		(void)fwrite(payload, 1, (size_t )payloadlen, stdout);
-	}else if(hex == 1){
+	}else{
+		signed char casemod = (hex == 1?0x20:0x00);
 		for(i=0; i<payloadlen; i++){
-			fprintf(stdout, "%02x", payload[i]);
-		}
-	}else if(hex == 2){
-		for(i=0; i<payloadlen; i++){
-			fprintf(stdout, "%02X", payload[i]);
+			putchar(nibble_to_hex[((payload[i] & 0xF0) >> 4)] | casemod);
+			hexsep(xpos, fopts->precision, fopts->hexsepchar);
+			xpos += 1;
+
+			putchar(nibble_to_hex[(payload[i] & 0x0F)] | casemod);
+			if(i < payloadlen-1){
+				hexsep(xpos, fopts->precision, fopts->hexsepchar);
+				xpos += 1;
+			}
 		}
 	}
 
-	if(align == '-'){
+	if(fopts->align == '-'){
 		printf("%*s", padlen, "");
 	}
 }
@@ -332,44 +359,44 @@ static int json_print(const struct mosquitto_message *message, const mosquitto_p
 }
 
 
-static void formatted_print_blank(char pad, int field_width)
+static void formatted_print_blank(struct fieldoptions *fopts)
 {
 	int i;
-	for(i=0; i<field_width; i++){
-		putchar(pad);
+	for(i=0; i<fopts->field_width; i++){
+		putchar(fopts->pad);
 	}
 }
 
 
 #ifdef __STDC_IEC_559__
-static int formatted_print_float(const unsigned char *payload, int payloadlen, char format, char align, char pad, int field_width, int precision)
+static int formatted_print_float(const unsigned char *payload, int payloadlen, char format, struct fieldoptions *fopts)
 {
 	float float_value;
 	double value = 0.0;
 
-	if (format == 'f'){
-		if (sizeof(float_value) != payloadlen) {
+	if(format == 'f'){
+		if(sizeof(float_value) != payloadlen){
 			return -1;
 		}
 		memcpy(&float_value, payload, sizeof(float_value));
 		value = float_value;
 	}else if(format == 'd'){
-		if (sizeof(value) != payloadlen) {
+		if(sizeof(value) != payloadlen){
 			return -1;
 		}
 		memcpy(&value, payload, sizeof(value));
 	}
 
-	if(field_width == 0) {
-		printf("%.*f", precision, value);
+	if(fopts->field_width == 0){
+		printf("%.*f", fopts->precision, value);
 	}else{
-		if(align == '-'){
-			printf("%-*.*f", field_width, precision, value);
+		if(fopts->align == '-'){
+			printf("%-*.*f", fopts->field_width, fopts->precision, value);
 		}else{
-			if(pad == '0'){
-				printf("%0*.*f", field_width, precision, value);
+			if(fopts->pad == '0'){
+				printf("%0*.*f", fopts->field_width, fopts->precision, value);
 			}else{
-				printf("%*.*f", field_width, precision, value);
+				printf("%*.*f", fopts->field_width, fopts->precision, value);
 			}
 		}
 	}
@@ -378,52 +405,52 @@ static int formatted_print_float(const unsigned char *payload, int payloadlen, c
 #endif
 
 
-static void formatted_print_int(int value, char align, char pad, int field_width)
+static void formatted_print_int(int value, struct fieldoptions *fopts)
 {
-	if(field_width == 0){
+	if(fopts->field_width == 0){
 		printf("%d", value);
 	}else{
-		if(align == '-'){
-			printf("%-*d", field_width, value);
+		if(fopts->align == '-'){
+			printf("%-*d", fopts->field_width, value);
 		}else{
-			if(pad == '0'){
-				printf("%0*d", field_width, value);
+			if(fopts->pad == '0'){
+				printf("%0*d", fopts->field_width, value);
 			}else{
-				printf("%*d", field_width, value);
+				printf("%*d", fopts->field_width, value);
 			}
 		}
 	}
 }
 
 
-static void formatted_print_str(const char *value, char align, int field_width, int precision)
+static void formatted_print_str(const char *value, struct fieldoptions *fopts)
 {
-	if(field_width == 0 && precision == -1){
+	if(fopts->field_width == 0 && fopts->precision == -1){
 		fputs(value, stdout);
 	}else{
-		if(precision == -1){
-			if(align == '-'){
-				printf("%-*s", field_width, value);
+		if(fopts->precision == -1){
+			if(fopts->align == '-'){
+				printf("%-*s", fopts->field_width, value);
 			}else{
-				printf("%*s", field_width, value);
+				printf("%*s", fopts->field_width, value);
 			}
-		}else if(field_width == 0){
-			if(align == '-'){
-				printf("%-.*s", precision, value);
+		}else if(fopts->field_width == 0){
+			if(fopts->align == '-'){
+				printf("%-.*s", fopts->precision, value);
 			}else{
-				printf("%.*s", precision, value);
+				printf("%.*s", fopts->precision, value);
 			}
 		}else{
-			if(align == '-'){
-				printf("%-*.*s", field_width, precision, value);
+			if(fopts->align == '-'){
+				printf("%-*.*s", fopts->field_width, fopts->precision, value);
 			}else{
-				printf("%*.*s", field_width, precision, value);
+				printf("%*.*s", fopts->field_width, fopts->precision, value);
 			}
 		}
 	}
 }
 
-static void formatted_print_percent(const struct mosq_config *lcfg, const struct mosquitto_message *message, const mosquitto_property *properties, char format, char align, char pad, int field_width, int precision)
+static void formatted_print_percent(const struct mosq_config *lcfg, const struct mosquitto_message *message, const mosquitto_property *properties, char format, struct fieldoptions *fopts)
 {
 	struct tm *ti = NULL;
 	long ns = 0;
@@ -443,18 +470,18 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 
 		case 'A':
 			if(mosquitto_property_read_int16(properties, MQTT_PROP_TOPIC_ALIAS, &i16value, false)){
-				formatted_print_int(i16value, align, pad, field_width);
+				formatted_print_int(i16value, fopts);
 			}else{
-				formatted_print_blank(pad, field_width);
+				formatted_print_blank(fopts);
 			}
 			break;
 
 		case 'C':
 			if(mosquitto_property_read_string(properties, MQTT_PROP_CONTENT_TYPE, &strvalue, false)){
-				formatted_print_str(strvalue, align, field_width, precision);
+				formatted_print_str(strvalue, fopts);
 				free(strvalue);
 			}else{
-				formatted_print_blank(' ', field_width);
+				formatted_print_blank(fopts);
 			}
 			break;
 
@@ -467,17 +494,17 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 
 		case 'E':
 			if(mosquitto_property_read_int32(properties, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, &i32value, false)){
-				formatted_print_int((int)i32value, align, pad, field_width);
+				formatted_print_int((int)i32value, fopts);
 			}else{
-				formatted_print_blank(pad, field_width);
+				formatted_print_blank(fopts);
 			}
 			break;
 
 		case 'F':
 			if(mosquitto_property_read_byte(properties, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, &i8value, false)){
-				formatted_print_int(i8value, align, pad, field_width);
+				formatted_print_int(i8value, fopts);
 			}else{
-				formatted_print_blank(pad, field_width);
+				formatted_print_blank(fopts);
 			}
 			break;
 
@@ -489,9 +516,9 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 				}
 			}
 			if(strftime(buf, 100, "%FT%T%z", ti) != 0){
-				formatted_print_str(buf, align, field_width, precision);
+				formatted_print_str(buf, fopts);
 			}else{
-				formatted_print_blank(' ', field_width);
+				formatted_print_blank(fopts);
 			}
 			break;
 
@@ -526,11 +553,11 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 			break;
 
 		case 'l':
-			formatted_print_int(message->payloadlen, align, pad, field_width);
+			formatted_print_int(message->payloadlen, fopts);
 			break;
 
 		case 'm':
-			formatted_print_int(message->mid, align, pad, field_width);
+			formatted_print_int(message->mid, fopts);
 			break;
 
 		case 'P':
@@ -554,7 +581,7 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 			break;
 
 		case 'p':
-			write_payload(message->payload, message->payloadlen, 0, align, pad, field_width, precision);
+			write_payload(message->payload, message->payloadlen, 0, fopts);
 			break;
 
 		case 'q':
@@ -563,7 +590,7 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 
 		case 'R':
 			if(mosquitto_property_read_string(properties, MQTT_PROP_RESPONSE_TOPIC, &strvalue, false)){
-				formatted_print_str(strvalue, align, field_width, precision);
+				formatted_print_str(strvalue, fopts);
 				free(strvalue);
 			}
 			break;
@@ -578,14 +605,14 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 
 		case 'S':
 			if(mosquitto_property_read_varint(properties, MQTT_PROP_SUBSCRIPTION_IDENTIFIER, &i32value, false)){
-				formatted_print_int((int)i32value, align, pad, field_width);
+				formatted_print_int((int)i32value, fopts);
 			}else{
-				formatted_print_blank(pad, field_width);
+				formatted_print_blank(fopts);
 			}
 			break;
 
 		case 't':
-			formatted_print_str(message->topic, align, field_width, precision);
+			formatted_print_str(message->topic, fopts);
 			break;
 
 		case 'U':
@@ -601,22 +628,22 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 			break;
 
 		case 'x':
-			write_payload(message->payload, message->payloadlen, 1, align, pad, field_width, precision);
+			write_payload(message->payload, message->payloadlen, 1, fopts);
 			break;
 
 		case 'X':
-			write_payload(message->payload, message->payloadlen, 2, align, pad, field_width, precision);
+			write_payload(message->payload, message->payloadlen, 2, fopts);
 			break;
 
 #ifdef __STDC_IEC_559__
 		case 'f':
-			if(formatted_print_float(message->payload, message->payloadlen, 'f', align, pad, field_width, precision)) {
+			if(formatted_print_float(message->payload, message->payloadlen, 'f', fopts)){
 				err_printf(lcfg, "requested float printing, but non-float data received");
 			}
 			break;
 
 		case 'd':
-			if(formatted_print_float(message->payload, message->payloadlen, 'd', align, pad, field_width, precision)) {
+			if(formatted_print_float(message->payload, message->payloadlen, 'd', fopts)){
 				err_printf(lcfg, "requested double printing, but non-double data received");
 			}
 			break;
@@ -628,27 +655,19 @@ static void formatted_print_percent(const struct mosq_config *lcfg, const struct
 static void formatted_print(const struct mosq_config *lcfg, const struct mosquitto_message *message, const mosquitto_property *properties)
 {
 	size_t len;
-	size_t i;
 	struct tm *ti = NULL;
 	long ns = 0;
-	char strf[3] = {0, 0 ,0};
-	char buf[100];
-	char align, pad;
-	int field_width, precision;
 
 	len = strlen(lcfg->format);
 
-	for(i=0; i<len; i++){
+	for(size_t i=0; i<len; i++){
 		if(lcfg->format[i] == '%'){
-			align = 0;
-			pad = ' ';
-			field_width = 0;
-			precision = -1;
+			struct fieldoptions fopts = {0, -1, ' ', '\0', ' '};
 			if(i < len-1){
 				i++;
 				/* Optional alignment */
 				if(lcfg->format[i] == '-'){
-					align = lcfg->format[i];
+					fopts.align = lcfg->format[i];
 					if(i < len-1){
 						i++;
 					}
@@ -657,32 +676,42 @@ static void formatted_print(const struct mosq_config *lcfg, const struct mosquit
 				 * a valid format specifier, the '0' will be ignored. */
 				/* Optional zero padding */
 				if(lcfg->format[i] == '0'){
-					pad = '0';
+					fopts.pad = '0';
 					if(i < len-1){
 						i++;
 					}
 				}
 				/* Optional field width */
 				while(i < len-1 && lcfg->format[i] >= '0' && lcfg->format[i] <= '9'){
-					field_width *= 10;
-					field_width += lcfg->format[i]-'0';
+					fopts.field_width *= 10;
+					fopts.field_width += lcfg->format[i]-'0';
 					i++;
 				}
 				/* Optional precision */
 				if(lcfg->format[i] == '.'){
 					if(i < len-1){
 						i++;
-						precision = 0;
+						fopts.precision = 0;
 						while(i < len-1 && lcfg->format[i] >= '0' && lcfg->format[i] <= '9'){
-							precision *= 10;
-							precision += lcfg->format[i]-'0';
+							fopts.precision *= 10;
+							fopts.precision += lcfg->format[i]-'0';
 							i++;
 						}
 					}
 				}
 
+				/* Optional hex field separator character */
+				for(size_t j=0; j<sizeof(hexseplist); j++){
+					if(lcfg->format[i] == hexseplist[j]){
+						fopts.hexsepchar = hexseplist[j];
+						i++;
+						break;
+					}
+				}
+
 				if(i < len){
-					formatted_print_percent(lcfg, message, properties, lcfg->format[i], align, pad, field_width, precision);
+					formatted_print_percent(lcfg, message, properties, lcfg->format[i], &fopts);
+					//align, pad, field_width, precision, hexsepchar);
 				}
 			}
 		}else if(lcfg->format[i] == '@'){
@@ -698,6 +727,7 @@ static void formatted_print(const struct mosq_config *lcfg, const struct mosquit
 						}
 					}
 
+					char strf[3] = {0, 0 ,0};
 					strf[0] = '%';
 					strf[1] = lcfg->format[i];
 					strf[2] = 0;
@@ -705,7 +735,8 @@ static void formatted_print(const struct mosq_config *lcfg, const struct mosquit
 					if(lcfg->format[i] == 'N'){
 						printf("%09ld", ns);
 					}else{
-						if(strftime(buf, 100, strf, ti) != 0){
+						char buf[100];
+						if(strftime(buf, sizeof(buf), strf, ti) != 0){
 							fputs(buf, stdout);
 						}
 					}
@@ -802,6 +833,7 @@ void print_message(struct mosq_config *lcfg, const struct mosquitto_message *mes
 #else
 	long r = 0;
 #endif
+	struct fieldoptions fopts = {0, 0, ' ', '\0', ' '};
 
 #ifndef WIN32
 	if(lcfg->watch){
@@ -825,7 +857,7 @@ void print_message(struct mosq_config *lcfg, const struct mosquitto_message *mes
 	}else if(lcfg->verbose){
 		if(message->payloadlen){
 			printf("%s ", message->topic);
-			write_payload(message->payload, message->payloadlen, false, 0, 0, 0, 0);
+			write_payload(message->payload, message->payloadlen, false, &fopts);
 			if(lcfg->eol){
 				printf("\n");
 			}
@@ -837,7 +869,7 @@ void print_message(struct mosq_config *lcfg, const struct mosquitto_message *mes
 		fflush(stdout);
 	}else{
 		if(message->payloadlen){
-			write_payload(message->payload, message->payloadlen, false, 0, 0, 0, 0);
+			write_payload(message->payload, message->payloadlen, false, &fopts);
 			if(lcfg->eol){
 				printf("\n");
 			}

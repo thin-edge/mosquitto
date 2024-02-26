@@ -974,54 +974,76 @@ mosquitto_sub -t 'bbc/#' -T bbc/bbc1 --remove-retained</programlisting>
 
 		<refsect2>
 			<title>Field width</title>
-				<para>
-					Some of the MQTT related parameters can be formatted with an
-					option to set their field width in a similar way to regular
-					printf style formats, i.e. this sets the minimum width when
-					printing this parameter. This applies to the options %A, %C,
-					%d, %E, %F, %f, %I, %l, %m, %p, %R, %S, %t, %x, %X.
-				</para>
-				<para>
-					For example <option>%10t</option> would set the minimum topic
-					field width to 10 characters.
-				</para>
+			<para>
+				Some of the MQTT related parameters can be formatted with an
+				option to set their field width in a similar way to regular
+				printf style formats, i.e. this sets the minimum width when
+				printing this parameter. If the output length is smaller than
+				this width, the field will be padded to meet this width. This
+				applies to the options %A, %C, %d, %E, %F, %f, %I, %l, %m, %p,
+				%R, %S, %t, %x, %X.
+			</para>
+			<para>
+				For example <option>%10t</option> would set the minimum topic
+				field width to 10 characters.
+			</para>
 		</refsect2>
 
 		<refsect2>
 			<title>Maximum width</title>
-				<para>
-					Some of the MQTT related parameters can be formatted with an
-					option to set a maximum field width in a similar way to regular
-					printf style formats. This applies to the options %C, %I, %R, %t.
-				</para>
-				<para>
-					For example <option>%10.10t</option> would set the minimum topic
-					field width to 10 characters, and the maximum topic width to
-					10 characters, i.e. the field will always be exactly 10
-					characters long.
-				</para>
+			<para>
+				Some of the MQTT related parameters can be formatted with an
+				option to set a maximum field width in a similar way to regular
+				printf style formats, for example <option>%.20t</option> for a
+				maximum width of 20. This applies to the options %C, %I, %R, %t.
+			</para>
+			<para>
+				For example <option>%10.10t</option> would set the minimum topic
+				field width to 10 characters, and the maximum topic width to
+				10 characters, i.e. the field will always be exactly 10
+				characters long.
+			</para>
+		</refsect2>
+
+		<refsect2>
+			<title>Hexadecimal binary field width</title>
+			<para>
+				The %x and %X parameters output the payload as a single
+				hexadecimal string by default. It is also possible to split the
+				hexadecimal payload into fields by a chosen length of nibbles.
+				For example, <option>%.2x</option> would split the payload into
+				two nibble or one byte values, separated by spaces and might produce
+				an output of <computeroutput>18 83</computeroutput>.
+			</para>
+			<para>
+				The separator character is a space by default, but can be changed
+				to one of <option>!"#$&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</option>
+				by adding that character after the binary field width. For example
+				<option>%.2:x</option> might produce an output of
+				<computeroutput>18:83</computeroutput>.
+			</para>
 		</refsect2>
 
 		<refsect2>
 			<title>Floating point number printing consideration</title>
-				<para>
-					mosquitto_sub supports only the IEEE754 floating point standard as
-					described in Annex F of ISO/IEC 9899:1999. Don't try to
-					use %f or %d if the platform of the publisher uses a different
-					floating point representation standard than IEEE754 or you
-					will get invalid data. If you are unsure what floating
-					representation your platform is using, then it is most
-					likely IEEE754. If you get malformed or unexpected values,
-                    check if the floating point number in the payload from the
-                    publisher is encoded in IEEE754.
-				</para>
-				<para>
-					If want to print floats, make sure you only subscribe
-					to topics that send only IEEE754 formatted floats.
-					mosquitto_sub is very strict about floats and if anything
-					that is not a float is received, an error message will
-					be printed.
-				</para>
+			<para>
+				mosquitto_sub supports only the IEEE 754 floating point standard as
+				described in Annex F of ISO/IEC 9899:1999. Don't try to
+				use %f or %d if the platform of the publisher uses a different
+				floating point representation standard than IEEE 754 or you
+				will get invalid data. If you are unsure what floating
+				representation your platform is using, then it is most
+				likely IEEE 754. If you get malformed or unexpected values,
+				check if the floating point number in the payload from the
+				publisher is encoded in IEEE 754.
+			</para>
+			<para>
+				If want to print floats, make sure you only subscribe
+				to topics that send only IEEE 754 formatted floats.
+				mosquitto_sub is very strict about floats and if anything
+				that is not a float is received, an error message will
+				be printed.
+			</para>
 		</refsect2>
 
 		<refsect2>
@@ -1032,10 +1054,10 @@ mosquitto_sub -t 'bbc/#' -T bbc/bbc1 --remove-retained</programlisting>
 				<listitem><para><option>%C</option> the MQTT v5 content-type property, if present.</para></listitem>
 				<listitem><para><option>%D</option> the MQTT v5 correlation-data property, if present. Note that this
 						property is specified as binary data, so may produce non-printable characters.</para></listitem>
-				<listitem><para><option>%d</option> the payload is treated as 8byte IEEE754 float (double).</para></listitem>
+				<listitem><para><option>%d</option> the payload treated as an 8 byte IEEE 754 float (double).</para></listitem>
 				<listitem><para><option>%E</option> the MQTT v5 message-expiry-interval property, if present.</para></listitem>
 				<listitem><para><option>%F</option> the MQTT v5 payload-format-indicator property, if present.</para></listitem>
-				<listitem><para><option>%f</option> the payload is treated as 4byte IEEE754 float.</para></listitem>
+				<listitem><para><option>%f</option> the payload treated as an 4 byte IEEE 754 float.</para></listitem>
 				<listitem><para><option>%l</option> the length of the payload in bytes.</para></listitem>
 				<listitem><para><option>%m</option> the message id (only relevant for messages with QoS>0).</para></listitem>
 				<listitem><para><option>%P</option> the MQTT v5 user-property property, if present. This will be printed in the
