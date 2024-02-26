@@ -51,8 +51,12 @@ fuzzing/apps/db_dump/db_dump_fuzz_load
 fuzzing/apps/db_dump/db_dump_fuzz_load_client_stats
 fuzzing/apps/db_dump/db_dump_fuzz_load_stats
 fuzzing/apps/mosquitto_passwd/mosquitto_passwd_fuzz_load
+fuzzing/broker/broker_fuzz_acl_file
 fuzzing/broker/broker_fuzz_initial_packet
 fuzzing/broker/broker_fuzz_initial_packet_with_init
+fuzzing/broker/broker_fuzz_password_file
+fuzzing/broker/broker_fuzz_psk_file
+fuzzing/broker/broker_fuzz_queue_msg
 fuzzing/broker/broker_fuzz_read_handle
 fuzzing/broker/broker_fuzz_second_packet
 fuzzing/broker/broker_fuzz_second_packet_with_init
