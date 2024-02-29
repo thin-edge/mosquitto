@@ -177,6 +177,7 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 				return MOSQ_ERR_INVAL;
 			}
 			client.pw.params.sha512_pbkdf2.iterations = atoi(argv[i+1]);
+			client.pw.hashtype = pw_sha512_pbkdf2;
 			i++;
 		}else{
 			fprintf(stderr, "Error: Unknown argument: %s\n", argv[i]);

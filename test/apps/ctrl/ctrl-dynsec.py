@@ -77,6 +77,7 @@ except PermissionError:
 
 ctrl_dynsec_file_cmd(["help"], ports) # get the help, don't check the response though
 ctrl_dynsec_file_cmd(["setClientPassword", "admin", "newadmin", "-i", "10000"], ports)
+ctrl_dynsec_file_cmd(["setClientPassword", "admin", "newadmin"], ports)
 
 # Then start broker
 broker = mosq_test.start_broker(filename=os.path.basename(__file__), use_conf=True, port=ports[0], nolog=True)
