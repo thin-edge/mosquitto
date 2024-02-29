@@ -1549,8 +1549,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						}
 					}
 
-					config->bridge_count++;
-					config->bridges = mosquitto__realloc(config->bridges, (size_t)config->bridge_count*sizeof(struct mosquitto__bridge *));
+					config->bridges = mosquitto__realloc(config->bridges, (size_t)(config->bridge_count+1)*sizeof(struct mosquitto__bridge *));
 					if(!config->bridges){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
@@ -1561,6 +1560,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_NOMEM;
 					}
 
+					config->bridge_count++;
 					config->bridges[config->bridge_count-1] = cur_bridge;
 
 					memset(cur_bridge, 0, sizeof(struct mosquitto__bridge));
