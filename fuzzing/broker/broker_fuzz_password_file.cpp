@@ -20,8 +20,8 @@ Contributors:
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <unistd.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 /*
  * Broker check of password file

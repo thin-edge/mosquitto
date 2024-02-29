@@ -25,6 +25,7 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "broker_fuzz.h"
@@ -95,6 +96,7 @@ static bool initialise(pthread_t *thread)
 	FILE *fptr;
 
 	signal(SIGPIPE, SIG_IGN);
+	umask(0077);
 
 	fptr = fopen("/tmp/mosquitto.conf", "wb");
 	if(!fptr){

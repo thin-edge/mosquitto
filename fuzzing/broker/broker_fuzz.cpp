@@ -25,6 +25,7 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "broker_fuzz.h"
@@ -101,6 +102,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	}
 
 	signal(SIGPIPE, SIG_IGN);
+	umask(0077);
 
 	memset(&fuzz, 0, sizeof(fuzz));
 	fuzz.port = PORT;

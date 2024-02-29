@@ -20,6 +20,7 @@ Contributors:
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #ifdef __cplusplus
@@ -66,6 +67,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
 	char filename[100];
 	FILE *fptr;
+
+	umask(0077);
 
 	snprintf(filename, sizeof(filename), "/tmp/dynsec%d.conf", getpid());
 	fptr = fopen(filename, "wb");
