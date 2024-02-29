@@ -74,7 +74,6 @@ int http__read(struct mosquitto *mosq)
 	const char *client_key = NULL;
 	size_t client_key_len = 0;
 	char *accept_key;
-	size_t i;
 	bool header_have_upgrade;
 	bool header_have_connection;
 	struct mosquitto__packet *packet;
@@ -143,7 +142,7 @@ int http__read(struct mosquitto *mosq)
 	header_have_connection = false;
 	subprotocol = NULL;
 
-	for(i=0; i<http_header_count; i++){
+	for(size_t i=0; i<http_header_count; i++){
 		if(!strncasecmp(http_headers[i].name, "Upgrade", http_headers[i].name_len)){
 			if(!strncasecmp(http_headers[i].value, "websocket", http_headers[i].value_len)){
 				header_have_upgrade = true;
@@ -152,7 +151,7 @@ int http__read(struct mosquitto *mosq)
 			/* Check for "upgrade" */
 			const char *str = http_headers[i].value;
 			size_t start = 0;
-			size_t j = 0;
+			size_t j;
 			for(j=0; j<http_headers[i].value_len; j++){
 				if(str[j] == ','){
 					if(!strncasecmp(&str[start], "upgrade", http_headers[i].value_len-j)){

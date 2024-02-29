@@ -61,7 +61,6 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 	char *token;
 	int count;
 	int topic_index = 0;
-	int i;
 	size_t len;
 
 	len = strlen(subtopic);
@@ -107,7 +106,7 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 			(*sharename) = (*topics)[1];
 		}
 
-		for(i=1; i<count-1; i++){
+		for(int i=1; i<count-1; i++){
 			(*topics)[i] = (*topics)[i+1];
 		}
 		(*topics)[0] = "";

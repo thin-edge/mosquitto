@@ -42,7 +42,6 @@ static int mosquitto_acl_check_default(int event, void *event_data, void *userda
 int mosquitto_security_init_default(bool reload)
 {
 	int rc;
-	int i;
 	char *pwf;
 	char *pskf = NULL;
 
@@ -50,7 +49,7 @@ int mosquitto_security_init_default(bool reload)
 
 	/* Configure plugin identifier */
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			db.config->listeners[i].security_options->pid = mosquitto__calloc(1, sizeof(mosquitto_plugin_id_t));
 			if(db.config->listeners[i].security_options->pid == NULL){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
@@ -72,7 +71,7 @@ int mosquitto_security_init_default(bool reload)
 
 	/* Load username/password data if required. */
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			pwf = db.config->listeners[i].security_options->password_file;
 			if(pwf){
 				rc = unpwd__file_parse(&db.config->listeners[i].security_options->unpwd, pwf);
@@ -101,7 +100,7 @@ int mosquitto_security_init_default(bool reload)
 
 	/* Load acl data if required. */
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			if(db.config->listeners[i].security_options->acl_file){
 				rc = aclfile__parse(db.config->listeners[i].security_options);
 				if(rc){
@@ -134,7 +133,7 @@ int mosquitto_security_init_default(bool reload)
 
 	/* Load psk data if required. */
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			pskf = db.config->listeners[i].security_options->psk_file;
 			if(pskf){
 				rc = psk__file_parse(&db.config->listeners[i].security_options->psk_id, pskf);
@@ -161,7 +160,6 @@ int mosquitto_security_init_default(bool reload)
 int mosquitto_security_cleanup_default(bool reload)
 {
 	int rc;
-	int i;
 
 	rc = acl__cleanup(reload);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
@@ -169,7 +167,7 @@ int mosquitto_security_cleanup_default(bool reload)
 	rc = unpwd__cleanup(&db.config->security_options.unpwd, reload);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
 
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 		if(db.config->listeners[i].security_options->unpwd){
 			rc = unpwd__cleanup(&db.config->listeners[i].security_options->unpwd, reload);
 			if(rc != MOSQ_ERR_SUCCESS) return rc;
@@ -179,7 +177,7 @@ int mosquitto_security_cleanup_default(bool reload)
 	rc = unpwd__cleanup(&db.config->security_options.psk_id, reload);
 	if(rc != MOSQ_ERR_SUCCESS) return rc;
 
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 		if(db.config->listeners[i].security_options->psk_id){
 			rc = unpwd__cleanup(&db.config->listeners[i].security_options->psk_id, reload);
 			if(rc != MOSQ_ERR_SUCCESS) return rc;
@@ -187,7 +185,7 @@ int mosquitto_security_cleanup_default(bool reload)
 	}
 
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			if(db.config->listeners[i].security_options->pid){
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_BASIC_AUTH, mosquitto_basic_auth_default, NULL);
@@ -653,7 +651,6 @@ static void acl__cleanup_single(struct mosquitto__security_options *security_opt
 static int acl__cleanup(bool reload)
 {
 	struct mosquitto *context, *ctxt_tmp = NULL;
-	int i;
 
 	UNUSED(reload);
 
@@ -668,7 +665,7 @@ static int acl__cleanup(bool reload)
 	}
 
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			acl__cleanup_single(db.config->listeners[i].security_options);
 		}
 	}else{
@@ -965,7 +962,6 @@ int mosquitto_security_apply_default(void)
 	bool allow_anonymous;
 	struct mosquitto__security_options *security_opts = NULL;
 #ifdef WITH_TLS
-	int i;
 	X509_NAME *name;
 	X509_NAME_ENTRY *name_entry;
 	ASN1_STRING *name_asn1 = NULL;
@@ -977,7 +973,7 @@ int mosquitto_security_apply_default(void)
 #endif
 
 #ifdef WITH_TLS
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 		listener = &db.config->listeners[i];
 		if(listener && listener->ssl_ctx && listener->certfile && listener->keyfile && listener->crlfile && listener->require_certificate){
 			if(net__tls_server_ctx(listener)){
@@ -1052,7 +1048,7 @@ int mosquitto_security_apply_default(void)
 					continue;
 				}
 				if (context->listener->use_identity_as_username) { /* use_identity_as_username */
-					i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+					int i = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
 					if(i == -1){
 						X509_free(client_cert);
 						security__disconnect_auth(context);

@@ -49,14 +49,13 @@ void mosquitto_control_send_response(cJSON *tree, const char *topic)
 
 static int control__generic_handle_commands(struct mosquitto_control_cmd *cmd, cJSON *commands, void *userdata, int (*cmd_cb)(struct mosquitto_control_cmd *cmd, void *userdata))
 {
-	cJSON *aiter, *j_tmp;
-	const char *command;
+	cJSON *aiter;
 
 	cJSON_ArrayForEach(aiter, commands){
 		cmd->command_name = "Unknown command";
 		if(cJSON_IsObject(aiter)){
-			j_tmp = cJSON_GetObjectItem(aiter, "command");
-			command = cJSON_GetStringValue(j_tmp);
+			cJSON *j_tmp = cJSON_GetObjectItem(aiter, "command");
+			const char *command = cJSON_GetStringValue(j_tmp);
 			if(command){
 				cmd->j_command = aiter;
 				cmd->correlation_data = NULL;

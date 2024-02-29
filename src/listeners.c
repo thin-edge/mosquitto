@@ -64,14 +64,10 @@ void listener__set_defaults(struct mosquitto__listener *listener)
 void listeners__reload_all_certificates(void)
 {
 #ifdef WITH_TLS
-	int i;
-	int rc;
-	struct mosquitto__listener *listener;
-
-	for(i=0; i<db.config->listener_count; i++){
-		listener = &db.config->listeners[i];
+	for(int i=0; i<db.config->listener_count; i++){
+		struct mosquitto__listener *listener = &db.config->listeners[i];
 		if(listener->ssl_ctx && listener->certfile && listener->keyfile){
-			rc = net__load_certificates(listener);
+			int rc = net__load_certificates(listener);
 			if(rc){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error when reloading certificate '%s' or key '%s'.",
 						listener->certfile, listener->keyfile);
@@ -84,7 +80,6 @@ void listeners__reload_all_certificates(void)
 
 static int listeners__start_single_mqtt(struct mosquitto__listener *listener)
 {
-	int i;
 	struct mosquitto__listener_sock *listensock_new;
 
 	if(net__socket_listen(listener)){
@@ -97,7 +92,7 @@ static int listeners__start_single_mqtt(struct mosquitto__listener *listener)
 	}
 	g_listensock = listensock_new;
 
-	for(i=0; i<listener->sock_count; i++){
+	for(int i=0; i<listener->sock_count; i++){
 		if(listener->socks[i] == INVALID_SOCKET){
 			return 1;
 		}
@@ -115,7 +110,6 @@ static int listeners__start_single_mqtt(struct mosquitto__listener *listener)
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd)
 {
-	int i;
 	struct mosquitto__listener *listener = NULL;
 	struct mosquitto__listener_sock *listensock_new;
 
@@ -123,7 +117,7 @@ void listeners__add_websockets(struct lws_context *ws_context, mosq_sock_t fd)
 	if(g_run || ws_context == NULL) return;
 
 	/* Find context */
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 		if(db.config->listeners[i].ws_in_init){
 			listener = &db.config->listeners[i];
 			break;
@@ -181,7 +175,6 @@ static int listeners__add_local(const char *host, uint16_t port)
 static int listeners__start_local_only(void)
 {
 	/* Attempt to open listeners bound to 127.0.0.1 and ::1 only */
-	int i;
 	int rc;
 	struct mosquitto__listener *listeners;
 	size_t count;
@@ -209,7 +202,7 @@ static int listeners__start_local_only(void)
 		rc = listeners__add_local("::1", 1883);
 		if(rc == MOSQ_ERR_NOMEM) return MOSQ_ERR_NOMEM;
 	}else{
-		for(i=0; i<db.config->cmd_port_count; i++){
+		for(int i=0; i<db.config->cmd_port_count; i++){
 			rc = listeners__add_local("127.0.0.1", db.config->cmd_port[i]);
 			if(rc == MOSQ_ERR_NOMEM) return MOSQ_ERR_NOMEM;
 			rc = listeners__add_local("::1", db.config->cmd_port[i]);
@@ -227,8 +220,6 @@ static int listeners__start_local_only(void)
 
 int listeners__start(void)
 {
-	int i;
-
 	g_listensock_count = 0;
 
 	if(db.config->local_only){
@@ -243,7 +234,7 @@ int listeners__start(void)
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 		if(db.config->listeners[i].protocol == mp_mqtt){
 			if(listeners__start_single_mqtt(&db.config->listeners[i])){
 				db__close();
@@ -282,11 +273,9 @@ int listeners__start(void)
 
 void listeners__stop(void)
 {
-	int i;
-
 	mux__delete_listeners(g_listensock, g_listensock_count);
 
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 		if(db.config->listeners[i].ws_context){
 			lws_context_destroy(db.config->listeners[i].ws_context);
@@ -300,7 +289,7 @@ void listeners__stop(void)
 #endif
 	}
 
-	for(i=0; i<g_listensock_count; i++){
+	for(int i=0; i<g_listensock_count; i++){
 		if(g_listensock[i].sock != INVALID_SOCKET){
 			COMPAT_CLOSE(g_listensock[i].sock);
 		}

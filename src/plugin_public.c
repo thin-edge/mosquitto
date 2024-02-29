@@ -371,11 +371,10 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
 /* Check to see whether durable clients still have rights to their subscriptions. */
 static void check_subscription_acls(struct mosquitto *context)
 {
-	int i;
 	int rc;
 	uint8_t reason;
 
-	for(i=0; i<context->subs_capacity; i++){
+	for(int i=0; i<context->subs_capacity; i++){
 		if(context->subs[i] == NULL){
 			continue;
 		}
@@ -467,7 +466,6 @@ BROKER_EXPORT int mosquitto_apply_on_all_clients(int (*FUNC_client_functor)(cons
 BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 {
 	struct mosquitto *context;
-	int i;
 	int rc;
 
 	if(client == NULL){
@@ -510,7 +508,7 @@ BROKER_EXPORT int mosquitto_persist_client_add(struct mosquitto_client *client)
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
 	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(i=0; i < db.config->listener_count; i++){
+		for(int i=0; i < db.config->listener_count; i++){
 			if(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
 				break;
@@ -532,7 +530,6 @@ error:
 BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *client)
 {
 	struct mosquitto *context;
-	int i;
 	int rc;
 
 	if(client == NULL){
@@ -565,7 +562,7 @@ BROKER_EXPORT int mosquitto_persist_client_update(struct mosquitto_client *clien
 
 	/* in per_listener_settings mode, try to find the listener by persisted port */
 	if(db.config->per_listener_settings && client->listener_port > 0){
-		for(i=0; i < db.config->listener_count; i++){
+		for(int i=0; i < db.config->listener_count; i++){
 			if(db.config->listeners[i].port == client->listener_port){
 				context->listener = &db.config->listeners[i];
 				break;
@@ -755,7 +752,6 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	struct mosquitto__base_msg *base_msg;
 	uint32_t message_expiry_interval;
 	time_t message_expiry_interval_tt;
-	int i;
 	int rc;
 
 	memset(&context, 0, sizeof(context));
@@ -801,7 +797,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	msg_add->properties = NULL;
 
 	if(msg_add->source_port){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			if(db.config->listeners[i].port == msg_add->source_port){
 				base_msg->source_listener = &db.config->listeners[i];
 				break;

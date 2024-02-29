@@ -168,9 +168,6 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 #ifdef WITH_PERSISTENCE
 	time_t last_backup = mosquitto_time();
 #endif
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-	int i;
-#endif
 	int rc;
 
 
@@ -227,7 +224,7 @@ int mosquitto_main_loop(struct mosquitto__listener_sock *listensock, int listens
 
 		signal__flag_check();
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			/* Extremely hacky, should be using the lws provided external poll
 			 * interface, but their interface has changed recently and ours
 			 * will soon, so for now websockets clients are second class

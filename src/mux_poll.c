@@ -63,8 +63,6 @@ static size_t pollfd_max, pollfd_current_max = 0;
 
 int mux_poll__init(void)
 {
-	size_t i;
-
 #ifdef WIN32
 	pollfd_max = (size_t)_getmaxstdio();
 #else
@@ -77,7 +75,7 @@ int mux_poll__init(void)
 		return MOSQ_ERR_NOMEM;
 	}
 	memset(pollfds, 0, sizeof(struct pollfd)*pollfd_max);
-	for(i=0; i<pollfd_max; i++) {
+	for(size_t i=0; i<pollfd_max; i++) {
 		pollfds[i].fd = INVALID_SOCKET;
 	}
 
@@ -87,10 +85,9 @@ int mux_poll__init(void)
 
 int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
-	size_t i;
 	size_t pollfd_index = 0;
 
-	for(i=0; i<(size_t )listensock_count; i++){
+	for(size_t i=0; i<(size_t )listensock_count; i++){
 		pollfds[pollfd_index].fd = listensock[i].sock;
 		pollfds[pollfd_index].events = POLLIN;
 		pollfds[pollfd_index].revents = 0;
@@ -106,12 +103,11 @@ int mux_poll__add_listeners(struct mosquitto__listener_sock *listensock, int lis
 
 int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
-	size_t i;
 	size_t pollfd_index = 0;
 
 	UNUSED(listensock);
 
-	for(i=0; i<(size_t )listensock_count; i++){
+	for(size_t i=0; i<(size_t )listensock_count; i++){
 		pollfds[pollfd_index].fd = INVALID_SOCKET;
 		pollfds[pollfd_index].events = 0;
 		pollfds[pollfd_index].revents = 0;
@@ -124,8 +120,6 @@ int mux_poll__delete_listeners(struct mosquitto__listener_sock *listensock, int 
 
 static int mux_poll__add(struct mosquitto* context, uint16_t evt)
 {
-	size_t i;
-
 	if(context->events == evt){
 		return MOSQ_ERR_SUCCESS;
 	}
@@ -135,7 +129,7 @@ static int mux_poll__add(struct mosquitto* context, uint16_t evt)
 		pollfds[context->pollfd_index].events = (short int)evt;
 		pollfds[context->pollfd_index].revents = 0;
 	}else{
-		for(i=0; i<pollfd_max; i++) {
+		for(size_t i=0; i<pollfd_max; i++) {
 			if(pollfds[i].fd == INVALID_SOCKET){
 				pollfds[i].fd = context->sock;
 				pollfds[i].events = POLLIN;
@@ -206,7 +200,6 @@ int mux_poll__delete(struct mosquitto *context)
 int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
 	struct mosquitto *context;
-	int i;
 	int fdcount;
 	int timeout;
 
@@ -241,7 +234,7 @@ int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock
 	}else{
 		loop_handle_reads_writes();
 
-		for(i=0; i<listensock_count; i++){
+		for(int i=0; i<listensock_count; i++){
 			if(pollfds[i].revents & POLLIN){
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 				if(listensock[i].listener->ws_context){

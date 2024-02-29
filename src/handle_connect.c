@@ -52,7 +52,6 @@ static char *clientid_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t 
 {
 	char *clientid;
 	uint8_t rnd[16];
-	int i;
 	int pos;
 
 	if(util__random_bytes(rnd, 16)) return NULL;
@@ -68,7 +67,7 @@ static char *clientid_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t 
 	}
 
 	pos = 0;
-	for(i=0; i<16; i++){
+	for(int i=0; i<16; i++){
 		clientid[auto_id_prefix_len + pos + 0] = nibble_to_hex(rnd[i] & 0x0F);
 		clientid[auto_id_prefix_len + pos + 1] = nibble_to_hex((rnd[i] >> 4) & 0x0F);
 		pos += 2;
@@ -87,7 +86,6 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 	struct mosquitto__subleaf *leaf;
 	mosquitto_property *connack_props = NULL;
 	uint8_t connect_ack = 0;
-	int i;
 	int rc;
 	int in_quota, out_quota;
 	uint16_t in_maximum, out_maximum;
@@ -147,7 +145,7 @@ int connect__on_authorised(struct mosquitto *context, void *auth_data_out, uint1
 			found_context->subs_count = 0;
 			context->last_mid = found_context->last_mid;
 
-			for(i=0; i<context->subs_capacity; i++){
+			for(int i=0; i<context->subs_capacity; i++){
 				if(context->subs[i]){
 					leaf = context->subs[i]->hier->subs;
 					while(leaf){

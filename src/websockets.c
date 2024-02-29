@@ -441,7 +441,6 @@ static int callback_http(
 	struct mosquitto *mosq;
 	struct lws_pollargs *pollargs = (struct lws_pollargs *)in;
 	int hlen;
-	int i;
 
 	/* FIXME - ssl cert verification is done here. */
 
@@ -541,7 +540,7 @@ static int callback_http(
 				if(hlen <= 0 || hlen >= (int)sizeof(buf)){
 					return -1;
 				}
-				for(i=0; i<hack->listener->ws_origin_count; i++){
+				for(int i=0; i<hack->listener->ws_origin_count; i++){
 					lws_hdr_copy(wsi, (char *)buf, sizeof(buf), WSI_TOKEN_ORIGIN);
 					if((!strcmp(hack->listener->ws_origins[i], (char *)buf))){
 						return 0;

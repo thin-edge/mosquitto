@@ -82,7 +82,6 @@ static int scmp_p(const void *p1, const void *p2)
 int config__get_dir_files(const char *include_dir, char ***files, int *file_count)
 {
 	size_t len;
-	int i;
 	char **l_files = NULL;
 	int l_file_count = 0;
 	char **files_tmp;
@@ -104,7 +103,7 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 		l_file_count++;
 		files_tmp = mosquitto__realloc(l_files, l_file_count*sizeof(char *));
 		if(!files_tmp){
-			for(i=0; i<l_file_count-1; i++){
+			for(int i=0; i<l_file_count-1; i++){
 				mosquitto__FREE(l_files[i]);
 			}
 			mosquitto__FREE(l_files);
@@ -115,7 +114,7 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 
 		l_files[l_file_count-1] = mosquitto__malloc(len+1);
 		if(!l_files[l_file_count-1]){
-			for(i=0; i<l_file_count-1; i++){
+			for(int i=0; i<l_file_count-1; i++){
 				mosquitto__FREE(l_files[i]);
 			}
 			mosquitto__FREE(l_files);

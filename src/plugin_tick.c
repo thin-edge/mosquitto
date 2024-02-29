@@ -47,13 +47,12 @@ static void plugin__handle_tick_single(struct mosquitto__security_options *opts)
 void plugin__handle_tick(void)
 {
 	struct mosquitto__security_options *opts;
-	int i;
 
 	/* Global plugins */
 	plugin__handle_tick_single(&db.config->security_options);
 
 	if(db.config->per_listener_settings){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			opts = db.config->listeners[i].security_options;
 			if(opts && opts->plugin_callbacks.tick){
 				plugin__handle_tick_single(opts);

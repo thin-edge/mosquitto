@@ -263,12 +263,10 @@ int db__msg_store_add(struct mosquitto__base_msg *base_msg)
 
 void db__msg_store_free(struct mosquitto__base_msg *base_msg)
 {
-	int i;
-
 	mosquitto__FREE(base_msg->data.source_id);
 	mosquitto__FREE(base_msg->data.source_username);
 	if(base_msg->dest_ids){
-		for(i=0; i<base_msg->dest_id_count; i++){
+		for(int i=0; i<base_msg->dest_id_count; i++){
 			mosquitto__FREE(base_msg->dest_ids[i]);
 		}
 		mosquitto__FREE(base_msg->dest_ids);
@@ -536,7 +534,6 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	struct mosquitto_msg_data *msg_data;
 	enum mosquitto_msg_state state = mosq_ms_invalid;
 	int rc = 0;
-	int i;
 	char **dest_ids;
 
 	assert(base_msg);
@@ -558,7 +555,7 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 			&& db.config->allow_duplicate_messages == false
 			&& retain == false && base_msg->dest_ids){
 
-		for(i=0; i<base_msg->dest_id_count; i++){
+		for(int i=0; i<base_msg->dest_id_count; i++){
 			if(base_msg->dest_ids[i] && !strcmp(base_msg->dest_ids[i], context->id)){
 				/* We have already sent this message to this client. */
 				return MOSQ_ERR_SUCCESS;

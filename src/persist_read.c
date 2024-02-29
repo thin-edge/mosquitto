@@ -176,7 +176,7 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 
 static int persist__client_chunk_restore(FILE *db_fptr)
 {
-	int i, rc = 0;
+	int rc = 0;
 	struct mosquitto *context;
 	struct P_client chunk;
 
@@ -206,7 +206,7 @@ static int persist__client_chunk_restore(FILE *db_fptr)
 		}
 		/* in per_listener_settings mode, try to find the listener by persisted port */
 		if(db.config->per_listener_settings && !context->listener && chunk.F.listener_port > 0){
-			for(i=0; i < db.config->listener_count; i++){
+			for(int i=0; i < db.config->listener_count; i++){
 				if(db.config->listeners[i].port == chunk.F.listener_port){
 					context->listener = &db.config->listeners[i];
 					break;
@@ -256,7 +256,6 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
 	int rc = 0;
-	int i;
 
 	memset(&chunk, 0, sizeof(struct P_base_msg));
 
@@ -268,7 +267,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	if(rc) return rc;
 
 	if(chunk.F.source_port){
-		for(i=0; i<db.config->listener_count; i++){
+		for(int i=0; i<db.config->listener_count; i++){
 			if(db.config->listeners[i].port == chunk.F.source_port){
 				chunk.source.listener = &db.config->listeners[i];
 				break;

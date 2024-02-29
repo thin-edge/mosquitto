@@ -57,11 +57,10 @@ int mux_epoll__init(void)
 
 int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
-	struct epoll_event ev;
-	int i;
+	for(int i=0; i<listensock_count; i++){
+		struct epoll_event ev;
 
-	memset(&ev, 0, sizeof(struct epoll_event));
-	for(i=0; i<listensock_count; i++){
+		memset(&ev, 0, sizeof(struct epoll_event));
 		ev.data.ptr = &listensock[i];
 		ev.events = EPOLLIN;
 		if (epoll_ctl(db.epollfd, EPOLL_CTL_ADD, listensock[i].sock, &ev) == -1) {
@@ -75,9 +74,7 @@ int mux_epoll__add_listeners(struct mosquitto__listener_sock *listensock, int li
 
 int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
-	int i;
-
-	for(i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_count; i++){
 		if (epoll_ctl(db.epollfd, EPOLL_CTL_DEL, listensock[i].sock, NULL) == -1) {
 			return MOSQ_ERR_UNKNOWN;
 		}
@@ -88,9 +85,9 @@ int mux_epoll__delete_listeners(struct mosquitto__listener_sock *listensock, int
 
 int mux_epoll__add_out(struct mosquitto *context)
 {
-	struct epoll_event ev;
-
 	if(!(context->events & EPOLLOUT)) {
+		struct epoll_event ev;
+
 		memset(&ev, 0, sizeof(struct epoll_event));
 		ev.data.ptr = context;
 		ev.events = EPOLLIN | EPOLLOUT;
@@ -107,9 +104,9 @@ int mux_epoll__add_out(struct mosquitto *context)
 
 int mux_epoll__remove_out(struct mosquitto *context)
 {
-	struct epoll_event ev;
-
 	if(context->events & EPOLLOUT) {
+		struct epoll_event ev;
+
 		memset(&ev, 0, sizeof(struct epoll_event));
 		ev.data.ptr = context;
 		ev.events = EPOLLIN;
@@ -154,7 +151,6 @@ int mux_epoll__delete(struct mosquitto *context)
 
 int mux_epoll__handle(void)
 {
-	int i;
 	struct epoll_event ev;
 	struct mosquitto *context;
 	struct mosquitto__listener_sock *listensock;
@@ -179,7 +175,7 @@ int mux_epoll__handle(void)
 	case 0:
 		break;
 	default:
-		for(i=0; i<event_count; i++){
+		for(int i=0; i<event_count; i++){
 			context = ep_events[i].data.ptr;
 			if(context->ident == id_client){
 				loop_handle_reads_writes(context, ep_events[i].events);

@@ -50,11 +50,10 @@ int mux_kqueue__init(void)
 int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
 	struct kevent ev;
-	int i;
 
 	memset(&ev, 0, sizeof(struct kevent));
 
-	for(i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_count; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_ADD, 0, 0, &listensock[i]);
 		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error in kqueue initial registering: %s", strerror(errno));
@@ -68,9 +67,8 @@ int mux_kqueue__add_listeners(struct mosquitto__listener_sock *listensock, int l
 int mux_kqueue__delete_listeners(struct mosquitto__listener_sock *listensock, int listensock_count)
 {
 	struct kevent ev;
-	int i;
 
-	for(i=0; i<listensock_count; i++){
+	for(int i=0; i<listensock_count; i++){
 		EV_SET(&ev, listensock[i].sock, EVFILT_READ, EV_DELETE, 0, 0, &listensock[i]);
 		if(kevent(db.kqueuefd, &ev, 1, NULL, 0, NULL) == -1){
 			return MOSQ_ERR_UNKNOWN;
@@ -149,7 +147,6 @@ int mux_kqueue__delete(struct mosquitto *context)
 
 int mux_kqueue__handle(void)
 {
-	int i;
 	struct mosquitto *context;
 	struct mosquitto__listener_sock *listensock;
 	int event_count;
@@ -181,7 +178,7 @@ int mux_kqueue__handle(void)
 	case 0:
 		break;
 	default:
-		for(i=0; i<event_count; i++){
+		for(int i=0; i<event_count; i++){
 			context = event_list[i].udata;
 			if(context->ident == id_client){
 				loop_handle_reads_writes(context, event_list[i].filter);

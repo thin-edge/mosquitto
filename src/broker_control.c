@@ -81,7 +81,6 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 {
 	cJSON *tree, *j_data, *j_plugins;
 	const char *admin_clientid, *admin_username;
-	int i;
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
@@ -107,7 +106,7 @@ static int broker__process_list_plugins(struct mosquitto_control_cmd *cmd)
 		goto internal_error;
 	}
 
-	for(i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_count; i++){
 		if(add_plugin_info(j_plugins, db.plugins[i])){
 			goto internal_error;
 		}
@@ -168,7 +167,6 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 {
 	cJSON *tree, *j_data, *j_listeners;
 	const char *admin_clientid, *admin_username;
-	int i;
 
 	tree = cJSON_CreateObject();
 	if(tree == NULL){
@@ -194,7 +192,7 @@ static int broker__process_list_listeners(struct mosquitto_control_cmd *cmd)
 		goto internal_error;
 	}
 
-	for(i=0; i<db.config->listener_count; i++){
+	for(int i=0; i<db.config->listener_count; i++){
 		if(add_listener(j_listeners, &db.config->listeners[i])){
 			goto internal_error;
 		}

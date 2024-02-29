@@ -66,15 +66,12 @@ static void client_cost(FILE *fptr, struct mosquitto *context, int fn_index)
 
 static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_index_max)
 {
-	int i, j;
-	struct mosquitto__subhier *subhier;
-	int topic_count;
-	char *topics[100];
-
-	for(i=0; i<context->subs_count; i++){
+	for(int i=0; i<context->subs_count; i++){
 		if(context->subs && context->subs[i]){
-			subhier = context->subs[i]->hier;
-			topic_count = 0;
+			struct mosquitto__subhier *subhier = context->subs[i]->hier;
+			int topic_count = 0;
+			char *topics[100];
+
 			do{
 				topics[topic_count] = subhier->topic;
 				subhier = subhier->parent;
@@ -91,7 +88,7 @@ static void report_subscriptions(FILE *fptr, struct mosquitto *context, int *fn_
 			if(topics[topic_count-2] && topics[topic_count-2][0] == '\0'){
 				topic_count--;
 			}
-			for(j=topic_count-2; j>0; j--){
+			for(int j=topic_count-2; j>0; j--){
 				if(topics[j]){
 					fprintf(fptr, "%s/", topics[j]);
 				}

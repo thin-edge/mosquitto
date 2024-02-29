@@ -153,9 +153,7 @@ static void bridge__destroy(struct mosquitto *context)
 
 void bridge__start_all(void)
 {
-	int i;
-
-	for(i=0; i<db.config->bridge_count; i++){
+	for(int i=0; i<db.config->bridge_count; i++){
 		struct mosquitto *context;
 		int ret;
 
@@ -174,7 +172,7 @@ void bridge__start_all(void)
 		ret = bridge__connect(context);
 #endif
 
-		if (ret && ret != MOSQ_ERR_CONN_PENDING){
+		if(ret && ret != MOSQ_ERR_CONN_PENDING){
 			log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Unable to connect bridge %s.",
 					context->bridge->name);
 		}
@@ -398,7 +396,7 @@ int bridge__connect_step3(struct mosquitto *context)
 		loop__update_next_event(5000);
 	}
 
-	if (bridge__set_tcp_keepalive(context) != MOSQ_ERR_SUCCESS) return MOSQ_ERR_UNKNOWN;
+	if(bridge__set_tcp_keepalive(context) != MOSQ_ERR_SUCCESS) return MOSQ_ERR_UNKNOWN;
 #ifdef WITH_TCP_USER_TIMEOUT
 	if(bridge__set_tcp_user_timeout(context)) return MOSQ_ERR_UNKNOWN;
 #endif
@@ -456,6 +454,7 @@ int bridge__connect(struct mosquitto *context)
 	uint8_t notification_payload;
 	struct mosquitto__bridge_topic *cur_topic;
 	uint8_t qos;
+
 	mosquitto_property receive_maximum;
 	mosquitto_property session_expiry_interval;
 	mosquitto_property topic_alias_max;
@@ -626,7 +625,6 @@ int bridge__on_connect(struct mosquitto *context)
 {
 	char *notification_topic;
 	size_t notification_topic_len;
-	char notification_payload;
 	struct mosquitto__bridge_topic *cur_topic;
 	int sub_opts;
 	bool retain = true;
@@ -641,7 +639,7 @@ int bridge__on_connect(struct mosquitto *context)
 		if(!context->retain_available){
 			retain = false;
 		}
-		notification_payload = '1';
+		char notification_payload = '1';
 		if(context->bridge->notification_topic){
 			if(!context->bridge->notifications_local_only){
 				if(send__real_publish(context, mosquitto__mid_generate(context),

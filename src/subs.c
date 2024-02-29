@@ -197,7 +197,6 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 	struct mosquitto__subleaf *newleaf;
 	struct mosquitto__subshared *shared = NULL;
 	struct mosquitto__subleaf **subs;
-	int i;
 	size_t slen;
 	int rc;
 
@@ -228,7 +227,7 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 		newleaf->shared = shared;
 
 		bool assigned = false;
-		for(i=0; i<context->subs_capacity; i++){
+		for(int i=0; i<context->subs_capacity; i++){
 			if(!context->subs[i]){
 				context->subs[i] = newleaf;
 				context->subs_count++;
@@ -267,7 +266,6 @@ static int sub__add_normal(struct mosquitto *context, const struct mosquitto_sub
 {
 	struct mosquitto__subleaf *newleaf = NULL;
 	struct mosquitto__subleaf **subs;
-	int i;
 	int rc;
 
 	rc = sub__add_leaf(context, sub, &subhier->subs, &newleaf);
@@ -280,7 +278,7 @@ static int sub__add_normal(struct mosquitto *context, const struct mosquitto_sub
 		newleaf->shared = NULL;
 
 		bool assigned = false;
-		for(i=0; i<context->subs_capacity; i++){
+		for(int i=0; i<context->subs_capacity; i++){
 			if(!context->subs[i]){
 				context->subs[i] = newleaf;
 				context->subs_count++;
@@ -353,7 +351,6 @@ static int sub__add_context(struct mosquitto *context, const struct mosquitto_su
 static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason)
 {
 	struct mosquitto__subleaf *leaf;
-	int i;
 
 	leaf = subhier->subs;
 	while(leaf){
@@ -367,7 +364,7 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			 * It would be nice to be able to use the reference directly,
 			 * but that would involve keeping a copy of the topic string in
 			 * each subleaf. Might be worth considering though. */
-			for(i=0; i<context->subs_capacity; i++){
+			for(int i=0; i<context->subs_capacity; i++){
 				if(context->subs[i] && context->subs[i]->hier == subhier){
 					context->subs_count--;
 					mosquitto__free(context->subs[i]);
@@ -387,12 +384,10 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhier *subhier, uint8_t *reason, const char *sharename)
 {
 	struct mosquitto__subshared *shared;
-	struct mosquitto__subleaf *leaf;
-	int i;
 
 	HASH_FIND(hh, subhier->shared, sharename, strlen(sharename), shared);
 	if(shared){
-		leaf = shared->subs;
+		struct mosquitto__subleaf *leaf = shared->subs;
 		while(leaf){
 			if(leaf->context==context){
 #ifdef WITH_SYS_TREE
@@ -404,7 +399,7 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 				* It would be nice to be able to use the reference directly,
 				* but that would involve keeping a copy of the topic string in
 				* each subleaf. Might be worth considering though. */
-				for(i=0; i<context->subs_capacity; i++){
+				for(int i=0; i<context->subs_capacity; i++){
 					if(context->subs[i]
 							&& context->subs[i]->hier == subhier
 							&& context->subs[i]->shared == shared){
@@ -684,16 +679,13 @@ static struct mosquitto__subhier *tmp_remove_subs(struct mosquitto__subhier *sub
  */
 int sub__clean_session(struct mosquitto *context)
 {
-	int i;
-	struct mosquitto__subleaf *leaf;
-	struct mosquitto__subhier *hier;
-
-	for(i=0; i<context->subs_capacity; i++){
+	for(int i=0; i<context->subs_capacity; i++){
 		if(context->subs[i] == NULL || context->subs[i]->hier == NULL){
 			continue;
 		}
 
-		hier = context->subs[i]->hier;
+		struct mosquitto__subhier *hier = context->subs[i]->hier;
+		struct mosquitto__subleaf *leaf;
 
 		plugin_persist__handle_subscription_delete(context, context->subs[i]->topic_filter);
 		if(context->subs[i]->shared){

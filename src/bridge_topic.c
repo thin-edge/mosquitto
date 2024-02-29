@@ -26,11 +26,9 @@ Contributors:
 #ifdef WITH_BRIDGE
 static int bridge__create_remap_topic(const char *prefix, const char *topic, char **remap_topic)
 {
-	size_t len;
-
 	if(prefix){
 		if(topic){
-			len = strlen(topic) + strlen(prefix)+1;
+			size_t len = strlen(topic) + strlen(prefix)+1;
 			*remap_topic = mosquitto__malloc(len+1);
 			if(!(*remap_topic)){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
@@ -234,9 +232,6 @@ error:
 int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 {
 	struct mosquitto__bridge_topic *cur_topic;
-	char *topic_temp;
-	size_t len;
-	int rc;
 	bool match;
 
 	if(context->bridge && context->bridge->topics && context->bridge->topic_remapping){
@@ -246,12 +241,14 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 
 				/* Topic mapping required on this topic if the message matches */
 
-				rc = mosquitto_topic_matches_sub(cur_topic->remote_topic, *topic, &match);
+				int rc = mosquitto_topic_matches_sub(cur_topic->remote_topic, *topic, &match);
 				if(rc){
 					mosquitto__FREE(*topic);
 					return rc;
 				}
 				if(match){
+					char *topic_temp;
+
 					if(cur_topic->remote_prefix){
 						/* This prefix needs removing. */
 						if(!strncmp(cur_topic->remote_prefix, *topic, strlen(cur_topic->remote_prefix))){
@@ -267,7 +264,7 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 
 					if(cur_topic->local_prefix){
 						/* This prefix needs adding. */
-						len = strlen(*topic) + strlen(cur_topic->local_prefix)+1;
+						size_t len = strlen(*topic) + strlen(cur_topic->local_prefix)+1;
 						topic_temp = mosquitto__malloc(len+1);
 						if(!topic_temp){
 							mosquitto__FREE(*topic);

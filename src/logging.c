@@ -75,7 +75,6 @@ static bool dlt_allowed = false;
 void dlt_fifo_check(void)
 {
 	struct stat statbuf;
-	int fd;
 
 	/* If we start DLT but the /tmp/dlt fifo doesn't exist, or isn't available
 	 * for writing then there is a big delay when we try and close the log
@@ -85,7 +84,7 @@ void dlt_fifo_check(void)
 	memset(&statbuf, 0, sizeof(statbuf));
 	if(stat("/tmp/dlt", &statbuf) == 0){
 		if(S_ISFIFO(statbuf.st_mode)){
-			fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
+			int fd = open("/tmp/dlt", O_NONBLOCK | O_WRONLY);
 			if(fd != -1){
 				dlt_allowed = true;
 				close(fd);
@@ -427,4 +426,3 @@ BROKER_EXPORT void mosquitto_log_printf(int level, const char *fmt, ...)
 	log__vprintf((unsigned int)level, fmt, va);
 	va_end(va);
 }
-

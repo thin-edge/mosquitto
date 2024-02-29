@@ -37,11 +37,11 @@ Contributors:
 
 int context__init_sock(struct mosquitto *context, mosq_sock_t sock)
 {
-	char address[1024];
-
 	context->sock = sock;
 
 	if((int)context->sock >= 0){
+		char address[1024];
+
 		if(!net__socket_get_address(context->sock,
 					address, sizeof(address),
 					&context->remote_port)){

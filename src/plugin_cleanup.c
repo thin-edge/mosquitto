@@ -78,9 +78,7 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 
 int plugin__unload_all(void)
 {
-	int i;
-
-	for(i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_count; i++){
 		plugin__unload_single(db.plugins[i]);
 	}
 
@@ -126,9 +124,7 @@ static int plugin__security_cleanup_single(mosquitto_plugin_id_t *plugin, bool r
 
 int mosquitto_security_cleanup(bool reload)
 {
-	int i;
-
-	for(i=0; i<db.plugin_count; i++){
+	for(int i=0; i<db.plugin_count; i++){
 		plugin__security_cleanup_single(db.plugins[i], reload);
 	}
 

@@ -130,7 +130,6 @@ int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char 
 {
 	struct mosquitto__retainhier *retainhier;
 	struct mosquitto__retainhier *branch;
-	int i;
 	size_t slen;
 
 	assert(base_msg);
@@ -142,7 +141,7 @@ int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char 
 		if(!retainhier) return MOSQ_ERR_NOMEM;
 	}
 
-	for(i=0; split_topics[i] != NULL; i++){
+	for(int i=0; split_topics[i] != NULL; i++){
 		slen = strlen(split_topics[i]);
 		HASH_FIND(hh, retainhier->children, split_topics[i], slen, branch);
 		if(branch == NULL){

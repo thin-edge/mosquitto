@@ -652,7 +652,7 @@ static int net__bind_interface(struct mosquitto__listener *listener, struct addr
 	 * use getifaddrs to find the interface addresses, and use IP of the
 	 * matching interface in the later bind().
 	 */
-	struct ifaddrs *ifaddr, *ifa;
+	struct ifaddrs *ifaddr;
 	bool have_interface = false;
 
 	if(getifaddrs(&ifaddr) < 0){
@@ -660,7 +660,7 @@ static int net__bind_interface(struct mosquitto__listener *listener, struct addr
 		return MOSQ_ERR_ERRNO;
 	}
 
-	for(ifa=ifaddr; ifa!=NULL; ifa=ifa->ifa_next){
+	for(struct ifaddrs *ifa=ifaddr; ifa!=NULL; ifa=ifa->ifa_next){
 		if(ifa->ifa_addr == NULL){
 			continue;
 		}

@@ -242,9 +242,8 @@ static int conf__attempt_resolve(const char *host, const char *text, unsigned in
 
 static void config__init_reload(struct mosquitto__config *config)
 {
-	int i;
 	/* Set defaults */
-	for(i=0; i<config->listener_count; i++){
+	for(int i=0; i<config->listener_count; i++){
 		listener__set_defaults(&config->listeners[i]);
 	}
 
@@ -356,11 +355,6 @@ void config__init(struct mosquitto__config *config)
 
 void config__cleanup(struct mosquitto__config *config)
 {
-	int i;
-#ifdef WITH_WEBSOCKETS
-	int j;
-#endif
-
 	mosquitto__FREE(config->clientid_prefixes);
 	mosquitto__FREE(config->persistence_location);
 	mosquitto__FREE(config->persistence_file);
@@ -374,7 +368,7 @@ void config__cleanup(struct mosquitto__config *config)
 	mosquitto__FREE(config->user);
 	mosquitto__FREE(config->log_timestamp_format);
 	if(config->listeners){
-		for(i=0; i<config->listener_count; i++){
+		for(int i=0; i<config->listener_count; i++){
 			mosquitto__FREE(config->listeners[i].host);
 			mosquitto__FREE(config->listeners[i].bind_interface);
 			mosquitto__FREE(config->listeners[i].mount_point);
@@ -411,7 +405,7 @@ void config__cleanup(struct mosquitto__config *config)
 #  if WITH_WEBSOCKETS == WS_IS_LWS
 			mosquitto__FREE(config->listeners[i].http_dir);
 #  endif
-			for(j=0; j<config->listeners[i].ws_origin_count; j++){
+			for(int j=0; j<config->listeners[i].ws_origin_count; j++){
 				mosquitto__FREE(config->listeners[i].ws_origins[j]);
 			}
 			mosquitto__FREE(config->listeners[i].ws_origins);
@@ -424,7 +418,7 @@ void config__cleanup(struct mosquitto__config *config)
 	}
 #ifdef WITH_BRIDGE
 	if(config->bridges){
-		for(i=0; i<config->bridge_count; i++){
+		for(int i=0; i<config->bridge_count; i++){
 			config__bridge_cleanup(config->bridges[i]);
 		}
 		mosquitto__FREE(config->bridges);
@@ -445,14 +439,11 @@ void config__cleanup(struct mosquitto__config *config)
 #ifdef WITH_BRIDGE
 void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 {
-	int i;
-	struct mosquitto__bridge_topic *cur_topic, *topic_tmp;
-
 	if(bridge == NULL) return;
 
 	mosquitto__FREE(bridge->name);
 	if(bridge->addresses){
-		for(i=0; i<bridge->address_count; i++){
+		for(int i=0; i<bridge->address_count; i++){
 			mosquitto__FREE(bridge->addresses[i].address);
 		}
 		mosquitto__FREE(bridge->addresses);
@@ -465,6 +456,8 @@ void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 	mosquitto__FREE(bridge->local_username);
 	mosquitto__FREE(bridge->local_password);
 	if(bridge->topics){
+		struct mosquitto__bridge_topic *cur_topic, *topic_tmp;
+
 		LL_FOREACH_SAFE(bridge->topics, cur_topic, topic_tmp){
 			mosquitto__FREE(cur_topic->topic);
 			mosquitto__FREE(cur_topic->local_prefix);
@@ -614,10 +607,6 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 
 static void config__copy(struct mosquitto__config *src, struct mosquitto__config *dest)
 {
-#ifdef WITH_BRIDGE
-	int i;
-#endif
-
 	mosquitto__FREE(dest->security_options.acl_file);
 	dest->security_options.acl_file = src->security_options.acl_file;
 
@@ -684,7 +673,7 @@ static void config__copy(struct mosquitto__config *src, struct mosquitto__config
 #endif
 
 #ifdef WITH_BRIDGE
-	for(i=0;i<dest->bridge_count;i++){
+	for(int i=0;i<dest->bridge_count;i++){
 		if(dest->bridges[i]) config__bridge_cleanup(dest->bridges[i]);
 	}
 	mosquitto__FREE(dest->bridges);
@@ -922,19 +911,12 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 	mosquitto_plugin_id_t *cur_plugin = NULL;
 
-	time_t expiration_mult;
 	char *key;
 	struct mosquitto__listener *cur_listener = NULL;
 	int i;
 	int lineno_ext = 0;
 	size_t prefix_len;
-	char **files;
-	int file_count;
 	size_t slen;
-#ifdef WITH_TLS
-	char *kpass_sha = NULL, *kpass_sha_bin = NULL;
-	char *keyform ;
-#endif
 #ifdef WITH_WEBSOCKETS
 	char **ws_origins = NULL;
 #endif
@@ -1649,6 +1631,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "include_dir")){
 					if(level == 0){
+						char **files;
+						int file_count;
+
 						/* Only process include_dir from the main config file. */
 						token = strtok_r(NULL, "", &saveptr);
 						REQUIRE_NON_EMPTY_OPTION(token, "include_dir");
@@ -2068,6 +2053,8 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					token = strtok_r(NULL, " ", &saveptr);
 					REQUIRE_NON_EMPTY_OPTION(token, "persistent_client_expiration");
 
+					time_t expiration_mult;
+
 					switch(token[strlen(token)-1]){
 						case 'h':
 							expiration_mult = 3600;
@@ -2283,6 +2270,8 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "tls_engine_kpass_sha1")){
 #ifdef WITH_TLS
 					if(reload) continue; /* tls_engine not valid for reloading. */
+
+					char *kpass_sha = NULL, *kpass_sha_bin = NULL;
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
 					if(conf__parse_string(&token, "tls_engine_kpass_sha1", &kpass_sha, &saveptr)) return MOSQ_ERR_INVAL;
 					if(mosquitto__hex2bin_sha1(kpass_sha, (unsigned char**)&kpass_sha_bin) != MOSQ_ERR_SUCCESS){
@@ -2298,8 +2287,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "tls_keyform")){
 #ifdef WITH_TLS
 					if(reload) continue; /* tls_engine not valid for reloading. */
+
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					keyform = NULL;
+					char *keyform = NULL;
 					if(conf__parse_string(&token, "tls_keyform", &keyform, &saveptr)) return MOSQ_ERR_INVAL;
 					cur_listener->tls_keyform = mosq_k_pem;
 					if(!strcmp(keyform, "engine")) cur_listener->tls_keyform = mosq_k_engine;
