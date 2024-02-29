@@ -72,7 +72,7 @@ def do_test():
 
         rc = 0
     except Exception as err:
-        print(err)
+        raise err
     finally:
         os.remove(conf_file)
         broker.terminate()
