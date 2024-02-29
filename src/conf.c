@@ -2289,6 +2289,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						mosquitto__FREE(kpass_sha);
 						return MOSQ_ERR_INVAL;
 					}
+					mosquitto_free(cur_listener->tls_engine_kpass_sha1);
 					cur_listener->tls_engine_kpass_sha1 = kpass_sha_bin;
 					mosquitto__FREE(kpass_sha);
 #else
