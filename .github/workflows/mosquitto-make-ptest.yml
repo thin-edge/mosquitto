@@ -1,4 +1,4 @@
-name: Mosquitto - Make
+name: Mosquitto - Make (ptest)
 
 on:
   push:
