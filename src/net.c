@@ -601,6 +601,20 @@ int net__tls_load_verify(struct mosquitto__listener *listener)
 #ifdef WITH_TLS
 	int rc;
 
+#  if OPENSSL_VERSION_NUMBER < 0x30000000L
+	if(listener->cafile || listener->capath){
+		rc = SSL_CTX_load_verify_locations(listener->ssl_ctx, listener->cafile, listener->capath);
+		if(rc == 0){
+			if(listener->cafile && listener->capath){
+				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\" and capath \"%s\".", listener->cafile, listener->capath);
+			}else if(listener->cafile){
+				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check cafile \"%s\".", listener->cafile);
+			}else{
+				log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to load CA certificates. Check capath \"%s\".", listener->capath);
+			}
+		}
+	}
+#  else
 	if(listener->cafile){
 		rc = SSL_CTX_load_verify_file(listener->ssl_ctx, listener->cafile);
 		if(rc == 0){
@@ -617,6 +631,7 @@ int net__tls_load_verify(struct mosquitto__listener *listener)
 			return MOSQ_ERR_TLS;
 		}
 	}
+#  endif
 
 #  if !defined(OPENSSL_NO_ENGINE) && OPENSSL_API_LEVEL < 30000
 	if(net__load_engine(listener)){
