@@ -115,7 +115,7 @@ extern SERVICE_STATUS_HANDLE service_handle;
 	}while(0)
 
 #define OPTION_DEPRECATED(A, B) \
-	log__printf(NULL, MOSQ_LOG_NOTICE, "The '%s' option is now deprecated and will be removed in a future version. %s", (A), (B))
+	log__printf(NULL, MOSQ_LOG_NOTICE, "The '%s' option is now deprecated and will be removed in version 3.0. %s", (A), (B))
 
 #define OPTION_UNAVAILABLE(A) \
 	log__printf(NULL, MOSQ_LOG_WARNING, "Warning: The '%s' option is no longer available.", (A));
@@ -2034,6 +2034,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					mosquitto__FREE(cur_security_options->password_file);
 					if(conf__parse_string(&token, "password_file", &cur_security_options->password_file, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "per_listener_settings")){
+					OPTION_DEPRECATED(token, "Please see the documentation for how to achieve the same effect.");
 					if(config->per_listener_settings){
 						/* Once this is set, don't let it be unset. It should be the first config option ideally. */
 						continue;
