@@ -232,6 +232,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 						if(json_get_string(j_role, "rolename", &rolename, false) == MOSQ_ERR_SUCCESS){
 							json_get_int(j_role, "priority", &priority, true, -1);
 							if(priority > PRIORITY_MAX) priority = PRIORITY_MAX;
+							if(priority < -PRIORITY_MAX) priority = -PRIORITY_MAX;
 							role = dynsec_roles__find(data, rolename);
 							dynsec_rolelist__client_add(client, role, priority);
 						}

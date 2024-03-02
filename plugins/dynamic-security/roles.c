@@ -237,6 +237,7 @@ static int dynsec_roles__acl_load(cJSON *j_acls, const char *key, struct dynsec_
 
 		json_get_int(j_acl, "priority", &acl->priority, true, 0);
 		if(acl->priority > PRIORITY_MAX) acl->priority = PRIORITY_MAX;
+		if(acl->priority < -PRIORITY_MAX) acl->priority = -PRIORITY_MAX;
 		json_get_bool(j_acl, "allow", &acl->allow, true, false);
 
 		bool allow;
@@ -677,6 +678,7 @@ int dynsec_roles__process_add_acl(struct dynsec__data *data, struct mosquitto_co
 
 	json_get_int(cmd->j_command, "priority", &acl->priority, true, 0);
 	if(acl->priority > PRIORITY_MAX) acl->priority = PRIORITY_MAX;
+	if(acl->priority < -PRIORITY_MAX) acl->priority = -PRIORITY_MAX;
 	json_get_bool(cmd->j_command, "allow", &acl->allow, true, false);
 
 	HASH_ADD_INORDER(hh, *acllist, topic, topic_len, acl, insert_acl_cmp);
