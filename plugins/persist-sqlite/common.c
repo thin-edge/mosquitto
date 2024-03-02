@@ -20,7 +20,6 @@ Contributors:
 #include <sqlite3.h>
 
 #include "mosquitto.h"
-#include "mosquitto_broker.h"
 #include "persist_sqlite.h"
 
 

@@ -1,32 +1,15 @@
 R=../../..
 include ${R}/config.mk
 
-.PHONY : all binary check clean reallyclean test install uninstall
-
 PLUGIN_NAME=mosquitto_wildcard_temp
+LOCAL_CFLAGS+=
 LOCAL_CPPFLAGS+=
-LOCAL_CFLAGS+=-fPIC
-LOCAL_LDFLAGS+=-fPIC -shared
+LOCAL_LDFLAGS+=
 LOCAL_LIBADD+=
 
 all : binary
 
-binary : ${PLUGIN_NAME}.so
+OBJS:=${PLUGIN_NAME}.o
 
-${PLUGIN_NAME}.so : ${PLUGIN_NAME}.c
-	$(CROSS_COMPILE)$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) $(LOCAL_LDFLAGS) $< -o $@ ${LOCAL_LIBADD}
-
-reallyclean : clean
-clean:
-	-rm -f *.o ${PLUGIN_NAME}.so *.gcda *.gcno
-
-check: test
-test:
-
-install: ${PLUGIN_NAME}.so
-	# Don't install, these are examples only.
-	#$(INSTALL) -d "${DESTDIR}$(libdir)"
-	#$(INSTALL) ${STRIP_OPTS} ${PLUGIN_NAME}.so "${DESTDIR}${libdir}/${PLUGIN_NAME}.so"
-
-uninstall :
-	-rm -f "${DESTDIR}${libdir}/${PLUGIN_NAME}.so"
+PLUGIN_NOINST:=1
+include ${R}/plugins/plugin.mk

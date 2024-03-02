@@ -1,14 +1,12 @@
 R=../..
 include ${R}/config.mk
 
-.PHONY : all binary check clean reallyclean test test-compile install uninstall
-
 PLUGIN_NAME=mosquitto_dynamic_security
 
-LOCAL_CFLAGS+=-fPIC
+LOCAL_CFLAGS+=
 LOCAL_CPPFLAGS+=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common
 LOCAL_LIBADD+=-lcjson -lm
-LOCAL_LDFLAGS+=-fPIC -shared
+LOCAL_LDFLAGS+=
 
 WITH_PW_CACHE:=yes
 ifeq ($(WITH_PW_CACHE),yes)
@@ -38,6 +36,8 @@ OBJS_EXTERNAL = \
 	misc_mosq.o \
 	password_mosq.o \
 
+EXTRA_DEPS:=dynamic_security.h
+
 ifeq ($(WITH_TLS),yes)
 ALL_DEPS:= binary
 else
@@ -45,27 +45,6 @@ ALL_DEPS:=
 endif
 
 all : ${ALL_DEPS}
-
-ifeq ($(WITH_FUZZING),yes)
-binary : ${PLUGIN_NAME}.a
-else
-binary : ${PLUGIN_NAME}.so
-endif
-
-ifeq ($(WITH_FUZZING),yes)
-binary : ${PLUGIN_NAME}.a
-else
-binary : ${PLUGIN_NAME}.so
-endif
-
-${PLUGIN_NAME}.a : ${OBJS} ${OBJS_EXTERNAL}
-	${CROSS_COMPILE}$(AR) cr $@ $^
-
-${PLUGIN_NAME}.so : ${OBJS} ${OBJS_EXTERNAL}
-	${CROSS_COMPILE}${CC} $(LOCAL_LDFLAGS) $^ -o $@ ${LOCAL_LIBADD}
-
-${OBJS} : %.o: %.c dynamic_security.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
@@ -79,20 +58,4 @@ misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-reallyclean : clean
-clean:
-	-rm -f *.o ${PLUGIN_NAME}.so *.gcda *.gcno
-
-test-compile:
-
-check: test
-test: test-compile
-
-install: all
-ifeq ($(WITH_TLS),yes)
-	$(INSTALL) -d "${DESTDIR}$(libdir)"
-	$(INSTALL) ${STRIP_OPTS} ${PLUGIN_NAME}.so "${DESTDIR}${libdir}/${PLUGIN_NAME}.so"
-endif
-
-uninstall :
-	-rm -f "${DESTDIR}${libdir}/${PLUGIN_NAME}.so"
+include ${R}/plugins/plugin.mk
