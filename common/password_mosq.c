@@ -436,6 +436,7 @@ static int pw__decode_sha512(struct mosquitto_pw *pw, const char *salt_password)
 	rc = base64__decode(salt_b64, &salt, &salt_len);
 	if(rc != MOSQ_ERR_SUCCESS || (salt_len != 12 && salt_len != HASH_LEN)){
 		free(sp_heap);
+		free(salt);
 		return MOSQ_ERR_INVAL;
 	}
 	memcpy(pw->params.sha512.salt, salt, salt_len);
