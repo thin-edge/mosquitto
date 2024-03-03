@@ -384,7 +384,9 @@ static void handle_sigint(int signal)
 
 	UNUSED(signal);
 
+#ifndef WITH_FUZZING
 	exit(0);
+#endif
 }
 
 
