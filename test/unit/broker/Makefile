@@ -177,7 +177,7 @@ ${R}/src/util_mosq.o : ${R}/lib/util_mosq.c
 ${R}/src/util_topic.o : ${R}/lib/util_topic.c
 	$(MAKE) -C ${R}/src/ util_topic.o
 
-${R}/src/utf8_mosq.o : ${R}/lib/utf8_mosq.c
+${R}/src/utf8_mosq.o : ${R}/common/utf8_mosq.c
 	$(MAKE) -C ${R}/src/ utf8_mosq.o
 
 build : bridge_topic_test keepalive_test persist_read_test persist_write_test subs_test

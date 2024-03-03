@@ -247,7 +247,7 @@ util_mosq.o : ${R}/lib/util_mosq.c ${R}/lib/util_mosq.h
 util_topic.o : ${R}/lib/util_topic.c ${R}/lib/util_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
-utf8_mosq.o : ${R}/lib/utf8_mosq.c
+utf8_mosq.o : ${R}/common/utf8_mosq.c
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 will_mosq.o : ${R}/lib/will_mosq.c ${R}/lib/will_mosq.h

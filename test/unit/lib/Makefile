@@ -76,7 +76,7 @@ ${R}/lib/util_mosq.o : ${R}/lib/util_mosq.c
 ${R}/lib/util_topic.o : ${R}/lib/util_topic.c
 	$(MAKE) -C ${R}/lib/ util_topic.o
 
-${R}/lib/utf8_mosq.o : ${R}/lib/utf8_mosq.c
+${R}/lib/utf8_mosq.o : ${R}/common/utf8_mosq.c
 	$(MAKE) -C ${R}/lib/ utf8_mosq.o
 
 build : lib_test

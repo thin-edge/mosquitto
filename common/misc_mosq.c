@@ -284,6 +284,11 @@ char *fgets_extending(char **buf, int *buflen, FILE *stream)
 		if(endchar == '\n'){
 			return rc;
 		}
+		if((int)(len+1) < *buflen){
+			/* Embedded nulls, invalid string */
+			return NULL;
+		}
+
 		/* No EOL char found, so extend buffer */
 		offset = (*buflen)-1;
 		*buflen += 1000;

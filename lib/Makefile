@@ -81,7 +81,6 @@ OBJS= \
 	strings_mosq.o \
 	thread_mosq.o \
 	tls_mosq.o \
-	utf8_mosq.o \
 	util_mosq.o \
 	util_topic.o \
 	will_mosq.o
@@ -90,7 +89,8 @@ OBJS_EXTERNAL= \
 	base64_mosq.o \
 	misc_mosq.o \
 	password_mosq.o \
-	time_mosq.o
+	time_mosq.o \
+	utf8_mosq.o
 
 ifeq ($(WITH_WEBSOCKETS),yes)
 	OBJS_EXTERNAL+=${R}/deps/picohttpparser/picohttpparser.o
@@ -159,6 +159,9 @@ password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
 
 time_mosq.o : ${R}/common/time_mosq.c ${R}/common/time_mosq.h
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
+
+utf8_mosq.o : ${R}/common/utf8_mosq.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 ${R}/deps/picohttpparser/picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@

@@ -17,7 +17,8 @@ OBJS_EXTERNAL= \
 	memory_mosq.o \
 	memory_public.o \
 	misc_mosq.o \
-	password_mosq.o
+	password_mosq.o \
+	utf8_mosq.o
 
 
 ifeq ($(WITH_TLS),yes)
@@ -53,6 +54,9 @@ misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
 	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
+
+utf8_mosq.o : ${R}/common/utf8_mosq.c
+	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 install : all
 ifeq ($(WITH_TLS),yes)
