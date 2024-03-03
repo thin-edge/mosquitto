@@ -23,6 +23,8 @@ Contributors:
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "broker_fuzz.h"
+
 /*
  * Broker check of config only, the config isn't used
  */
@@ -54,6 +56,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
 	char filename[100];
 	FILE *fptr;
+
+	if(size < kMinInputLength){
+		return 0;
+	}
 
 	umask(0077);
 
