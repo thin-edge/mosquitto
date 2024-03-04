@@ -156,7 +156,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 				/* sha512-pbkdf2 only */
 				int iterations;
 				const char *salt;
-				json_get_int(j_client, "iterations", &iterations, 0, true);
+				json_get_int(j_client, "iterations", &iterations, true, 0);
 				if(json_get_string(j_client, "salt", &salt, false) == MOSQ_ERR_SUCCESS
 						&& json_get_string(j_client, "password", &password, false) == MOSQ_ERR_SUCCESS
 						&& iterations > 0){
