@@ -264,6 +264,7 @@ static int pw__decode_sha512_pbkdf2(struct mosquitto_pw *pw, const char *salt_pa
 
 	iterations_s = strtok_r(sp_heap, "$", &saveptr);
 	if(iterations_s == NULL){
+		free(sp_heap);
 		return MOSQ_ERR_INVAL;
 	}
 	pw->params.sha512_pbkdf2.iterations = atoi(iterations_s);
