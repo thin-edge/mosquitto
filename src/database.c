@@ -843,7 +843,7 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
 	}else{
 		origin = mosq_mo_broker;
 	}
-	if(db__message_store(context, base_msg, message_expiry_interval, origin)) return 1;
+	if(db__message_store(context, base_msg, &message_expiry_interval, origin)) return 1;
 
 	return sub__messages_queue(source_id, base_msg->data.topic, base_msg->data.qos, base_msg->data.retain, &base_msg);
 }
@@ -913,7 +913,7 @@ uint64_t db__new_msg_id(void)
 
 
 /* This function requires topic to be allocated on the heap. Once called, it owns topic and will free it on error. Likewise payload and properties. */
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t message_expiry_interval, enum mosquitto_msg_origin origin)
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *base_msg, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
 {
 	int rc;
 
@@ -941,8 +941,8 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 		base_msg->source_listener = source->listener;
 	}
 	base_msg->origin = origin;
-	if(message_expiry_interval > 0){
-		base_msg->data.expiry_time = db.now_real_s + message_expiry_interval;
+	if(message_expiry_interval){
+		base_msg->data.expiry_time = db.now_real_s + (*message_expiry_interval);
 	}else{
 		base_msg->data.expiry_time = 0;
 	}

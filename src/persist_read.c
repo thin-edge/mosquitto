@@ -305,7 +305,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	base_msg->data.payload = chunk.payload;
 	base_msg->source_listener = chunk.source.listener;
 
-	rc = db__message_store(&chunk.source, base_msg, message_expiry_interval,
+	rc = db__message_store(&chunk.source, base_msg, &message_expiry_interval,
 			mosq_mo_client);
 
 	mosquitto__FREE(chunk.source.id);

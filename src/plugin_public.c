@@ -751,6 +751,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	struct mosquitto context;
 	struct mosquitto__base_msg *base_msg;
 	uint32_t message_expiry_interval;
+	uint32_t *p_message_expiry_interval;
 	time_t message_expiry_interval_tt;
 	int rc;
 
@@ -765,16 +766,16 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	context.id = (char *)msg_add->source_id;
 	context.username = (char *)msg_add->source_username;
 
+	p_message_expiry_interval = &message_expiry_interval;
 	if(msg_add->expiry_time == 0){
-		message_expiry_interval = 0;
+		p_message_expiry_interval = NULL;
 	}else if(msg_add->expiry_time <= db.now_real_s){
-		message_expiry_interval = 1;
+		message_expiry_interval = 0;
 	}else{
 		message_expiry_interval_tt = msg_add->expiry_time - db.now_real_s;
 		if(message_expiry_interval_tt > UINT32_MAX){
 			message_expiry_interval = UINT32_MAX;
 		}else{
-			/* coverity[store_truncates_time_t] - we check above whether the value will fit in a uint32_t */
 			message_expiry_interval = (uint32_t)message_expiry_interval_tt;
 		}
 	}
@@ -806,7 +807,7 @@ BROKER_EXPORT int mosquitto_persist_base_msg_add(struct mosquitto_base_msg *msg_
 	}
 
 	base_msg->stored = true;
-	rc = db__message_store(&context, base_msg, message_expiry_interval, mosq_mo_broker);
+	rc = db__message_store(&context, base_msg, p_message_expiry_interval, mosq_mo_broker);
 	return rc;
 
 error:

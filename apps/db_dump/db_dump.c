@@ -270,7 +270,7 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 	stored->data.payload =  chunk.payload;
 	stored->data.properties = chunk.properties;
 
-	rc = db__message_store(&chunk.source, stored, message_expiry_interval,
+	rc = db__message_store(&chunk.source, stored, &message_expiry_interval,
 			mosq_mo_client);
 
 	mosquitto__free(chunk.source.id);

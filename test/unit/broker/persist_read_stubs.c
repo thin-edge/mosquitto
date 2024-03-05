@@ -44,7 +44,7 @@ void db__msg_store_free(struct mosquitto__base_msg *store)
 	mosquitto__free(store);
 }
 
-int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *stored, uint32_t message_expiry_interval, enum mosquitto_msg_origin origin)
+int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *stored, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
 {
     int rc = MOSQ_ERR_SUCCESS;
 
@@ -70,8 +70,8 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
     if(source){
         stored->source_listener = source->listener;
     }
-    if(message_expiry_interval > 0){
-        stored->data.expiry_time = time(NULL) + message_expiry_interval;
+    if(message_expiry_interval){
+        stored->data.expiry_time = time(NULL) + (*message_expiry_interval);
     }else{
         stored->data.expiry_time = 0;
     }

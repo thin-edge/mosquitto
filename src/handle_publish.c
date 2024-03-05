@@ -275,7 +275,7 @@ int handle__publish(struct mosquitto *context)
 				){
 
 			dup = 0;
-			rc = db__message_store(context, base_msg, message_expiry_interval, mosq_mo_client);
+			rc = db__message_store(context, base_msg, &message_expiry_interval, mosq_mo_client);
 			if(rc) return rc;
 		}else{
 			/* Client isn't allowed any more incoming messages, so fail early */
