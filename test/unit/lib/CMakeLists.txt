@@ -21,7 +21,7 @@ add_executable(lib-test
 	../../../lib/strings_mosq.c
 	../../../lib/util_mosq.c
 	../../../lib/util_topic.c
-	../../../lib/utf8_mosq.c
+	../../../common/utf8_mosq.c
 )
 
 target_link_libraries(lib-test PRIVATE common-unit-test-header OpenSSL::SSL)

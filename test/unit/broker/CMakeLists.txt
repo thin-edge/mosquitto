@@ -43,7 +43,7 @@ add_library(persistence-read-obj
         ../../../src/persist_read.c
         ../../../src/retain.c
         ../../../src/topic_tok.c
-        ../../../lib/utf8_mosq.c
+        ../../../common/utf8_mosq.c
 )
 target_compile_definitions(persistence-read-obj PRIVATE WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(persistence-read-obj PUBLIC common-unit-test-header OpenSSL::SSL)
@@ -74,7 +74,7 @@ add_library(persistence-write-obj
         ../../../src/retain.c
         ../../../src/subs.c
         ../../../src/topic_tok.c
-        ../../../lib/utf8_mosq.c
+        ../../../common/utf8_mosq.c
 )
 target_compile_definitions(persistence-write-obj PRIVATE WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(persistence-write-obj PUBLIC common-unit-test-header)
@@ -101,7 +101,7 @@ add_library(subs-obj
         ../../../src/database.c
         ../../../src/subs.c
         ../../../src/topic_tok.c
-        ../../../lib/utf8_mosq.c
+        ../../../common/utf8_mosq.c
 )
 target_compile_definitions(subs-obj PRIVATE WITH_BROKER)
 target_link_libraries(subs-obj PUBLIC common-unit-test-header)

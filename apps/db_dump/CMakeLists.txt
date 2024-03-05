@@ -6,7 +6,7 @@ add_executable(mosquitto_db_dump
 	../../lib/memory_mosq.c
 	../../lib/packet_datatypes.c
 	../../lib/property_mosq.c
-	../../lib/utf8_mosq.c
+	../../common/utf8_mosq.c
 
 	../../src/memory_public.c
 	../../src/persist_read.c
