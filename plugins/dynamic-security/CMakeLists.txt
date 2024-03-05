@@ -35,5 +35,5 @@ if(WITH_TLS)
 		OpenSSL::SSL
 	)
 
-	plugin_helper("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
+	add_mosquitto_plugin("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
 endif()

@@ -1,4 +1,4 @@
-function(plugin_helper_no_install PLUGIN_NAME SRCLIST INCLIST LINKLIST)
+function(add_mosquitto_plugin_no_install PLUGIN_NAME SRCLIST INCLIST LINKLIST)
 	add_library(${PLUGIN_NAME} MODULE ${SRCLIST})
 	target_include_directories(${PLUGIN_NAME} PRIVATE
 		${INCLIST}
@@ -22,8 +22,8 @@ function(plugin_helper_no_install PLUGIN_NAME SRCLIST INCLIST LINKLIST)
 	)
 endfunction()
 
-function(plugin_helper PLUGIN_NAME SRCLIST INCLIST LINKLIST)
-	plugin_helper_no_install("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
+function(add_mosquitto_plugin PLUGIN_NAME SRCLIST INCLIST LINKLIST)
+	add_mosquitto_plugin_no_install("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
 
 	if(WIN32)
 		install(TARGETS ${PLUGIN_NAME}

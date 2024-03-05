@@ -8,4 +8,4 @@ set(SRCLIST
 set(INCLIST )
 set(LINKLIST )
 
-plugin_helper("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
+add_mosquitto_plugin("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")

@@ -22,5 +22,5 @@ if(SQLITE3_FOUND)
 		SQLite::SQLite3
 	)
 
-	plugin_helper("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
+	add_mosquitto_plugin("${PLUGIN_NAME}" "${SRCLIST}" "${INCLIST}" "${LINKLIST}")
 endif()
