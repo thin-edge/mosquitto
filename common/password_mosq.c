@@ -456,6 +456,7 @@ static int pw__decode_sha512(struct mosquitto_pw *pw, const char *salt_password)
 	free(sp_heap);
 
 	if(rc != MOSQ_ERR_SUCCESS || password_len != HASH_LEN){
+		free(password);
 		return MOSQ_ERR_INVAL;
 	}
 	memcpy(pw->params.sha512.password_hash, password, password_len);
