@@ -16,6 +16,7 @@ OBJS= \
 	memory_common.o \
 	mqtt_common.o \
 	property_common.o \
+	random_common.o \
 	strings_common.o \
 	time_common.o \
 	topic_common.o \

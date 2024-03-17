@@ -157,14 +157,6 @@ void util__increment_send_quota(struct mosquitto *mosq)
 	mosq->msgs_out.inflight_quota++;
 }
 
-int util__random_bytes(void *bytes, int count)
-{
-	UNUSED(bytes);
-	UNUSED(count);
-
-	return MOSQ_ERR_SUCCESS;
-}
-
 void plugin_persist__handle_client_msg_add(struct mosquitto *context, const struct mosquitto__client_msg *cmsg)
 {
 	UNUSED(context);

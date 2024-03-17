@@ -16,28 +16,35 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#ifndef MOSQUITTO_LIBCOMMON_H
-#define MOSQUITTO_LIBCOMMON_H
+#ifndef MOSQUITTO_LIBCOMMON_RANDOM_H
+#define MOSQUITTO_LIBCOMMON_RANDOM_H
 
 /*
- * File: mosquitto/libcommon.h
+ * File: mosquitto/libcommon_random.h
+ *
+ * This header contains functions for obtaining random numbers.
  */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <mosquitto/libcommon_base64.h>
-#include <mosquitto/libcommon_memory.h>
-#include <mosquitto/libcommon_properties.h>
-#include <mosquitto/libcommon_random.h>
-#include <mosquitto/libcommon_string.h>
-#include <mosquitto/libcommon_time.h>
-#include <mosquitto/libcommon_topic.h>
-#include <mosquitto/libcommon_utf8.h>
+/*
+ * Function: mosquitto_getrandom
+ *
+ * Get random bytes.
+ *
+ * Parameters:
+ *	bytes -  a buffer to store the random bytes, at least count bytes long.
+ *	count -  the number or bytes to retrieve
+ *
+ * Returns:
+ *	MOSQ_ERR_SUCCESS -        on success
+ * 	MOSQ_ERR_UNKNOWN -        if an error occurred
+ */
+int mosquitto_getrandom(void *bytes, int count);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

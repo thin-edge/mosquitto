@@ -52,7 +52,7 @@ static char *clientid_gen(uint16_t *idlen, const char *auto_id_prefix, uint16_t 
 	uint8_t rnd[16];
 	int pos;
 
-	if(util__random_bytes(rnd, 16)) return NULL;
+	if(mosquitto_getrandom(rnd, 16)) return NULL;
 
 	*idlen = (uint16_t)(auto_id_prefix_len + 36);
 

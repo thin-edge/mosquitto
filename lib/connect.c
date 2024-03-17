@@ -60,7 +60,7 @@ static int mosquitto__connect_init(struct mosquitto *mosq, const char *host, int
 		mosq->id[3] = 'q';
 		mosq->id[4] = '-';
 
-		rc = util__random_bytes(&mosq->id[5], 18);
+		rc = mosquitto_getrandom(&mosq->id[5], 18);
 		if(rc) return rc;
 
 		for(i=5; i<23; i++){

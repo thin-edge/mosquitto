@@ -865,7 +865,7 @@ static void bridge__packet_cleanup(struct mosquitto *context)
 static int rand_between(int low, int high)
 {
 	int r;
-	util__random_bytes(&r, sizeof(int));
+	mosquitto_getrandom(&r, sizeof(int));
 	return (abs(r) % (high - low)) + low;
 }
 

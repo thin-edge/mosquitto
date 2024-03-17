@@ -98,7 +98,7 @@ void ws__prepare_packet(struct mosquitto *mosq, struct mosquitto__packet *packet
 		packet->to_process = packet->packet_length - WS_PACKET_OFFSET + masking_offset + 10;
 	}
 	if(mosq->wsd.is_client){
-		util__random_bytes(&packet->payload[WS_PACKET_OFFSET-sizeof(uint32_t)], sizeof(uint32_t));
+		mosquitto_getrandom(&packet->payload[WS_PACKET_OFFSET-sizeof(uint32_t)], sizeof(uint32_t));
 		for(uint32_t i=0; i<packet->packet_length - WS_PACKET_OFFSET; i++){
 			packet->payload[WS_PACKET_OFFSET + i] ^= packet->payload[WS_PACKET_OFFSET-sizeof(uint32_t)+(i%4)];
 		}

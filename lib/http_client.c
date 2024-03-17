@@ -38,7 +38,7 @@ Contributors:
 static int create_request_key(char **encoded)
 {
 	uint8_t bytes[16];
-	util__random_bytes(bytes, sizeof(bytes));
+	mosquitto_getrandom(bytes, sizeof(bytes));
 	return mosquitto_base64_encode(bytes, sizeof(bytes), encoded);
 }
 

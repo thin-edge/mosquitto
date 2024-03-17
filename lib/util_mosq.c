@@ -233,42 +233,6 @@ void util__decrement_send_quota(struct mosquitto *mosq)
 }
 
 
-int util__random_bytes(void *bytes, int count)
-{
-	int rc = MOSQ_ERR_UNKNOWN;
-
-#ifdef WITH_TLS
-	if(RAND_bytes(bytes, count) == 1){
-		rc = MOSQ_ERR_SUCCESS;
-	}
-#elif defined(HAVE_GETRANDOM)
-	if(getrandom(bytes, (size_t)count, 0) == count){
-		rc = MOSQ_ERR_SUCCESS;
-	}
-#elif defined(WIN32)
-	HCRYPTPROV provider;
-
-	if(!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)){
-		return MOSQ_ERR_UNKNOWN;
-	}
-
-	if(CryptGenRandom(provider, count, bytes)){
-		rc = MOSQ_ERR_SUCCESS;
-	}
-
-	CryptReleaseContext(provider, 0);
-#else
-	int i;
-
-	for(i=0; i<count; i++){
-		((uint8_t *)bytes)[i] = (uint8_t )(random()&0xFF);
-	}
-	rc = MOSQ_ERR_SUCCESS;
-#endif
-	return rc;
-}
-
-
 int mosquitto__set_state(struct mosquitto *mosq, enum mosquitto_client_state state)
 {
 	pthread_mutex_lock(&mosq->state_mutex);
