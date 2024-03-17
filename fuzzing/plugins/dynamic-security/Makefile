@@ -13,7 +13,12 @@ LOCAL_CPPFLAGS+= \
 	-DWITH_SYS_TREE -DWITH_TLS -DWITH_TLS_PSK -DWITH_UNIX_SOCKETS -DWITH_WEBSOCKETS=WS_IS_BUILTIN
 LOCAL_CXXFLAGS+=-g -Wall -Werror -pthread
 LOCAL_LDFLAGS+=
-LOCAL_LIBADD+=$(LIB_FUZZING_ENGINE) ${R}/plugins/dynamic-security/mosquitto_dynamic_security.a ${R}/src/mosquitto_broker.a -lssl -lcrypto -lcjson -Wl,-Bstatic -largon2 -Wl,-Bdynamic -lm
+LOCAL_LIBADD+=$(LIB_FUZZING_ENGINE) \
+			  ${R}/plugins/dynamic-security/mosquitto_dynamic_security.a \
+			  ${R}/src/mosquitto_broker.a \
+			  ${R}/libcommon/libmosquitto_common.a \
+			  -lssl -lcrypto -lcjson -lm \
+			  -Wl,-Bstatic -largon2 -Wl,-Bdynamic
 
 all: $(FUZZERS)
 
