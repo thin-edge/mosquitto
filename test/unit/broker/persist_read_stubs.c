@@ -5,7 +5,6 @@
 #include <mosquitto_broker_internal.h>
 #include <net_mosq.h>
 #include <send_mosq.h>
-#include <time_mosq.h>
 #include <callbacks.h>
 
 extern char *last_sub;
@@ -100,11 +99,6 @@ int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, 
 	UNUSED(fmt);
 
 	return 0;
-}
-
-time_t mosquitto_time(void)
-{
-	return 123;
 }
 
 bool net__is_connected(struct mosquitto *mosq)

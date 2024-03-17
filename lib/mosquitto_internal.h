@@ -61,7 +61,7 @@ Contributors:
 #endif
 
 #include "mosquitto.h"
-#include "time_mosq.h"
+#include "mosquitto/libcommon_time.h"
 #ifdef WITH_BROKER
 #  ifdef __linux__
 #    include <netdb.h>

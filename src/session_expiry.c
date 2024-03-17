@@ -25,7 +25,6 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "memory_mosq.h"
 #include "sys_tree.h"
-#include "time_mosq.h"
 
 static struct session_expiry_list *expiry_list = NULL;
 static time_t last_check = 0;

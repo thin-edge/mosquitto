@@ -35,7 +35,6 @@ Contributors:
 #include <time.h>
 
 #include "mosquitto.h"
-#include "time_mosq.h"
 
 time_t mosquitto_time(void)
 {

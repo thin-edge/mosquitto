@@ -36,7 +36,6 @@ Contributors:
 #include "packet_mosq.h"
 #include "property_mosq.h"
 #include "send_mosq.h"
-#include "time_mosq.h"
 #include "util_mosq.h"
 
 int send__pingreq(struct mosquitto *mosq)

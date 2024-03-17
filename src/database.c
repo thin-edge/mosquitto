@@ -26,7 +26,6 @@ Contributors:
 #include "memory_mosq.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
-#include "time_mosq.h"
 #include "util_mosq.h"
 
 /**

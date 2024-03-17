@@ -1,13 +1,11 @@
 #include "config.h"
 
-#include <time.h>
 #include <sys/types.h>
 #include "callbacks.h"
 #include "logging_mosq.h"
 #include "net_mosq.h"
 #include "read_handle.h"
 #include "send_mosq.h"
-#include "time_mosq.h"
 
 struct mosquitto_db{
 
@@ -24,11 +22,6 @@ int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, 
 	UNUSED(fmt);
 
 	return 0;
-}
-
-time_t mosquitto_time(void)
-{
-	return 123;
 }
 
 int mosquitto_acl_check(struct mosquitto *context, const char *topic, uint32_t payloadlen, void* payload, uint8_t qos, bool retain, int access)

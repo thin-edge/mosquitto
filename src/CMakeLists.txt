@@ -72,7 +72,6 @@ set (MOSQ_SRCS
 	session_expiry.c
 	subs.c
 	sys_tree.c sys_tree.h
-	../common/time_mosq.c ../common/time_mosq.h
 	../lib/tls_mosq.c
 	topic_tok.c
 	../lib/util_mosq.c ../lib/util_topic.c ../lib/util_mosq.h

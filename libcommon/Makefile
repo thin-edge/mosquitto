@@ -13,6 +13,7 @@ LOCAL_LIBADD+=
 
 OBJS= \
 	strings_common.o \
+	time_common.o \
 	utf8_common.o
 
 all : libmosquitto_common.a

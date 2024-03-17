@@ -47,7 +47,6 @@ set(C_SRC
 	socks_mosq.c
 	srv_mosq.c
 	thread_mosq.c
-	../common/time_mosq.c ../common/time_mosq.h
 	tls_mosq.c
 	util_mosq.c util_topic.c util_mosq.h
 	will_mosq.c will_mosq.h)

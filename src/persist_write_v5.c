@@ -36,7 +36,6 @@ Contributors:
 #include "persist.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
-#include "time_mosq.h"
 #include "util_mosq.h"
 
 int persist__chunk_cfg_write_v6(FILE *db_fptr, struct PF_cfg *chunk)

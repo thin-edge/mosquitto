@@ -5,7 +5,6 @@
 #include <mosquitto_broker_internal.h>
 #include <net_mosq.h>
 #include <send_mosq.h>
-#include <time_mosq.h>
 
 int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
 {

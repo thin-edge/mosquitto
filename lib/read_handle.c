@@ -31,7 +31,6 @@ Contributors:
 #include "packet_mosq.h"
 #include "read_handle.h"
 #include "send_mosq.h"
-#include "time_mosq.h"
 #include "util_mosq.h"
 
 int handle__packet(struct mosquitto *mosq)

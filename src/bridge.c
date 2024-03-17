@@ -50,7 +50,6 @@ Contributors:
 #include "packet_mosq.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
-#include "time_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
 #include "will_mosq.h"

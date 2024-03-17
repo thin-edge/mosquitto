@@ -53,7 +53,6 @@ Contributors:
 #include "memory_mosq.h"
 #include "net_mosq.h"
 #include "send_mosq.h"
-#include "time_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
 
