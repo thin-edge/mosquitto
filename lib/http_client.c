@@ -25,7 +25,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_internal.h"
-#include "base64_mosq.h"
 #include "http_client.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
@@ -40,7 +39,7 @@ static int create_request_key(char **encoded)
 {
 	uint8_t bytes[16];
 	util__random_bytes(bytes, sizeof(bytes));
-	return base64__encode(bytes, sizeof(bytes), encoded);
+	return mosquitto_base64_encode(bytes, sizeof(bytes), encoded);
 }
 
 

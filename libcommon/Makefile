@@ -12,6 +12,7 @@ LOCAL_LIBADD+=
 .PHONY : really clean install
 
 OBJS= \
+	base64_common.o \
 	memory_common.o \
 	mqtt_common.o \
 	property_common.o \

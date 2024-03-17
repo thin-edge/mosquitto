@@ -18,23 +18,18 @@ Contributors:
 
 #include "config.h"
 
-#include <errno.h>
 #ifdef WITH_TLS
 #  include <openssl/opensslv.h>
 #  include <openssl/evp.h>
 #  include <openssl/rand.h>
 #  include <openssl/buffer.h>
 #endif
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "mosquitto.h"
-#include "base64_mosq.h"
 
 #ifdef WITH_TLS
-int base64__encode(const unsigned char *in, size_t in_len, char **encoded)
+int mosquitto_base64_encode(const unsigned char *in, size_t in_len, char **encoded)
 {
 	BIO *bmem, *b64;
 	BUF_MEM *bptr = NULL;
@@ -65,7 +60,7 @@ int base64__encode(const unsigned char *in, size_t in_len, char **encoded)
 }
 
 
-int base64__decode(const char *in, unsigned char **decoded, unsigned int *decoded_len)
+int mosquitto_base64_decode(const char *in, unsigned char **decoded, unsigned int *decoded_len)
 {
 	BIO *bmem, *b64;
 	size_t slen;

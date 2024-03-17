@@ -22,7 +22,6 @@ Contributors:
 #include <uthash.h>
 #include "mosquitto.h"
 #include "password_mosq.h"
-#include "base64_mosq.h"
 
 #define PRIORITY_MAX 100000
 

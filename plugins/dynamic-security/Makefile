@@ -31,7 +31,6 @@ OBJS = \
 	tick.o
 
 OBJS_EXTERNAL = \
-	base64_mosq.o \
 	json_help.o \
 	misc_mosq.o \
 	password_mosq.o \
@@ -45,9 +44,6 @@ ALL_DEPS:=
 endif
 
 all : ${ALL_DEPS}
-
-base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@

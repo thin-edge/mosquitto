@@ -27,7 +27,6 @@ Contributors:
 #include <stddef.h>
 #include <string.h>
 
-#include "base64_mosq.h"
 #include "mosquitto_internal.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
@@ -350,7 +349,7 @@ int ws__create_accept_key(const char *client_key, size_t client_key_len, char **
 
 				if(EVP_DigestFinal_ex(evp, accept_key_hash, &accept_key_hash_len) != 0){
 					EVP_MD_CTX_free(evp);
-					return base64__encode(accept_key_hash, accept_key_hash_len, encoded);
+					return mosquitto_base64_encode(accept_key_hash, accept_key_hash_len, encoded);
 				}
 			}
 		}

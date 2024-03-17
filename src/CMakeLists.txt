@@ -1,6 +1,5 @@
 set (MOSQ_SRCS
 	../lib/alias_mosq.c ../lib/alias_mosq.h
-	../common/base64_mosq.c ../common/base64_mosq.h
 	bridge.c bridge_topic.c
 	broker_control.c
 	conf.c

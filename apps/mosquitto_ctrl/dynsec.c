@@ -32,7 +32,6 @@ Contributors:
 
 #include "mosquitto_ctrl.h"
 #include "mosquitto.h"
-#include "base64_mosq.h"
 #include "json_help.h"
 #include "password_mosq.h"
 #include "get_password.h"
@@ -587,8 +586,8 @@ static cJSON *init_add_client(const char *username, const char *password, const 
 	if(pw.hashtype == pw_sha512_pbkdf2){
 		char *salt_b64 = NULL, *password_b64 = NULL;
 
-		if(base64__encode(pw.params.sha512_pbkdf2.salt, pw.params.sha512_pbkdf2.salt_len, &salt_b64)
-				|| base64__encode(pw.params.sha512_pbkdf2.password_hash, sizeof(pw.params.sha512_pbkdf2.password_hash), &password_b64)
+		if(mosquitto_base64_encode(pw.params.sha512_pbkdf2.salt, pw.params.sha512_pbkdf2.salt_len, &salt_b64)
+				|| mosquitto_base64_encode(pw.params.sha512_pbkdf2.password_hash, sizeof(pw.params.sha512_pbkdf2.password_hash), &password_b64)
 				|| cJSON_AddStringToObject(j_client, "salt", salt_b64) == NULL
 				|| cJSON_AddStringToObject(j_client, "password", password_b64) == NULL
 				|| cJSON_AddNumberToObject(j_client, "iterations", pw.params.sha512_pbkdf2.iterations) == NULL){

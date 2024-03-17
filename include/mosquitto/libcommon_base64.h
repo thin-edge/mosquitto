@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012-2020 Roger Light <roger@atchoo.org>
+Copyright (c) 2010-2021 Roger Light <roger@atchoo.org>
 
 All rights reserved. This program and the accompanying materials
 are made available under the terms of the Eclipse Public License 2.0
@@ -15,18 +15,23 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef BASE64_MOSQ_H
-#define BASE64_MOSQ_H
 
+#ifndef MOSQUITTO_LIBCOMMON_BASE64_H
+#define MOSQUITTO_LIBCOMMON_BASE64_H
+
+/*
+ * File: mosquitto/libcommon_base64.h
+ *
+ * This header contains functions for handling base64
+ */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int base64__encode(const unsigned char *in, size_t in_len, char **encoded);
-int base64__decode(const char *in, unsigned char **decoded, unsigned int *decoded_len);
+int mosquitto_base64_encode(const unsigned char *in, size_t in_len, char **encoded);
+int mosquitto_base64_decode(const char *in, unsigned char **decoded, unsigned int *decoded_len);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

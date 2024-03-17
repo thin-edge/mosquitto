@@ -2,7 +2,6 @@ if(WITH_TLS)
 	add_executable(mosquitto_passwd
 		mosquitto_passwd.c
 		get_password.c get_password.h
-		../../common/base64_mosq.c ../../common/base64_mosq.h
 		../../common/misc_mosq.c ../../common/misc_mosq.h
 		../../common/password_mosq.c ../../common/password_mosq.h
 	)

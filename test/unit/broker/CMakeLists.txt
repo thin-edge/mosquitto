@@ -12,7 +12,7 @@ add_executable(bridge-topic-test
     stubs.c
 )
 target_compile_definitions(bridge-topic-test PRIVATE WITH_BRIDGE WITH_BROKER)
-target_link_libraries(bridge-topic-test PRIVATE bridge-topic-obj common-unit-test-header libmosquitto_common)
+target_link_libraries(bridge-topic-test PRIVATE bridge-topic-obj common-unit-test-header libmosquitto_common OpenSSL::SSL)
 add_test(NAME unit-bridge-topic-test COMMAND bridge-topic-test)
 
 # keepalive-test
@@ -21,7 +21,7 @@ add_executable(keepalive-test
     keepalive_stubs.c
 )
 target_compile_definitions(keepalive-test PRIVATE WITH_BROKER)
-target_link_libraries(keepalive-test PRIVATE common-unit-test-header libmosquitto_common)
+target_link_libraries(keepalive-test PRIVATE common-unit-test-header libmosquitto_common OpenSSL::SSL)
 add_test(NAME unit-keepalive-test COMMAND keepalive-test)
 
 # persist-read-test
@@ -99,5 +99,5 @@ add_executable(subs-test
 )
 
 target_compile_definitions(subs-test PRIVATE WITH_PERSISTENCE WITH_BROKER WITH_SYS_TREE)
-target_link_libraries(subs-test PRIVATE common-unit-test-header subs-obj libmosquitto_common)
+target_link_libraries(subs-test PRIVATE common-unit-test-header subs-obj libmosquitto_common OpenSSL::SSL)
 add_test(NAME unit-subs-test COMMAND subs-test)

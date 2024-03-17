@@ -1,7 +1,6 @@
 if(WITH_TLS AND CJSON_FOUND)
 	add_executable(mosquitto_ctrl
 		mosquitto_ctrl.c mosquitto_ctrl.h
-		../../common/base64_mosq.c ../../common/base64_mosq.h
 		broker.c
 		client.c
 		dynsec.c
@@ -58,6 +57,7 @@ if(WITH_TLS AND CJSON_FOUND)
 	target_link_libraries(mosquitto_ctrl
 	  PRIVATE
 	  	common-options
+		libmosquitto_common
 		OpenSSL::SSL
 		cJSON
 	)

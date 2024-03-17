@@ -1,4 +1,5 @@
 set(C_SRC
+	base64_common.c
 	memory_common.c
 	mqtt_common.c
 	property_common.c

@@ -86,7 +86,6 @@ if(WITH_WEBSOCKETS AND WITH_WEBSOCKETS_BUILTIN)
 	add_definitions("-DWITH_WEBSOCKETS=WS_IS_BUILTIN")
 	set(C_SRC ${C_SRC}
 		../deps/picohttpparser/picohttpparser.c
-		../common/base64_mosq.c ../common/base64_mosq.h
 		http_client.c http_client.h
 		net_ws.c
 		)

@@ -25,7 +25,6 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "send_mosq.h"
-#include "base64_mosq.h"
 #include "misc_mosq.h"
 #include "util_mosq.h"
 

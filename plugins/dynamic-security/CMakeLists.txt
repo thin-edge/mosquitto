@@ -4,7 +4,6 @@ if(WITH_TLS)
 	set(SRCLIST
 		acl.c
 		auth.c
-		../../common/base64_mosq.c ../../common/base64_mosq.h
 		clients.c
 		clientlist.c
 		config.c

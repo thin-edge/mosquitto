@@ -164,7 +164,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 					client->pw.hashtype = pw_sha512_pbkdf2;
 					client->pw.params.sha512_pbkdf2.iterations = iterations;
 
-					if(base64__decode(salt, &buf, &buf_len) != MOSQ_ERR_SUCCESS
+					if(mosquitto_base64_decode(salt, &buf, &buf_len) != MOSQ_ERR_SUCCESS
 							|| buf_len > sizeof(client->pw.params.sha512_pbkdf2.salt)){
 
 						mosquitto_free(buf);
@@ -175,7 +175,7 @@ int dynsec_clients__config_load(struct dynsec__data *data, cJSON *tree)
 					client->pw.params.sha512_pbkdf2.salt_len = (size_t)buf_len;
 					mosquitto_free(buf);
 
-					if(base64__decode(password, &buf, &buf_len) != MOSQ_ERR_SUCCESS
+					if(mosquitto_base64_decode(password, &buf, &buf_len) != MOSQ_ERR_SUCCESS
 							|| buf_len != sizeof(client->pw.params.sha512_pbkdf2.password_hash)){
 
 						mosquitto_free(buf);
@@ -279,7 +279,7 @@ static int dynsec__config_add_clients(struct dynsec__data *data, cJSON *j_client
 			if(client->pw.hashtype == pw_sha512_pbkdf2){
 				char *buf;
 
-				if(base64__encode(client->pw.params.sha512_pbkdf2.password_hash, sizeof(client->pw.params.sha512_pbkdf2.password_hash), &buf) != MOSQ_ERR_SUCCESS){
+				if(mosquitto_base64_encode(client->pw.params.sha512_pbkdf2.password_hash, sizeof(client->pw.params.sha512_pbkdf2.password_hash), &buf) != MOSQ_ERR_SUCCESS){
 					return 1;
 				}
 				cJSON *jtmp = cJSON_CreateString(buf);
@@ -287,7 +287,7 @@ static int dynsec__config_add_clients(struct dynsec__data *data, cJSON *j_client
 				if(jtmp == NULL) return 1;
 				cJSON_AddItemToObject(j_client, "password", jtmp);
 
-				if(base64__encode(client->pw.params.sha512_pbkdf2.salt, client->pw.params.sha512_pbkdf2.salt_len, &buf) != MOSQ_ERR_SUCCESS){
+				if(mosquitto_base64_encode(client->pw.params.sha512_pbkdf2.salt, client->pw.params.sha512_pbkdf2.salt_len, &buf) != MOSQ_ERR_SUCCESS){
 					return 1;
 				}
 

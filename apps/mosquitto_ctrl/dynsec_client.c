@@ -240,11 +240,11 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 						char *password_b64, *salt_b64;
 						cJSON *j_password = NULL, *j_salt = NULL, *j_iterations = NULL;
 
-						if(base64__encode(client.pw.params.sha512_pbkdf2.password_hash, sizeof(client.pw.params.sha512_pbkdf2.password_hash), &password_b64) != MOSQ_ERR_SUCCESS){
+						if(mosquitto_base64_encode(client.pw.params.sha512_pbkdf2.password_hash, sizeof(client.pw.params.sha512_pbkdf2.password_hash), &password_b64) != MOSQ_ERR_SUCCESS){
 							fprintf(stderr, "Error: Problem generating password hash.\n");
 							return MOSQ_ERR_NOMEM;
 						}
-						if(base64__encode(client.pw.params.sha512_pbkdf2.salt, client.pw.params.sha512_pbkdf2.salt_len, &salt_b64) != MOSQ_ERR_SUCCESS){
+						if(mosquitto_base64_encode(client.pw.params.sha512_pbkdf2.salt, client.pw.params.sha512_pbkdf2.salt_len, &salt_b64) != MOSQ_ERR_SUCCESS){
 							free(password_b64);
 							fprintf(stderr, "Error: Problem generating password hash.\n");
 							return MOSQ_ERR_NOMEM;

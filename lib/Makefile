@@ -83,7 +83,6 @@ OBJS= \
 	will_mosq.o
 
 OBJS_EXTERNAL= \
-	base64_mosq.o \
 	misc_mosq.o \
 	password_mosq.o
 
@@ -142,9 +141,6 @@ libmosquitto.a : ${OBJS} ${OBJS_EXTERNAL}
 
 ${OBJS} : %.o: %.c ${R}/include/mosquitto.h mosquitto_internal.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@

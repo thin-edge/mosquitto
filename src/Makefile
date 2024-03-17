@@ -112,7 +112,6 @@ OBJS=	mosquitto.o \
 
 OBJS_EXTERNAL= \
 		alias_mosq.o \
-		base64_mosq.o \
 		handle_ping.o \
 		handle_pubackcomp.o \
 		handle_pubrec.o \
@@ -152,9 +151,6 @@ ${OBJS} : %.o: %.c mosquitto_broker_internal.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 alias_mosq.o : ${R}/lib/alias_mosq.c ${R}/lib/alias_mosq.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 handle_ping.o : ${R}/lib/handle_ping.c ${R}/lib/read_handle.h

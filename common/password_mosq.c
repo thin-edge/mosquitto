@@ -26,7 +26,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto.h"
-#include "base64_mosq.h"
 #include "password_mosq.h"
 
 #ifdef WIN32
@@ -221,12 +220,12 @@ static int pw__encode_sha512_pbkdf2(struct mosquitto_pw *pw)
 	int rc;
 	char *salt64 = NULL, *hash64 = NULL;
 
-	rc = base64__encode(pw->params.sha512_pbkdf2.salt, pw->params.sha512_pbkdf2.salt_len, &salt64);
+	rc = mosquitto_base64_encode(pw->params.sha512_pbkdf2.salt, pw->params.sha512_pbkdf2.salt_len, &salt64);
 	if(rc){
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	rc = base64__encode(pw->params.sha512_pbkdf2.password_hash, sizeof(pw->params.sha512_pbkdf2.password_hash), &hash64);
+	rc = mosquitto_base64_encode(pw->params.sha512_pbkdf2.password_hash, sizeof(pw->params.sha512_pbkdf2.password_hash), &hash64);
 	if(rc){
 		free(salt64);
 		return MOSQ_ERR_UNKNOWN;
@@ -278,7 +277,7 @@ static int pw__decode_sha512_pbkdf2(struct mosquitto_pw *pw, const char *salt_pa
 		return MOSQ_ERR_INVAL;
 	}
 
-	rc = base64__decode(salt_b64, &salt, &salt_len);
+	rc = mosquitto_base64_decode(salt_b64, &salt, &salt_len);
 	if(rc != MOSQ_ERR_SUCCESS || (salt_len != 12 && salt_len != HASH_LEN)){
 		free(sp_heap);
 		free(salt);
@@ -294,7 +293,7 @@ static int pw__decode_sha512_pbkdf2(struct mosquitto_pw *pw, const char *salt_pa
 		return MOSQ_ERR_INVAL;
 	}
 
-	rc = base64__decode(password_b64, &password, &password_len);
+	rc = mosquitto_base64_decode(password_b64, &password, &password_len);
 	free(sp_heap);
 
 	if(rc != MOSQ_ERR_SUCCESS || password_len != HASH_LEN){
@@ -391,12 +390,12 @@ static int pw__encode_sha512(struct mosquitto_pw *pw)
 	int rc;
 	char *salt64 = NULL, *hash64 = NULL;
 
-	rc = base64__encode(pw->params.sha512.salt, pw->params.sha512.salt_len, &salt64);
+	rc = mosquitto_base64_encode(pw->params.sha512.salt, pw->params.sha512.salt_len, &salt64);
 	if(rc){
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	rc = base64__encode(pw->params.sha512.password_hash, sizeof(pw->params.sha512.password_hash), &hash64);
+	rc = mosquitto_base64_encode(pw->params.sha512.password_hash, sizeof(pw->params.sha512.password_hash), &hash64);
 	if(rc){
 		return MOSQ_ERR_UNKNOWN;
 	}
@@ -435,7 +434,7 @@ static int pw__decode_sha512(struct mosquitto_pw *pw, const char *salt_password)
 		return MOSQ_ERR_INVAL;
 	}
 
-	rc = base64__decode(salt_b64, &salt, &salt_len);
+	rc = mosquitto_base64_decode(salt_b64, &salt, &salt_len);
 	if(rc != MOSQ_ERR_SUCCESS || (salt_len != 12 && salt_len != HASH_LEN)){
 		free(sp_heap);
 		free(salt);
@@ -451,7 +450,7 @@ static int pw__decode_sha512(struct mosquitto_pw *pw, const char *salt_password)
 		return MOSQ_ERR_INVAL;
 	}
 
-	rc = base64__decode(password_b64, &password, &password_len);
+	rc = mosquitto_base64_decode(password_b64, &password, &password_len);
 	free(sp_heap);
 
 	if(rc != MOSQ_ERR_SUCCESS || password_len != HASH_LEN){
