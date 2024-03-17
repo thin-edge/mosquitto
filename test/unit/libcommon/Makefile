@@ -13,6 +13,7 @@ ifeq ($(WITH_TLS),yes)
 endif
 
 TEST_OBJS = \
+	strings_test.o \
 	test.o \
 	utf8.o \
 

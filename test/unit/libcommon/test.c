@@ -4,6 +4,7 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
+int init_strings_tests(void);
 int init_utf8_tests(void);
 
 int main(int argc, char *argv[])
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
     }
 
     if(0
+			|| init_strings_tests()
 			|| init_utf8_tests()
 			){
 

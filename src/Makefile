@@ -136,7 +136,6 @@ OBJS_EXTERNAL= \
 		send_publish.o \
 		send_subscribe.o \
 		send_unsubscribe.o \
-		strings_mosq.o \
 		time_mosq.o \
 		tls_mosq.o \
 		util_mosq.o \
@@ -229,9 +228,6 @@ send_subscribe.o : ${R}/lib/send_subscribe.c ${R}/lib/send_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 send_unsubscribe.o : ${R}/lib/send_unsubscribe.c ${R}/lib/send_mosq.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-strings_mosq.o : ${R}/lib/strings_mosq.c mosquitto_broker_internal.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 time_mosq.o : ${R}/common/time_mosq.c ${R}/common/time_mosq.h

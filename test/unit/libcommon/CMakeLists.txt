@@ -1,6 +1,7 @@
 add_executable(libcommon-test
-	utf8.c
+	strings_test.c
 	test.c
+	utf8.c
 )
 
 target_link_libraries(libcommon-test

@@ -12,6 +12,7 @@ LOCAL_LIBADD+=
 .PHONY : really clean install
 
 OBJS= \
+	strings_common.o \
 	utf8_common.o
 
 all : libmosquitto_common.a

@@ -7,7 +7,6 @@ add_executable(lib-test
 	property_user_read.c
 	property_write.c
 	property_value.c
-	strings_test.c
 	stubs.c
 	util_topic_test.c
 	# main test files
@@ -17,7 +16,6 @@ add_executable(lib-test
 	../../../lib/packet_datatypes.c
 	../../../lib/packet_mosq.c
 	../../../lib/property_mosq.c
-	../../../lib/strings_mosq.c
 	../../../lib/util_mosq.c
 	../../../lib/util_topic.c
 )

@@ -1,4 +1,5 @@
 set(C_SRC
+	strings_common.c
 	utf8_common.c
 )
 

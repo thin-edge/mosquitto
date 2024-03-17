@@ -22,7 +22,6 @@ TEST_OBJS = \
 	property_user_read.o \
 	property_write.o \
 	property_value.o \
-	strings_test.o \
 	stubs.o \
 	util_topic_test.o
 
@@ -32,7 +31,6 @@ LIB_OBJS = \
 	${R}/lib/packet_datatypes.o \
 	${R}/lib/packet_mosq.o \
 	${R}/lib/property_mosq.o \
-	${R}/lib/strings_mosq.o \
 	${R}/lib/util_mosq.o \
 	${R}/lib/util_topic.o
 
@@ -64,9 +62,6 @@ ${R}/lib/packet_mosq.o : ${R}/lib/packet_mosq.c
 
 ${R}/lib/property_mosq.o : ${R}/lib/property_mosq.c
 	$(MAKE) -C ${R}/lib/ property_mosq.o
-
-${R}/lib/strings_mosq.o : ${R}/lib/strings_mosq.c
-	$(MAKE) -C ${R}/lib/ strings_mosq.o
 
 ${R}/lib/util_mosq.o : ${R}/lib/util_mosq.c
 	$(MAKE) -C ${R}/lib/ util_mosq.o

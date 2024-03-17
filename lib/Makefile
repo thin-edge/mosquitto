@@ -78,7 +78,6 @@ OBJS= \
 	send_unsubscribe.o \
 	socks_mosq.o \
 	srv_mosq.o \
-	strings_mosq.o \
 	thread_mosq.o \
 	tls_mosq.o \
 	util_mosq.o \
