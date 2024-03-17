@@ -36,6 +36,7 @@ Contributors:
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "property_common.h"
 #include "send_mosq.h"
 #include "utlist.h"
 
@@ -224,7 +225,7 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 	if(qos > 0) packetlen += 2; /* For message id */
 	if(mosq->protocol == mosq_p_mqtt5){
 		proplen = 0;
-		proplen += property__get_length_all(store_props);
+		proplen += mosquitto_property_get_length_all(store_props);
 		if(expiry_interval > 0){
 			expiry_prop.next = NULL;
 			expiry_prop.value.i32 = expiry_interval;
@@ -232,7 +233,7 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 			expiry_prop.property_type = MQTT_PROP_TYPE_INT32;
 			expiry_prop.client_generated = false;
 
-			proplen += property__get_length_all(&expiry_prop);
+			proplen += mosquitto_property_get_length_all(&expiry_prop);
 		}
 #ifdef WITH_BROKER
 		if(topic_alias != 0){
@@ -242,7 +243,7 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 			topic_alias_prop.property_type = MQTT_PROP_TYPE_INT16;
 			topic_alias_prop.client_generated = false;
 
-			proplen += property__get_length_all(&topic_alias_prop);
+			proplen += mosquitto_property_get_length_all(&topic_alias_prop);
 		}
 		if(subscription_identifier){
 			subscription_id_prop.next = NULL;
@@ -251,11 +252,11 @@ int send__real_publish(struct mosquitto *mosq, uint16_t mid, const char *topic, 
 			subscription_id_prop.property_type = MQTT_PROP_TYPE_VARINT;
 			subscription_id_prop.client_generated = false;
 
-			proplen += property__get_length_all(&subscription_id_prop);
+			proplen += mosquitto_property_get_length_all(&subscription_id_prop);
 		}
 #endif
 
-		varbytes = packet__varint_bytes(proplen);
+		varbytes = mosquitto_varint_bytes(proplen);
 		if(varbytes > 4){
 			/* FIXME - Properties too big, don't publish any - should remove some first really */
 			store_props = NULL;

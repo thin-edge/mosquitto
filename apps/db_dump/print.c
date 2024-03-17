@@ -35,38 +35,39 @@ static void print__properties(mosquitto_property *properties)
 	printf("\tProperties:\n");
 
 	while(properties){
-		switch(properties->identifier){
+		switch(mosquitto_property_identifier(properties)){
 			/* Only properties for base messages are valid for saving */
 			case MQTT_PROP_PAYLOAD_FORMAT_INDICATOR:
-				printf("\t\tPayload format indicator: %d\n", properties->value.i8);
+				printf("\t\tPayload format indicator: %d\n", mosquitto_property_byte_value(properties));
 				break;
 
 			case MQTT_PROP_CONTENT_TYPE:
-				printf("\t\tContent type: %s\n", properties->value.s.v);
+				printf("\t\tContent type: %s\n", mosquitto_property_string_value(properties));
 				break;
 
 			case MQTT_PROP_RESPONSE_TOPIC:
-				printf("\t\tResponse topic: %s\n", properties->value.s.v);
+				printf("\t\tResponse topic: %s\n", mosquitto_property_string_value(properties));
 				break;
 
 			case MQTT_PROP_CORRELATION_DATA:
 				printf("\t\tCorrelation data: ");
-				for(i=0; i<properties->value.bin.len; i++){
-					printf("%02X", properties->value.bin.v[i]);
+				const uint8_t *bin = mosquitto_property_binary_value(properties);
+				for(i=0; i<mosquitto_property_binary_value_length(properties); i++){
+					printf("%02X", bin[i]);
 				}
 				printf("\n");
 				break;
 
 			case MQTT_PROP_USER_PROPERTY:
-				printf("\t\tUser property: %s , %s\n", properties->name.v, properties->value.s.v);
+				printf("\t\tUser property: %s , %s\n", mosquitto_property_string_name(properties), mosquitto_property_string_value(properties));
 				break;
 
 			default:
-				printf("\t\tInvalid property type: %d\n", properties->identifier);
+				printf("\t\tInvalid property type: %d\n", mosquitto_property_identifier(properties));
 				break;
 		}
 
-		properties = properties->next;
+		properties = mosquitto_property_next(properties);
 	}
 }
 

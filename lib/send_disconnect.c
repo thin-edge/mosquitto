@@ -59,7 +59,7 @@ int send__disconnect(struct mosquitto *mosq, uint8_t reason_code, const mosquitt
 	if(mosq->protocol == mosq_p_mqtt5 && (reason_code != 0 || properties)){
 		remaining_length = 1;
 		if(properties){
-			remaining_length += property__get_remaining_length(properties);
+			remaining_length += mosquitto_property_get_remaining_length(properties);
 		}
 	}else{
 		remaining_length = 0;

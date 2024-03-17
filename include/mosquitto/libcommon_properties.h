@@ -745,6 +745,11 @@ libmosq_EXPORT const char *mosquitto_property_identifier_to_string(int identifie
 libmosq_EXPORT int mosquitto_string_to_property_info(const char *propname, int *identifier, int *type);
 
 
+void mosquitto_property_free(mosquitto_property **property);
+unsigned int mosquitto_property_get_length(const mosquitto_property *property);
+unsigned int mosquitto_property_get_length_all(const mosquitto_property *property);
+unsigned int mosquitto_property_get_remaining_length(const mosquitto_property *props);
+
 #ifdef __cplusplus
 }
 #endif

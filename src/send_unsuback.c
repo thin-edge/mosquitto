@@ -37,7 +37,7 @@ int send__unsuback(struct mosquitto *mosq, uint16_t mid, int reason_code_count, 
 
 	remaining_length = 2;
 	if(mosq->protocol == mosq_p_mqtt5){
-		remaining_length += property__get_remaining_length(properties);
+		remaining_length += mosquitto_property_get_remaining_length(properties);
 		remaining_length += (uint32_t)reason_code_count;
 	}
 

@@ -15,12 +15,33 @@ SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
 Contributors:
    Roger Light - initial implementation and documentation.
 */
-#ifndef PROPERTY_MOSQ_H
-#define PROPERTY_MOSQ_H
+#ifndef PROPERTY_COMMON_H
+#define PROPERTY_COMMON_H
 
-#include "mosquitto_internal.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-int property__read_all(int command, struct mosquitto__packet_in *packet, mosquitto_property **property);
-int property__write_all(struct mosquitto__packet *packet, const mosquitto_property *property, bool write_len);
+#include "mosquitto.h"
+
+struct mqtt__string {
+	char *v;
+	uint16_t len;
+};
+
+struct mqtt5__property {
+	struct mqtt5__property *next;
+	union {
+		uint8_t i8;
+		uint16_t i16;
+		uint32_t i32;
+		uint32_t varint;
+		struct mqtt__string bin;
+		struct mqtt__string s;
+	} value;
+	struct mqtt__string name;
+	int32_t identifier;
+	uint8_t property_type;
+	bool client_generated;
+};
 
 #endif

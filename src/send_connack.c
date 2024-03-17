@@ -75,7 +75,7 @@ int send__connack(struct mosquitto *context, uint8_t ack, uint8_t reason_code, c
 			}
 		}
 
-		remaining_length += property__get_remaining_length(connack_props);
+		remaining_length += mosquitto_property_get_remaining_length(connack_props);
 	}
 
 	if(packet__check_oversize(context, remaining_length)){

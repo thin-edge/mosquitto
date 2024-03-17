@@ -45,8 +45,6 @@ void packet__write_uint16(struct mosquitto__packet *packet, uint16_t word);
 void packet__write_uint32(struct mosquitto__packet *packet, uint32_t word);
 int packet__write_varint(struct mosquitto__packet *packet, uint32_t word);
 
-unsigned int packet__varint_bytes(uint32_t word);
-
 int packet__write(struct mosquitto *mosq);
 int packet__read(struct mosquitto *mosq);
 

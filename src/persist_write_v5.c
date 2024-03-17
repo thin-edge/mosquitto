@@ -34,6 +34,7 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "persist.h"
 #include "packet_mosq.h"
+#include "property_common.h"
 #include "property_mosq.h"
 #include "util_mosq.h"
 
@@ -95,7 +96,7 @@ int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk
 
 	if(chunk->subscription_identifier){
 		subscription_id_prop.value.varint = chunk->subscription_identifier;
-		proplen += property__get_remaining_length(&subscription_id_prop);
+		proplen += mosquitto_property_get_remaining_length(&subscription_id_prop);
 	}
 
 	chunk->F.mid = htons(chunk->F.mid);
@@ -145,7 +146,7 @@ int persist__chunk_message_store_write_v6(FILE *db_fptr, struct P_base_msg *chun
 	int rc;
 
 	if(chunk->properties){
-		proplen += property__get_remaining_length(chunk->properties);
+		proplen += mosquitto_property_get_remaining_length(chunk->properties);
 	}
 
 	chunk->F.payloadlen = htonl(chunk->F.payloadlen);

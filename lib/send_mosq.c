@@ -141,7 +141,7 @@ int send__command_with_mid(struct mosquitto *mosq, uint8_t command, uint16_t mid
 		}
 
 		if(properties){
-			remaining_length += property__get_remaining_length(properties);
+			remaining_length += mosquitto_property_get_remaining_length(properties);
 		}
 	}
 

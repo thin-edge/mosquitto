@@ -1,7 +1,7 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#include <util_mosq.h>
+#include <mosquitto.h>
 
 struct topic_test{
 	const char *topic_filter;

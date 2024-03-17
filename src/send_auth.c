@@ -47,7 +47,7 @@ int send__auth(struct mosquitto *context, uint8_t reason_code, const void *auth_
 		if(rc) goto error;
 	}
 
-	remaining_length += property__get_remaining_length(properties);
+	remaining_length += mosquitto_property_get_remaining_length(properties);
 
 	rc = packet__check_oversize(context, remaining_length);
 	if(rc) goto error;

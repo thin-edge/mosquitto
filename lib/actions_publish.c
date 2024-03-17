@@ -26,6 +26,7 @@ Contributors:
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "property_common.h"
 #include "send_mosq.h"
 #include "util_mosq.h"
 
@@ -98,7 +99,7 @@ int mosquitto_publish_v5(struct mosquitto *mosq, int *mid, const char *topic, in
 	}
 
 	if(mosq->maximum_packet_size > 0){
-		remaining_length = 1 + 2+(uint32_t)tlen + (uint32_t)payloadlen + property__get_length_all(outgoing_properties);
+		remaining_length = 1 + 2+(uint32_t)tlen + (uint32_t)payloadlen + mosquitto_property_get_length_all(outgoing_properties);
 		if(qos > 0){
 			remaining_length++;
 		}

@@ -37,7 +37,7 @@ int send__suback(struct mosquitto *context, uint16_t mid, uint32_t payloadlen, c
 
 	remaining_length = 2+payloadlen;
 	if(context->protocol == mosq_p_mqtt5){
-		remaining_length += property__get_remaining_length(properties);
+		remaining_length += mosquitto_property_get_remaining_length(properties);
 	}
 	rc = packet__alloc(&packet, CMD_SUBACK, remaining_length);
 	if(rc){

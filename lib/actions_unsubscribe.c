@@ -25,6 +25,7 @@ Contributors:
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
+#include "property_common.h"
 #include "send_mosq.h"
 
 
@@ -73,7 +74,7 @@ int mosquitto_unsubscribe_multiple(struct mosquitto *mosq, int *mid, int sub_cou
 	}
 
 	if(mosq->maximum_packet_size > 0){
-		remaining_length += 2U + property__get_length_all(outgoing_properties);
+		remaining_length += 2U + mosquitto_property_get_length_all(outgoing_properties);
 		if(packet__check_oversize(mosq, remaining_length)){
 			return MOSQ_ERR_OVERSIZE_PACKET;
 		}

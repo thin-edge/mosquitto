@@ -48,6 +48,7 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
+#include "property_common.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
 #include "util_mosq.h"
@@ -116,7 +117,7 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 			}else{
 				previous->next = mosquitto_property_next(p);
 			}
-			property__free(&p);
+			mosquitto_property_free(&p);
 			return;
 
 		}

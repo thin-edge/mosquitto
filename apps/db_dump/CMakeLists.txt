@@ -22,6 +22,7 @@ target_include_directories(mosquitto_db_dump PRIVATE
 	"${mosquitto_SOURCE_DIR}/common"
 	"${mosquitto_SOURCE_DIR}/include"
 	"${mosquitto_SOURCE_DIR}/lib"
+	"${mosquitto_SOURCE_DIR}/libcommon"
 	"${mosquitto_SOURCE_DIR}/src"
 	"${OPENSSL_INCLUDE_DIR}"
 )

@@ -6,11 +6,9 @@
 
 int init_datatype_read_tests(void);
 int init_datatype_write_tests(void);
-int init_property_add_tests(void);
 int init_property_read_tests(void);
 int init_property_user_read_tests(void);
 int init_property_write_tests(void);
-int init_property_value_tests(void);
 int init_misc_trim_tests(void);
 
 int main(int argc, char *argv[])
@@ -28,11 +26,9 @@ int main(int argc, char *argv[])
     if(0
 			|| init_datatype_read_tests()
 			|| init_datatype_write_tests()
-			|| init_property_add_tests()
 			|| init_property_read_tests()
 			|| init_property_user_read_tests()
 			|| init_property_write_tests()
-			|| init_property_value_tests()
 			|| init_misc_trim_tests()
 			){
 

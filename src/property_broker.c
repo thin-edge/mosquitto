@@ -24,6 +24,7 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "property_mosq.h"
+#include "property_common.h"
 
 /* Process the incoming properties, we should be able to assume that only valid
  * properties for CONNECT are present here. */

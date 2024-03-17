@@ -2,11 +2,9 @@ add_executable(lib-test
 	datatype_read.c
 	datatype_write.c
 	misc_trim_test.c
-	property_add.c
 	property_read.c
 	property_user_read.c
 	property_write.c
-	property_value.c
 	stubs.c
 	# main test files
 	test.c
@@ -17,5 +15,6 @@ add_executable(lib-test
 	../../../lib/util_mosq.c
 )
 
+target_include_directories(lib-test PRIVATE ${mosquitto_SOURCE_DIR}/libcommon)
 target_link_libraries(lib-test PRIVATE common-unit-test-header OpenSSL::SSL libmosquitto_common)
 add_test(NAME unit-lib-test COMMAND lib-test)

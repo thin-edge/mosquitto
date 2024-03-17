@@ -50,7 +50,7 @@ int send__subscribe(struct mosquitto *mosq, int *mid, int topic_count, char *con
 
 	packetlen = 2;
 	if(mosq->protocol == mosq_p_mqtt5){
-		packetlen += property__get_remaining_length(properties);
+		packetlen += mosquitto_property_get_remaining_length(properties);
 	}
 	for(i=0; i<topic_count; i++){
 		tlen = strlen(topic[i]);

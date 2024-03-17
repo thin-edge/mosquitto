@@ -251,19 +251,3 @@ int packet__write_varint(struct mosquitto__packet *packet, uint32_t word)
 	}
 	return MOSQ_ERR_SUCCESS;
 }
-
-
-unsigned int packet__varint_bytes(uint32_t word)
-{
-	if(word < 128){
-		return 1;
-	}else if(word < 16384){
-		return 2;
-	}else if(word < 2097152){
-		return 3;
-	}else if(word < 268435456){
-		return 4;
-	}else{
-		return 5;
-	}
-}

@@ -2,8 +2,7 @@
 #include <CUnit/Basic.h>
 
 #include "mosquitto/mqtt_protocol.h"
-#include "property_mosq.h"
-#include "packet_mosq.h"
+#include "property_common.h"
 
 static void TEST_value_byte_success(void)
 {

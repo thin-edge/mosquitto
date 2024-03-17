@@ -23,6 +23,7 @@ Contributors:
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
+#include "property_common.h"
 #include "send_mosq.h"
 
 
@@ -77,7 +78,7 @@ int mosquitto_subscribe_multiple(struct mosquitto *mosq, int *mid, int sub_count
 	}
 
 	if(mosq->maximum_packet_size > 0){
-		remaining_length += 2 + property__get_length_all(outgoing_properties);
+		remaining_length += 2 + mosquitto_property_get_length_all(outgoing_properties);
 		if(packet__check_oversize(mosq, remaining_length)){
 			return MOSQ_ERR_OVERSIZE_PACKET;
 		}

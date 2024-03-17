@@ -1,5 +1,7 @@
 set(C_SRC
 	memory_common.c
+	mqtt_common.c
+	property_common.c
 	strings_common.c
 	time_common.c
 	topic_common.c

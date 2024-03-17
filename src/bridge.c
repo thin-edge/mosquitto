@@ -41,12 +41,12 @@ Contributors:
 #include <ws2tcpip.h>
 #endif
 
-#include "mosquitto/mqtt_protocol.h"
 #include "mosquitto.h"
 #include "mosquitto_broker_internal.h"
 #include "mosquitto_internal.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
+#include "property_common.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
 #include "tls_mosq.h"

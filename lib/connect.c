@@ -27,6 +27,7 @@ Contributors:
 #include "logging_mosq.h"
 #include "messages_mosq.h"
 #include "packet_mosq.h"
+#include "property_common.h"
 #include "net_mosq.h"
 #include "send_mosq.h"
 #include "socks_mosq.h"

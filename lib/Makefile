@@ -2,7 +2,7 @@ R=..
 include ${R}/config.mk
 
 LOCAL_CFLAGS+=-fPIC
-LOCAL_CPPFLAGS+=
+LOCAL_CPPFLAGS+=-I${R}/libcommon
 LOCAL_LDFLAGS+=-Wl,--version-script=linker.version -Wl,-soname,libmosquitto.so.$(SOVERSION) -fPIC -shared
 LOCAL_LIBADD+=-lcjson -lc ${LIB_ARGON2} ${LIBMOSQ_COMMON}
 STATIC_LIB_DEPS:=

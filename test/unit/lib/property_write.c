@@ -2,6 +2,7 @@
 #include <CUnit/Basic.h>
 
 #include "mosquitto/mqtt_protocol.h"
+#include "property_common.h"
 #include "property_mosq.h"
 #include "packet_mosq.h"
 
@@ -24,7 +25,7 @@ static void byte_prop_write_helper(
 	property.value.i8 = value_expected;
 	property.property_type = MQTT_PROP_TYPE_BYTE;
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -48,7 +49,7 @@ static void byte_prop_write_helper(
 		CU_ASSERT_EQUAL(mosquitto_property_type(properties), MQTT_PROP_TYPE_BYTE);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
 		CU_ASSERT_PTR_EQUAL(mosquitto_property_next(properties), NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 2);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 2);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -75,7 +76,7 @@ static void int32_prop_write_helper(
 	property.value.i32 = value_expected;
 	property.property_type = MQTT_PROP_TYPE_INT32;
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -99,7 +100,7 @@ static void int32_prop_write_helper(
 		CU_ASSERT_EQUAL(mosquitto_property_type(properties), MQTT_PROP_TYPE_INT32);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
 		CU_ASSERT_PTR_EQUAL(mosquitto_property_next(properties), NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 5);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 5);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -126,7 +127,7 @@ static void int16_prop_write_helper(
 	property.value.i16 = value_expected;
 	property.property_type = MQTT_PROP_TYPE_INT16;
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -150,7 +151,7 @@ static void int16_prop_write_helper(
 		CU_ASSERT_EQUAL(mosquitto_property_type(properties), MQTT_PROP_TYPE_INT16);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
 		CU_ASSERT_PTR_EQUAL(mosquitto_property_next(properties), NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 3);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 3);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -180,7 +181,7 @@ static void string_prop_write_helper(
 
 	property.value.s.len = (uint16_t)strlen(value_expected);
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -205,7 +206,7 @@ static void string_prop_write_helper(
 		CU_ASSERT_EQUAL(mosquitto_property_type(properties), MQTT_PROP_TYPE_STRING);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
 		CU_ASSERT_PTR_EQUAL(mosquitto_property_next(properties), NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+strlen(value_expected));
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 1+2+strlen(value_expected));
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -239,7 +240,7 @@ static void binary_prop_write_helper(
 	memcpy(property.value.bin.v, value_expected, len_expected);
 	property.value.bin.len = len_expected;
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -264,7 +265,7 @@ static void binary_prop_write_helper(
 		CU_ASSERT_EQUAL(mosquitto_property_type(properties), MQTT_PROP_TYPE_BINARY);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
 		CU_ASSERT_PTR_EQUAL(mosquitto_property_next(properties), NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+len_expected);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 1+2+len_expected);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -301,7 +302,7 @@ static void string_pair_prop_write_helper(
 
 	property.name.len = (uint16_t)strlen(name_expected);
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -332,7 +333,7 @@ static void string_pair_prop_write_helper(
 		}else{
 			CU_ASSERT_PTR_NULL(properties->next);
 			CU_ASSERT_PTR_NULL(mosquitto_property_next(properties));
-			CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+strlen(name_expected)+2+strlen(value_expected));
+			CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 1+2+strlen(name_expected)+2+strlen(value_expected));
 		}
 		mosquitto_property_free_all(&properties);
 	}
@@ -360,9 +361,9 @@ static void varint_prop_write_helper(
 	property.property_type = MQTT_PROP_TYPE_VARINT;
 	property.value.varint = value_expected;
 
-	CU_ASSERT_EQUAL(remaining_length, property__get_length_all(&property)+1);
+	CU_ASSERT_EQUAL(remaining_length, mosquitto_property_get_length_all(&property)+1);
 
-	rc = packet__alloc(&packet, 0, property__get_length_all(&property)+11);
+	rc = packet__alloc(&packet, 0, mosquitto_property_get_length_all(&property)+11);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 	if(rc != MOSQ_ERR_SUCCESS) return;
 
@@ -386,13 +387,13 @@ static void varint_prop_write_helper(
 		CU_ASSERT_PTR_NULL(properties->next);
 		CU_ASSERT_PTR_NULL(mosquitto_property_next(properties));
 		if(value_expected < 128){
-			CU_ASSERT_EQUAL(property__get_length_all(properties), 2);
+			CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 2);
 		}else if(value_expected < 16384){
-			CU_ASSERT_EQUAL(property__get_length_all(properties), 3);
+			CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 3);
 		}else if(value_expected < 2097152){
-			CU_ASSERT_EQUAL(property__get_length_all(properties), 4);
+			CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 4);
 		}else if(value_expected < 268435456){
-			CU_ASSERT_EQUAL(property__get_length_all(properties), 5);
+			CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 5);
 		}else{
 			CU_FAIL("Incorrect varint value.");
 		}

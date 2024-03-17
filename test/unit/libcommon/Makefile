@@ -4,7 +4,7 @@ include ${R}/config.mk
 .PHONY: all check test test-compile clean coverage
 
 LOCAL_CFLAGS+=-coverage
-LOCAL_CPPFLAGS+=-I${R}/src -I${R}/test -I${R}/lib -DTEST_SOURCE_DIR='"$(realpath .)"'
+LOCAL_CPPFLAGS+=-I${R}/libcommon -DTEST_SOURCE_DIR='"$(realpath .)"'
 LOCAL_LDFLAGS+=-coverage
 LOCAL_LDADD+=-lcunit ${LIBMOSQ_COMMON}
 
@@ -13,6 +13,8 @@ ifeq ($(WITH_TLS),yes)
 endif
 
 TEST_OBJS = \
+	property_add.o \
+	property_value.o \
 	strings_test.o \
 	test.o \
 	topic_test.o \

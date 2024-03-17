@@ -2,8 +2,7 @@
 #include <CUnit/Basic.h>
 
 #include "mosquitto/mqtt_protocol.h"
-#include "property_mosq.h"
-#include "packet_mosq.h"
+#include "property_common.h"
 
 static void check_count(mosquitto_property *proplist, int expected)
 {
@@ -585,7 +584,7 @@ static void TEST_check_length(void)
 	unsigned int varbytes;
 	unsigned int i;
 
-	len = property__get_remaining_length(proplist);
+	len = mosquitto_property_get_remaining_length(proplist);
 	CU_ASSERT_EQUAL(len, 1);
 
 	for(i=1; i<10000; i++){
@@ -593,7 +592,7 @@ static void TEST_check_length(void)
 		CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 		CU_ASSERT_PTR_NOT_NULL(proplist);
 		if(proplist){
-			len = property__get_remaining_length(proplist);
+			len = mosquitto_property_get_remaining_length(proplist);
 			if(i < 64){
 				varbytes = 1;
 			}else if(i < 8192){
@@ -615,7 +614,7 @@ static void TEST_remove_single(void)
 	int rc;
 	unsigned int len;
 
-	len = property__get_remaining_length(proplist);
+	len = mosquitto_property_get_remaining_length(proplist);
 	CU_ASSERT_EQUAL(len, 1);
 
 	for(int i=1; i<10; i++){
@@ -688,7 +687,7 @@ static void TEST_remove_non_existent(void)
 	int rc;
 	unsigned int len;
 
-	len = property__get_remaining_length(proplist);
+	len = mosquitto_property_get_remaining_length(proplist);
 	CU_ASSERT_EQUAL(len, 1);
 
 	rc = mosquitto_property_add_byte(&proplist, MQTT_PROP_SHARED_SUB_AVAILABLE, 0);
@@ -716,7 +715,7 @@ static void TEST_remove_invalid(void)
 	rc = mosquitto_property_remove(NULL, NULL);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_INVAL);
 
-	len = property__get_remaining_length(proplist);
+	len = mosquitto_property_get_remaining_length(proplist);
 	CU_ASSERT_EQUAL(len, 1);
 
 	rc = mosquitto_property_add_byte(&proplist, MQTT_PROP_SHARED_SUB_AVAILABLE, 0);

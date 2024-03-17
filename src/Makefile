@@ -4,7 +4,7 @@ include ${R}/config.mk
 .PHONY: all install uninstall clean reallyclean
 
 LOCAL_CFLAGS+=
-LOCAL_CPPFLAGS+=-DWITH_BROKER -I${R}/lib
+LOCAL_CPPFLAGS+=-DWITH_BROKER -I${R}/lib -I${R}/libcommon
 LOCAL_LDFLAGS+=
 LOCAL_LDADD+=-lcjson -lm ${LIB_ARGON2} ${LIBMOSQ_COMMON}
 

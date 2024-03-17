@@ -10,6 +10,7 @@
 #include "mosquitto_broker_internal.h"
 #include "persist.h"
 #include "property_mosq.h"
+#include "property_common.h"
 
 char *last_sub = NULL;
 int last_qos;

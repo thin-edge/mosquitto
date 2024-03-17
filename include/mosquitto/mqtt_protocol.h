@@ -19,6 +19,8 @@ Contributors:
 #ifndef MQTT_PROTOCOL_H
 #define MQTT_PROTOCOL_H
 
+#include <stdint.h>
+
 /*
  * File: mosquitto/mqtt_protocol.h
  *
@@ -288,5 +290,7 @@ enum mqtt5_sub_options {
 
 #define MQTT_SUB_OPT_SET(opt, val) ((opt) |= val)
 #define MQTT_SUB_OPT_CLEAR(opt, val) ((opt) = (opt) & !val)
+
+unsigned int mosquitto_varint_bytes(uint32_t size);
 
 #endif

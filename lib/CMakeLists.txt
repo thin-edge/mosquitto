@@ -108,6 +108,7 @@ target_include_directories(libmosquitto
 	PRIVATE
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
+		"${mosquitto_SOURCE_DIR}/libcommon"
 )
 
 if(WITH_BUNDLED_DEPS)

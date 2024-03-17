@@ -2,6 +2,7 @@
 #include <CUnit/Basic.h>
 
 #include "mosquitto/mqtt_protocol.h"
+#include "property_common.h"
 #include "property_mosq.h"
 #include "packet_mosq.h"
 
@@ -28,7 +29,7 @@ static void byte_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->identifier, identifier);
 		CU_ASSERT_EQUAL(properties->value.i8, value_expected);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 2);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 2);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -87,7 +88,7 @@ static void int32_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->identifier, identifier);
 		CU_ASSERT_EQUAL(properties->value.i32, value_expected);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 5);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 5);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -137,7 +138,7 @@ static void int16_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->identifier, identifier);
 		CU_ASSERT_EQUAL(properties->value.i16, value_expected);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 3);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 3);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -183,7 +184,7 @@ static void string_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->value.s.len, strlen(value_expected));
 		CU_ASSERT_STRING_EQUAL(properties->value.s.v, value_expected);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+strlen(value_expected));
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 1+2+strlen(value_expected));
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -248,7 +249,7 @@ static void binary_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->value.bin.len, len_expected);
 		CU_ASSERT_EQUAL(memcmp(properties->value.bin.v, value_expected, (size_t)len_expected), 0);
 		CU_ASSERT_PTR_EQUAL(properties->next, NULL);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+(unsigned int)len_expected);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 1+2+(unsigned int)len_expected);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_EQUAL(properties, NULL);
@@ -302,7 +303,7 @@ static void string_pair_prop_read_helper(
 			CU_ASSERT_PTR_NOT_NULL(properties->next);
 		}else{
 			CU_ASSERT_PTR_NULL(properties->next);
-			CU_ASSERT_EQUAL(property__get_length_all(properties), 1+2+strlen(name_expected)+2+strlen(value_expected));
+			CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), 1+2+strlen(name_expected)+2+strlen(value_expected));
 		}
 		mosquitto_property_free_all(&properties);
 	}
@@ -333,7 +334,7 @@ static void varint_prop_read_helper(
 		CU_ASSERT_EQUAL(properties->identifier, identifier);
 		CU_ASSERT_EQUAL(properties->value.varint, value_expected);
 		CU_ASSERT_PTR_NULL(properties->next);
-		CU_ASSERT_EQUAL(property__get_length_all(properties), packet__varint_bytes(value_expected)+1);
+		CU_ASSERT_EQUAL(mosquitto_property_get_length_all(properties), mosquitto_varint_bytes(value_expected)+1);
 		mosquitto_property_free_all(&properties);
 	}
 	CU_ASSERT_PTR_NULL(properties);

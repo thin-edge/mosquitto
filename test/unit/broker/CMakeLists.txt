@@ -4,6 +4,7 @@ add_library(bridge-topic-obj
 	../../../src/bridge_topic.c
 )
 target_compile_definitions(bridge-topic-obj PRIVATE WITH_BRIDGE WITH_BROKER)
+target_include_directories(bridge-topic-obj PRIVATE ${mosquitto_SOURCE_DIR}/libcommon)
 target_link_libraries(bridge-topic-obj PUBLIC common-unit-test-header)
 
 add_executable(bridge-topic-test
@@ -44,6 +45,7 @@ add_executable(persist-read-test
     ../../../lib/util_mosq.c
 )
 target_compile_definitions(persist-read-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER)
+target_include_directories(persist-read-test PRIVATE ${mosquitto_SOURCE_DIR}/libcommon)
 target_link_libraries(persist-read-test PRIVATE persistence-read-obj libmosquitto_common)
 add_test(NAME unit-persist-read-test COMMAND persist-read-test)
 
@@ -62,6 +64,7 @@ add_library(persistence-write-obj
         ../../../src/topic_tok.c
 )
 target_compile_definitions(persistence-write-obj PRIVATE WITH_PERSISTENCE WITH_BROKER)
+target_include_directories(persistence-write-obj PRIVATE ${mosquitto_SOURCE_DIR}/libcommon)
 target_link_libraries(persistence-write-obj PUBLIC common-unit-test-header)
 
 add_executable(persist-write-test
@@ -73,6 +76,7 @@ add_executable(persist-write-test
     ../../../lib/packet_mosq.c
 )
 target_compile_definitions(persist-write-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER WITH_SYS_TREE)
+target_include_directories(persist-write-test PRIVATE ${mosquitto_SOURCE_DIR}/libcommon)
 target_link_libraries(persist-write-test PRIVATE persistence-write-obj OpenSSL::SSL libmosquitto_common)
 add_test(NAME unit-persist-write-test COMMAND persist-write-test)
 
@@ -86,6 +90,7 @@ add_library(subs-obj
         ../../../src/topic_tok.c
 )
 target_compile_definitions(subs-obj PRIVATE WITH_BROKER)
+target_include_directories(subs-obj PRIVATE ${mosquitto_SOURCE_DIR}/libcommon)
 target_link_libraries(subs-obj PUBLIC common-unit-test-header)
 
 add_executable(subs-test
