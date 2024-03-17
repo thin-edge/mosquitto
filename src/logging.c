@@ -38,7 +38,6 @@ Contributors:
 
 #include "logging_mosq.h"
 #include "mosquitto_broker_internal.h"
-#include "misc_mosq.h"
 #include "util_mosq.h"
 
 #ifdef WIN32
@@ -125,7 +124,7 @@ int log__init(struct mosquitto__config *config)
 	}
 
 	if(log_destinations & MQTT3_LOG_FILE){
-		config->log_fptr = mosquitto__fopen(config->log_file, "at", true);
+		config->log_fptr = mosquitto_fopen(config->log_file, "at", true);
 		if(config->log_fptr){
 			setvbuf(config->log_fptr, log_fptr_buffer, _IOLBF, sizeof(log_fptr_buffer));
 		}else{

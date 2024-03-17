@@ -33,7 +33,6 @@ Contributors:
 
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
-#include "misc_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "util_mosq.h"
 #include "will_mosq.h"
@@ -128,7 +127,7 @@ int mosquitto_tls_set(struct mosquitto *mosq, const char *cafile, const char *ca
 
 	mosquitto_FREE(mosq->tls_cafile);
 	if(cafile){
-		fptr = mosquitto__fopen(cafile, "rt", false);
+		fptr = mosquitto_fopen(cafile, "rt", false);
 		if(fptr){
 			fclose(fptr);
 		}else{
@@ -151,7 +150,7 @@ int mosquitto_tls_set(struct mosquitto *mosq, const char *cafile, const char *ca
 
 	mosquitto_FREE(mosq->tls_certfile);
 	if(certfile){
-		fptr = mosquitto__fopen(certfile, "rt", false);
+		fptr = mosquitto_fopen(certfile, "rt", false);
 		if(fptr){
 			fclose(fptr);
 		}else{
@@ -168,7 +167,7 @@ int mosquitto_tls_set(struct mosquitto *mosq, const char *cafile, const char *ca
 	mosquitto_FREE(mosq->tls_keyfile);
 	if(keyfile){
 		if(mosq->tls_keyform == mosq_k_pem){
-			fptr = mosquitto__fopen(keyfile, "rt", false);
+			fptr = mosquitto_fopen(keyfile, "rt", false);
 			if(fptr){
 				fclose(fptr);
 			}else{

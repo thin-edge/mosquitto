@@ -33,7 +33,6 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 #include "persist.h"
-#include "misc_mosq.h"
 #include "util_mosq.h"
 
 static int persist__client_messages_save(FILE *db_fptr, struct mosquitto *context, struct mosquitto__client_msg *queue)

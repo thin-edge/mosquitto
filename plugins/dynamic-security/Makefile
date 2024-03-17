@@ -32,7 +32,6 @@ OBJS = \
 
 OBJS_EXTERNAL = \
 	json_help.o \
-	misc_mosq.o \
 	password_mosq.o \
 
 EXTRA_DEPS:=dynamic_security.h
@@ -46,9 +45,6 @@ endif
 all : ${ALL_DEPS}
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h

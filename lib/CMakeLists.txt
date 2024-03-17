@@ -25,7 +25,6 @@ set(C_SRC
 	logging_mosq.c logging_mosq.h
 	loop.c
 	messages_mosq.c messages_mosq.h
-	../common/misc_mosq.c ../common/misc_mosq.h
 	mosquitto.c ../include/mosquitto.h
 	mosquitto_internal.h
 	../include/mosquitto/mqtt_protocol.h

@@ -83,7 +83,6 @@ OBJS= \
 	will_mosq.o
 
 OBJS_EXTERNAL= \
-	misc_mosq.o \
 	password_mosq.o
 
 ifeq ($(WITH_WEBSOCKETS),yes)
@@ -141,9 +140,6 @@ libmosquitto.a : ${OBJS} ${OBJS_EXTERNAL}
 
 ${OBJS} : %.o: %.c ${R}/include/mosquitto.h mosquitto_internal.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
-	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@

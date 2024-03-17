@@ -25,7 +25,6 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "send_mosq.h"
-#include "misc_mosq.h"
 #include "util_mosq.h"
 
 static int aclfile__parse(struct mosquitto__security_options *security_opts);
@@ -504,7 +503,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	aclfptr = mosquitto__fopen(security_opts->acl_file, "rt", true);
+	aclfptr = mosquitto_fopen(security_opts->acl_file, "rt", true);
 	if(!aclfptr){
 		mosquitto_FREE(buf);
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open acl_file \"%s\".", security_opts->acl_file);
@@ -515,7 +514,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 	 * user <user>
 	 */
 
-	while(fgets_extending(&buf, &buflen, aclfptr)){
+	while(mosquitto_fgets(&buf, &buflen, aclfptr)){
 		slen = strlen(buf);
 		while(slen > 0 && isspace(buf[slen-1])){
 			buf[slen-1] = '\0';
@@ -541,7 +540,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 				}
 				token = strtok_r(NULL, "", &saveptr);
 				if(token){
-					topic = misc__trimblanks(token);
+					topic = mosquitto_trimblanks(token);
 				}else{
 					topic = access_s;
 					access_s = NULL;
@@ -581,7 +580,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 			}else if(!strcmp(token, "user")){
 				token = strtok_r(NULL, "", &saveptr);
 				if(token){
-					token = misc__trimblanks(token);
+					token = mosquitto_trimblanks(token);
 					if(slen == 0){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Missing username in acl_file \"%s\".", security_opts->acl_file);
 						rc = MOSQ_ERR_INVAL;
@@ -728,7 +727,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	pwfile = mosquitto__fopen(file, "rt", true);
+	pwfile = mosquitto_fopen(file, "rt", true);
 	if(!pwfile){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
 		mosquitto_FREE(buf);
@@ -736,7 +735,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 	}
 
 	while(!feof(pwfile)){
-		if(fgets_extending(&buf, &buflen, pwfile)){
+		if(mosquitto_fgets(&buf, &buflen, pwfile)){
 			if(buf[0] == '#') continue;
 			if(!strchr(buf, ':')) continue;
 
@@ -748,7 +747,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 					mosquitto_FREE(buf);
 					return MOSQ_ERR_NOMEM;
 				}
-				username = misc__trimblanks(username);
+				username = mosquitto_trimblanks(username);
 				if(strlen(username) > 65535){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
 					mosquitto_FREE(unpwd);
@@ -764,7 +763,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 				}
 				password = strtok_r(NULL, ":", &saveptr);
 				if(password){
-					password = misc__trimblanks(password);
+					password = mosquitto_trimblanks(password);
 
 					if(strlen(password) > 65535){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);

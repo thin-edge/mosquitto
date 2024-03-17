@@ -119,7 +119,6 @@ OBJS_EXTERNAL= \
 		handle_suback.o \
 		handle_unsuback.o \
 		json_help.o \
-		misc_mosq.o \
 		net_mosq.o \
 		net_mosq_ocsp.o \
 		net_ws.o \
@@ -172,9 +171,6 @@ handle_unsuback.o : ${R}/lib/handle_unsuback.c ${R}/lib/read_handle.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 net_mosq_ocsp.o : ${R}/lib/net_mosq_ocsp.c ${R}/lib/net_mosq.h

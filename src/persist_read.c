@@ -34,7 +34,6 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 #include "persist.h"
-#include "misc_mosq.h"
 #include "util_mosq.h"
 
 uint32_t db_version;
@@ -421,7 +420,7 @@ int persist__restore(void)
 	subscription_count = 0;
 	client_msg_count = 0;
 
-	fptr = mosquitto__fopen(db.config->persistence_filepath, "rb", true);
+	fptr = mosquitto_fopen(db.config->persistence_filepath, "rb", true);
 	if(fptr == NULL) return MOSQ_ERR_SUCCESS;
 	rlen = fread(&header, 1, 15, fptr);
 	if(rlen == 0){

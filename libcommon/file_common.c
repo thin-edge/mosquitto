@@ -44,11 +44,9 @@ Contributors:
 #  include <fcntl.h>
 #endif
 
-#include "misc_mosq.h"
-#include "logging_mosq.h"
+#include "mosquitto.h"
 
-
-FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
+FILE *mosquitto_fopen(const char *path, const char *mode, bool restrict_read)
 {
 #ifdef WIN32
 	char buf[4096];
@@ -240,7 +238,7 @@ FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read)
 }
 
 
-char *misc__trimblanks(char *str)
+char *mosquitto_trimblanks(char *str)
 {
 	char *endptr;
 
@@ -258,7 +256,7 @@ char *misc__trimblanks(char *str)
 }
 
 
-char *fgets_extending(char **buf, int *buflen, FILE *stream)
+char *mosquitto_fgets(char **buf, int *buflen, FILE *stream)
 {
 	char *rc;
 	char endchar;
@@ -354,7 +352,7 @@ int mosquitto_write_file(const char* target_path, bool restrict_read, int (*writ
 	}
 #endif
 
-	fptr = mosquitto__fopen(tmp_file_path, "wb", restrict_read);
+	fptr = mosquitto_fopen(tmp_file_path, "wb", restrict_read);
 	if(fptr == NULL){
 		INVOKE_LOG_FN("unable to open %s for writing, error %s", tmp_file_path, strerror(errno));
 		return MOSQ_ERR_INVAL;

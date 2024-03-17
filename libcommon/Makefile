@@ -13,6 +13,7 @@ LOCAL_LIBADD+=
 
 OBJS= \
 	base64_common.o \
+	file_common.o \
 	memory_common.o \
 	mqtt_common.o \
 	property_common.o \

@@ -4,7 +4,9 @@ include ${R}/config.mk
 ifneq ($(UNAME),SunOS)
 	LOCAL_LDFLAGS+=-Wl,-soname,libmosquittopp.so.${SOVERSION}
 endif
+LOCAL_CPPFLAGS+=
 LOCAL_CXXFLAGS+=-fPIC
+LOCAL_LIBADD+=
 
 .PHONY : clean install
 
@@ -37,7 +39,7 @@ clean :
 	-rm -f *.o libmosquittopp.so.${SOVERSION} libmosquittopp.a
 
 libmosquittopp.so.${SOVERSION} : mosquittopp.o
-	${CROSS_COMPILE}$(CXX) -shared $(LOCAL_LDFLAGS) $< -o $@ ../libmosquitto.so.${SOVERSION} $(LIDADD)
+	${CROSS_COMPILE}$(CXX) -shared $(LOCAL_LDFLAGS) $< -o $@ ../libmosquitto.so.${SOVERSION} $(LOCAL_LIDADD)
 
 libmosquittopp.a : mosquittopp.o
 	${CROSS_COMPILE}$(AR) cr $@ $^

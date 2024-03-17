@@ -35,7 +35,6 @@ Contributors:
 #include "json_help.h"
 #include "password_mosq.h"
 #include "get_password.h"
-#include "misc_mosq.h"
 
 #define MAX_STRING_LEN 4096
 
@@ -732,7 +731,7 @@ static int dynsec_init(int argc, char *argv[])
 	cJSON_Delete(tree);
 
 #ifdef WIN32
-	fptr = mosquitto__fopen(filename, "wb", true);
+	fptr = mosquitto_fopen(filename, "wb", true);
 #else
 	int fd = open(filename, O_CREAT | O_EXCL | O_WRONLY, 0640);
 	if(fd < 0){

@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 #include <mosquitto/libcommon_base64.h>
+#include <mosquitto/libcommon_file.h>
 #include <mosquitto/libcommon_memory.h>
 #include <mosquitto/libcommon_properties.h>
 #include <mosquitto/libcommon_random.h>

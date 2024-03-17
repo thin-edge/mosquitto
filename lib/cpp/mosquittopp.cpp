@@ -15,6 +15,7 @@ Contributors:
 */
 
 #include <cstdlib>
+#include <mosquitto.h>
 #include <mosquitto/libmosquittopp.h>
 
 #define UNUSED(A) (void)(A)

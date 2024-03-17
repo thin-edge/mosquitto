@@ -8,7 +8,6 @@ if(WITH_TLS AND CJSON_FOUND)
 		dynsec_group.c
 		dynsec_role.c
 		../mosquitto_passwd/get_password.c ../mosquitto_passwd/get_password.h
-		../../common/misc_mosq.c ../../common/misc_mosq.h
 		options.c
 		../../common/json_help.c ../../common/json_help.h
 		../../common/password_mosq.c ../../common/password_mosq.h

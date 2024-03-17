@@ -8,6 +8,7 @@ int init_property_add_tests(void);
 int init_property_value_tests(void);
 int init_strings_tests(void);
 int init_topic_tests(void);
+int init_trim_tests(void);
 int init_utf8_tests(void);
 
 int main(int argc, char *argv[])
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
 			|| init_property_value_tests()
 			|| init_strings_tests()
 			|| init_topic_tests()
+			|| init_trim_tests()
 			|| init_utf8_tests()
 			){
 

@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "misc_mosq.h"
 #include "mosquitto_broker_internal.h"
 #include "mosquitto_internal.h"
 #include "util_mosq.h"
@@ -19,8 +18,6 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 void db__msg_store_ref_inc(struct mosquitto__base_msg *base_msg) { UNUSED(base_msg); }
 
 int log__printf(struct mosquitto *mosq, unsigned int level, const char *fmt, ...) { UNUSED(mosq); UNUSED(level); UNUSED(fmt); return 0; }
-
-FILE *mosquitto__fopen(const char *path, const char *mode, bool restrict_read) { UNUSED(path); UNUSED(mode); UNUSED(restrict_read); return NULL; }
 
 int retain__store(const char *topic, struct mosquitto__base_msg *base_msg, char **split_topics, bool persist) { UNUSED(topic); UNUSED(base_msg); UNUSED(split_topics); UNUSED(persist); return 0; }
 

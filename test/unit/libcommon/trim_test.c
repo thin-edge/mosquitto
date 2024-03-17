@@ -1,14 +1,14 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
-#include <misc_mosq.h>
+#include <mosquitto.h>
 
 
 static void rtrim_helper(const char *expected, char *buf)
 {
 	char *res;
 
-	res = misc__trimblanks(buf);
+	res = mosquitto_trimblanks(buf);
 	CU_ASSERT_PTR_NOT_NULL(res);
 	if(res){
 		CU_ASSERT_EQUAL(strlen(buf), strlen(res));
@@ -22,7 +22,7 @@ static void ltrim_helper(const char *expected, char *buf)
 {
 	char *res;
 
-	res = misc__trimblanks(buf);
+	res = mosquitto_trimblanks(buf);
 	CU_ASSERT_PTR_NOT_NULL(res);
 	if(res){
 		CU_ASSERT_EQUAL(strlen(expected), strlen(res));
@@ -35,7 +35,7 @@ static void TEST_null_input(void)
 {
 	char *res;
 
-	res = misc__trimblanks(NULL);
+	res = mosquitto_trimblanks(NULL);
 	CU_ASSERT_PTR_NULL(res);
 }
 
@@ -46,7 +46,7 @@ static void TEST_empty_input(void)
 	char *res;
 
 	memset(buf, 0, sizeof(buf));
-	res = misc__trimblanks(buf);
+	res = mosquitto_trimblanks(buf);
 	CU_ASSERT_PTR_NOT_NULL(res);
 	if(res){
 		CU_ASSERT_STRING_EQUAL(res, "");
@@ -156,13 +156,13 @@ static void TEST_btrim(void)
  * TEST SUITE SETUP
  * ======================================================================== */
 
-int init_misc_trim_tests(void)
+int init_trim_tests(void)
 {
 	CU_pSuite test_suite = NULL;
 
-	test_suite = CU_add_suite("Misc string trim", NULL, NULL);
+	test_suite = CU_add_suite("String trim", NULL, NULL);
 	if(!test_suite){
-		printf("Error adding CUnit Misc string trim test suite.\n");
+		printf("Error adding CUnit string trim test suite.\n");
 		return 1;
 	}
 
@@ -175,7 +175,7 @@ int init_misc_trim_tests(void)
 			|| !CU_add_test(test_suite, "Both trim", TEST_btrim)
 			){
 
-		printf("Error adding Misc topic CUnit tests.\n");
+		printf("Error adding string trim CUnit tests.\n");
 		return 1;
 	}
 

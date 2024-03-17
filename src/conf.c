@@ -43,7 +43,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "misc_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
@@ -922,7 +921,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 
 	*lineno = 0;
 
-	while(fgets_extending(buf, buflen, fptr)){
+	while(mosquitto_fgets(buf, buflen, fptr)){
 		(*lineno)++;
 		if((*buf)[0] != '#' && (*buf)[0] != 10 && (*buf)[0] != 13){
 			slen = strlen(*buf);
@@ -2489,7 +2488,7 @@ int config__read_file(struct mosquitto__config *config, bool reload, const char 
 	}
 #endif
 
-	fptr = mosquitto__fopen(file, "rt", false);
+	fptr = mosquitto_fopen(file, "rt", false);
 	if(!fptr){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open config file '%s'.", file);
 		return 1;
@@ -2654,7 +2653,7 @@ static int conf__parse_string(char **token, const char *name, char **value, char
 			return MOSQ_ERR_INVAL;
 		}
 		/* Deal with multiple spaces at the beginning of the string. */
-		*token = misc__trimblanks(*token);
+		*token = mosquitto_trimblanks(*token);
 		if(strlen(*token) == 0){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty '%s' value in configuration.", name);
 			return MOSQ_ERR_INVAL;

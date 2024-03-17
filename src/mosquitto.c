@@ -52,7 +52,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "misc_mosq.h"
 #include "util_mosq.h"
 
 struct mosquitto_db db;
@@ -261,7 +260,7 @@ static int pid__write(void)
 	FILE *pid;
 
 	if(db.config->pid_file){
-		pid = mosquitto__fopen(db.config->pid_file, "wt", false);
+		pid = mosquitto_fopen(db.config->pid_file, "wt", false);
 		if(pid){
 			fprintf(pid, "%d", getpid());
 			fclose(pid);

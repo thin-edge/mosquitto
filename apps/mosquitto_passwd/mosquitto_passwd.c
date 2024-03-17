@@ -55,8 +55,6 @@ Contributors:
 
 #define MAX_BUFFER_LEN 65500
 
-#include "misc_mosq.h"
-
 struct cb_helper {
 	const char *line;
 	const char *username;
@@ -182,7 +180,7 @@ static int pwfile_iterate(FILE *fptr, FILE *ftmp,
 		return 1;
 	}
 
-	while(!feof(fptr) && fgets_extending(&buf, &buflen, fptr)){
+	while(!feof(fptr) && mosquitto_fgets(&buf, &buflen, fptr)){
 		if(lbuflen != buflen){
 			free(lbuf);
 			lbuflen = buflen;
@@ -198,8 +196,8 @@ static int pwfile_iterate(FILE *fptr, FILE *ftmp,
 		username = strtok(buf, ":");
 		password = strtok(NULL, ":");
 		if(username && password){
-			username = misc__trimblanks(username);
-			password = misc__trimblanks(password);
+			username = mosquitto_trimblanks(username);
+			password = mosquitto_trimblanks(password);
 		}
 
 		if(username == NULL || strlen(username) == 0
@@ -355,7 +353,7 @@ static int create_backup(char *backup_file, FILE *fptr)
 	FILE *fbackup;
 
 #ifdef WIN32
-	fbackup = mosquitto__fopen(backup_file, "wt", true);
+	fbackup = mosquitto_fopen(backup_file, "wt", true);
 #else
 	int fd;
 	umask(077);
@@ -595,7 +593,7 @@ int main(int argc, char *argv[])
 			}
 			password_cmd = password;
 		}
-		fptr = mosquitto__fopen(password_file, "wt", true);
+		fptr = mosquitto_fopen(password_file, "wt", true);
 		if(!fptr){
 			fprintf(stderr, "Error: Unable to open file %s for writing. %s.\n", password_file, strerror(errno));
 			free(password_file);
@@ -607,7 +605,7 @@ int main(int argc, char *argv[])
 		fclose(fptr);
 		return rc;
 	}else{
-		fptr = mosquitto__fopen(password_file, "r+t", true);
+		fptr = mosquitto_fopen(password_file, "r+t", true);
 		if(!fptr){
 			fprintf(stderr, "Error: Unable to open password file %s. %s.\n", password_file, strerror(errno));
 			free(password_file);

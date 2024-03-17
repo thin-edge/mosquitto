@@ -15,7 +15,6 @@ if(WITH_TLS)
 		grouplist.c
 		../../common/json_help.c ../../common/json_help.h
 		kicklist.c
-		../../common/misc_mosq.c ../../common/misc_mosq.h
 		../../common/password_mosq.c ../../common/password_mosq.h
 		plugin.c
 		roles.c

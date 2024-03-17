@@ -33,7 +33,6 @@ PERSIST_READ_TEST_OBJS = \
 		persist_read_stubs.o
 
 PERSIST_READ_OBJS = \
-		${R}/src/misc_mosq.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/persist_read.o \
 		${R}/src/persist_read_v234.o \
@@ -49,7 +48,6 @@ PERSIST_WRITE_TEST_OBJS = \
 
 PERSIST_WRITE_OBJS = \
 		${R}/src/database.o \
-		${R}/src/misc_mosq.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/packet_mosq.o \
 		${R}/src/persist_read.o \
@@ -115,9 +113,6 @@ ${R}/src/bridge_topic.o : ${R}/src/bridge_topic.c
 
 ${R}/src/database.o : ${R}/src/database.c
 	$(MAKE) -C ${R}/src/ database.o
-
-${R}/src/misc_mosq.o : ${R}/common/misc_mosq.c
-	$(MAKE) -C ${R}/src/ misc_mosq.o
 
 ${R}/src/packet_datatypes.o : ${R}/lib/packet_datatypes.c
 	$(MAKE) -C ${R}/src/ packet_datatypes.o

@@ -27,7 +27,6 @@ Contributors:
 
 #include "dynamic_security.h"
 #include "json_help.h"
-#include "misc_mosq.h"
 
 static int dynsec__general_config_load(struct dynsec__data *data, cJSON *tree)
 {

@@ -29,7 +29,6 @@ Contributors:
 
 #include "dynamic_security.h"
 #include "json_help.h"
-#include "misc_mosq.h"
 
 const char pw_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=_+[]{}@#~,./<>?";
 
@@ -69,7 +68,7 @@ static int get_password_from_init_file(struct dynsec__data *data, char **pw)
 		*pw = NULL;
 		return MOSQ_ERR_SUCCESS;
 	}
-	fptr = mosquitto__fopen(data->password_init_file, "rt", true);
+	fptr = mosquitto_fopen(data->password_init_file, "rt", true);
 	if(!fptr){
 		mosquitto_log_printf(MOSQ_LOG_ERR, "Error: Unable to get initial password from '%s', file not accessible.", data->password_init_file);
 		return MOSQ_ERR_INVAL;
@@ -307,7 +306,7 @@ static int add_clients(struct dynsec__data *data, cJSON *j_tree)
 			return MOSQ_ERR_NOMEM;
 		}
 		snprintf(pwfile, len, "%s.pw", data->config_file);
-		fptr = mosquitto__fopen(pwfile, "wb", true);
+		fptr = mosquitto_fopen(pwfile, "wb", true);
 		free(pwfile);
 		if(fptr == NULL){
 			return MOSQ_ERR_UNKNOWN;
@@ -557,7 +556,7 @@ int dynsec__config_init(struct dynsec__data *data)
 		return MOSQ_ERR_NOMEM;
 	}
 
-	fptr = mosquitto__fopen(data->config_file, "wb", true);
+	fptr = mosquitto_fopen(data->config_file, "wb", true);
 	if(fptr == NULL){
 		return MOSQ_ERR_UNKNOWN;
 	}

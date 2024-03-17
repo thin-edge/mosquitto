@@ -27,7 +27,6 @@ add_test(NAME unit-keepalive-test COMMAND keepalive-test)
 # persist-read-test
 add_library(persistence-read-obj
     OBJECT
-        ../../../common/misc_mosq.c
         ../../../src/persist_read_v234.c
         ../../../src/persist_read_v5.c
         ../../../src/persist_read.c
@@ -53,7 +52,6 @@ add_test(NAME unit-persist-read-test COMMAND persist-read-test)
 add_library(persistence-write-obj
     OBJECT
         ../../../src/database.c
-        ../../../common/misc_mosq.c
         ../../../src/persist_read_v234.c
         ../../../src/persist_read_v5.c
         ../../../src/persist_read.c

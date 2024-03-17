@@ -4,6 +4,7 @@ add_executable(libcommon-test
 	strings_test.c
 	test.c
 	topic_test.c
+	trim_test.c
 	utf8.c
 )
 

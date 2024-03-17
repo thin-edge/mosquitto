@@ -13,7 +13,6 @@ OBJS= \
 	get_password.o \
 
 OBJS_EXTERNAL= \
-	misc_mosq.o \
 	password_mosq.o
 
 
@@ -35,9 +34,6 @@ mosquitto_passwd.a : ${OBJS} ${OBJS_EXTERNAL}
 
 ${OBJS} : %.o: %.c
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h
-	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h
 	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
