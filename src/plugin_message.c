@@ -19,7 +19,6 @@ Contributors:
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "utlist.h"
 
 struct should_free {
@@ -50,13 +49,13 @@ static int plugin__handle_message_single(struct mosquitto__callback *callbacks, 
 		}
 
 		if(stored->topic != event_data.topic){
-			if(to_free->topic) mosquitto__FREE(stored->topic);
+			if(to_free->topic) mosquitto_FREE(stored->topic);
 			stored->topic = event_data.topic;
 			to_free->topic = true;
 		}
 
 		if(stored->payload != event_data.payload){
-			if(to_free->payload) mosquitto__FREE(stored->payload);
+			if(to_free->payload) mosquitto_FREE(stored->payload);
 			stored->payload = event_data.payload;
 			stored->payloadlen = event_data.payloadlen;
 			to_free->payload = true;

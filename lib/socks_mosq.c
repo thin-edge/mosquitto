@@ -36,7 +36,6 @@ Contributors:
 #endif
 
 #include "mosquitto_internal.h"
-#include "memory_mosq.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "send_mosq.h"
@@ -69,22 +68,22 @@ int mosquitto_socks5_set(struct mosquitto *mosq, const char *host, int port, con
 	if(!host || strlen(host) > 256) return MOSQ_ERR_INVAL;
 	if(port < 1 || port > UINT16_MAX) return MOSQ_ERR_INVAL;
 
-	mosquitto__FREE(mosq->socks5_host);
-	mosq->socks5_host = mosquitto__strdup(host);
+	mosquitto_FREE(mosq->socks5_host);
+	mosq->socks5_host = mosquitto_strdup(host);
 	if(!mosq->socks5_host){
 		return MOSQ_ERR_NOMEM;
 	}
 
 	mosq->socks5_port = (uint16_t)port;
 
-	mosquitto__FREE(mosq->socks5_username);
-	mosquitto__FREE(mosq->socks5_password);
+	mosquitto_FREE(mosq->socks5_username);
+	mosquitto_FREE(mosq->socks5_password);
 
 	if(username){
 		if(strlen(username) > UINT8_MAX){
 			return MOSQ_ERR_INVAL;
 		}
-		mosq->socks5_username = mosquitto__strdup(username);
+		mosq->socks5_username = mosquitto_strdup(username);
 		if(!mosq->socks5_username){
 			return MOSQ_ERR_NOMEM;
 		}
@@ -93,9 +92,9 @@ int mosquitto_socks5_set(struct mosquitto *mosq, const char *host, int port, con
 			if(strlen(password) > UINT8_MAX){
 				return MOSQ_ERR_INVAL;
 			}
-			mosq->socks5_password = mosquitto__strdup(password);
+			mosq->socks5_password = mosquitto_strdup(password);
 			if(!mosq->socks5_password){
-				mosquitto__FREE(mosq->socks5_username);
+				mosquitto_FREE(mosq->socks5_username);
 				return MOSQ_ERR_NOMEM;
 			}
 		}
@@ -116,7 +115,7 @@ int mosquitto_socks5_set(struct mosquitto *mosq, const char *host, int port, con
 #ifdef WITH_SOCKS
 static void socks5__packet_alloc(struct mosquitto__packet **packet, uint32_t packet_length)
 {
-	*packet = mosquitto__calloc(1, sizeof(struct mosquitto__packet) + packet_length + WS_PACKET_OFFSET);
+	*packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + packet_length + WS_PACKET_OFFSET);
 	if(!(*packet)) return;
 	(*packet)->pos = WS_PACKET_OFFSET;
 	(*packet)->packet_length = packet_length + WS_PACKET_OFFSET;
@@ -164,9 +163,9 @@ int socks5__send(struct mosquitto *mosq)
 		mosq->in_packet.pos = 0;
 		mosq->in_packet.packet_length = 2;
 		mosq->in_packet.to_process = 2;
-		mosq->in_packet.payload = mosquitto__malloc(sizeof(uint8_t)*2);
+		mosq->in_packet.payload = mosquitto_malloc(sizeof(uint8_t)*2);
 		if(!mosq->in_packet.payload){
-			mosquitto__FREE(packet);
+			mosquitto_FREE(packet);
 			return MOSQ_ERR_NOMEM;
 		}
 
@@ -220,9 +219,9 @@ int socks5__send(struct mosquitto *mosq)
 		mosq->in_packet.pos = 0;
 		mosq->in_packet.packet_length = 5;
 		mosq->in_packet.to_process = 5;
-		mosq->in_packet.payload = mosquitto__malloc(sizeof(uint8_t)*5);
+		mosq->in_packet.payload = mosquitto_malloc(sizeof(uint8_t)*5);
 		if(!mosq->in_packet.payload){
-			mosquitto__FREE(packet);
+			mosquitto_FREE(packet);
 			return MOSQ_ERR_NOMEM;
 		}
 
@@ -246,9 +245,9 @@ int socks5__send(struct mosquitto *mosq)
 		mosq->in_packet.pos = 0;
 		mosq->in_packet.packet_length = 2;
 		mosq->in_packet.to_process = 2;
-		mosq->in_packet.payload = mosquitto__malloc(sizeof(uint8_t)*2);
+		mosq->in_packet.payload = mosquitto_malloc(sizeof(uint8_t)*2);
 		if(!mosq->in_packet.payload){
-			mosquitto__FREE(packet);
+			mosquitto_FREE(packet);
 			return MOSQ_ERR_NOMEM;
 		}
 
@@ -414,7 +413,7 @@ int socks5__read(struct mosquitto *mosq)
 			 * Coverity most likely doesn't realise this because the +=
 			 * promotes to the size of packet_length. */
 			/* coverity[tainted_data] */
-			payload = mosquitto__realloc(mosq->in_packet.payload, mosq->in_packet.packet_length);
+			payload = mosquitto_realloc(mosq->in_packet.payload, mosq->in_packet.packet_length);
 			if(payload){
 				mosq->in_packet.payload = payload;
 			}else{

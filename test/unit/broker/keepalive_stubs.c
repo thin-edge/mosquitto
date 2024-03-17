@@ -1,7 +1,6 @@
 #include <time.h>
 
 #include <logging_mosq.h>
-#include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
 #include <net_mosq.h>
 #include <send_mosq.h>

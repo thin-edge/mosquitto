@@ -19,7 +19,6 @@ BRIDGE_TOPIC_TEST_OBJS = \
 
 BRIDGE_TOPIC_OBJS = \
 		${R}/src/bridge_topic.o \
-		${R}/src/memory_mosq.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/property_mosq.o
 
@@ -27,16 +26,13 @@ KEEPALIVE_TEST_OBJS = \
 		keepalive_stubs.o \
 		keepalive_test.o
 
-KEEPALIVE_OBJS = \
-		${R}/src/memory_mosq.o
+KEEPALIVE_OBJS =
 
 PERSIST_READ_TEST_OBJS = \
 		persist_read_test.o \
 		persist_read_stubs.o
 
 PERSIST_READ_OBJS = \
-		${R}/src/memory_mosq.o \
-		${R}/src/memory_public.o \
 		${R}/src/misc_mosq.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/persist_read.o \
@@ -53,8 +49,6 @@ PERSIST_WRITE_TEST_OBJS = \
 
 PERSIST_WRITE_OBJS = \
 		${R}/src/database.o \
-		${R}/src/memory_mosq.o \
-		${R}/src/memory_public.o \
 		${R}/src/misc_mosq.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/packet_mosq.o \
@@ -75,8 +69,6 @@ SUBS_TEST_OBJS = \
 
 SUBS_OBJS = \
 		${R}/src/database.o \
-		${R}/src/memory_mosq.o \
-		${R}/src/memory_public.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/property_mosq.o \
 		${R}/src/subs.o \
@@ -123,12 +115,6 @@ ${R}/src/bridge_topic.o : ${R}/src/bridge_topic.c
 
 ${R}/src/database.o : ${R}/src/database.c
 	$(MAKE) -C ${R}/src/ database.o
-
-${R}/src/memory_mosq.o : ${R}/lib/memory_mosq.c
-	$(MAKE) -C ${R}/src/ memory_mosq.o
-
-${R}/src/memory_public.o : ${R}/src/memory_public.c
-	$(MAKE) -C ${R}/src/ memory_public.o
 
 ${R}/src/misc_mosq.o : ${R}/common/misc_mosq.c
 	$(MAKE) -C ${R}/src/ misc_mosq.o

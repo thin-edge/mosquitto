@@ -26,7 +26,6 @@ Contributors:
 #include "mosquitto_internal.h"
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "sys_tree.h"
 #include "util_mosq.h"
@@ -115,7 +114,7 @@ static void easy_address(int sock, struct mosquitto *mosq)
 	char address[1024];
 
 	if(!net__socket_get_address(sock, address, 1024, &mosq->remote_port)){
-		mosq->address = mosquitto__strdup(address);
+		mosq->address = mosquitto_strdup(address);
 	}
 }
 
@@ -145,7 +144,7 @@ static int callback_mqtt(
 				p = lws_get_protocol(wsi);
 				mosq->listener = p->user;
 				if(!mosq->listener){
-					mosquitto__FREE(mosq);
+					mosquitto_FREE(mosq);
 					return -1;
 				}
 				mosq->wsi = wsi;
@@ -165,7 +164,7 @@ static int callback_mqtt(
 			easy_address(lws_get_socket_fd(wsi), mosq);
 			if(!mosq->address){
 				/* getpeername and inet_ntop failed and not a bridge */
-				mosquitto__FREE(mosq);
+				mosquitto_FREE(mosq);
 				u->mosq = NULL;
 				return -1;
 			}
@@ -175,8 +174,8 @@ static int callback_mqtt(
 				if(db.config->connection_messages == true){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Client connection from %s denied: max_connections exceeded.", mosq->address);
 				}
-				mosquitto__FREE(mosq->address);
-				mosquitto__FREE(mosq);
+				mosquitto_FREE(mosq->address);
+				mosquitto_FREE(mosq);
 				u->mosq = NULL;
 				return -1;
 			}
@@ -254,7 +253,7 @@ static int callback_mqtt(
 #endif
 
 				packet__get_next_out(mosq);
-				mosquitto__FREE(packet);
+				mosquitto_FREE(packet);
 
 				mosq->next_msg_out = db.now_s + mosq->keepalive;
 			}
@@ -308,7 +307,7 @@ static int callback_mqtt(
 					mosq->in_packet.remaining_count = (int8_t)(mosq->in_packet.remaining_count * -1);
 
 					if(mosq->in_packet.remaining_length > 0){
-						mosq->in_packet.payload = mosquitto__malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
+						mosq->in_packet.payload = mosquitto_malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
 						if(!mosq->in_packet.payload){
 							return -1;
 						}
@@ -375,7 +374,7 @@ static char *http__canonical_filename(
 	}else{
 		slen = strlen(http_dir) + inlen + 2;
 	}
-	filename = mosquitto__malloc(slen);
+	filename = mosquitto_malloc(slen);
 	if(!filename){
 		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 		return NULL;
@@ -390,14 +389,14 @@ static char *http__canonical_filename(
 	/* Get canonical path and check it is within our http_dir */
 #ifdef WIN32
 	filename_canonical = _fullpath(NULL, filename, 0);
-	mosquitto__FREE(filename);
+	mosquitto_FREE(filename);
 	if(!filename_canonical){
 		lws_return_http_status(wsi, HTTP_STATUS_INTERNAL_SERVER_ERROR, NULL);
 		return NULL;
 	}
 #else
 	filename_canonical = realpath(filename, NULL);
-	mosquitto__FREE(filename);
+	mosquitto_FREE(filename);
 	if(!filename_canonical){
 		if(errno == EACCES){
 			lws_return_http_status(wsi, HTTP_STATUS_FORBIDDEN, NULL);
@@ -665,7 +664,7 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 	/* Count valid protocols */
 	for(protocol_count=0; protocols[protocol_count].name; protocol_count++);
 
-	p = mosquitto__calloc(protocol_count+1, sizeof(struct lws_protocols));
+	p = mosquitto_calloc(protocol_count+1, sizeof(struct lws_protocols));
 	if(!p){
 		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
 		return;
@@ -705,7 +704,7 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 
 	user = mosquitto__calloc(1, sizeof(struct libws_mqtt_hack));
 	if(!user){
-		mosquitto__FREE(p);
+		mosquitto_FREE(p);
 		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");
 		return;
 	}
@@ -717,8 +716,8 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 		user->http_dir = realpath(listener->http_dir, NULL);
 #endif
 		if(!user->http_dir){
-			mosquitto__FREE(user);
-			mosquitto__FREE(p);
+			mosquitto_FREE(user);
+			mosquitto_FREE(p);
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open http dir \"%s\".", listener->http_dir);
 			return;
 		}

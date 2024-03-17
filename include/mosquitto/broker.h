@@ -538,45 +538,6 @@ mosq_EXPORT int mosquitto_callback_unregister(
 
 /* =========================================================================
  *
- * Section: Memory allocation.
- *
- * Use these functions when allocating or freeing memory to have your memory
- * included in the memory tracking on the broker.
- *
- * ========================================================================= */
-
-/*
- * Function: mosquitto_calloc
- */
-mosq_EXPORT void *mosquitto_calloc(size_t nmemb, size_t size);
-
-/*
- * Function: mosquitto_free
- */
-mosq_EXPORT void mosquitto_free(void *mem);
-
-/*
- * Function: mosquitto_malloc
- */
-mosq_EXPORT void *mosquitto_malloc(size_t size);
-
-/*
- * Function: mosquitto_realloc
- */
-mosq_EXPORT void *mosquitto_realloc(void *ptr, size_t size);
-
-/*
- * Function: mosquitto_strdup
- */
-mosq_EXPORT char *mosquitto_strdup(const char *s);
-
-/*
- * Function: mosquitto_strndup
- */
-mosq_EXPORT char *mosquitto_strndup(const char *s, size_t n);
-
-/* =========================================================================
- *
  * Section: Utility Functions
  *
  * Use these functions from within your plugin.

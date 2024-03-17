@@ -33,7 +33,6 @@ Contributors:
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
-#include "memory_mosq.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
@@ -94,8 +93,8 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 						"Rejected PUBLISH to %s, quota exceeded.", mosq->id);
 			}
 
-			if(payload_changed) mosquitto__free((void *) payload);
-			if(topic_changed) mosquitto__free((char *) topic);
+			if(payload_changed) mosquitto_free((void *) payload);
+			if(topic_changed) mosquitto_free((char *) topic);
 			if(properties_changed) mosquitto_property_free_all((mosquitto_property **) &store_props);
 
 			return MOSQ_ERR_SUCCESS;
@@ -129,13 +128,13 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 					return rc;
 				}
 				if(match){
-					mapped_topic = mosquitto__strdup(topic);
+					mapped_topic = mosquitto_strdup(topic);
 					if(!mapped_topic) return MOSQ_ERR_NOMEM;
 					if(cur_topic->local_prefix){
 						/* This prefix needs removing. */
 						if(!strncmp(cur_topic->local_prefix, mapped_topic, strlen(cur_topic->local_prefix))){
-							topic_temp = mosquitto__strdup(mapped_topic+strlen(cur_topic->local_prefix));
-							mosquitto__FREE(mapped_topic);
+							topic_temp = mosquitto_strdup(mapped_topic+strlen(cur_topic->local_prefix));
+							mosquitto_FREE(mapped_topic);
 							if(!topic_temp){
 								return MOSQ_ERR_NOMEM;
 							}
@@ -146,20 +145,20 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 					if(cur_topic->remote_prefix){
 						/* This prefix needs adding. */
 						len = strlen(mapped_topic) + strlen(cur_topic->remote_prefix)+1;
-						topic_temp = mosquitto__malloc(len+1);
+						topic_temp = mosquitto_malloc(len+1);
 						if(!topic_temp){
-							mosquitto__FREE(mapped_topic);
+							mosquitto_FREE(mapped_topic);
 							return MOSQ_ERR_NOMEM;
 						}
 						snprintf(topic_temp, len, "%s%s", cur_topic->remote_prefix, mapped_topic);
 						topic_temp[len] = '\0';
-						mosquitto__FREE(mapped_topic);
+						mosquitto_FREE(mapped_topic);
 						mapped_topic = topic_temp;
 					}
 					log__printf(mosq, MOSQ_LOG_DEBUG, "Sending PUBLISH to %s (d%d, q%d, r%d, m%d, '%s', ... (%ld bytes))", SAFE_PRINT(mosq->id), dup, qos, retain, mid, mapped_topic, (long)payloadlen);
 					metrics__int_inc(mosq_counter_pub_bytes_sent, payloadlen);
 					rc =  send__real_publish(mosq, mid, mapped_topic, payloadlen, payload, qos, retain, dup, subscription_identifier, store_props, expiry_interval);
-					mosquitto__FREE(mapped_topic);
+					mosquitto_FREE(mapped_topic);
 					return rc;
 				}
 			}
@@ -174,8 +173,8 @@ int send__publish(struct mosquitto *mosq, uint16_t mid, const char *topic, uint3
 
 #ifdef WITH_BROKER
 	rc = send__real_publish(mosq, mid, topic, payloadlen, payload, qos, retain, dup, subscription_identifier, store_props, expiry_interval);
-	if(payload_changed) mosquitto__free((void *) payload);
-	if(topic_changed) mosquitto__free((char *) topic);
+	if(payload_changed) mosquitto_free((void *) payload);
+	if(topic_changed) mosquitto_free((char *) topic);
 	if(properties_changed) mosquitto_property_free_all((mosquitto_property **) &store_props);
 	return rc;
 #else

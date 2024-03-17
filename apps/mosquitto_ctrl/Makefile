@@ -36,8 +36,6 @@ OBJS_EXTERNAL= \
 	base64_mosq.o \
 	get_password.o \
 	json_help.o \
-	memory_mosq.o \
-	memory_public.o \
 	password_mosq.o
 
 EXAMPLE_OBJS= example.o
@@ -69,12 +67,6 @@ get_password.o : ${R}/apps/mosquitto_passwd/get_password.c ${R}/apps/mosquitto_p
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-memory_mosq.o : ${R}/lib/memory_mosq.c
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-memory_public.o : ${R}/src/memory_public.c
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 password_mosq.o : ${R}/common/password_mosq.c ${R}/common/password_mosq.h

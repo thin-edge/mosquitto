@@ -24,7 +24,6 @@ Contributors:
 #include "mosquitto/broker.h"
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/broker_plugin.h"
-#include "memory_mosq.h"
 #include "lib_load.h"
 #include "utlist.h"
 
@@ -62,11 +61,11 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 	}
 
 	plugin__callback_unregister_all(plugin);
-	mosquitto__FREE(plugin->plugin_name);
-	mosquitto__FREE(plugin->plugin_version);
+	mosquitto_FREE(plugin->plugin_name);
+	mosquitto_FREE(plugin->plugin_version);
 	DL_FOREACH_SAFE(plugin->control_endpoints, ep, tmp){
 		DL_DELETE(plugin->control_endpoints, ep);
-		mosquitto__FREE(ep);
+		mosquitto_FREE(ep);
 	}
 
 	if(plugin->lib.lib){

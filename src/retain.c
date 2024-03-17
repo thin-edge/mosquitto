@@ -23,7 +23,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "util_mosq.h"
 
@@ -35,7 +34,7 @@ static struct mosquitto__retainhier *retain__add_hier_entry(struct mosquitto__re
 
 	assert(sibling);
 
-	child = mosquitto__calloc(1, sizeof(struct mosquitto__retainhier) + len + 1);
+	child = mosquitto_calloc(1, sizeof(struct mosquitto__retainhier) + len + 1);
 	if(!child){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return NULL;
@@ -77,8 +76,8 @@ BROKER_EXPORT int mosquitto_persist_retain_msg_set(const char *topic, uint64_t b
 		if(sub__topic_tokenise(topic, &local_topic, &split_topics, NULL)) return MOSQ_ERR_NOMEM;
 
 		rc = retain__store(topic, base_msg, split_topics, false);
-		mosquitto__free(split_topics);
-		mosquitto__free(local_topic);
+		mosquitto_free(split_topics);
+		mosquitto_free(local_topic);
 	}
 
 	return rc;
@@ -102,8 +101,8 @@ BROKER_EXPORT int mosquitto_persist_retain_msg_delete(const char *topic)
 
 	/* With stored->payloadlen == 0, this means the message will be removed */
 	rc = retain__store(topic, &base_msg, split_topics, false);
-	mosquitto__FREE(split_topics);
-	mosquitto__FREE(local_topic);
+	mosquitto_FREE(split_topics);
+	mosquitto_FREE(local_topic);
 
 	return rc;
 }
@@ -119,7 +118,7 @@ void retain__clean_empty_hierarchy(struct mosquitto__retainhier *retainhier)
 			HASH_DELETE(hh, retainhier->parent->children, retainhier);
 
 			struct mosquitto__retainhier *parent = retainhier->parent;
-			mosquitto__FREE(retainhier);
+			mosquitto_FREE(retainhier);
 			retainhier = parent;
 		}
 	}
@@ -338,8 +337,8 @@ int retain__queue(struct mosquitto *context, const struct mosquitto_subscription
 	if(retainhier){
 		retain__search(retainhier, split_topics, context, sub, 0);
 	}
-	mosquitto__FREE(local_sub);
-	mosquitto__FREE(split_topics);
+	mosquitto_FREE(local_sub);
+	mosquitto_FREE(split_topics);
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -356,7 +355,7 @@ void retain__clean(struct mosquitto__retainhier **retainhier)
 		retain__clean(&peer->children);
 
 		HASH_DELETE(hh, *retainhier, peer);
-		mosquitto__FREE(peer);
+		mosquitto_FREE(peer);
 	}
 }
 

@@ -62,7 +62,6 @@ OBJS=	mosquitto.o \
 		listeners.o \
 		logging.o \
 		loop.o \
-		memory_public.o \
 		mux.o \
 		mux_epoll.o \
 		mux_kqueue.o \
@@ -121,7 +120,6 @@ OBJS_EXTERNAL= \
 		handle_suback.o \
 		handle_unsuback.o \
 		json_help.o \
-		memory_mosq.o \
 		misc_mosq.o \
 		net_mosq.o \
 		net_mosq_ocsp.o \
@@ -178,9 +176,6 @@ handle_unsuback.o : ${R}/lib/handle_unsuback.c ${R}/lib/read_handle.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 json_help.o : ${R}/common/json_help.c ${R}/common/json_help.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-memory_mosq.o : ${R}/lib/memory_mosq.c ${R}/lib/memory_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h

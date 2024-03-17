@@ -19,7 +19,6 @@ Contributors:
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "utlist.h"
 #include "lib_load.h"
 
@@ -181,14 +180,14 @@ static int remove_callback(mosquitto_plugin_id_t *plugin, struct plugin_own_call
 		DL_FOREACH_SAFE(*cb_base, tail, tmp){
 			if(tail->cb == own->cb_func){
 				DL_DELETE(*cb_base, tail);
-				mosquitto__FREE(tail);
+				mosquitto_FREE(tail);
 				break;
 			}
 		}
 	}
 
 	DL_DELETE(plugin->own_callbacks, own);
-	mosquitto__FREE(own);
+	mosquitto_FREE(own);
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -211,7 +210,7 @@ BROKER_EXPORT int mosquitto_callback_register(
 		return control__register_callback(identifier, cb_func, event_data, userdata);
 	}
 
-	own_callback = mosquitto__calloc(1, sizeof(struct plugin_own_callback));
+	own_callback = mosquitto_calloc(1, sizeof(struct plugin_own_callback));
 	if(own_callback == NULL){
 		return MOSQ_ERR_NOMEM;
 	}
@@ -237,10 +236,10 @@ BROKER_EXPORT int mosquitto_callback_register(
 			return MOSQ_ERR_ALREADY_EXISTS;
 		}
 
-		cb_new = mosquitto__calloc(1, sizeof(struct mosquitto__callback));
+		cb_new = mosquitto_calloc(1, sizeof(struct mosquitto__callback));
 		if(cb_new == NULL){
 			DL_DELETE(identifier->own_callbacks, own_callback);
-			mosquitto__FREE(own_callback);
+			mosquitto_FREE(own_callback);
 			return MOSQ_ERR_NOMEM;
 		}
 

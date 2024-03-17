@@ -24,7 +24,6 @@ Contributors:
 #include "mosquitto/broker.h"
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/broker_plugin.h"
-#include "memory_mosq.h"
 #include "lib_load.h"
 #include "utlist.h"
 

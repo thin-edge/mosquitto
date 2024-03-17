@@ -60,7 +60,6 @@ OBJS= \
 	http_client.o \
 	logging_mosq.o \
 	loop.o \
-	memory_mosq.o \
 	messages_mosq.o \
 	net_mosq_ocsp.o \
 	net_mosq.o \

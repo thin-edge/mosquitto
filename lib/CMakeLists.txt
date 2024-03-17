@@ -24,7 +24,6 @@ set(C_SRC
 	http_client.c http_client.h
 	logging_mosq.c logging_mosq.h
 	loop.c
-	memory_mosq.c memory_mosq.h
 	messages_mosq.c messages_mosq.h
 	../common/misc_mosq.c ../common/misc_mosq.h
 	mosquitto.c ../include/mosquitto.h

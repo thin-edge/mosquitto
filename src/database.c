@@ -23,7 +23,6 @@ Contributors:
 #include <utlist.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
 #include "util_mosq.h"
@@ -224,13 +223,13 @@ static void subhier_clean(struct mosquitto__subhier **subhier)
 		leaf = peer->subs;
 		while(leaf){
 			nextleaf = leaf->next;
-			mosquitto__FREE(leaf);
+			mosquitto_FREE(leaf);
 			leaf = nextleaf;
 		}
 		subhier_clean(&peer->children);
 
 		HASH_DELETE(hh, *subhier, peer);
-		mosquitto__FREE(peer);
+		mosquitto_FREE(peer);
 	}
 }
 
@@ -262,18 +261,18 @@ int db__msg_store_add(struct mosquitto__base_msg *base_msg)
 
 void db__msg_store_free(struct mosquitto__base_msg *base_msg)
 {
-	mosquitto__FREE(base_msg->data.source_id);
-	mosquitto__FREE(base_msg->data.source_username);
+	mosquitto_FREE(base_msg->data.source_id);
+	mosquitto_FREE(base_msg->data.source_username);
 	if(base_msg->dest_ids){
 		for(int i=0; i<base_msg->dest_id_count; i++){
-			mosquitto__FREE(base_msg->dest_ids[i]);
+			mosquitto_FREE(base_msg->dest_ids[i]);
 		}
-		mosquitto__FREE(base_msg->dest_ids);
+		mosquitto_FREE(base_msg->dest_ids);
 	}
-	mosquitto__FREE(base_msg->data.topic);
+	mosquitto_FREE(base_msg->data.topic);
 	mosquitto_property_free_all(&base_msg->data.properties);
-	mosquitto__FREE(base_msg->data.payload);
-	mosquitto__FREE(base_msg);
+	mosquitto_FREE(base_msg->data.payload);
+	mosquitto_FREE(base_msg);
 }
 
 void db__msg_store_remove(struct mosquitto__base_msg *base_msg, bool notify)
@@ -339,7 +338,7 @@ static void db__message_remove_inflight(struct mosquitto *context, struct mosqui
 		db__msg_store_ref_dec(&item->base_msg);
 	}
 
-	mosquitto__FREE(item);
+	mosquitto_FREE(item);
 }
 
 
@@ -357,7 +356,7 @@ static void db__message_remove_queued(struct mosquitto *context, struct mosquitt
 		db__msg_store_ref_dec(&item->base_msg);
 	}
 
-	mosquitto__FREE(item);
+	mosquitto_FREE(item);
 }
 
 static void	db__fill_inflight_out_from_queue(struct mosquitto *context)
@@ -485,7 +484,7 @@ int db__message_insert_incoming(struct mosquitto *context, uint64_t cmsg_id, str
 	}
 #endif
 
-	client_msg = mosquitto__malloc(sizeof(struct mosquitto__client_msg));
+	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
 	if(!client_msg) return MOSQ_ERR_NOMEM;
 	client_msg->prev = NULL;
 	client_msg->next = NULL;
@@ -626,7 +625,7 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 	}
 #endif
 
-	client_msg = mosquitto__malloc(sizeof(struct mosquitto__client_msg));
+	client_msg = mosquitto_malloc(sizeof(struct mosquitto__client_msg));
 	if(!client_msg) return MOSQ_ERR_NOMEM;
 	client_msg->prev = NULL;
 	client_msg->next = NULL;
@@ -670,11 +669,11 @@ int db__message_insert_outgoing(struct mosquitto *context, uint64_t cmsg_id, uin
 		 * multiple times for overlapping subscriptions, although this is only the
 		 * case for SUBSCRIPTION with multiple subs in so is a minor concern.
 		 */
-		dest_ids = mosquitto__realloc(base_msg->dest_ids, sizeof(char *)*(size_t)(base_msg->dest_id_count+1));
+		dest_ids = mosquitto_realloc(base_msg->dest_ids, sizeof(char *)*(size_t)(base_msg->dest_id_count+1));
 		if(dest_ids){
 			base_msg->dest_ids = dest_ids;
 			base_msg->dest_id_count++;
-			base_msg->dest_ids[base_msg->dest_id_count-1] = mosquitto__strdup(context->id);
+			base_msg->dest_ids[base_msg->dest_id_count-1] = mosquitto_strdup(context->id);
 			if(!base_msg->dest_ids[base_msg->dest_id_count-1]){
 				return MOSQ_ERR_NOMEM;
 			}
@@ -732,7 +731,7 @@ static void db__messages_delete_list(struct mosquitto__client_msg **head)
 	DL_FOREACH_SAFE(*head, client_msg, tmp){
 		DL_DELETE(*head, client_msg);
 		db__msg_store_ref_dec(&client_msg->base_msg);
-		mosquitto__FREE(client_msg);
+		mosquitto_FREE(client_msg);
 	}
 	*head = NULL;
 }
@@ -801,10 +800,10 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
 
 	if(!topic) return MOSQ_ERR_INVAL;
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
+	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
-	base_msg->data.topic = mosquitto__strdup(topic);
+	base_msg->data.topic = mosquitto_strdup(topic);
 	if(base_msg->data.topic == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_INVAL;
@@ -818,7 +817,7 @@ int db__messages_easy_queue(struct mosquitto *context, const char *topic, uint8_
 	}
 
 	base_msg->data.payloadlen = payloadlen;
-	base_msg->data.payload = mosquitto__malloc(base_msg->data.payloadlen+1);
+	base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
 	if(base_msg->data.payload == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_NOMEM;
@@ -919,9 +918,9 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	assert(base_msg);
 
 	if(source && source->id){
-		base_msg->data.source_id = mosquitto__strdup(source->id);
+		base_msg->data.source_id = mosquitto_strdup(source->id);
 	}else{
-		base_msg->data.source_id = mosquitto__strdup("");
+		base_msg->data.source_id = mosquitto_strdup("");
 	}
 	if(!base_msg->data.source_id){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
@@ -930,7 +929,7 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	}
 
 	if(source && source->username){
-		base_msg->data.source_username = mosquitto__strdup(source->username);
+		base_msg->data.source_username = mosquitto_strdup(source->username);
 		if(!base_msg->data.source_username){
 			db__msg_store_free(base_msg);
 			return MOSQ_ERR_NOMEM;
@@ -1248,7 +1247,7 @@ static void db__client_messages_check_acl(struct mosquitto *context, struct mosq
 			decrement_stats_fn(msg_data, client_msg);
 			plugin_persist__handle_client_msg_delete(context, client_msg);
 			db__msg_store_ref_dec(&client_msg->base_msg);
-			mosquitto__FREE(client_msg);
+			mosquitto_FREE(client_msg);
 		}
 	}
 }

@@ -54,7 +54,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "util_mosq.h"
 
@@ -168,7 +167,7 @@ static int sub__add_leaf(struct mosquitto *context, const struct mosquitto_subsc
 		}
 		leaf = leaf->next;
 	}
-	leaf = mosquitto__calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
+	leaf = mosquitto_calloc(1, sizeof(struct mosquitto__subleaf) + strlen(sub->topic_filter) + 1);
 	if(!leaf) return MOSQ_ERR_NOMEM;
 	leaf->context = context;
 	leaf->identifier = sub->identifier;
@@ -187,7 +186,7 @@ static void sub__remove_shared_leaf(struct mosquitto__subhier *subhier, struct m
 	DL_DELETE(shared->subs, leaf);
 	if(shared->subs == NULL){
 		HASH_DELETE(hh, subhier->shared, shared);
-		mosquitto__FREE(shared);
+		mosquitto_FREE(shared);
 	}
 }
 
@@ -204,7 +203,7 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 
 	HASH_FIND(hh, subhier->shared, sharename, slen, shared);
 	if(shared == NULL){
-		shared = mosquitto__calloc(1, sizeof(struct mosquitto__subshared) + slen + 1);
+		shared = mosquitto_calloc(1, sizeof(struct mosquitto__subshared) + slen + 1);
 		if(!shared){
 			return MOSQ_ERR_NOMEM;
 		}
@@ -217,7 +216,7 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 	if(rc > 0){
 		if(shared->subs == NULL){
 			HASH_DELETE(hh, subhier->shared, shared);
-			mosquitto__FREE(shared);
+			mosquitto_FREE(shared);
 		}
 		return rc;
 	}
@@ -236,10 +235,10 @@ static int sub__add_shared(struct mosquitto *context, const struct mosquitto_sub
 			}
 		}
 		if(assigned == false){
-			subs = mosquitto__realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
+			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
 			if(!subs){
 				sub__remove_shared_leaf(subhier, shared, newleaf);
-				mosquitto__FREE(newleaf);
+				mosquitto_FREE(newleaf);
 				return MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
@@ -287,10 +286,10 @@ static int sub__add_normal(struct mosquitto *context, const struct mosquitto_sub
 			}
 		}
 		if(assigned == false){
-			subs = mosquitto__realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
+			subs = mosquitto_realloc(context->subs, sizeof(struct mosquitto__subleaf *)*(size_t)(context->subs_capacity + 1));
 			if(!subs){
 				DL_DELETE(subhier->subs, newleaf);
-				mosquitto__FREE(newleaf);
+				mosquitto_FREE(newleaf);
 				return MOSQ_ERR_NOMEM;
 			}
 			context->subs = subs;
@@ -367,7 +366,7 @@ static int sub__remove_normal(struct mosquitto *context, struct mosquitto__subhi
 			for(int i=0; i<context->subs_capacity; i++){
 				if(context->subs[i] && context->subs[i]->hier == subhier){
 					context->subs_count--;
-					mosquitto__free(context->subs[i]);
+					mosquitto_free(context->subs[i]);
 					context->subs[i] = NULL;
 					break;
 				}
@@ -404,7 +403,7 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 							&& context->subs[i]->hier == subhier
 							&& context->subs[i]->shared == shared){
 
-						mosquitto__free(context->subs[i]);
+						mosquitto_free(context->subs[i]);
 						context->subs[i] = NULL;
 						context->subs_count--;
 						break;
@@ -413,7 +412,7 @@ static int sub__remove_shared(struct mosquitto *context, struct mosquitto__subhi
 
 				if(shared->subs == NULL){
 					HASH_DELETE(hh, subhier->shared, shared);
-					mosquitto__FREE(shared);
+					mosquitto_FREE(shared);
 				}
 
 				*reason = 0;
@@ -445,7 +444,7 @@ static int sub__remove_recurse(struct mosquitto *context, struct mosquitto__subh
 		sub__remove_recurse(context, branch, &(topics[1]), reason, sharename);
 		if(!branch->children && !branch->subs && !branch->shared){
 			HASH_DELETE(hh, subhier->children, branch);
-			mosquitto__FREE(branch);
+			mosquitto_FREE(branch);
 		}
 	}
 	return MOSQ_ERR_SUCCESS;
@@ -530,7 +529,7 @@ struct mosquitto__subhier *sub__add_hier_entry(struct mosquitto__subhier *parent
 
 	assert(sibling);
 
-	child = mosquitto__calloc(1, sizeof(struct mosquitto__subhier) + len + 1);
+	child = mosquitto_calloc(1, sizeof(struct mosquitto__subhier) + len + 1);
 	if(!child){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return NULL;
@@ -562,16 +561,16 @@ int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub
 
 	topiclen = strlen(topics[0]);
 	if(topiclen > UINT16_MAX){
-		mosquitto__FREE(local_sub);
-		mosquitto__FREE(topics);
+		mosquitto_FREE(local_sub);
+		mosquitto_FREE(topics);
 		return MOSQ_ERR_INVAL;
 	}
 	HASH_FIND(hh, db.subs, topics[0], topiclen, subhier);
 	if(!subhier){
 		subhier = sub__add_hier_entry(NULL, &db.subs, topics[0], (uint16_t)topiclen);
 		if(!subhier){
-			mosquitto__FREE(local_sub);
-			mosquitto__FREE(topics);
+			mosquitto_FREE(local_sub);
+			mosquitto_FREE(topics);
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			return MOSQ_ERR_NOMEM;
 		}
@@ -579,8 +578,8 @@ int sub__add(struct mosquitto *context, const struct mosquitto_subscription *sub
 	}
 	rc = sub__add_context(context, sub, subhier, topics, sharename);
 
-	mosquitto__FREE(local_sub);
-	mosquitto__FREE(topics);
+	mosquitto_FREE(local_sub);
+	mosquitto_FREE(topics);
 
 	return rc;
 }
@@ -604,8 +603,8 @@ int sub__remove(struct mosquitto *context, const char *sub, uint8_t *reason)
 		rc = sub__remove_recurse(context, subhier, topics, reason, sharename);
 	}
 
-	mosquitto__FREE(local_sub);
-	mosquitto__FREE(topics);
+	mosquitto_FREE(local_sub);
+	mosquitto_FREE(topics);
 
 	return rc;
 }
@@ -637,8 +636,8 @@ int sub__messages_queue(const char *source_id, const char *topic, uint8_t qos, i
 		if(rc2) rc = rc2;
 	}
 
-	mosquitto__FREE(split_topics);
-	mosquitto__FREE(local_topic);
+	mosquitto_FREE(split_topics);
+	mosquitto_FREE(local_topic);
 	/* Remove our reference and free if needed. */
 	db__msg_store_ref_dec(stored);
 
@@ -661,7 +660,7 @@ static struct mosquitto__subhier *tmp_remove_subs(struct mosquitto__subhier *sub
 
 	parent = sub->parent;
 	HASH_DELETE(hh, parent->children, sub);
-	mosquitto__FREE(sub);
+	mosquitto_FREE(sub);
 
 	if(parent->subs == NULL
 			&& parent->children == NULL
@@ -713,7 +712,7 @@ int sub__clean_session(struct mosquitto *context)
 				leaf = leaf->next;
 			}
 		}
-		mosquitto__FREE(context->subs[i]);
+		mosquitto_FREE(context->subs[i]);
 
 		if(hier->subs == NULL
 				&& hier->children == NULL
@@ -725,7 +724,7 @@ int sub__clean_session(struct mosquitto *context)
 			}while(hier);
 		}
 	}
-	mosquitto__FREE(context->subs);
+	mosquitto_FREE(context->subs);
 	context->subs_capacity = 0;
 	context->subs_count = 0;
 

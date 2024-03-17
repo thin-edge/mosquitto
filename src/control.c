@@ -23,7 +23,6 @@ Contributors:
 
 #include "mosquitto/mqtt_protocol.h"
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "send_mosq.h"
 
 #ifdef WITH_CONTROL
@@ -102,13 +101,13 @@ int control__register_callback(mosquitto_plugin_id_t *pid, MOSQ_FUNC_generic_cal
 		return MOSQ_ERR_ALREADY_EXISTS;
 	}
 
-	cb_new = mosquitto__calloc(1, sizeof(struct mosquitto__callback));
+	cb_new = mosquitto_calloc(1, sizeof(struct mosquitto__callback));
 	if(cb_new == NULL){
 		return MOSQ_ERR_NOMEM;
 	}
-	cb_new->data = mosquitto__strdup(topic);
+	cb_new->data = mosquitto_strdup(topic);
 	if(cb_new->data == NULL){
-		mosquitto__FREE(cb_new);
+		mosquitto_FREE(cb_new);
 		return MOSQ_ERR_NOMEM;
 	}
 	cb_new->cb = cb_func;
@@ -152,13 +151,13 @@ int control__unregister_callback(mosquitto_plugin_id_t *identifier, MOSQ_FUNC_ge
 	HASH_FIND(hh, opts->plugin_callbacks.control, topic, topic_len, cb_found);
 	if(cb_found && cb_found->cb == cb_func){
 		HASH_DELETE(hh, opts->plugin_callbacks.control, cb_found);
-		mosquitto__FREE(cb_found->data);
-		mosquitto__FREE(cb_found);
+		mosquitto_FREE(cb_found->data);
+		mosquitto_FREE(cb_found);
 
 		DL_FOREACH(identifier->control_endpoints, ep){
 			if(!strcmp(topic, ep->topic)){
 				DL_DELETE(identifier->control_endpoints, ep);
-				mosquitto__FREE(ep);
+				mosquitto_FREE(ep);
 				break;
 			}
 		}
@@ -184,11 +183,11 @@ void control__unregister_all_callbacks(mosquitto_plugin_id_t *identifier)
 		HASH_FIND(hh, opts->plugin_callbacks.control, ep->topic, strlen(ep->topic), cb_found);
 		if(cb_found){
 			HASH_DELETE(hh, opts->plugin_callbacks.control, cb_found);
-			mosquitto__FREE(cb_found->data);
-			mosquitto__FREE(cb_found);
+			mosquitto_FREE(cb_found->data);
+			mosquitto_FREE(cb_found);
 		}
 
 		DL_DELETE(identifier->control_endpoints, ep);
-		mosquitto__FREE(ep);
+		mosquitto_FREE(ep);
 	}
 }

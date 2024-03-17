@@ -26,8 +26,10 @@ Contributors:
 extern "C" {
 #endif
 
+#include <mosquitto/libcommon_memory.h>
 #include <mosquitto/libcommon_properties.h>
 #include <mosquitto/libcommon_string.h>
+#include <mosquitto/libcommon_time.h>
 #include <mosquitto/libcommon_topic.h>
 #include <mosquitto/libcommon_utf8.h>
 

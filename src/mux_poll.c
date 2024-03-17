@@ -48,7 +48,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
@@ -68,7 +67,7 @@ int mux_poll__init(void)
 	pollfd_max = (size_t)sysconf(_SC_OPEN_MAX);
 #endif
 
-	pollfds = mosquitto__calloc(pollfd_max, sizeof(struct pollfd));
+	pollfds = mosquitto_calloc(pollfd_max, sizeof(struct pollfd));
 	if(!pollfds){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -254,7 +253,7 @@ int mux_poll__handle(struct mosquitto__listener_sock *listensock, int listensock
 
 int mux_poll__cleanup(void)
 {
-	mosquitto__FREE(pollfds);
+	mosquitto_FREE(pollfds);
 
 	return MOSQ_ERR_SUCCESS;
 }

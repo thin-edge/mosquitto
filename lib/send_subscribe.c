@@ -29,7 +29,6 @@ Contributors:
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
@@ -63,7 +62,7 @@ int send__subscribe(struct mosquitto *mosq, int *mid, int topic_count, char *con
 
 	rc = packet__alloc(&packet, CMD_SUBSCRIBE | 2, packetlen);
 	if(rc){
-		mosquitto__FREE(packet);
+		mosquitto_FREE(packet);
 		return rc;
 	}
 

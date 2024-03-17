@@ -29,7 +29,6 @@ Contributors:
 
 #include "base64_mosq.h"
 #include "mosquitto_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
@@ -265,7 +264,7 @@ ssize_t net__read_ws(struct mosquitto *mosq, void *buf, size_t count)
 		/* Always allocate payload for testing case, otherwise just for pings */
 #endif
 		{
-			mosq->wsd.out_packet = mosquitto__calloc(1, sizeof(struct mosquitto__packet) + WS_PACKET_OFFSET + mosq->wsd.payloadlen + 1);
+			mosq->wsd.out_packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + WS_PACKET_OFFSET + mosq->wsd.payloadlen + 1);
 			if(mosq->wsd.out_packet == NULL){
 				errno = ENOMEM;
 				return -1;
@@ -299,13 +298,13 @@ ssize_t net__read_ws(struct mosquitto *mosq, void *buf, size_t count)
 
 	if(mosq->wsd.pos == (ssize_t)mosq->wsd.payloadlen){
 		if(mosq->wsd.opcode == WS_CLOSE){
-			mosquitto__FREE(mosq->wsd.out_packet);
+			mosquitto_FREE(mosq->wsd.out_packet);
 
 			/* Testing or PING - so we haven't read any data for the application yet. */
 			len = -1;
 			errno = EAGAIN;
 		}else if(mosq->wsd.opcode == WS_PONG){
-			mosquitto__FREE(mosq->wsd.out_packet);
+			mosquitto_FREE(mosq->wsd.out_packet);
 			/* Testing or PING - so we haven't read any data for the application yet. */
 			len = -1;
 			errno = EAGAIN;

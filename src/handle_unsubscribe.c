@@ -22,7 +22,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "send_mosq.h"
@@ -82,7 +81,7 @@ int handle__unsubscribe(struct mosquitto *context)
 	}
 
 	reason_code_max = 10;
-	reason_codes = mosquitto__malloc((size_t)reason_code_max);
+	reason_codes = mosquitto_malloc((size_t)reason_code_max);
 	if(!reason_codes){
 		return MOSQ_ERR_NOMEM;
 	}
@@ -91,7 +90,7 @@ int handle__unsubscribe(struct mosquitto *context)
 		memset(&sub, 0, sizeof(sub));
 		sub.properties = properties;
 		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
-			mosquitto__FREE(reason_codes);
+			mosquitto_FREE(reason_codes);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
 
@@ -99,16 +98,16 @@ int handle__unsubscribe(struct mosquitto *context)
 			log__printf(NULL, MOSQ_LOG_INFO,
 					"Empty unsubscription string from %s, disconnecting.",
 					context->id);
-			mosquitto__FREE(sub.topic_filter);
-			mosquitto__FREE(reason_codes);
+			mosquitto_FREE(sub.topic_filter);
+			mosquitto_FREE(reason_codes);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
 		if(mosquitto_sub_topic_check(sub.topic_filter)){
 			log__printf(NULL, MOSQ_LOG_INFO,
 					"Invalid unsubscription string from %s, disconnecting.",
 					context->id);
-			mosquitto__FREE(sub.topic_filter);
-			mosquitto__FREE(reason_codes);
+			mosquitto_FREE(sub.topic_filter);
+			mosquitto_FREE(reason_codes);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
 
@@ -123,8 +122,8 @@ int handle__unsubscribe(struct mosquitto *context)
 				reason = MQTT_RC_NOT_AUTHORIZED;
 				break;
 			default:
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(reason_codes);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(reason_codes);
 				return rc;
 		}
 
@@ -132,8 +131,8 @@ int handle__unsubscribe(struct mosquitto *context)
 		if(allowed){
 			rc = plugin__handle_unsubscribe(context, &sub);
 			if(rc){
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(reason_codes);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(reason_codes);
 				return rc;
 			}
 			rc = sub__remove(context, sub.topic_filter, &reason);
@@ -142,18 +141,18 @@ int handle__unsubscribe(struct mosquitto *context)
 			rc = MOSQ_ERR_SUCCESS;
 		}
 		log__printf(NULL, MOSQ_LOG_UNSUBSCRIBE, "%s %s", context->id, sub.topic_filter);
-		mosquitto__FREE(sub.topic_filter);
+		mosquitto_FREE(sub.topic_filter);
 		if(rc){
-			mosquitto__FREE(reason_codes);
+			mosquitto_FREE(reason_codes);
 			return rc;
 		}
 
 		reason_codes[reason_code_count] = reason;
 		reason_code_count++;
 		if(reason_code_count == reason_code_max){
-			reason_tmp = mosquitto__realloc(reason_codes, (size_t)(reason_code_max*2));
+			reason_tmp = mosquitto_realloc(reason_codes, (size_t)(reason_code_max*2));
 			if(!reason_tmp){
-				mosquitto__FREE(reason_codes);
+				mosquitto_FREE(reason_codes);
 				return MOSQ_ERR_NOMEM;
 			}
 			reason_codes = reason_tmp;
@@ -168,6 +167,6 @@ int handle__unsubscribe(struct mosquitto *context)
 
 	/* We don't use Reason String or User Property yet. */
 	rc = send__unsuback(context, mid, reason_code_count, reason_codes, NULL);
-	mosquitto__FREE(reason_codes);
+	mosquitto_FREE(reason_codes);
 	return rc;
 }

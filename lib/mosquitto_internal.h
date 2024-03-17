@@ -83,6 +83,7 @@ typedef int mosq_sock_t;
 #endif
 
 #define SAFE_PRINT(A) (A)?(A):"null"
+#define SAFE_FREE(A) do { free(A); (A) = NULL;} while(0)
 
 enum mosquitto_msg_direction {
 	mosq_md_in = 0,

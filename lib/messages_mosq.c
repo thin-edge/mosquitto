@@ -25,7 +25,6 @@ Contributors:
 
 #include "mosquitto_internal.h"
 #include "mosquitto.h"
-#include "memory_mosq.h"
 #include "messages_mosq.h"
 #include "send_mosq.h"
 #include "util_mosq.h"
@@ -38,10 +37,10 @@ void message__cleanup(struct mosquitto_message_all **message)
 
 	msg = *message;
 
-	mosquitto__FREE(msg->msg.topic);
-	mosquitto__FREE(msg->msg.payload);
+	mosquitto_FREE(msg->msg.topic);
+	mosquitto_FREE(msg->msg.payload);
 	mosquitto_property_free_all(&msg->properties);
-	mosquitto__FREE(msg);
+	mosquitto_FREE(msg);
 }
 
 void message__cleanup_all(struct mosquitto *mosq)
@@ -65,14 +64,14 @@ int mosquitto_message_copy(struct mosquitto_message *dst, const struct mosquitto
 	if(!dst || !src) return MOSQ_ERR_INVAL;
 
 	dst->mid = src->mid;
-	dst->topic = mosquitto__strdup(src->topic);
+	dst->topic = mosquitto_strdup(src->topic);
 	if(!dst->topic) return MOSQ_ERR_NOMEM;
 	dst->qos = src->qos;
 	dst->retain = src->retain;
 	if(src->payloadlen){
-		dst->payload = mosquitto__calloc((unsigned int)src->payloadlen+1, sizeof(uint8_t));
+		dst->payload = mosquitto_calloc((unsigned int)src->payloadlen+1, sizeof(uint8_t));
 		if(!dst->payload){
-			mosquitto__FREE(dst->topic);
+			mosquitto_FREE(dst->topic);
 			return MOSQ_ERR_NOMEM;
 		}
 		memcpy(dst->payload, src->payload, (unsigned int)src->payloadlen);
@@ -105,17 +104,17 @@ void mosquitto_message_free(struct mosquitto_message **message)
 
 	msg = *message;
 
-	mosquitto__FREE(msg->topic);
-	mosquitto__FREE(msg->payload);
-	mosquitto__FREE(msg);
+	mosquitto_FREE(msg->topic);
+	mosquitto_FREE(msg->payload);
+	mosquitto_FREE(msg);
 }
 
 void mosquitto_message_free_contents(struct mosquitto_message *message)
 {
 	if(!message) return;
 
-	mosquitto__FREE(message->topic);
-	mosquitto__FREE(message->payload);
+	mosquitto_FREE(message->topic);
+	mosquitto_FREE(message->payload);
 }
 
 int message__queue(struct mosquitto *mosq, struct mosquitto_message_all *message, enum mosquitto_msg_direction dir)

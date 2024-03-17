@@ -54,7 +54,6 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
-#include "memory_mosq.h"
 #include "misc_mosq.h"
 #include "net_mosq.h"
 #include "util_mosq.h"
@@ -298,33 +297,33 @@ static unsigned int psk_server_callback(SSL *ssl, const char *identity, unsigned
 
 	/* The hex to BN conversion results in the length halving, so we can pass
 	 * max_psk_len*2 as the max hex key here. */
-	psk_key = mosquitto__calloc(1, (size_t)max_psk_len*2 + 1);
+	psk_key = mosquitto_calloc(1, (size_t)max_psk_len*2 + 1);
 	if(!psk_key) return 0;
 
 	if(mosquitto_psk_key_get(context, psk_hint, identity, psk_key, (int)max_psk_len*2) != MOSQ_ERR_SUCCESS){
-		mosquitto__FREE(psk_key);
+		mosquitto_FREE(psk_key);
 		return 0;
 	}
 
 	len = mosquitto__hex2bin(psk_key, psk, (int)max_psk_len);
 	if (len < 0){
-		mosquitto__FREE(psk_key);
+		mosquitto_FREE(psk_key);
 		return 0;
 	}
 
 	if(listener->use_identity_as_username){
 		if(mosquitto_validate_utf8(identity, (int)strlen(identity))){
-			mosquitto__free(psk_key);
+			mosquitto_free(psk_key);
 			return 0;
 		}
-		context->username = mosquitto__strdup(identity);
+		context->username = mosquitto_strdup(identity);
 		if(!context->username){
-			mosquitto__FREE(psk_key);
+			mosquitto_FREE(psk_key);
 			return 0;
 		}
 	}
 
-	mosquitto__FREE(psk_key);
+	mosquitto_FREE(psk_key);
 	return (unsigned int)len;
 }
 #endif
@@ -767,7 +766,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 			continue;
 		}
 		listener->sock_count++;
-		listener->socks = mosquitto__realloc(listener->socks, sizeof(mosq_sock_t)*(size_t)listener->sock_count);
+		listener->socks = mosquitto_realloc(listener->socks, sizeof(mosq_sock_t)*(size_t)listener->sock_count);
 		if(!listener->socks){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			freeaddrinfo(ainfo);
@@ -788,7 +787,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 
 		if(net__socket_nonblock(&sock)){
 			freeaddrinfo(ainfo);
-			mosquitto__FREE(listener->socks);
+			mosquitto_FREE(listener->socks);
 			return 1;
 		}
 
@@ -821,7 +820,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 			net__print_error(MOSQ_LOG_ERR, "Error: %s");
 			COMPAT_CLOSE(sock);
 			freeaddrinfo(ainfo);
-			mosquitto__FREE(listener->socks);
+			mosquitto_FREE(listener->socks);
 			return 1;
 		}
 
@@ -829,7 +828,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 			net__print_error(MOSQ_LOG_ERR, "Error: %s");
 			freeaddrinfo(ainfo);
 			COMPAT_CLOSE(sock);
-			mosquitto__FREE(listener->socks);
+			mosquitto_FREE(listener->socks);
 			return 1;
 		}
 	}
@@ -837,7 +836,7 @@ static int net__socket_listen_tcp(struct mosquitto__listener *listener)
 
 #ifndef WIN32
 	if(listener->bind_interface && !interface_bound){
-		mosquitto__FREE(listener->socks);
+		mosquitto_FREE(listener->socks);
 		return 1;
 	}
 #endif
@@ -874,7 +873,7 @@ static int net__socket_listen_unix(struct mosquitto__listener *listener)
 		return 1;
 	}
 	listener->sock_count++;
-	listener->socks = mosquitto__realloc(listener->socks, sizeof(mosq_sock_t)*(size_t)listener->sock_count);
+	listener->socks = mosquitto_realloc(listener->socks, sizeof(mosq_sock_t)*(size_t)listener->sock_count);
 	if(!listener->socks){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		COMPAT_CLOSE(sock);

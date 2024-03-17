@@ -50,7 +50,6 @@ Contributors:
 #endif
 
 #include "mosquitto.h"
-#include "memory_mosq.h"
 #include "net_mosq.h"
 #include "send_mosq.h"
 #include "tls_mosq.h"
@@ -159,7 +158,7 @@ int mosquitto__hex2bin_sha1(const char *hex, unsigned char **bin)
 		return MOSQ_ERR_INVAL;
 	}
 
-	sha = mosquitto__malloc(SHA_DIGEST_LENGTH);
+	sha = mosquitto_malloc(SHA_DIGEST_LENGTH);
 	if(!sha){
 		return MOSQ_ERR_NOMEM;
 	}

@@ -20,7 +20,6 @@ Contributors:
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "utlist.h"
 
 
@@ -44,7 +43,7 @@ static int plugin__handle_subscribe_single(struct mosquitto__security_options *o
 		}
 
 		if(sub->topic_filter != event_data.data.topic_filter){
-			mosquitto__free(sub->topic_filter);
+			mosquitto_free(sub->topic_filter);
 			sub->topic_filter = event_data.data.topic_filter;
 		}
 	}

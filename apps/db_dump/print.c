@@ -21,7 +21,6 @@ Contributors:
 
 #include "db_dump.h"
 #include <mosquitto_broker_internal.h>
-#include <memory_mosq.h>
 #include <mosquitto/mqtt_protocol.h>
 #include <persist.h>
 #include <property_mosq.h>

@@ -29,7 +29,6 @@ Contributors:
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
 #include "messages_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "read_handle.h"
@@ -62,15 +61,15 @@ int will__set(struct mosquitto *mosq, const char *topic, int payloadlen, const v
 	}
 
 	if(mosq->will){
-		mosquitto__FREE(mosq->will->msg.topic);
-		mosquitto__FREE(mosq->will->msg.payload);
+		mosquitto_FREE(mosq->will->msg.topic);
+		mosquitto_FREE(mosq->will->msg.payload);
 		mosquitto_property_free_all(&mosq->will->properties);
-		mosquitto__FREE(mosq->will);
+		mosquitto_FREE(mosq->will);
 	}
 
-	mosq->will = mosquitto__calloc(1, sizeof(struct mosquitto_message_all));
+	mosq->will = mosquitto_calloc(1, sizeof(struct mosquitto_message_all));
 	if(!mosq->will) return MOSQ_ERR_NOMEM;
-	mosq->will->msg.topic = mosquitto__strdup(topic);
+	mosq->will->msg.topic = mosquitto_strdup(topic);
 	if(!mosq->will->msg.topic){
 		rc = MOSQ_ERR_NOMEM;
 		goto cleanup;
@@ -81,7 +80,7 @@ int will__set(struct mosquitto *mosq, const char *topic, int payloadlen, const v
 			rc = MOSQ_ERR_INVAL;
 			goto cleanup;
 		}
-		mosq->will->msg.payload = mosquitto__malloc(sizeof(char)*(unsigned int)mosq->will->msg.payloadlen);
+		mosq->will->msg.payload = mosquitto_malloc(sizeof(char)*(unsigned int)mosq->will->msg.payloadlen);
 		if(!mosq->will->msg.payload){
 			rc = MOSQ_ERR_NOMEM;
 			goto cleanup;
@@ -98,9 +97,9 @@ int will__set(struct mosquitto *mosq, const char *topic, int payloadlen, const v
 
 cleanup:
 	if(mosq->will){
-		mosquitto__FREE(mosq->will->msg.topic);
-		mosquitto__FREE(mosq->will->msg.payload);
-		mosquitto__FREE(mosq->will);
+		mosquitto_FREE(mosq->will->msg.topic);
+		mosquitto_FREE(mosq->will->msg.payload);
+		mosquitto_FREE(mosq->will);
 	}
 
 	return rc;
@@ -110,12 +109,12 @@ int will__clear(struct mosquitto *mosq)
 {
 	if(!mosq->will) return MOSQ_ERR_SUCCESS;
 
-	mosquitto__FREE(mosq->will->msg.topic);
-	mosquitto__FREE(mosq->will->msg.payload);
+	mosquitto_FREE(mosq->will->msg.topic);
+	mosquitto_FREE(mosq->will->msg.payload);
 
 	mosquitto_property_free_all(&mosq->will->properties);
 
-	mosquitto__FREE(mosq->will);
+	mosquitto_FREE(mosq->will);
 	mosq->will_delay_interval = 0;
 
 	return MOSQ_ERR_SUCCESS;

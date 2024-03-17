@@ -46,7 +46,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "send_mosq.h"
@@ -68,14 +67,14 @@ static int single_publish(struct mosquitto *context, struct mosquitto__message_v
 	struct mosquitto__base_msg *base_msg;
 	uint16_t mid;
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
+	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL) return MOSQ_ERR_NOMEM;
 
 	base_msg->data.topic = pub_msg->topic;
 	pub_msg->topic = NULL;
 	base_msg->data.retain = 0;
 	base_msg->data.payloadlen = (uint32_t)pub_msg->payloadlen;
-	base_msg->data.payload = mosquitto__malloc(base_msg->data.payloadlen+1);
+	base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
 	if(base_msg->data.payload == NULL){
 		db__msg_store_free(base_msg);
 		return MOSQ_ERR_NOMEM;
@@ -145,11 +144,11 @@ static void queue_plugin_msgs(void)
 		}else{
 			db__messages_easy_queue(NULL, msg->topic, (uint8_t)msg->qos, (uint32_t)msg->payloadlen, msg->payload, msg->retain, message_expiry, &msg->properties);
 		}
-		mosquitto__FREE(msg->topic);
-		mosquitto__FREE(msg->payload);
+		mosquitto_FREE(msg->topic);
+		mosquitto_FREE(msg->payload);
 		mosquitto_property_free_all(&msg->properties);
-		mosquitto__FREE(msg->clientid);
-		mosquitto__FREE(msg);
+		mosquitto_FREE(msg->clientid);
+		mosquitto_FREE(msg);
 	}
 }
 

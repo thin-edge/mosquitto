@@ -19,7 +19,6 @@ Contributors:
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "send_mosq.h"
 #include "util_mosq.h"
@@ -215,24 +214,24 @@ BROKER_EXPORT int mosquitto_broker_publish(
 		return MOSQ_ERR_INVAL;
 	}
 
-	msg = mosquitto__malloc(sizeof(struct mosquitto__message_v5));
+	msg = mosquitto_malloc(sizeof(struct mosquitto__message_v5));
 	if(msg == NULL) return MOSQ_ERR_NOMEM;
 
 	msg->next = NULL;
 	msg->prev = NULL;
 	if(clientid){
-		msg->clientid = mosquitto__strdup(clientid);
+		msg->clientid = mosquitto_strdup(clientid);
 		if(msg->clientid == NULL){
-			mosquitto__FREE(msg);
+			mosquitto_FREE(msg);
 			return MOSQ_ERR_NOMEM;
 		}
 	}else{
 		msg->clientid = NULL;
 	}
-	msg->topic = mosquitto__strdup(topic);
+	msg->topic = mosquitto_strdup(topic);
 	if(msg->topic == NULL){
-		mosquitto__FREE(msg->clientid);
-		mosquitto__FREE(msg);
+		mosquitto_FREE(msg->clientid);
+		mosquitto_FREE(msg);
 		return MOSQ_ERR_NOMEM;
 	}
 	msg->payloadlen = payloadlen;
@@ -302,7 +301,7 @@ BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *u
 		if(mosquitto_validate_utf8(username, (int)strlen(username))){
 			return MOSQ_ERR_MALFORMED_UTF8;
 		}
-		u_dup = mosquitto__strdup(username);
+		u_dup = mosquitto_strdup(username);
 		if(!u_dup) return MOSQ_ERR_NOMEM;
 	}else{
 		u_dup = NULL;
@@ -314,10 +313,10 @@ BROKER_EXPORT int mosquitto_set_username(struct mosquitto *client, const char *u
 	rc = acl__find_acls(client);
 	if(rc){
 		client->username = old;
-		mosquitto__FREE(u_dup);
+		mosquitto_FREE(u_dup);
 		return rc;
 	}else{
-		mosquitto__FREE(old);
+		mosquitto_FREE(old);
 		return MOSQ_ERR_SUCCESS;
 	}
 }
@@ -353,13 +352,13 @@ BROKER_EXPORT int mosquitto_set_clientid(struct mosquitto *client, const char *c
         return MOSQ_ERR_INVAL;
     }
 
-    id_dup = mosquitto__strdup(clientid);
+    id_dup = mosquitto_strdup(clientid);
     if(!id_dup) return MOSQ_ERR_NOMEM;
 
 	if(in_by_id){
 		context__remove_from_by_id(client);
 	}
-	mosquitto__free(client->id);
+	mosquitto_free(client->id);
 	client->id = id_dup;
 	if(in_by_id){
 		context__add_to_by_id(client);

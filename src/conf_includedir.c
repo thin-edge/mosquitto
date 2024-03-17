@@ -46,7 +46,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
@@ -101,23 +100,23 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 		len = strlen(include_dir)+1+strlen(find_data.cFileName)+1;
 
 		l_file_count++;
-		files_tmp = mosquitto__realloc(l_files, l_file_count*sizeof(char *));
+		files_tmp = mosquitto_realloc(l_files, l_file_count*sizeof(char *));
 		if(!files_tmp){
 			for(int i=0; i<l_file_count-1; i++){
-				mosquitto__FREE(l_files[i]);
+				mosquitto_FREE(l_files[i]);
 			}
-			mosquitto__FREE(l_files);
+			mosquitto_FREE(l_files);
 			FindClose(fh);
 			return MOSQ_ERR_NOMEM;
 		}
 		l_files = files_tmp;
 
-		l_files[l_file_count-1] = mosquitto__malloc(len+1);
+		l_files[l_file_count-1] = mosquitto_malloc(len+1);
 		if(!l_files[l_file_count-1]){
 			for(int i=0; i<l_file_count-1; i++){
-				mosquitto__FREE(l_files[i]);
+				mosquitto_FREE(l_files[i]);
 			}
-			mosquitto__FREE(l_files);
+			mosquitto_FREE(l_files);
 			FindClose(fh);
 			return MOSQ_ERR_NOMEM;
 		}
@@ -161,11 +160,11 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 				len = strlen(include_dir)+1+strlen(de->d_name)+1;
 
 				l_file_count++;
-				files_tmp = mosquitto__realloc(l_files, (size_t)l_file_count*sizeof(char *));
+				files_tmp = mosquitto_realloc(l_files, (size_t)l_file_count*sizeof(char *));
 				if(!files_tmp) goto error;
 				l_files = files_tmp;
 
-				l_files[l_file_count-1] = mosquitto__malloc(len+1);
+				l_files[l_file_count-1] = mosquitto_malloc(len+1);
 				if(!l_files[l_file_count-1]) goto error;
 				snprintf(l_files[l_file_count-1], len, "%s/%s", include_dir, de->d_name);
 				l_files[l_file_count-1][len] = '\0';
@@ -183,9 +182,9 @@ int config__get_dir_files(const char *include_dir, char ***files, int *file_coun
 	return 0;
 error:
 	for(int i=0; i<l_file_count-1; i++){
-		mosquitto__FREE(l_files[i]);
+		mosquitto_FREE(l_files[i]);
 	}
-	mosquitto__FREE(l_files);
+	mosquitto_FREE(l_files);
 	closedir(dh);
 	return MOSQ_ERR_NOMEM;
 }

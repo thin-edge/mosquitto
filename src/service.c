@@ -22,7 +22,6 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 #include <windows.h>
-#include "memory_mosq.h"
 
 extern int g_run;
 SERVICE_STATUS_HANDLE service_handle = 0;
@@ -115,7 +114,7 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 		}
 		strcat(conf_path, "\\mosquitto.conf");
 
-		argv = mosquitto__malloc(sizeof(char *)*3);
+		argv = mosquitto_malloc(sizeof(char *)*3);
 		argv[0] = name;
 		argv[1] = "-c";
 		argv[2] = conf_path;
@@ -129,7 +128,7 @@ void __stdcall service_main(DWORD dwArgc, LPTSTR *lpszArgv)
 		SetServiceStatus(service_handle, &service_status);
 
 		main(argc, argv);
-		mosquitto__FREE(argv);
+		mosquitto_FREE(argv);
 
 		service_status.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus(service_handle, &service_status);

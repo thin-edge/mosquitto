@@ -1,7 +1,6 @@
 #include <time.h>
 
 #include <logging_mosq.h>
-#include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
 #include <net_mosq.h>
 #include <send_mosq.h>
@@ -14,7 +13,7 @@ extern int last_qos;
 
 struct mosquitto *context__init(void)
 {
-	return mosquitto__calloc(1, sizeof(struct mosquitto));
+	return mosquitto_calloc(1, sizeof(struct mosquitto));
 }
 
 int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)

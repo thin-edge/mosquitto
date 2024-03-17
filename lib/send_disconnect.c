@@ -28,7 +28,6 @@ Contributors:
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
@@ -68,7 +67,7 @@ int send__disconnect(struct mosquitto *mosq, uint8_t reason_code, const mosquitt
 
 	rc = packet__alloc(&packet, CMD_DISCONNECT, remaining_length);
 	if(rc){
-		mosquitto__FREE(packet);
+		mosquitto_FREE(packet);
 		return rc;
 	}
 	if(mosq->protocol == mosq_p_mqtt5 && (reason_code != 0 || properties)){

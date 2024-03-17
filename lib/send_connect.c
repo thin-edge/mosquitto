@@ -27,7 +27,6 @@ Contributors:
 #endif
 
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
 #include "mosquitto/mqtt_protocol.h"
@@ -133,7 +132,7 @@ int send__connect(struct mosquitto *mosq, uint16_t keepalive, bool clean_session
 
 	rc = packet__alloc(&packet, CMD_CONNECT, headerlen + payloadlen);
 	if(rc){
-		mosquitto__FREE(packet);
+		mosquitto_FREE(packet);
 		return rc;
 	}
 

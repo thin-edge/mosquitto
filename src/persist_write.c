@@ -32,7 +32,6 @@ Contributors:
 #include <time.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "persist.h"
 #include "misc_mosq.h"
 #include "util_mosq.h"
@@ -221,7 +220,7 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 	int rc;
 
 	slen = strlen(topic) + node->topic_len + 2;
-	thistopic = mosquitto__malloc(sizeof(char)*slen);
+	thistopic = mosquitto_malloc(sizeof(char)*slen);
 	if(!thistopic) return MOSQ_ERR_NOMEM;
 	if(level > 1 || strlen(topic)){
 		snprintf(thistopic, slen, "%s/%s", topic, node->topic);
@@ -244,7 +243,7 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 
 			rc = persist__chunk_sub_write_v6(db_fptr, &sub_chunk);
 			if(rc){
-				mosquitto__FREE(thistopic);
+				mosquitto_FREE(thistopic);
 				return rc;
 			}
 		}
@@ -254,7 +253,7 @@ static int persist__subs_save(FILE *db_fptr, struct mosquitto__subhier *node, co
 	HASH_ITER(hh, node->children, subhier, subhier_tmp){
 		persist__subs_save(db_fptr, subhier, thistopic, level+1);
 	}
-	mosquitto__FREE(thistopic);
+	mosquitto_FREE(thistopic);
 	return MOSQ_ERR_SUCCESS;
 }
 

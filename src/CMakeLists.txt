@@ -29,8 +29,6 @@ set (MOSQ_SRCS
 	listeners.c
 	logging.c
 	loop.c
-	../lib/memory_mosq.c ../lib/memory_mosq.h
-	memory_public.c
 	mosquitto.c
 	../include/mosquitto_broker.h mosquitto_broker_internal.h
 	../common/misc_mosq.c ../common/misc_mosq.h

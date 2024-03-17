@@ -23,7 +23,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "send_mosq.h"
 #include "base64_mosq.h"
@@ -50,22 +49,22 @@ int mosquitto_security_init_default(bool reload)
 	/* Configure plugin identifier */
 	if(db.config->per_listener_settings){
 		for(int i=0; i<db.config->listener_count; i++){
-			db.config->listeners[i].security_options->pid = mosquitto__calloc(1, sizeof(mosquitto_plugin_id_t));
+			db.config->listeners[i].security_options->pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
 			if(db.config->listeners[i].security_options->pid == NULL){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 				return MOSQ_ERR_NOMEM;
 			}
-			db.config->listeners[i].security_options->pid->plugin_name = mosquitto__strdup("builtin-security");
+			db.config->listeners[i].security_options->pid->plugin_name = mosquitto_strdup("builtin-security");
 			db.config->listeners[i].security_options->pid->listener = &db.config->listeners[i];
 			config__plugin_add_secopt(db.config->listeners[i].security_options->pid, db.config->listeners[i].security_options);
 		}
 	}else{
-		db.config->security_options.pid = mosquitto__calloc(1, sizeof(mosquitto_plugin_id_t));
+		db.config->security_options.pid = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
 		if(db.config->security_options.pid == NULL){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			return MOSQ_ERR_NOMEM;
 		}
-		db.config->security_options.pid->plugin_name = mosquitto__strdup("builtin-security");
+		db.config->security_options.pid->plugin_name = mosquitto_strdup("builtin-security");
 		config__plugin_add_secopt(db.config->security_options.pid, &db.config->security_options);
 	}
 
@@ -192,9 +191,9 @@ int mosquitto_security_cleanup_default(bool reload)
 				mosquitto_callback_unregister(db.config->listeners[i].security_options->pid,
 						MOSQ_EVT_ACL_CHECK, mosquitto_acl_check_default, NULL);
 
-				mosquitto__FREE(db.config->listeners[i].security_options->pid->plugin_name);
-				mosquitto__FREE(db.config->listeners[i].security_options->pid->config.security_options);
-				mosquitto__FREE(db.config->listeners[i].security_options->pid);
+				mosquitto_FREE(db.config->listeners[i].security_options->pid->plugin_name);
+				mosquitto_FREE(db.config->listeners[i].security_options->pid->config.security_options);
+				mosquitto_FREE(db.config->listeners[i].security_options->pid);
 			}
 		}
 	}else{
@@ -204,9 +203,9 @@ int mosquitto_security_cleanup_default(bool reload)
 			mosquitto_callback_unregister(db.config->security_options.pid,
 					MOSQ_EVT_ACL_CHECK, mosquitto_acl_check_default, NULL);
 
-			mosquitto__FREE(db.config->security_options.pid->plugin_name);
-			mosquitto__FREE(db.config->security_options.pid->config.security_options);
-			mosquitto__FREE(db.config->security_options.pid);
+			mosquitto_FREE(db.config->security_options.pid->plugin_name);
+			mosquitto_FREE(db.config->security_options.pid->config.security_options);
+			mosquitto_FREE(db.config->security_options.pid);
 		}
 	}
 	return MOSQ_ERR_SUCCESS;
@@ -222,7 +221,7 @@ static int add__acl(struct mosquitto__security_options *security_opts, const cha
 
 	if(!security_opts || !topic) return MOSQ_ERR_INVAL;
 
-	local_topic = mosquitto__strdup(topic);
+	local_topic = mosquitto_strdup(topic);
 	if(!local_topic){
 		return MOSQ_ERR_NOMEM;
 	}
@@ -243,17 +242,17 @@ static int add__acl(struct mosquitto__security_options *security_opts, const cha
 		}
 	}
 	if(!acl_user){
-		acl_user = mosquitto__malloc(sizeof(struct mosquitto__acl_user));
+		acl_user = mosquitto_malloc(sizeof(struct mosquitto__acl_user));
 		if(!acl_user){
-			mosquitto__FREE(local_topic);
+			mosquitto_FREE(local_topic);
 			return MOSQ_ERR_NOMEM;
 		}
 		new_user = true;
 		if(user){
-			acl_user->username = mosquitto__strdup(user);
+			acl_user->username = mosquitto_strdup(user);
 			if(!acl_user->username){
-				mosquitto__FREE(local_topic);
-				mosquitto__FREE(acl_user);
+				mosquitto_FREE(local_topic);
+				mosquitto_FREE(acl_user);
 				return MOSQ_ERR_NOMEM;
 			}
 		}else{
@@ -263,11 +262,11 @@ static int add__acl(struct mosquitto__security_options *security_opts, const cha
 		acl_user->acl = NULL;
 	}
 
-	acl = mosquitto__malloc(sizeof(struct mosquitto__acl));
+	acl = mosquitto_malloc(sizeof(struct mosquitto__acl));
 	if(!acl){
-		mosquitto__FREE(local_topic);
-		mosquitto__FREE(acl_user->username);
-		mosquitto__FREE(acl_user);
+		mosquitto_FREE(local_topic);
+		mosquitto_FREE(acl_user->username);
+		mosquitto_FREE(acl_user);
 		return MOSQ_ERR_NOMEM;
 	}
 	acl->access = access;
@@ -317,14 +316,14 @@ static int add__acl_pattern(struct mosquitto__security_options *security_opts, c
 
 	if(!security_opts| !topic) return MOSQ_ERR_INVAL;
 
-	local_topic = mosquitto__strdup(topic);
+	local_topic = mosquitto_strdup(topic);
 	if(!local_topic){
 		return MOSQ_ERR_NOMEM;
 	}
 
-	acl = mosquitto__malloc(sizeof(struct mosquitto__acl));
+	acl = mosquitto_malloc(sizeof(struct mosquitto__acl));
 	if(!acl){
-		mosquitto__FREE(local_topic);
+		mosquitto_FREE(local_topic);
 		return MOSQ_ERR_NOMEM;
 	}
 	acl->access = access;
@@ -500,7 +499,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 	if(!security_opts) return MOSQ_ERR_INVAL;
 	if(!security_opts->acl_file) return MOSQ_ERR_SUCCESS;
 
-	buf = mosquitto__malloc((size_t)buflen);
+	buf = mosquitto_malloc((size_t)buflen);
 	if(buf == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -508,7 +507,7 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 
 	aclfptr = mosquitto__fopen(security_opts->acl_file, "rt", true);
 	if(!aclfptr){
-		mosquitto__FREE(buf);
+		mosquitto_FREE(buf);
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open acl_file \"%s\".", security_opts->acl_file);
 		return MOSQ_ERR_UNKNOWN;
 	}
@@ -589,8 +588,8 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 						rc = MOSQ_ERR_INVAL;
 						break;
 					}
-					mosquitto__FREE(user);
-					user = mosquitto__strdup(token);
+					mosquitto_FREE(user);
+					user = mosquitto_strdup(token);
 					if(!user){
 						rc = MOSQ_ERR_NOMEM;
 						break;
@@ -608,8 +607,8 @@ static int aclfile__parse(struct mosquitto__security_options *security_opts)
 		}
 	}
 
-	mosquitto__FREE(buf);
-	mosquitto__FREE(user);
+	mosquitto_FREE(buf);
+	mosquitto_FREE(user);
 	fclose(aclfptr);
 
 	return rc;
@@ -622,8 +621,8 @@ static void free__acl(struct mosquitto__acl *acl)
 	if(acl->next){
 		free__acl(acl->next);
 	}
-	mosquitto__FREE(acl->topic);
-	mosquitto__FREE(acl);
+	mosquitto_FREE(acl->topic);
+	mosquitto_FREE(acl);
 }
 
 
@@ -635,8 +634,8 @@ static void acl__cleanup_single(struct mosquitto__security_options *security_opt
 		user_tail = security_opts->acl_list->next;
 
 		free__acl(security_opts->acl_list->acl);
-		mosquitto__FREE(security_opts->acl_list->username);
-		mosquitto__FREE(security_opts->acl_list);
+		mosquitto_FREE(security_opts->acl_list->username);
+		mosquitto_FREE(security_opts->acl_list);
 
 		security_opts->acl_list = user_tail;
 	}
@@ -724,7 +723,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 	char *buf;
 	int buflen = 256;
 
-	buf = mosquitto__malloc((size_t)buflen);
+	buf = mosquitto_malloc((size_t)buflen);
 	if(buf == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -733,7 +732,7 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 	pwfile = mosquitto__fopen(file, "rt", true);
 	if(!pwfile){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Unable to open pwfile \"%s\".", file);
-		mosquitto__FREE(buf);
+		mosquitto_FREE(buf);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -744,23 +743,23 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 
 			username = strtok_r(buf, ":", &saveptr);
 			if(username){
-				unpwd = mosquitto__calloc(1, sizeof(struct mosquitto__unpwd));
+				unpwd = mosquitto_calloc(1, sizeof(struct mosquitto__unpwd));
 				if(!unpwd){
 					fclose(pwfile);
-					mosquitto__FREE(buf);
+					mosquitto_FREE(buf);
 					return MOSQ_ERR_NOMEM;
 				}
 				username = misc__trimblanks(username);
 				if(strlen(username) > 65535){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
-					mosquitto__FREE(unpwd);
+					mosquitto_FREE(unpwd);
 					continue;
 				}
 
-				unpwd->username = mosquitto__strdup(username);
+				unpwd->username = mosquitto_strdup(username);
 				if(!unpwd->username){
-					mosquitto__FREE(unpwd);
-					mosquitto__FREE(buf);
+					mosquitto_FREE(unpwd);
+					mosquitto_FREE(buf);
 					fclose(pwfile);
 					return MOSQ_ERR_NOMEM;
 				}
@@ -770,31 +769,31 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 
 					if(strlen(password) > 65535){
 						log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', password too long.", file);
-						mosquitto__FREE(unpwd->username);
-						mosquitto__FREE(unpwd);
+						mosquitto_FREE(unpwd->username);
+						mosquitto_FREE(unpwd);
 						continue;
 					}
 
-					unpwd->pw.encoded_password = mosquitto__strdup(password);
+					unpwd->pw.encoded_password = mosquitto_strdup(password);
 					if(!unpwd->pw.encoded_password){
 						fclose(pwfile);
-						mosquitto__FREE(unpwd->username);
-						mosquitto__FREE(unpwd);
-						mosquitto__FREE(buf);
+						mosquitto_FREE(unpwd->username);
+						mosquitto_FREE(unpwd);
+						mosquitto_FREE(buf);
 						return MOSQ_ERR_NOMEM;
 					}
 
 					HASH_ADD_KEYPTR(hh, *root, unpwd->username, strlen(unpwd->username), unpwd);
 				}else{
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s': %s", file, buf);
-					mosquitto__FREE(unpwd->username);
-					mosquitto__FREE(unpwd);
+					mosquitto_FREE(unpwd->username);
+					mosquitto_FREE(unpwd);
 				}
 			}
 		}
 	}
 	fclose(pwfile);
-	mosquitto__FREE(buf);
+	mosquitto_FREE(buf);
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -802,10 +801,10 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 
 void unpwd__free_item(struct mosquitto__unpwd **unpwd, struct mosquitto__unpwd *item)
 {
-	mosquitto__FREE(item->username);
-	mosquitto__FREE(item->pw.encoded_password);
+	mosquitto_FREE(item->username);
+	mosquitto_FREE(item->pw.encoded_password);
 	HASH_DEL(*unpwd, item);
-	mosquitto__FREE(item);
+	mosquitto_FREE(item);
 }
 
 
@@ -927,9 +926,9 @@ static int unpwd__cleanup(struct mosquitto__unpwd **root, bool reload)
 
 	HASH_ITER(hh, *root, u, tmp){
 		HASH_DEL(*root, u);
-		mosquitto__FREE(u->pw.encoded_password);
-		mosquitto__FREE(u->username);
-		mosquitto__FREE(u);
+		mosquitto_FREE(u->pw.encoded_password);
+		mosquitto_FREE(u->username);
+		mosquitto_FREE(u);
 	}
 
 	*root = NULL;
@@ -1033,8 +1032,8 @@ int mosquitto_security_apply_default(void)
 #endif /* FINAL_WITH_TLS_PSK */
 			{
 				/* Free existing credentials and then recover them. */
-				mosquitto__FREE(context->username);
-				mosquitto__FREE(context->password);
+				mosquitto_FREE(context->username);
+				mosquitto_FREE(context->password);
 
 				X509 *client_cert = SSL_get_peer_certificate(context->ssl);
 				if(!client_cert){
@@ -1062,7 +1061,7 @@ int mosquitto_security_apply_default(void)
 							security__disconnect_auth(context);
 							continue;
 						}
-						context->username = mosquitto__strdup((char *) ASN1_STRING_get0_data(name_asn1));
+						context->username = mosquitto_strdup((char *) ASN1_STRING_get0_data(name_asn1));
 						if(!context->username){
 							X509_free(client_cert);
 							security__disconnect_auth(context);
@@ -1080,7 +1079,7 @@ int mosquitto_security_apply_default(void)
 					X509_NAME_print_ex(subject_bio, X509_get_subject_name(client_cert), 0, XN_FLAG_RFC2253);
 					data_start = NULL;
 					name_length = (size_t)BIO_get_mem_data(subject_bio, &data_start);
-					subject = mosquitto__malloc(sizeof(char)*name_length+1);
+					subject = mosquitto_malloc(sizeof(char)*name_length+1);
 					if(!subject){
 						BIO_free(subject_bio);
 						X509_free(client_cert);

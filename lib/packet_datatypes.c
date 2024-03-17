@@ -34,7 +34,6 @@ Contributors:
 #  include "read_handle.h"
 #endif
 
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
@@ -102,7 +101,7 @@ int packet__read_binary(struct mosquitto__packet_in *packet, uint8_t **data, uin
 
 	if(packet->pos+slen > packet->remaining_length) return MOSQ_ERR_MALFORMED_PACKET;
 
-	*data = mosquitto__malloc(slen+1U);
+	*data = mosquitto_malloc(slen+1U);
 	if(*data){
 		memcpy(*data, &(packet->payload[packet->pos]), slen);
 		((uint8_t *)(*data))[slen] = '\0';
@@ -125,7 +124,7 @@ int packet__read_string(struct mosquitto__packet_in *packet, char **str, uint16_
 	if(*length == 0) return MOSQ_ERR_SUCCESS;
 
 	if(mosquitto_validate_utf8(*str, *length)){
-		mosquitto__FREE(*str);
+		mosquitto_FREE(*str);
 		*length = 0;
 		return MOSQ_ERR_MALFORMED_UTF8;
 	}

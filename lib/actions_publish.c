@@ -21,7 +21,6 @@ Contributors:
 #include <stdbool.h>
 #include <string.h>
 
-#include "memory_mosq.h"
 #include "messages_mosq.h"
 #include "mosquitto_internal.h"
 #include "mosquitto/mqtt_protocol.h"
@@ -120,7 +119,7 @@ int mosquitto_publish_v5(struct mosquitto *mosq, int *mid, const char *topic, in
 			rc = mosquitto_property_copy_all(&properties_copy, outgoing_properties);
 			if(rc) return rc;
 		}
-		message = mosquitto__calloc(1, sizeof(struct mosquitto_message_all));
+		message = mosquitto_calloc(1, sizeof(struct mosquitto_message_all));
 		if(!message){
 			mosquitto_property_free_all(&properties_copy);
 			return MOSQ_ERR_NOMEM;
@@ -129,7 +128,7 @@ int mosquitto_publish_v5(struct mosquitto *mosq, int *mid, const char *topic, in
 		message->next = NULL;
 		message->msg.mid = local_mid;
 		if(topic){
-			message->msg.topic = mosquitto__strdup(topic);
+			message->msg.topic = mosquitto_strdup(topic);
 			if(!message->msg.topic){
 				message__cleanup(&message);
 				mosquitto_property_free_all(&properties_copy);
@@ -138,7 +137,7 @@ int mosquitto_publish_v5(struct mosquitto *mosq, int *mid, const char *topic, in
 		}
 		if(payloadlen){
 			message->msg.payloadlen = payloadlen;
-			message->msg.payload = mosquitto__malloc((unsigned int)payloadlen*sizeof(uint8_t));
+			message->msg.payload = mosquitto_malloc((unsigned int)payloadlen*sizeof(uint8_t));
 			if(!message->msg.payload){
 				message__cleanup(&message);
 				mosquitto_property_free_all(&properties_copy);

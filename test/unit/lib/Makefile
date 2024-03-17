@@ -25,7 +25,6 @@ TEST_OBJS = \
 	stubs.o \
 
 LIB_OBJS = \
-	${R}/lib/memory_mosq.o \
 	${R}/lib/misc_mosq.o \
 	${R}/lib/packet_datatypes.o \
 	${R}/lib/packet_mosq.o \
@@ -45,9 +44,6 @@ ${TEST_OBJS} : %.o: %.c
 
 lib_stubs.o : stubs.c
 	${CROSS_COMPILE}$(CC) $(LIB_LOCAL_CPPFLAGS) $(LIB_LOCAL_CFLAGS) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
-
-${R}/lib/memory_mosq.o : ${R}/lib/memory_mosq.c
-	$(MAKE) -C ${R}/lib/ memory_mosq.o
 
 ${R}/lib/misc_mosq.o : ${R}/common/misc_mosq.c
 	$(MAKE) -C ${R}/lib/ misc_mosq.o

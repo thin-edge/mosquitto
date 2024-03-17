@@ -43,7 +43,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "misc_mosq.h"
 #include "tls_mosq.h"
 #include "util_mosq.h"
@@ -155,7 +154,7 @@ static int config__add_listener(struct mosquitto__config *config)
 		}
 	}
 	config->listener_count++;
-	config->listeners = mosquitto__realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)config->listener_count);
+	config->listeners = mosquitto_realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)config->listener_count);
 	if(!config->listeners){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -250,9 +249,9 @@ static void config__init_reload(struct mosquitto__config *config)
 	config->local_only = true;
 	config->allow_duplicate_messages = true;
 
-	mosquitto__FREE(config->security_options.acl_file);
-	mosquitto__FREE(config->security_options.password_file);
-	mosquitto__FREE(config->security_options.psk_file);
+	mosquitto_FREE(config->security_options.acl_file);
+	mosquitto_FREE(config->security_options.password_file);
+	mosquitto_FREE(config->security_options.psk_file);
 
 	config->security_options.allow_anonymous = -1;
 	config->security_options.allow_zero_length_clientid = true;
@@ -262,7 +261,7 @@ static void config__init_reload(struct mosquitto__config *config)
 	config->autosave_interval = 1800;
 	config->autosave_on_changes = false;
 
-	mosquitto__FREE(config->clientid_prefixes);
+	mosquitto_FREE(config->clientid_prefixes);
 
 	config->connection_messages = true;
 	config->clientid_prefixes = NULL;
@@ -271,7 +270,7 @@ static void config__init_reload(struct mosquitto__config *config)
 		fclose(config->log_fptr);
 		config->log_fptr = NULL;
 	}
-	mosquitto__FREE(config->log_file);
+	mosquitto_FREE(config->log_file);
 
 #if defined(WIN32) || defined(__CYGWIN__)
 	if(service_handle){
@@ -294,7 +293,7 @@ static void config__init_reload(struct mosquitto__config *config)
 	}
 #endif
 	config->log_timestamp = true;
-	mosquitto__FREE(config->log_timestamp_format);
+	mosquitto_FREE(config->log_timestamp_format);
 	config->global_max_clients = -1;
 	config->global_max_connections = -1;
 	config->log_timestamp_format = NULL;
@@ -305,8 +304,8 @@ static void config__init_reload(struct mosquitto__config *config)
 	config->max_inflight_bytes = 0;
 	config->max_queued_bytes = 0;
 	config->persistence = false;
-	mosquitto__FREE(config->persistence_location);
-	mosquitto__FREE(config->persistence_file);
+	mosquitto_FREE(config->persistence_location);
+	mosquitto_FREE(config->persistence_file);
 	config->persistent_client_expiration = 0;
 	config->queue_qos0_messages = false;
 	config->retain_available = true;
@@ -321,19 +320,19 @@ static void config__init_reload(struct mosquitto__config *config)
 
 static void config__cleanup_plugin_config(mosquitto_plugin_id_t *plugin)
 {
-	mosquitto__FREE(plugin->config.path);
-	mosquitto__FREE(plugin->config.name);
+	mosquitto_FREE(plugin->config.path);
+	mosquitto_FREE(plugin->config.name);
 
 	if(plugin->config.options){
 		for(int j=0; j<plugin->config.option_count; j++){
-			mosquitto__FREE(plugin->config.options[j].key);
-			mosquitto__FREE(plugin->config.options[j].value);
+			mosquitto_FREE(plugin->config.options[j].key);
+			mosquitto_FREE(plugin->config.options[j].value);
 		}
-		mosquitto__FREE(plugin->config.options);
+		mosquitto_FREE(plugin->config.options);
 		plugin->config.option_count = 0;
 	}
-	mosquitto__FREE(plugin->config.security_options);
-	mosquitto__FREE(plugin);
+	mosquitto_FREE(plugin->config.security_options);
+	mosquitto_FREE(plugin);
 }
 
 
@@ -342,7 +341,7 @@ static void config__cleanup_plugins(void)
 	for(int i=0; i<db.plugin_count; i++){
 		config__cleanup_plugin_config(db.plugins[i]);
 	}
-	mosquitto__FREE(db.plugins);
+	mosquitto_FREE(db.plugins);
 }
 
 void config__init(struct mosquitto__config *config)
@@ -355,44 +354,44 @@ void config__init(struct mosquitto__config *config)
 
 void config__cleanup(struct mosquitto__config *config)
 {
-	mosquitto__FREE(config->clientid_prefixes);
-	mosquitto__FREE(config->persistence_location);
-	mosquitto__FREE(config->persistence_file);
-	mosquitto__FREE(config->persistence_filepath);
-	mosquitto__FREE(config->security_options.auto_id_prefix);
-	mosquitto__FREE(config->security_options.acl_file);
-	mosquitto__FREE(config->security_options.password_file);
-	mosquitto__FREE(config->security_options.psk_file);
-	mosquitto__FREE(config->security_options.plugins);
-	mosquitto__FREE(config->pid_file);
-	mosquitto__FREE(config->user);
-	mosquitto__FREE(config->log_timestamp_format);
+	mosquitto_FREE(config->clientid_prefixes);
+	mosquitto_FREE(config->persistence_location);
+	mosquitto_FREE(config->persistence_file);
+	mosquitto_FREE(config->persistence_filepath);
+	mosquitto_FREE(config->security_options.auto_id_prefix);
+	mosquitto_FREE(config->security_options.acl_file);
+	mosquitto_FREE(config->security_options.password_file);
+	mosquitto_FREE(config->security_options.psk_file);
+	mosquitto_FREE(config->security_options.plugins);
+	mosquitto_FREE(config->pid_file);
+	mosquitto_FREE(config->user);
+	mosquitto_FREE(config->log_timestamp_format);
 	if(config->listeners){
 		for(int i=0; i<config->listener_count; i++){
-			mosquitto__FREE(config->listeners[i].host);
-			mosquitto__FREE(config->listeners[i].bind_interface);
-			mosquitto__FREE(config->listeners[i].mount_point);
-			mosquitto__FREE(config->listeners[i].socks);
+			mosquitto_FREE(config->listeners[i].host);
+			mosquitto_FREE(config->listeners[i].bind_interface);
+			mosquitto_FREE(config->listeners[i].mount_point);
+			mosquitto_FREE(config->listeners[i].socks);
 			if(config->listeners[i].security_options){
-				mosquitto__FREE(config->listeners[i].security_options->auto_id_prefix);
-				mosquitto__FREE(config->listeners[i].security_options->acl_file);
-				mosquitto__FREE(config->listeners[i].security_options->password_file);
-				mosquitto__FREE(config->listeners[i].security_options->psk_file);
-				mosquitto__FREE(config->listeners[i].security_options->plugins);
-				mosquitto__FREE(config->listeners[i].security_options);
+				mosquitto_FREE(config->listeners[i].security_options->auto_id_prefix);
+				mosquitto_FREE(config->listeners[i].security_options->acl_file);
+				mosquitto_FREE(config->listeners[i].security_options->password_file);
+				mosquitto_FREE(config->listeners[i].security_options->psk_file);
+				mosquitto_FREE(config->listeners[i].security_options->plugins);
+				mosquitto_FREE(config->listeners[i].security_options);
 			}
 #ifdef WITH_TLS
-			mosquitto__FREE(config->listeners[i].cafile);
-			mosquitto__FREE(config->listeners[i].capath);
-			mosquitto__FREE(config->listeners[i].certfile);
-			mosquitto__FREE(config->listeners[i].keyfile);
-			mosquitto__FREE(config->listeners[i].ciphers);
-			mosquitto__FREE(config->listeners[i].ciphers_tls13);
-			mosquitto__FREE(config->listeners[i].psk_hint);
-			mosquitto__FREE(config->listeners[i].crlfile);
-			mosquitto__FREE(config->listeners[i].tls_version);
-			mosquitto__FREE(config->listeners[i].tls_engine);
-			mosquitto__FREE(config->listeners[i].tls_engine_kpass_sha1);
+			mosquitto_FREE(config->listeners[i].cafile);
+			mosquitto_FREE(config->listeners[i].capath);
+			mosquitto_FREE(config->listeners[i].certfile);
+			mosquitto_FREE(config->listeners[i].keyfile);
+			mosquitto_FREE(config->listeners[i].ciphers);
+			mosquitto_FREE(config->listeners[i].ciphers_tls13);
+			mosquitto_FREE(config->listeners[i].psk_hint);
+			mosquitto_FREE(config->listeners[i].crlfile);
+			mosquitto_FREE(config->listeners[i].tls_version);
+			mosquitto_FREE(config->listeners[i].tls_engine);
+			mosquitto_FREE(config->listeners[i].tls_engine_kpass_sha1);
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 			if(!config->listeners[i].ws_context) /* libwebsockets frees its own SSL_CTX */
 #endif
@@ -403,25 +402,25 @@ void config__cleanup(struct mosquitto__config *config)
 #endif
 #ifdef WITH_WEBSOCKETS
 #  if WITH_WEBSOCKETS == WS_IS_LWS
-			mosquitto__FREE(config->listeners[i].http_dir);
+			mosquitto_FREE(config->listeners[i].http_dir);
 #  endif
 			for(int j=0; j<config->listeners[i].ws_origin_count; j++){
-				mosquitto__FREE(config->listeners[i].ws_origins[j]);
+				mosquitto_FREE(config->listeners[i].ws_origins[j]);
 			}
-			mosquitto__FREE(config->listeners[i].ws_origins);
+			mosquitto_FREE(config->listeners[i].ws_origins);
 #endif
 #ifdef WITH_UNIX_SOCKETS
-			mosquitto__FREE(config->listeners[i].unix_socket_path);
+			mosquitto_FREE(config->listeners[i].unix_socket_path);
 #endif
 		}
-		mosquitto__FREE(config->listeners);
+		mosquitto_FREE(config->listeners);
 	}
 #ifdef WITH_BRIDGE
 	if(config->bridges){
 		for(int i=0; i<config->bridge_count; i++){
 			config__bridge_cleanup(config->bridges[i]);
 		}
-		mosquitto__FREE(config->bridges);
+		mosquitto_FREE(config->bridges);
 	}
 #endif
 	config__cleanup_plugins();
@@ -431,7 +430,7 @@ void config__cleanup(struct mosquitto__config *config)
 		config->log_fptr = NULL;
 	}
 	if(config->log_file){
-		mosquitto__FREE(config->log_file);
+		mosquitto_FREE(config->log_file);
 		config->log_file = NULL;
 	}
 }
@@ -441,50 +440,50 @@ void config__bridge_cleanup(struct mosquitto__bridge *bridge)
 {
 	if(bridge == NULL) return;
 
-	mosquitto__FREE(bridge->name);
+	mosquitto_FREE(bridge->name);
 	if(bridge->addresses){
 		for(int i=0; i<bridge->address_count; i++){
-			mosquitto__FREE(bridge->addresses[i].address);
+			mosquitto_FREE(bridge->addresses[i].address);
 		}
-		mosquitto__FREE(bridge->addresses);
+		mosquitto_FREE(bridge->addresses);
 	}
-	mosquitto__FREE(bridge->bind_address);
-	mosquitto__FREE(bridge->remote_clientid);
-	mosquitto__FREE(bridge->remote_username);
-	mosquitto__FREE(bridge->remote_password);
-	mosquitto__FREE(bridge->local_clientid);
-	mosquitto__FREE(bridge->local_username);
-	mosquitto__FREE(bridge->local_password);
+	mosquitto_FREE(bridge->bind_address);
+	mosquitto_FREE(bridge->remote_clientid);
+	mosquitto_FREE(bridge->remote_username);
+	mosquitto_FREE(bridge->remote_password);
+	mosquitto_FREE(bridge->local_clientid);
+	mosquitto_FREE(bridge->local_username);
+	mosquitto_FREE(bridge->local_password);
 	if(bridge->topics){
 		struct mosquitto__bridge_topic *cur_topic, *topic_tmp;
 
 		LL_FOREACH_SAFE(bridge->topics, cur_topic, topic_tmp){
-			mosquitto__FREE(cur_topic->topic);
-			mosquitto__FREE(cur_topic->local_prefix);
-			mosquitto__FREE(cur_topic->remote_prefix);
-			mosquitto__FREE(cur_topic->local_topic);
-			mosquitto__FREE(cur_topic->remote_topic);
+			mosquitto_FREE(cur_topic->topic);
+			mosquitto_FREE(cur_topic->local_prefix);
+			mosquitto_FREE(cur_topic->remote_prefix);
+			mosquitto_FREE(cur_topic->local_topic);
+			mosquitto_FREE(cur_topic->remote_topic);
 			LL_DELETE(bridge->topics, cur_topic);
-			mosquitto__FREE(cur_topic);
+			mosquitto_FREE(cur_topic);
 		}
-		mosquitto__FREE(bridge->topics);
+		mosquitto_FREE(bridge->topics);
 	}
-	mosquitto__FREE(bridge->notification_topic);
+	mosquitto_FREE(bridge->notification_topic);
 #ifdef WITH_TLS
-	mosquitto__FREE(bridge->tls_certfile);
-	mosquitto__FREE(bridge->tls_keyfile);
-	mosquitto__FREE(bridge->tls_version);
-	mosquitto__FREE(bridge->tls_cafile);
-	mosquitto__FREE(bridge->tls_capath);
-	mosquitto__FREE(bridge->tls_alpn);
-	mosquitto__FREE(bridge->tls_ciphers);
-	mosquitto__FREE(bridge->tls_13_ciphers);
+	mosquitto_FREE(bridge->tls_certfile);
+	mosquitto_FREE(bridge->tls_keyfile);
+	mosquitto_FREE(bridge->tls_version);
+	mosquitto_FREE(bridge->tls_cafile);
+	mosquitto_FREE(bridge->tls_capath);
+	mosquitto_FREE(bridge->tls_alpn);
+	mosquitto_FREE(bridge->tls_ciphers);
+	mosquitto_FREE(bridge->tls_13_ciphers);
 #ifdef FINAL_WITH_TLS_PSK
-	mosquitto__FREE(bridge->tls_psk_identity);
-	mosquitto__FREE(bridge->tls_psk);
+	mosquitto_FREE(bridge->tls_psk_identity);
+	mosquitto_FREE(bridge->tls_psk);
 #endif
 #endif
-	mosquitto__FREE(bridge);
+	mosquitto_FREE(bridge);
 }
 #endif
 
@@ -584,7 +583,7 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 
 	/* Default to drop to mosquitto user if we are privileged and no user specified. */
 	if(!config->user){
-		config->user = mosquitto__strdup("mosquitto");
+		config->user = mosquitto_strdup("mosquitto");
 		if(config->user == NULL){
 			return MOSQ_ERR_NOMEM;
 		}
@@ -596,7 +595,7 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 	}
 
 	if(getenv("MOSQUITTO_PERSISTENCE_LOCATION")){
-		mosquitto__FREE(config->persistence_location);
+		mosquitto_FREE(config->persistence_location);
 		config->persistence_location = mosquitto_strdup(getenv("MOSQUITTO_PERSISTENCE_LOCATION"));
 		if(!config->persistence_location){
 			return MOSQ_ERR_NOMEM;
@@ -607,23 +606,23 @@ int config__parse_args(struct mosquitto__config *config, int argc, char *argv[])
 
 static void config__copy(struct mosquitto__config *src, struct mosquitto__config *dest)
 {
-	mosquitto__FREE(dest->security_options.acl_file);
+	mosquitto_FREE(dest->security_options.acl_file);
 	dest->security_options.acl_file = src->security_options.acl_file;
 
 	dest->security_options.allow_anonymous = src->security_options.allow_anonymous;
 	dest->security_options.allow_zero_length_clientid = src->security_options.allow_zero_length_clientid;
 
-	mosquitto__FREE(dest->security_options.auto_id_prefix);
+	mosquitto_FREE(dest->security_options.auto_id_prefix);
 	dest->security_options.auto_id_prefix = src->security_options.auto_id_prefix;
 	dest->security_options.auto_id_prefix_len = src->security_options.auto_id_prefix_len;
 
-	mosquitto__FREE(dest->security_options.password_file);
+	mosquitto_FREE(dest->security_options.password_file);
 	dest->security_options.password_file = src->security_options.password_file;
 
-	mosquitto__FREE(dest->security_options.psk_file);
+	mosquitto_FREE(dest->security_options.psk_file);
 	dest->security_options.psk_file = src->security_options.psk_file;
 
-	mosquitto__FREE(dest->security_options.plugins);
+	mosquitto_FREE(dest->security_options.plugins);
 	dest->security_options.plugin_count = src->security_options.plugin_count;
 	dest->security_options.plugins = src->security_options.plugins;
 
@@ -633,7 +632,7 @@ static void config__copy(struct mosquitto__config *src, struct mosquitto__config
 	dest->autosave_interval = src->autosave_interval;
 	dest->autosave_on_changes = src->autosave_on_changes;
 
-	mosquitto__FREE(dest->clientid_prefixes);
+	mosquitto_FREE(dest->clientid_prefixes);
 	dest->clientid_prefixes = src->clientid_prefixes;
 
 	dest->connection_messages = src->connection_messages;
@@ -642,23 +641,23 @@ static void config__copy(struct mosquitto__config *src, struct mosquitto__config
 	dest->log_type = src->log_type;
 	dest->log_timestamp = src->log_timestamp;
 
-	mosquitto__FREE(dest->log_timestamp_format);
+	mosquitto_FREE(dest->log_timestamp_format);
 	dest->log_timestamp_format = src->log_timestamp_format;
 
-	mosquitto__FREE(dest->log_file);
+	mosquitto_FREE(dest->log_file);
 	dest->log_file = src->log_file;
 
 	dest->message_size_limit = src->message_size_limit;
 
 	dest->persistence = src->persistence;
 
-	mosquitto__FREE(dest->persistence_location);
+	mosquitto_FREE(dest->persistence_location);
 	dest->persistence_location = src->persistence_location;
 
-	mosquitto__FREE(dest->persistence_file);
+	mosquitto_FREE(dest->persistence_file);
 	dest->persistence_file = src->persistence_file;
 
-	mosquitto__FREE(dest->persistence_filepath);
+	mosquitto_FREE(dest->persistence_filepath);
 	dest->persistence_filepath = src->persistence_filepath;
 
 	dest->persistent_client_expiration = src->persistent_client_expiration;
@@ -676,7 +675,7 @@ static void config__copy(struct mosquitto__config *src, struct mosquitto__config
 	for(int i=0;i<dest->bridge_count;i++){
 		if(dest->bridges[i]) config__bridge_cleanup(dest->bridges[i]);
 	}
-	mosquitto__FREE(dest->bridges);
+	mosquitto_FREE(dest->bridges);
 	dest->bridges = src->bridges;
 	dest->bridge_count = src->bridge_count;
 #endif
@@ -746,13 +745,13 @@ int config__read(struct mosquitto__config *config, bool reload)
 #ifdef WITH_PERSISTENCE
 	if(config->persistence){
 		if(!config->persistence_file){
-			config->persistence_file = mosquitto__strdup("mosquitto.db");
+			config->persistence_file = mosquitto_strdup("mosquitto.db");
 			if(!config->persistence_file) return MOSQ_ERR_NOMEM;
 		}
-		mosquitto__FREE(config->persistence_filepath);
+		mosquitto_FREE(config->persistence_filepath);
 		if(config->persistence_location && strlen(config->persistence_location)){
 			len = strlen(config->persistence_location) + strlen(config->persistence_file) + 2;
-			config->persistence_filepath = mosquitto__malloc(len);
+			config->persistence_filepath = mosquitto_malloc(len);
 			if(!config->persistence_filepath) return MOSQ_ERR_NOMEM;
 #ifdef WIN32
 			snprintf(config->persistence_filepath, len, "%s\\%s", config->persistence_location, config->persistence_file);
@@ -760,7 +759,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 			snprintf(config->persistence_filepath, len, "%s/%s", config->persistence_location, config->persistence_file);
 #endif
 		}else{
-			config->persistence_filepath = mosquitto__strdup(config->persistence_file);
+			config->persistence_filepath = mosquitto_strdup(config->persistence_file);
 			if(!config->persistence_filepath) return MOSQ_ERR_NOMEM;
 		}
 	}
@@ -769,7 +768,7 @@ int config__read(struct mosquitto__config *config, bool reload)
 	 * remain here even though it is covered in config__parse_args() because this
 	 * function may be called on its own. */
 	if(!config->user){
-		config->user = mosquitto__strdup("mosquitto");
+		config->user = mosquitto_strdup("mosquitto");
 	}
 
 #ifdef WITH_BRIDGE
@@ -840,11 +839,11 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 		return NULL;
 	}
 
-	plugin = mosquitto__calloc(1, sizeof(mosquitto_plugin_id_t));
+	plugin = mosquitto_calloc(1, sizeof(mosquitto_plugin_id_t));
 	if(!plugin) goto error;
 
-	if(name) plugin->config.name = mosquitto__strdup(name);
-	plugin->config.path = mosquitto__strdup(path);
+	if(name) plugin->config.name = mosquitto_strdup(name);
+	plugin->config.path = mosquitto_strdup(path);
 	if((name && !plugin->config.name) || !plugin->config.path){
 		goto error;
 	}
@@ -853,7 +852,7 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 	plugin->config.deny_special_chars = true;
 
 	/* Add to db list */
-	plugins = mosquitto__realloc(db.plugins, (size_t)(db.plugin_count+1)*sizeof(struct mosquitto__plugin_config *));
+	plugins = mosquitto_realloc(db.plugins, (size_t)(db.plugin_count+1)*sizeof(struct mosquitto__plugin_config *));
 	if(!plugins) goto error;
 
 	plugins[db.plugin_count] = plugin;
@@ -864,10 +863,10 @@ static mosquitto_plugin_id_t *config__plugin_load(const char *name, const char *
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 	if(plugin){
-		mosquitto__FREE(plugin->config.name);
-		mosquitto__FREE(plugin->config.path);
+		mosquitto_FREE(plugin->config.name);
+		mosquitto_FREE(plugin->config.path);
 	}
-	mosquitto__FREE(plugin);
+	mosquitto_FREE(plugin);
 	return NULL;
 }
 
@@ -877,12 +876,12 @@ int config__plugin_add_secopt(mosquitto_plugin_id_t *plugin, struct mosquitto__s
 	struct mosquitto__security_options **new_options;
 	mosquitto_plugin_id_t **new_plugins;
 
-	new_options = mosquitto__realloc(plugin->config.security_options, (size_t)(plugin->config.security_option_count+1)*sizeof(struct mosquitto__security_options *));
-	new_plugins = mosquitto__realloc(security_options->plugins, (size_t)(security_options->plugin_count+1)*sizeof(mosquitto_plugin_id_t *));
+	new_options = mosquitto_realloc(plugin->config.security_options, (size_t)(plugin->config.security_option_count+1)*sizeof(struct mosquitto__security_options *));
+	new_plugins = mosquitto_realloc(security_options->plugins, (size_t)(security_options->plugin_count+1)*sizeof(mosquitto_plugin_id_t *));
 
 	if(!new_options || !new_plugins){
-		mosquitto__FREE(new_options);
-		mosquitto__FREE(new_plugins);
+		mosquitto_FREE(new_options);
+		mosquitto_FREE(new_plugins);
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
 	}
@@ -966,7 +965,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
-					mosquitto__FREE(cur_security_options->acl_file);
+					mosquitto_FREE(cur_security_options->acl_file);
 					if(conf__parse_string(&token, "acl_file", &cur_security_options->acl_file, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "address") || !strcmp(token, "addresses")){
 #ifdef WITH_BRIDGE
@@ -980,13 +979,13 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							break;
 						}
 						cur_bridge->address_count++;
-						cur_bridge->addresses = mosquitto__realloc(cur_bridge->addresses, sizeof(struct bridge_address)*(size_t)cur_bridge->address_count);
+						cur_bridge->addresses = mosquitto_realloc(cur_bridge->addresses, sizeof(struct bridge_address)*(size_t)cur_bridge->address_count);
 						if(!cur_bridge->addresses){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
 						memset(&cur_bridge->addresses[cur_bridge->address_count-1], 0, sizeof(struct bridge_address));
-						cur_bridge->addresses[cur_bridge->address_count-1].address = mosquitto__strdup(token);
+						cur_bridge->addresses[cur_bridge->address_count-1].address = mosquitto_strdup(token);
 						if(!cur_bridge->addresses[cur_bridge->address_count-1].address){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
@@ -1048,13 +1047,13 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid 'plugin_opt_' config option.");
 						return MOSQ_ERR_INVAL;
 					}
-					key = mosquitto__strdup(&token[prefix_len]);
+					key = mosquitto_strdup(&token[prefix_len]);
 					if(!key){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
 					}else if(STREMPTY(key)){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty 'plugin_opt_' config option.");
-						mosquitto__FREE(key);
+						mosquitto_FREE(key);
 						return MOSQ_ERR_INVAL;
 					}
 					token = saveptr;
@@ -1063,21 +1062,21 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							token++;
 						}
 						cur_plugin->config.option_count++;
-						cur_plugin->config.options = mosquitto__realloc(cur_plugin->config.options, (size_t)cur_plugin->config.option_count*sizeof(struct mosquitto_auth_opt));
+						cur_plugin->config.options = mosquitto_realloc(cur_plugin->config.options, (size_t)cur_plugin->config.option_count*sizeof(struct mosquitto_auth_opt));
 						if(!cur_plugin->config.options){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
-							mosquitto__FREE(key);
+							mosquitto_FREE(key);
 							return MOSQ_ERR_NOMEM;
 						}
 						cur_plugin->config.options[cur_plugin->config.option_count-1].key = key;
-						cur_plugin->config.options[cur_plugin->config.option_count-1].value = mosquitto__strdup(token);
+						cur_plugin->config.options[cur_plugin->config.option_count-1].value = mosquitto_strdup(token);
 						if(!cur_plugin->config.options[cur_plugin->config.option_count-1].value){
 							log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 							return MOSQ_ERR_NOMEM;
 						}
 					}else{
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Empty '%s' value in configuration.", key);
-						mosquitto__FREE(key);
+						mosquitto_FREE(key);
 						return MOSQ_ERR_INVAL;
 					}
 				}else if(!strcmp(token, "auth_plugin") || !strcmp(token, "plugin") || !strcmp(token, "global_plugin")){
@@ -1124,10 +1123,10 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					cur_plugin = config__plugin_find(name);
 					if(!cur_plugin){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Plugin '%s' not previously loaded.", name);
-						mosquitto__FREE(name);
+						mosquitto_FREE(name);
 						return MOSQ_ERR_INVAL;
 					}
-					mosquitto__FREE(name);
+					mosquitto_FREE(name);
 					if(config__plugin_add_secopt(cur_plugin, cur_listener->security_options)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "auto_id_prefix")){
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
@@ -1304,7 +1303,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_INVAL;
 					}
 #endif
-					mosquitto__FREE(cur_bridge->tls_keyfile);
+					mosquitto_FREE(cur_bridge->tls_keyfile);
 					if(conf__parse_string(&token, "bridge_keyfile", &cur_bridge->tls_keyfile, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Bridge and/or TLS support not available.");
@@ -1450,7 +1449,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single listener.");
 						return MOSQ_ERR_INVAL;
 					}
-					mosquitto__FREE(cur_listener->cafile);
+					mosquitto_FREE(cur_listener->cafile);
 					if(conf__parse_string(&token, "cafile", &cur_listener->cafile, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
@@ -1458,7 +1457,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "capath")){
 #ifdef WITH_TLS
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					mosquitto__FREE(cur_listener->capath);
+					mosquitto_FREE(cur_listener->capath);
 					if(conf__parse_string(&token, "capath", &cur_listener->capath, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
@@ -1470,7 +1469,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Cannot use both certificate and psk encryption in a single listener.");
 						return MOSQ_ERR_INVAL;
 					}
-					mosquitto__FREE(cur_listener->certfile);
+					mosquitto_FREE(cur_listener->certfile);
 					if(conf__parse_string(&token, "certfile", &cur_listener->certfile, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
@@ -1480,7 +1479,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "ciphers")){
 #ifdef WITH_TLS
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					mosquitto__FREE(cur_listener->ciphers);
+					mosquitto_FREE(cur_listener->ciphers);
 					if(conf__parse_string(&token, "ciphers", &cur_listener->ciphers, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
@@ -1488,7 +1487,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "ciphers_tls1.3")){
 #if defined(WITH_TLS) && (!defined(LIBRESSL_VERSION_NUMBER) || LIBRESSL_VERSION_NUMBER > 0x3040000FL)
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					mosquitto__FREE(cur_listener->ciphers_tls13);
+					mosquitto_FREE(cur_listener->ciphers_tls13);
 					if(conf__parse_string(&token, "ciphers_tls1.3", &cur_listener->ciphers_tls13, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: ciphers_tls1.3 support not available.");
@@ -1516,7 +1515,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "clientid_prefixes")){
 					OPTION_DEPRECATED(token, "");
-					mosquitto__FREE(config->clientid_prefixes);
+					mosquitto_FREE(config->clientid_prefixes);
 					if(conf__parse_string(&token, "clientid_prefixes", &config->clientid_prefixes, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "connection")){
 #ifdef WITH_BRIDGE
@@ -1531,12 +1530,12 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						}
 					}
 
-					config->bridges = mosquitto__realloc(config->bridges, (size_t)(config->bridge_count+1)*sizeof(struct mosquitto__bridge *));
+					config->bridges = mosquitto_realloc(config->bridges, (size_t)(config->bridge_count+1)*sizeof(struct mosquitto__bridge *));
 					if(!config->bridges){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
 					}
-					cur_bridge = mosquitto__malloc(sizeof(struct mosquitto__bridge));
+					cur_bridge = mosquitto_malloc(sizeof(struct mosquitto__bridge));
 					if(!cur_bridge){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
@@ -1546,7 +1545,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					config->bridges[config->bridge_count-1] = cur_bridge;
 
 					memset(cur_bridge, 0, sizeof(struct mosquitto__bridge));
-					cur_bridge->name = mosquitto__strdup(token);
+					cur_bridge->name = mosquitto_strdup(token);
 					if(!cur_bridge->name){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
@@ -1580,7 +1579,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "crlfile")){
 #ifdef WITH_TLS
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					mosquitto__FREE(cur_listener->crlfile);
+					mosquitto_FREE(cur_listener->crlfile);
 					if(conf__parse_string(&token, "crlfile", &cur_listener->crlfile, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
@@ -1654,9 +1653,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							}
 						}
 						for(i=0; i<file_count; i++){
-							mosquitto__FREE(files[i]);
+							mosquitto_FREE(files[i]);
 						}
-						mosquitto__FREE(files);
+						mosquitto_FREE(files);
 						if(rc) return rc; /* This returns if config__read_file() fails above */
 					}else{
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: The include_dir option is only valid in the main configuration file.");
@@ -1681,7 +1680,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "keyfile")){
 #ifdef WITH_TLS
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
-					mosquitto__FREE(cur_listener->keyfile);
+					mosquitto_FREE(cur_listener->keyfile);
 					if(conf__parse_string(&token, "keyfile", &cur_listener->keyfile, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
@@ -1762,20 +1761,20 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					listener__set_defaults(cur_listener);
 					cur_listener->port = (uint16_t)tmp_int;
 
-					mosquitto__FREE(cur_listener->host);
+					mosquitto_FREE(cur_listener->host);
 
 #ifdef WITH_UNIX_SOCKETS
-					mosquitto__FREE(cur_listener->unix_socket_path);
+					mosquitto_FREE(cur_listener->unix_socket_path);
 #endif
 
 					if(token){
 #ifdef WITH_UNIX_SOCKETS
 						if(cur_listener->port == 0){
-							cur_listener->unix_socket_path = mosquitto__strdup(token);
+							cur_listener->unix_socket_path = mosquitto_strdup(token);
 						}else
 #endif
 						{
-							cur_listener->host = mosquitto__strdup(token);
+							cur_listener->host = mosquitto_strdup(token);
 						}
 					}
 				}else if(!strcmp(token, "local_clientid")){
@@ -1833,7 +1832,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							}
 						}
 						if(token[0]){
-							config->log_file = mosquitto__strdup(token);
+							config->log_file = mosquitto_strdup(token);
 							if(!config->log_file){
 								log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 								return MOSQ_ERR_NOMEM;
@@ -1982,7 +1981,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid 'memory_limit' value (%ld).", lim);
 						return MOSQ_ERR_INVAL;
 					}
-					memory__set_limit((size_t)lim);
+					mosquitto_memory_set_limit((size_t)lim);
 				}else if(!strcmp(token, "message_size_limit")){
 					log__printf(NULL, MOSQ_LOG_NOTICE, "Note: It is recommended to replace `message_size_limit` with `max_packet_size`.");
 					if(conf__parse_int(&token, "message_size_limit", (int *)&config->message_size_limit, &saveptr)) return MOSQ_ERR_INVAL;
@@ -1992,7 +1991,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					}
 				}else if(!strcmp(token, "mount_point")){
 					REQUIRE_LISTENER(token);
-					mosquitto__FREE(cur_listener->mount_point);
+					mosquitto_FREE(cur_listener->mount_point);
 					if(conf__parse_string(&token, "mount_point", &cur_listener->mount_point, &saveptr)) return MOSQ_ERR_INVAL;
 					if(mosquitto_pub_topic_check(cur_listener->mount_point) != MOSQ_ERR_SUCCESS){
 						log__printf(NULL, MOSQ_LOG_ERR,
@@ -2031,7 +2030,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "password_file")){
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
-					mosquitto__FREE(cur_security_options->password_file);
+					mosquitto_FREE(cur_security_options->password_file);
 					if(conf__parse_string(&token, "password_file", &cur_security_options->password_file, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "per_listener_settings")){
 					OPTION_DEPRECATED(token, "Please see the documentation for how to achieve the same effect.");
@@ -2128,7 +2127,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #ifdef FINAL_WITH_TLS_PSK
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
-					mosquitto__FREE(cur_security_options->psk_file);
+					mosquitto_FREE(cur_security_options->psk_file);
 					if(conf__parse_string(&token, "psk_file", &cur_security_options->psk_file, &saveptr)) return MOSQ_ERR_INVAL;
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS/TLS-PSK support not available.");
@@ -2276,12 +2275,12 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
 					if(conf__parse_string(&token, "tls_engine_kpass_sha1", &kpass_sha, &saveptr)) return MOSQ_ERR_INVAL;
 					if(mosquitto__hex2bin_sha1(kpass_sha, (unsigned char**)&kpass_sha_bin) != MOSQ_ERR_SUCCESS){
-						mosquitto__FREE(kpass_sha);
+						mosquitto_FREE(kpass_sha);
 						return MOSQ_ERR_INVAL;
 					}
 					mosquitto_free(cur_listener->tls_engine_kpass_sha1);
 					cur_listener->tls_engine_kpass_sha1 = kpass_sha_bin;
-					mosquitto__FREE(kpass_sha);
+					mosquitto_FREE(kpass_sha);
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
 #endif
@@ -2294,7 +2293,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(conf__parse_string(&token, "tls_keyform", &keyform, &saveptr)) return MOSQ_ERR_INVAL;
 					cur_listener->tls_keyform = mosq_k_pem;
 					if(!strcmp(keyform, "engine")) cur_listener->tls_keyform = mosq_k_engine;
-					mosquitto__FREE(keyform);
+					mosquitto_FREE(keyform);
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
 #endif
@@ -2413,7 +2412,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "user")){
 					if(reload) continue; /* Drop privileges user not valid for reloading. */
-					mosquitto__FREE(config->user);
+					mosquitto_FREE(config->user);
 					if(conf__parse_string(&token, "user", &config->user, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "use_username_as_clientid")){
 					REQUIRE_LISTENER_OR_DEFAULT_LISTENER(token);
@@ -2444,7 +2443,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #ifdef WITH_WEBSOCKETS
 #  if LWS_LIBRARY_VERSION_NUMBER >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN
 					REQUIRE_LISTENER(token);
-					ws_origins = mosquitto__realloc(cur_listener->ws_origins, sizeof(char *)*(size_t)(cur_listener->ws_origin_count+1));
+					ws_origins = mosquitto_realloc(cur_listener->ws_origins, sizeof(char *)*(size_t)(cur_listener->ws_origin_count+1));
 					if(ws_origins == NULL){
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 						return MOSQ_ERR_NOMEM;
@@ -2497,7 +2496,7 @@ int config__read_file(struct mosquitto__config *config, bool reload, const char 
 	}
 
 	buflen = 1000;
-	buf = mosquitto__malloc((size_t)buflen);
+	buf = mosquitto_malloc((size_t)buflen);
 	if(!buf){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		fclose(fptr);
@@ -2505,7 +2504,7 @@ int config__read_file(struct mosquitto__config *config, bool reload, const char 
 	}
 
 	rc = config__read_file_core(config, reload, cr, level, lineno, fptr, &buf, &buflen);
-	mosquitto__FREE(buf);
+	mosquitto_FREE(buf);
 	fclose(fptr);
 
 	return rc;
@@ -2521,7 +2520,7 @@ static int config__check(struct mosquitto__config *config)
 	if(config->per_listener_settings){
 		for(i=0; i<config->listener_count; i++){
 			if(!config->listeners[i].security_options->auto_id_prefix){
-				config->listeners[i].security_options->auto_id_prefix = mosquitto__strdup("auto-");
+				config->listeners[i].security_options->auto_id_prefix = mosquitto_strdup("auto-");
 				if(!config->listeners[i].security_options->auto_id_prefix){
 					return MOSQ_ERR_NOMEM;
 				}
@@ -2530,7 +2529,7 @@ static int config__check(struct mosquitto__config *config)
 		}
 	}else{
 		if(!config->security_options.auto_id_prefix){
-			config->security_options.auto_id_prefix = mosquitto__strdup("auto-");
+			config->security_options.auto_id_prefix = mosquitto_strdup("auto-");
 			if(!config->security_options.auto_id_prefix){
 				return MOSQ_ERR_NOMEM;
 			}
@@ -2558,7 +2557,7 @@ static int config__check_bridges(struct mosquitto__config *config)
 		if(!bridge1->remote_clientid){
 			if(!gethostname(hostname, 256)){
 				len = strlen(hostname) + strlen(bridge1->name) + 2;
-				bridge1->remote_clientid = mosquitto__malloc(len);
+				bridge1->remote_clientid = mosquitto_malloc(len);
 				if(!bridge1->remote_clientid){
 					return MOSQ_ERR_NOMEM;
 				}
@@ -2570,7 +2569,7 @@ static int config__check_bridges(struct mosquitto__config *config)
 
 		if(!bridge1->local_clientid){
 			len = strlen(bridge1->remote_clientid) + strlen("local.") + 2;
-			bridge1->local_clientid = mosquitto__malloc(len);
+			bridge1->local_clientid = mosquitto_malloc(len);
 			if(!bridge1->local_clientid){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 				return MOSQ_ERR_NOMEM;
@@ -2669,7 +2668,7 @@ static int conf__parse_string(char **token, const char *name, char **value, char
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Malformed UTF-8 in configuration.");
 			return MOSQ_ERR_INVAL;
 		}
-		*value = mosquitto__strdup(*token);
+		*value = mosquitto_strdup(*token);
 		if(!*value){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			return MOSQ_ERR_NOMEM;

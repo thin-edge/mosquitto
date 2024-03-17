@@ -20,7 +20,6 @@ Contributors:
 
 #include "mosquitto.h"
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "utlist.h"
 
 #ifdef WITH_BRIDGE
@@ -29,7 +28,7 @@ static int bridge__create_remap_topic(const char *prefix, const char *topic, cha
 	if(prefix){
 		if(topic){
 			size_t len = strlen(topic) + strlen(prefix)+1;
-			*remap_topic = mosquitto__malloc(len+1);
+			*remap_topic = mosquitto_malloc(len+1);
 			if(!(*remap_topic)){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 				return MOSQ_ERR_NOMEM;
@@ -37,14 +36,14 @@ static int bridge__create_remap_topic(const char *prefix, const char *topic, cha
 			snprintf(*remap_topic, len+1, "%s%s", prefix, topic);
 			(*remap_topic)[len] = '\0';
 		}else{
-			*remap_topic = mosquitto__strdup(prefix);
+			*remap_topic = mosquitto_strdup(prefix);
 			if(!(*remap_topic)){
 				log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 				return MOSQ_ERR_NOMEM;
 			}
 		}
 	}else{
-		*remap_topic = mosquitto__strdup(topic);
+		*remap_topic = mosquitto_strdup(topic);
 		if(!(*remap_topic)){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			return MOSQ_ERR_NOMEM;
@@ -68,7 +67,7 @@ static int bridge__create_prefix(char **full_prefix, const char *topic, const ch
 	}else{
 		len = strlen(prefix) + 1;
 	}
-	*full_prefix = mosquitto__malloc(len);
+	*full_prefix = mosquitto_malloc(len);
 	if(*full_prefix == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -166,7 +165,7 @@ int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum 
 	}
 
 	bridge->topic_count++;
-	cur_topic = mosquitto__calloc(1, sizeof(struct mosquitto__bridge_topic));
+	cur_topic = mosquitto_calloc(1, sizeof(struct mosquitto__bridge_topic));
 	if(cur_topic == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -181,7 +180,7 @@ int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum 
 	if(topic == NULL || !strcmp(topic, "\"\"")){
 		cur_topic->topic = NULL;
 	}else{
-		cur_topic->topic = mosquitto__strdup(topic);
+		cur_topic->topic = mosquitto_strdup(topic);
 		if(cur_topic->topic == NULL){
 			goto error;
 		}
@@ -218,12 +217,12 @@ int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum 
 	return MOSQ_ERR_SUCCESS;
 
 error:
-	mosquitto__FREE(cur_topic->local_prefix);
-	mosquitto__FREE(cur_topic->remote_prefix);
-	mosquitto__FREE(cur_topic->local_topic);
-	mosquitto__FREE(cur_topic->remote_topic);
-	mosquitto__FREE(cur_topic->topic);
-	mosquitto__FREE(cur_topic);
+	mosquitto_FREE(cur_topic->local_prefix);
+	mosquitto_FREE(cur_topic->remote_prefix);
+	mosquitto_FREE(cur_topic->local_topic);
+	mosquitto_FREE(cur_topic->remote_topic);
+	mosquitto_FREE(cur_topic->topic);
+	mosquitto_FREE(cur_topic);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 	return MOSQ_ERR_NOMEM;
 }
@@ -243,7 +242,7 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 
 				int rc = mosquitto_topic_matches_sub(cur_topic->remote_topic, *topic, &match);
 				if(rc){
-					mosquitto__FREE(*topic);
+					mosquitto_FREE(*topic);
 					return rc;
 				}
 				if(match){
@@ -252,12 +251,12 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 					if(cur_topic->remote_prefix){
 						/* This prefix needs removing. */
 						if(!strncmp(cur_topic->remote_prefix, *topic, strlen(cur_topic->remote_prefix))){
-							topic_temp = mosquitto__strdup((*topic)+strlen(cur_topic->remote_prefix));
+							topic_temp = mosquitto_strdup((*topic)+strlen(cur_topic->remote_prefix));
 							if(!topic_temp){
-								mosquitto__FREE(*topic);
+								mosquitto_FREE(*topic);
 								return MOSQ_ERR_NOMEM;
 							}
-							mosquitto__FREE(*topic);
+							mosquitto_FREE(*topic);
 							*topic = topic_temp;
 						}
 					}
@@ -265,15 +264,15 @@ int bridge__remap_topic_in(struct mosquitto *context, char **topic)
 					if(cur_topic->local_prefix){
 						/* This prefix needs adding. */
 						size_t len = strlen(*topic) + strlen(cur_topic->local_prefix)+1;
-						topic_temp = mosquitto__malloc(len+1);
+						topic_temp = mosquitto_malloc(len+1);
 						if(!topic_temp){
-							mosquitto__FREE(*topic);
+							mosquitto_FREE(*topic);
 							return MOSQ_ERR_NOMEM;
 						}
 						snprintf(topic_temp, len, "%s%s", cur_topic->local_prefix, *topic);
 						topic_temp[len] = '\0';
 
-						mosquitto__FREE(*topic);
+						mosquitto_FREE(*topic);
 						*topic = topic_temp;
 					}
 					break;

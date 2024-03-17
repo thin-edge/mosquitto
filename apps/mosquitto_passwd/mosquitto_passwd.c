@@ -27,9 +27,9 @@ Contributors:
 #include <stdlib.h>
 #include <string.h>
 
+#include "mosquitto.h"
 #include "get_password.h"
 #include "base64_mosq.h"
-#include "memory_mosq.h"
 #include "password_mosq.h"
 
 #ifdef WIN32
@@ -152,7 +152,7 @@ static int output_new_password(FILE *fptr, const char *username, const char *pas
 	}
 
 	fprintf(fptr, "%s:%s\n", username, pw.encoded_password);
-	mosquitto__free(pw.encoded_password);
+	mosquitto_FREE(pw.encoded_password);
 
 	return rc;
 }

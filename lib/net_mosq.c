@@ -71,7 +71,6 @@ Contributors:
 #endif
 
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
@@ -303,17 +302,17 @@ int net__try_connect_step1(struct mosquitto *mosq, const char *host)
 		gai_cancel(mosq->adns);
 
 		ar_request = (struct addrinfo *)mosq->adns->ar_request;
-		mosquitto__FREE(ar_request);
-		mosquitto__FREE(mosq->adns);
+		mosquitto_FREE(ar_request);
+		mosquitto_FREE(mosq->adns);
 	}
-	mosq->adns = mosquitto__calloc(1, sizeof(struct gaicb));
+	mosq->adns = mosquitto_calloc(1, sizeof(struct gaicb));
 	if(!mosq->adns){
 		return MOSQ_ERR_NOMEM;
 	}
 
-	hints = mosquitto__calloc(1, sizeof(struct addrinfo));
+	hints = mosquitto_calloc(1, sizeof(struct addrinfo));
 	if(!hints){
-		mosquitto__FREE(mosq->adns);
+		mosquitto_FREE(mosq->adns);
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -328,8 +327,8 @@ int net__try_connect_step1(struct mosquitto *mosq, const char *host)
 		errno = s;
 		if(mosq->adns){
 			ar_request = (struct addrinfo *)mosq->adns->ar_request;
-			mosquitto__FREE(ar_request);
-			mosquitto__FREE(mosq->adns);
+			mosquitto_FREE(ar_request);
+			mosquitto_FREE(mosq->adns);
 		}
 		return MOSQ_ERR_EAI;
 	}
@@ -388,8 +387,8 @@ int net__try_connect_step2(struct mosquitto *mosq, uint16_t port, mosq_sock_t *s
 	mosq->adns->ar_result = NULL;
 
 	ar_request = (struct addrinfo *)mosq->adns->ar_request;
-	mosquitto__FREE(ar_request);
-	mosquitto__FREE(mosq->adns);
+	mosquitto_FREE(ar_request);
+	mosquitto_FREE(mosq->adns);
 
 	if(!rp){
 		return MOSQ_ERR_ERRNO;

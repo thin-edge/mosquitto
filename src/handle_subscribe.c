@@ -22,7 +22,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
@@ -97,7 +96,7 @@ int handle__subscribe(struct mosquitto *context)
 		sub.identifier = subscription_identifier;
 		sub.properties = properties;
 		if(packet__read_string(&context->in_packet, &sub.topic_filter, &slen)){
-			mosquitto__FREE(payload);
+			mosquitto_FREE(payload);
 			return MOSQ_ERR_MALFORMED_PACKET;
 		}
 
@@ -106,27 +105,27 @@ int handle__subscribe(struct mosquitto *context)
 				log__printf(NULL, MOSQ_LOG_INFO,
 						"Empty subscription string from %s, disconnecting.",
 						context->address);
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(payload);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(payload);
 				return MOSQ_ERR_MALFORMED_PACKET;
 			}
 			if(mosquitto_sub_topic_check(sub.topic_filter)){
 				log__printf(NULL, MOSQ_LOG_INFO,
 						"Invalid subscription string from %s, disconnecting.",
 						context->address);
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(payload);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(payload);
 				return MOSQ_ERR_MALFORMED_PACKET;
 			}
 
 			if(packet__read_byte(&context->in_packet, &sub.options)){
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(payload);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(payload);
 				return MOSQ_ERR_MALFORMED_PACKET;
 			}
 			if(sub.options & MQTT_SUB_OPT_NO_LOCAL && !strncmp(sub.topic_filter, "$share/", strlen("$share/"))){
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(payload);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(payload);
 				return MOSQ_ERR_PROTOCOL;
 			}
 
@@ -142,8 +141,8 @@ int handle__subscribe(struct mosquitto *context)
 
 				retain_handling = MQTT_SUB_OPT_GET_SEND_RETAIN(sub.options);
 				if(retain_handling == 0x30 || (sub.options & 0xC0) != 0){
-					mosquitto__FREE(sub.topic_filter);
-					mosquitto__FREE(payload);
+					mosquitto_FREE(sub.topic_filter);
+					mosquitto_FREE(payload);
 					return MOSQ_ERR_MALFORMED_PACKET;
 				}
 			}
@@ -151,8 +150,8 @@ int handle__subscribe(struct mosquitto *context)
 				log__printf(NULL, MOSQ_LOG_INFO,
 						"Invalid QoS in subscription command from %s, disconnecting.",
 						context->address);
-				mosquitto__FREE(sub.topic_filter);
-				mosquitto__FREE(payload);
+				mosquitto_FREE(sub.topic_filter);
+				mosquitto_FREE(payload);
 				return MOSQ_ERR_MALFORMED_PACKET;
 			}
 			if(qos > context->max_qos){
@@ -163,16 +162,16 @@ int handle__subscribe(struct mosquitto *context)
 
 			if(context->listener && context->listener->mount_point){
 				len = strlen(context->listener->mount_point) + slen + 1;
-				sub_mount = mosquitto__malloc(len+1);
+				sub_mount = mosquitto_malloc(len+1);
 				if(!sub_mount){
-					mosquitto__FREE(sub.topic_filter);
-					mosquitto__FREE(payload);
+					mosquitto_FREE(sub.topic_filter);
+					mosquitto_FREE(payload);
 					return MOSQ_ERR_NOMEM;
 				}
 				snprintf(sub_mount, len, "%s%s", context->listener->mount_point, sub.topic_filter);
 				sub_mount[len] = '\0';
 
-				mosquitto__FREE(sub.topic_filter);
+				mosquitto_FREE(sub.topic_filter);
 				sub.topic_filter = sub_mount;
 
 			}
@@ -191,7 +190,7 @@ int handle__subscribe(struct mosquitto *context)
 					}
 					break;
 				default:
-					mosquitto__FREE(sub.topic_filter);
+					mosquitto_FREE(sub.topic_filter);
 					return rc2;
 			}
 			if(qos > 127){
@@ -203,19 +202,19 @@ int handle__subscribe(struct mosquitto *context)
 			if(allowed){
 				rc2 = plugin__handle_subscribe(context, &sub);
 				if(rc2){
-					mosquitto__FREE(sub.topic_filter);
+					mosquitto_FREE(sub.topic_filter);
 					return rc2;
 				}
 
 				rc2 = sub__add(context, &sub);
 				if(rc2 > 0){
-					mosquitto__FREE(sub.topic_filter);
+					mosquitto_FREE(sub.topic_filter);
 					return rc2;
 				}
 				if(context->protocol == mosq_p_mqtt311 || context->protocol == mosq_p_mqtt31){
 					if(rc2 == MOSQ_ERR_SUCCESS || rc2 == MOSQ_ERR_SUB_EXISTS){
 						if(retain__queue(context, &sub)){
-							mosquitto__FREE(sub.topic_filter);
+							mosquitto_FREE(sub.topic_filter);
 							return rc;
 						}
 					}
@@ -224,7 +223,7 @@ int handle__subscribe(struct mosquitto *context)
 							|| (rc2 == MOSQ_ERR_SUCCESS && retain_handling == MQTT_SUB_OPT_SEND_RETAIN_NEW)){
 
 						if(retain__queue(context, &sub)){
-							mosquitto__FREE(sub.topic_filter);
+							mosquitto_FREE(sub.topic_filter);
 							return rc;
 						}
 					}
@@ -233,15 +232,15 @@ int handle__subscribe(struct mosquitto *context)
 
 				plugin_persist__handle_subscription_add(context, &sub);
 			}
-			mosquitto__FREE(sub.topic_filter);
+			mosquitto_FREE(sub.topic_filter);
 
-			tmp_payload = mosquitto__realloc(payload, payloadlen + 1);
+			tmp_payload = mosquitto_realloc(payload, payloadlen + 1);
 			if(tmp_payload){
 				payload = tmp_payload;
 				payload[payloadlen] = qos;
 				payloadlen++;
 			}else{
-				mosquitto__FREE(payload);
+				mosquitto_FREE(payload);
 
 				return MOSQ_ERR_NOMEM;
 			}
@@ -255,7 +254,7 @@ int handle__subscribe(struct mosquitto *context)
 		}
 	}
 	if(send__suback(context, mid, payloadlen, payload)) rc = 1;
-	mosquitto__FREE(payload);
+	mosquitto_FREE(payload);
 
 #ifdef WITH_PERSISTENCE
 	db.persistence_changes++;

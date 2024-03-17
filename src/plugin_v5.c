@@ -19,7 +19,6 @@ Contributors:
 #include "config.h"
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "utlist.h"
 #include "lib_load.h"
 

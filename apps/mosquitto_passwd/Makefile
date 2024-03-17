@@ -14,8 +14,6 @@ OBJS= \
 
 OBJS_EXTERNAL= \
 	base64_mosq.o \
-	memory_mosq.o \
-	memory_public.o \
 	misc_mosq.o \
 	password_mosq.o
 
@@ -40,12 +38,6 @@ ${OBJS} : %.o: %.c
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 base64_mosq.o : ${R}/common/base64_mosq.c ${R}/common/base64_mosq.h
-	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
-
-memory_mosq.o : ${R}/lib/memory_mosq.c
-	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
-
-memory_public.o : ${R}/src/memory_public.c
 	${CROSS_COMPILE}${CC} ${LOCAL_CPPFLAGS} $(LOCAL_CFLAGS) -c $< -o $@
 
 misc_mosq.o : ${R}/common/misc_mosq.c ${R}/common/misc_mosq.h

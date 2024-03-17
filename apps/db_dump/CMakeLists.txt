@@ -3,11 +3,9 @@ add_executable(mosquitto_db_dump
 	print.c
 	stubs.c
 
-	../../lib/memory_mosq.c
 	../../lib/packet_datatypes.c
 	../../lib/property_mosq.c
 
-	../../src/memory_public.c
 	../../src/persist_read.c
 	../../src/persist_read_v234.c
 	../../src/persist_read_v5.c

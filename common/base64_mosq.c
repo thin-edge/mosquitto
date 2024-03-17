@@ -32,7 +32,6 @@ Contributors:
 
 #include "mosquitto.h"
 #include "base64_mosq.h"
-#include "memory_mosq.h"
 
 #ifdef WITH_TLS
 int base64__encode(const unsigned char *in, size_t in_len, char **encoded)
@@ -93,7 +92,8 @@ int base64__decode(const char *in, unsigned char **decoded, unsigned int *decode
 					*decoded_len = (unsigned int)len;
 					rc = 0;
 				}else{
-					SAFE_FREE(*decoded);
+					free(*decoded);
+					*decoded = NULL;
 				}
 			}
 		}

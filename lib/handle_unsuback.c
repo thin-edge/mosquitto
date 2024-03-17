@@ -29,7 +29,6 @@ Contributors:
 #include "callbacks.h"
 #include "mosquitto.h"
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "messages_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
@@ -76,7 +75,7 @@ int handle__unsuback(struct mosquitto *mosq)
 
 		uint8_t byte;
 		reason_code_count = (int)(mosq->in_packet.remaining_length - mosq->in_packet.pos);
-		reason_codes = mosquitto__malloc((size_t)reason_code_count*sizeof(int));
+		reason_codes = mosquitto_malloc((size_t)reason_code_count*sizeof(int));
 		if(!reason_codes){
 			mosquitto_property_free_all(&properties);
 			return MOSQ_ERR_NOMEM;
@@ -84,7 +83,7 @@ int handle__unsuback(struct mosquitto *mosq)
 		for(int i=0; i<reason_code_count; i++){
 			rc = packet__read_byte(&mosq->in_packet, &byte);
 			if(rc){
-				mosquitto__FREE(reason_codes);
+				mosquitto_FREE(reason_codes);
 				mosquitto_property_free_all(&properties);
 				return rc;
 			}
@@ -96,7 +95,7 @@ int handle__unsuback(struct mosquitto *mosq)
 	callback__on_unsubscribe(mosq, mid, reason_code_count, reason_codes, properties);
 #endif
 	mosquitto_property_free_all(&properties);
-	mosquitto__FREE(reason_codes);
+	mosquitto_FREE(reason_codes);
 
 	return MOSQ_ERR_SUCCESS;
 }

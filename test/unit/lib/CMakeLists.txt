@@ -10,7 +10,6 @@ add_executable(lib-test
 	stubs.c
 	# main test files
 	test.c
-	../../../lib/memory_mosq.c
 	../../../common/misc_mosq.c
 	../../../lib/packet_datatypes.c
 	../../../lib/packet_mosq.c

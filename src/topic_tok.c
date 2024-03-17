@@ -22,7 +22,6 @@ Contributors:
 #include <string.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "util_mosq.h"
 
@@ -68,7 +67,7 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 		return MOSQ_ERR_INVAL;
 	}
 
-	*local_sub = mosquitto__strdup(subtopic);
+	*local_sub = mosquitto_strdup(subtopic);
 	if((*local_sub) == NULL) return MOSQ_ERR_NOMEM;
 
 	count = 0;
@@ -77,9 +76,9 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 		saveptr = strchr(&saveptr[1], '/');
 		count++;
 	}
-	*topics = mosquitto__calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
+	*topics = mosquitto_calloc((size_t)(count+3) /* 3=$shared,sharename,NULL */, sizeof(char *));
 	if((*topics) == NULL){
-		mosquitto__FREE(*local_sub);
+		mosquitto_FREE(*local_sub);
 		return MOSQ_ERR_NOMEM;
 	}
 
@@ -97,8 +96,8 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 
 	if(!strcmp((*topics)[0], "$share")){
 		if(count < 2){
-			mosquitto__FREE(*local_sub);
-			mosquitto__FREE(*topics);
+			mosquitto_FREE(*local_sub);
+			mosquitto_FREE(*topics);
 			return MOSQ_ERR_PROTOCOL;
 		}
 

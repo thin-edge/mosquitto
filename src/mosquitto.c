@@ -52,7 +52,6 @@ Contributors:
 #endif
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "misc_mosq.h"
 #include "util_mosq.h"
 
@@ -506,7 +505,7 @@ int main(int argc, char *argv[])
 	keepalive__cleanup();
 
 #ifdef WITH_TLS
-	mosquitto__FREE(db.tls_keylog);
+	mosquitto_FREE(db.tls_keylog);
 #endif
 	db__close();
 
@@ -537,12 +536,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	UNUSED(hPrevInstance);
 	UNUSED(nCmdShow);
 
-	argv = mosquitto__malloc(sizeof(char *)*1);
+	argv = mosquitto_malloc(sizeof(char *)*1);
 	argv[0] = "mosquitto";
 	token = strtok_r(lpCmdLine, " ", &saveptr);
 	while(token){
 		argc++;
-		argv = mosquitto__realloc(argv, sizeof(char *)*argc);
+		argv = mosquitto_realloc(argv, sizeof(char *)*argc);
 		if(!argv){
 			fprintf(stderr, "Error: Out of memory.\n");
 			return MOSQ_ERR_NOMEM;
@@ -551,7 +550,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		token = strtok_r(NULL, " ", &saveptr);
 	}
 	rc = main(argc, argv);
-	mosquitto__FREE(argv);
+	mosquitto_FREE(argv);
 	return rc;
 }
 #endif

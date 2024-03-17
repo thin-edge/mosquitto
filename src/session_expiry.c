@@ -23,7 +23,6 @@ Contributors:
 #include <utlist.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "sys_tree.h"
 
 static struct session_expiry_list *expiry_list = NULL;
@@ -74,7 +73,7 @@ int session_expiry__add(struct mosquitto *context)
 		}
 	}
 
-	item = mosquitto__calloc(1, sizeof(struct session_expiry_list));
+	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
 	if(!item) return MOSQ_ERR_NOMEM;
 
 	item->context = context;
@@ -101,7 +100,7 @@ int session_expiry__add_from_persistence(struct mosquitto *context, time_t expir
 		}
 	}
 
-	item = mosquitto__calloc(1, sizeof(struct session_expiry_list));
+	item = mosquitto_calloc(1, sizeof(struct session_expiry_list));
 	if(!item) return MOSQ_ERR_NOMEM;
 
 	item->context = context;
@@ -123,7 +122,7 @@ void session_expiry__remove(struct mosquitto *context)
 {
 	if(context->expiry_list_item){
 		DL_DELETE(expiry_list, context->expiry_list_item);
-		mosquitto__FREE(context->expiry_list_item);
+		mosquitto_FREE(context->expiry_list_item);
 	}
 }
 

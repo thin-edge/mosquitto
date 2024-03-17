@@ -1,7 +1,6 @@
 #include <time.h>
 
 #include <logging_mosq.h>
-#include <memory_mosq.h>
 #include <mosquitto_broker_internal.h>
 #include <net_mosq.h>
 #include <send_mosq.h>
@@ -15,7 +14,7 @@ struct mosquitto *context__init(void)
 {
 	struct mosquitto *m;
 
-	m = mosquitto__calloc(1, sizeof(struct mosquitto));
+	m = mosquitto_calloc(1, sizeof(struct mosquitto));
 	if(m){
 		m->msgs_in.inflight_maximum = 20;
 		m->msgs_out.inflight_maximum = 20;
@@ -29,18 +28,18 @@ void db__msg_store_free(struct mosquitto__base_msg *store)
 {
 	int i;
 
-	mosquitto__free(store->data.source_id);
-	mosquitto__free(store->data.source_username);
+	mosquitto_free(store->data.source_id);
+	mosquitto_free(store->data.source_username);
 	if(store->dest_ids){
 		for(i=0; i<store->dest_id_count; i++){
-			mosquitto__free(store->dest_ids[i]);
+			mosquitto_free(store->dest_ids[i]);
 		}
-		mosquitto__free(store->dest_ids);
+		mosquitto_free(store->dest_ids);
 	}
-	mosquitto__free(store->data.topic);
+	mosquitto_free(store->data.topic);
 	mosquitto_property_free_all(&store->data.properties);
-	mosquitto__free(store->data.payload);
-	mosquitto__free(store);
+	mosquitto_free(store->data.payload);
+	mosquitto_free(store);
 }
 
 int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg *stored, uint32_t *message_expiry_interval, enum mosquitto_msg_origin origin)
@@ -50,9 +49,9 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 	UNUSED(origin);
 
     if(source && source->id){
-        stored->data.source_id = mosquitto__strdup(source->id);
+        stored->data.source_id = mosquitto_strdup(source->id);
     }else{
-        stored->data.source_id = mosquitto__strdup("");
+        stored->data.source_id = mosquitto_strdup("");
     }
     if(!stored->data.source_id){
         rc = MOSQ_ERR_NOMEM;
@@ -60,7 +59,7 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
     }
 
     if(source && source->username){
-        stored->data.source_username = mosquitto__strdup(source->username);
+        stored->data.source_username = mosquitto_strdup(source->username);
         if(!stored->data.source_username){
             rc = MOSQ_ERR_NOMEM;
             goto error;

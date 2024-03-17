@@ -31,7 +31,6 @@ Contributors:
 #include <time.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "persist.h"
 #include "util_mosq.h"
 
@@ -90,7 +89,7 @@ int persist__chunk_client_read_v234(FILE *db_fptr, struct P_client *chunk, uint3
 	return MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	mosquitto__FREE(chunk->clientid);
+	mosquitto_FREE(chunk->clientid);
 	return 1;
 }
 
@@ -122,7 +121,7 @@ int persist__chunk_client_msg_read_v234(FILE *db_fptr, struct P_client_msg *chun
 	return MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	mosquitto__FREE(chunk->clientid);
+	mosquitto_FREE(chunk->clientid);
 	return 1;
 }
 
@@ -177,10 +176,10 @@ int persist__chunk_base_msg_read_v234(FILE *db_fptr, struct P_base_msg *chunk, u
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->payload);
-	mosquitto__FREE(chunk->source.id);
-	mosquitto__FREE(chunk->source.username);
-	mosquitto__FREE(chunk->topic);
+	mosquitto_FREE(chunk->payload);
+	mosquitto_FREE(chunk->source.id);
+	mosquitto_FREE(chunk->source.username);
+	mosquitto_FREE(chunk->topic);
 	return rc;
 }
 
@@ -213,8 +212,8 @@ int persist__chunk_sub_read_v234(FILE *db_fptr, struct P_sub *chunk)
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->clientid);
-	mosquitto__FREE(chunk->topic);
+	mosquitto_FREE(chunk->clientid);
+	mosquitto_FREE(chunk->topic);
 	return rc;
 }
 

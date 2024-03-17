@@ -26,7 +26,6 @@ Contributors:
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "messages_mosq.h"
 #include "packet_mosq.h"
@@ -52,7 +51,7 @@ int handle__publish(struct mosquitto *mosq)
 		return MOSQ_ERR_PROTOCOL;
 	}
 
-	message = mosquitto__calloc(1, sizeof(struct mosquitto_message_all));
+	message = mosquitto_calloc(1, sizeof(struct mosquitto_message_all));
 	if(!message) return MOSQ_ERR_NOMEM;
 
 	header = mosq->in_packet.command;
@@ -110,7 +109,7 @@ int handle__publish(struct mosquitto *mosq)
 				}
 			}else{
 				/* Retrieve an existing topic alias */
-				mosquitto__FREE(message->msg.topic);
+				mosquitto_FREE(message->msg.topic);
 				if(alias__find_by_alias(mosq, ALIAS_DIR_R2L, topic_alias, &message->msg.topic)){
 					message__cleanup(&message);
 					mosquitto_property_free_all(&properties);
@@ -128,7 +127,7 @@ int handle__publish(struct mosquitto *mosq)
 
 	message->msg.payloadlen = (int)(mosq->in_packet.remaining_length - mosq->in_packet.pos);
 	if(message->msg.payloadlen){
-		message->msg.payload = mosquitto__calloc((size_t)message->msg.payloadlen+1, sizeof(uint8_t));
+		message->msg.payload = mosquitto_calloc((size_t)message->msg.payloadlen+1, sizeof(uint8_t));
 		if(!message->msg.payload){
 			message__cleanup(&message);
 			mosquitto_property_free_all(&properties);

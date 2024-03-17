@@ -23,7 +23,6 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 #include "mosquitto/mqtt_protocol.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
 #include "send_mosq.h"
@@ -83,12 +82,12 @@ int handle__auth(struct mosquitto *context)
 
 		if(!auth_method || strcmp(auth_method, context->auth_method)){
 			/* No method, or non-matching method */
-			mosquitto__FREE(auth_method);
+			mosquitto_FREE(auth_method);
 			mosquitto_property_free_all(&properties);
 			send__disconnect(context, MQTT_RC_PROTOCOL_ERROR, NULL);
 			return MOSQ_ERR_PROTOCOL;
 		}
-		mosquitto__FREE(auth_method);
+		mosquitto_FREE(auth_method);
 
 		mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
 
@@ -108,7 +107,7 @@ int handle__auth(struct mosquitto *context)
 		}
 		rc = mosquitto_security_auth_continue(context, auth_data, auth_data_len, &auth_data_out, &auth_data_out_len);
 	}
-	mosquitto__FREE(auth_data);
+	mosquitto_FREE(auth_data);
 	if(rc == MOSQ_ERR_SUCCESS){
 		if(context->state == mosq_cs_authenticating){
 			return connect__on_authorised(context, auth_data_out, auth_data_out_len);
@@ -131,7 +130,7 @@ int handle__auth(struct mosquitto *context)
 		if(rc == MOSQ_ERR_AUTH){
 			if(context->state == mosq_cs_authenticating){
 				send__connack(context, 0, MQTT_RC_NOT_AUTHORIZED, NULL);
-				mosquitto__FREE(context->id);
+				mosquitto_FREE(context->id);
 			}else{
 				send__disconnect(context, MQTT_RC_NOT_AUTHORIZED, NULL);
 			}
@@ -140,14 +139,14 @@ int handle__auth(struct mosquitto *context)
 			/* Client has requested extended authentication, but we don't support it. */
 			if(context->state == mosq_cs_authenticating){
 				send__connack(context, 0, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
-				mosquitto__FREE(context->id);
+				mosquitto_FREE(context->id);
 			}else{
 				send__disconnect(context, MQTT_RC_BAD_AUTHENTICATION_METHOD, NULL);
 			}
 			return MOSQ_ERR_PROTOCOL;
 		}else{
 			if(context->state == mosq_cs_authenticating){
-				mosquitto__FREE(context->id);
+				mosquitto_FREE(context->id);
 			}
 			return rc;
 		}

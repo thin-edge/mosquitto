@@ -46,7 +46,6 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "mosquitto_internal.h"
 #include "net_mosq.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "send_mosq.h"
 #include "sys_tree.h"
@@ -72,7 +71,7 @@ static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
 
 	assert(bridge);
 
-	local_id = mosquitto__strdup(bridge->local_clientid);
+	local_id = mosquitto_strdup(bridge->local_clientid);
 	if(!local_id){
 		return NULL;
 	}
@@ -80,12 +79,12 @@ static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
 	HASH_FIND(hh_id, db.contexts_by_id, local_id, strlen(local_id), new_context);
 	if(new_context){
 		/* (possible from persistent db) */
-		mosquitto__FREE(local_id);
+		mosquitto_FREE(local_id);
 	}else{
 		/* id wasn't found, so generate a new context */
 		new_context = context__init();
 		if(!new_context){
-			mosquitto__FREE(local_id);
+			mosquitto_FREE(local_id);
 			return NULL;
 		}
 		new_context->id = local_id;
@@ -132,7 +131,7 @@ static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
 		plugin_persist__handle_client_add(new_context);		 
 	}
 
-	bridges = mosquitto__realloc(db.bridges, (size_t)(db.bridge_count+1)*sizeof(struct mosquitto *));
+	bridges = mosquitto_realloc(db.bridges, (size_t)(db.bridge_count+1)*sizeof(struct mosquitto *));
 	if(bridges){
 		db.bridges = bridges;
 		db.bridge_count++;
@@ -295,7 +294,7 @@ static int bridge__connect_step1(struct mosquitto *context)
 			}
 		}else{
 			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
-			notification_topic = mosquitto__malloc(sizeof(char)*(notification_topic_len+1));
+			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
 			if(!notification_topic) return MOSQ_ERR_NOMEM;
 
 			snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/connection/%s/state", context->bridge->remote_clientid);
@@ -308,7 +307,7 @@ static int bridge__connect_step1(struct mosquitto *context)
 
 			notification_payload = '0';
 			rc = will__set(context, notification_topic, 1, &notification_payload, qos, true, NULL);
-			mosquitto__FREE(notification_topic);
+			mosquitto_FREE(notification_topic);
 			if(rc != MOSQ_ERR_SUCCESS){
 				return rc;
 			}
@@ -522,7 +521,7 @@ int bridge__connect(struct mosquitto *context)
 			}
 		}else{
 			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
-			notification_topic = mosquitto__malloc(sizeof(char)*(notification_topic_len+1));
+			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
 			if(!notification_topic) return MOSQ_ERR_NOMEM;
 
 			snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/connection/%s/state", context->bridge->remote_clientid);
@@ -536,10 +535,10 @@ int bridge__connect(struct mosquitto *context)
 			notification_payload = '0';
 			rc = will__set(context, notification_topic, 1, &notification_payload, qos, true, NULL);
 			if(rc != MOSQ_ERR_SUCCESS){
-				mosquitto__FREE(notification_topic);
+				mosquitto_FREE(notification_topic);
 				return rc;
 			}
-			mosquitto__FREE(notification_topic);
+			mosquitto_FREE(notification_topic);
 		}
 	}
 
@@ -650,7 +649,7 @@ int bridge__on_connect(struct mosquitto *context)
 			db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
 		}else{
 			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
-			notification_topic = mosquitto__malloc(sizeof(char)*(notification_topic_len+1));
+			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
 			if(!notification_topic) return MOSQ_ERR_NOMEM;
 
 			snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/connection/%s/state", context->bridge->remote_clientid);
@@ -659,12 +658,12 @@ int bridge__on_connect(struct mosquitto *context)
 				if(send__real_publish(context, mosquitto__mid_generate(context),
 						notification_topic, 1, &notification_payload, qos, retain, 0, 0, NULL, 0)){
 
-					mosquitto__FREE(notification_topic);
+					mosquitto_FREE(notification_topic);
 					return 1;
 				}
 			}
 			db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
-			mosquitto__FREE(notification_topic);
+			mosquitto_FREE(notification_topic);
 		}
 	}
 
@@ -784,7 +783,7 @@ void bridge__db_cleanup(void)
 			context__cleanup(db.bridges[i], true);
 		}
 	}
-	mosquitto__FREE(db.bridges);
+	mosquitto_FREE(db.bridges);
 }
 
 
@@ -802,27 +801,27 @@ void bridge__cleanup(struct mosquitto *context)
 	}
 
 	db.bridge_count--;
-	db.bridges = mosquitto__realloc(db.bridges, (unsigned) db.bridge_count * sizeof(db.bridges[0]));
+	db.bridges = mosquitto_realloc(db.bridges, (unsigned) db.bridge_count * sizeof(db.bridges[0]));
 
-	mosquitto__FREE(context->bridge->name);
-	mosquitto__FREE(context->bridge->local_clientid);
-	mosquitto__FREE(context->bridge->local_username);
-	mosquitto__FREE(context->bridge->local_password);
-	mosquitto__FREE(context->bridge->tls_certfile);
-	mosquitto__FREE(context->bridge->tls_keyfile);
+	mosquitto_FREE(context->bridge->name);
+	mosquitto_FREE(context->bridge->local_clientid);
+	mosquitto_FREE(context->bridge->local_username);
+	mosquitto_FREE(context->bridge->local_password);
+	mosquitto_FREE(context->bridge->tls_certfile);
+	mosquitto_FREE(context->bridge->tls_keyfile);
 
 	if(context->bridge->remote_clientid != context->id){
-		mosquitto__FREE(context->bridge->remote_clientid);
+		mosquitto_FREE(context->bridge->remote_clientid);
 	}
 	context->bridge->remote_clientid = NULL;
 
 	if(context->bridge->remote_username != context->username){
-		mosquitto__FREE(context->bridge->remote_username);
+		mosquitto_FREE(context->bridge->remote_username);
 	}
 	context->bridge->remote_username = NULL;
 
 	if(context->bridge->remote_password != context->password){
-		mosquitto__FREE(context->bridge->remote_password);
+		mosquitto_FREE(context->bridge->remote_password);
 	}
 	context->bridge->remote_password = NULL;
 #ifdef WITH_TLS
@@ -833,10 +832,10 @@ void bridge__cleanup(struct mosquitto *context)
 #endif
 
 	for(i=0; i<context->bridge->address_count; i++){
-		mosquitto__FREE(context->bridge->addresses[i].address);
+		mosquitto_FREE(context->bridge->addresses[i].address);
 	}
 
-	mosquitto__FREE(context->bridge->addresses);
+	mosquitto_FREE(context->bridge->addresses);
 
 	config__bridge_cleanup(context->bridge);
 	context->bridge = NULL;
@@ -851,7 +850,7 @@ static void bridge__packet_cleanup(struct mosquitto *context)
     while(context->out_packet){
 		packet = context->out_packet;
 		context->out_packet = context->out_packet->next;
-		mosquitto__FREE(packet);
+		mosquitto_FREE(packet);
 	}
 	context->out_packet = NULL;
 	context->out_packet_last = NULL;
@@ -1058,7 +1057,7 @@ void bridge_check(void)
 							if(context->adns->ar_result){
 								freeaddrinfo(context->adns->ar_result);
 							}
-							mosquitto__FREE(context->adns);
+							mosquitto_FREE(context->adns);
 							context->bridge->restart_t = 0;
 						}
 					}else{

@@ -26,7 +26,6 @@ Contributors:
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
 #include "messages_mosq.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "net_mosq.h"
 #include "send_mosq.h"
@@ -50,7 +49,7 @@ static int mosquitto__connect_init(struct mosquitto *mosq, const char *host, int
 
 	/* Only MQTT v3.1 requires a client id to be sent */
 	if(mosq->id == NULL && (mosq->protocol == mosq_p_mqtt31)){
-		mosq->id = (char *)mosquitto__calloc(24, sizeof(char));
+		mosq->id = (char *)mosquitto_calloc(24, sizeof(char));
 		if(!mosq->id){
 			return MOSQ_ERR_NOMEM;
 		}
@@ -68,8 +67,8 @@ static int mosquitto__connect_init(struct mosquitto *mosq, const char *host, int
 		}
 	}
 
-	mosquitto__FREE(mosq->host);
-	mosq->host = mosquitto__strdup(host);
+	mosquitto_FREE(mosq->host);
+	mosq->host = mosquitto_strdup(host);
 	if(!mosq->host) return MOSQ_ERR_NOMEM;
 	mosq->port = (uint16_t)port;
 

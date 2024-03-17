@@ -28,7 +28,6 @@ Contributors:
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
@@ -74,7 +73,7 @@ int handle__suback(struct mosquitto *mosq)
 	}
 
 	qos_count = (int)(mosq->in_packet.remaining_length - mosq->in_packet.pos);
-	granted_qos = mosquitto__malloc((size_t)qos_count*sizeof(int));
+	granted_qos = mosquitto_malloc((size_t)qos_count*sizeof(int));
 	if(!granted_qos){
 		mosquitto_property_free_all(&properties);
 		return MOSQ_ERR_NOMEM;
@@ -82,7 +81,7 @@ int handle__suback(struct mosquitto *mosq)
 	while(mosq->in_packet.pos < mosq->in_packet.remaining_length){
 		rc = packet__read_byte(&mosq->in_packet, &qos);
 		if(rc){
-			mosquitto__FREE(granted_qos);
+			mosquitto_FREE(granted_qos);
 			mosquitto_property_free_all(&properties);
 			return rc;
 		}
@@ -96,7 +95,7 @@ int handle__suback(struct mosquitto *mosq)
 	callback__on_subscribe(mosq, mid, qos_count, granted_qos, properties);
 	mosquitto_property_free_all(&properties);
 #endif
-	mosquitto__FREE(granted_qos);
+	mosquitto_FREE(granted_qos);
 
 	return MOSQ_ERR_SUCCESS;
 }

@@ -21,8 +21,6 @@ OBJS = \
 	stubs.o
 
 BROKER_OBJS = \
-	${R}/src/memory_mosq.o \
-	${R}/src/memory_public.o \
 	${R}/src/packet_datatypes.o \
 	${R}/src/persist_read.o \
 	${R}/src/persist_read_v234.o \

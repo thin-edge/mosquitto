@@ -23,7 +23,6 @@ Contributors:
 
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
-#include "memory_mosq.h"
 
 struct userdata__callback {
 	const char *topic;

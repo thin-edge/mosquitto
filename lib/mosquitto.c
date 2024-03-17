@@ -33,7 +33,6 @@ Contributors:
 #include "logging_mosq.h"
 #include "mosquitto.h"
 #include "mosquitto_internal.h"
-#include "memory_mosq.h"
 #include "messages_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
@@ -112,7 +111,7 @@ struct mosquitto *mosquitto_new(const char *id, bool clean_start, void *userdata
 		return NULL;
 	}
 
-	mosq = (struct mosquitto *)mosquitto__calloc(1, sizeof(struct mosquitto));
+	mosq = (struct mosquitto *)mosquitto_calloc(1, sizeof(struct mosquitto));
 	if(mosq){
 		mosq->sock = INVALID_SOCKET;
 #ifdef WITH_THREADING
@@ -177,7 +176,7 @@ int mosquitto_reinitialise(struct mosquitto *mosq, const char *id, bool clean_st
 		if(mosquitto_validate_utf8(id, (int)strlen(id))){
 			return MOSQ_ERR_MALFORMED_UTF8;
 		}
-		mosq->id = mosquitto__strdup(id);
+		mosq->id = mosquitto_strdup(id);
 		if(!mosq->id){
 			return MOSQ_ERR_NOMEM;
 		}
@@ -284,24 +283,24 @@ void mosquitto__destroy(struct mosquitto *mosq)
 	if(mosq->ssl_ctx){
 		SSL_CTX_free(mosq->ssl_ctx);
 	}
-	mosquitto__FREE(mosq->tls_cafile);
-	mosquitto__FREE(mosq->tls_capath);
-	mosquitto__FREE(mosq->tls_certfile);
-	mosquitto__FREE(mosq->tls_keyfile);
+	mosquitto_FREE(mosq->tls_cafile);
+	mosquitto_FREE(mosq->tls_capath);
+	mosquitto_FREE(mosq->tls_certfile);
+	mosquitto_FREE(mosq->tls_keyfile);
 	if(mosq->tls_pw_callback) mosq->tls_pw_callback = NULL;
-	mosquitto__FREE(mosq->tls_version);
-	mosquitto__FREE(mosq->tls_ciphers);
-	mosquitto__FREE(mosq->tls_psk);
-	mosquitto__FREE(mosq->tls_psk_identity);
-	mosquitto__FREE(mosq->tls_alpn);
+	mosquitto_FREE(mosq->tls_version);
+	mosquitto_FREE(mosq->tls_ciphers);
+	mosquitto_FREE(mosq->tls_psk);
+	mosquitto_FREE(mosq->tls_psk_identity);
+	mosquitto_FREE(mosq->tls_alpn);
 #endif
 
-	mosquitto__FREE(mosq->address);
-	mosquitto__FREE(mosq->id);
-	mosquitto__FREE(mosq->username);
-	mosquitto__FREE(mosq->password);
-	mosquitto__FREE(mosq->host);
-	mosquitto__FREE(mosq->bind_address);
+	mosquitto_FREE(mosq->address);
+	mosquitto_FREE(mosq->id);
+	mosquitto_FREE(mosq->username);
+	mosquitto_FREE(mosq->password);
+	mosquitto_FREE(mosq->host);
+	mosquitto_FREE(mosq->bind_address);
 
 	mosquitto_property_free_all(&mosq->connect_properties);
 
@@ -323,7 +322,7 @@ void mosquitto_destroy(struct mosquitto *mosq)
 	if(!mosq) return;
 
 	mosquitto__destroy(mosq);
-	mosquitto__FREE(mosq);
+	mosquitto_FREE(mosq);
 }
 
 int mosquitto_socket(struct mosquitto *mosq)
@@ -362,7 +361,7 @@ int mosquitto_sub_topic_tokenise(const char *subtopic, char ***topics, int *coun
 		}
 	}
 
-	(*topics) = mosquitto__calloc(hier_count, sizeof(char *));
+	(*topics) = mosquitto_calloc(hier_count, sizeof(char *));
 	if(!(*topics)) return MOSQ_ERR_NOMEM;
 
 	start = 0;
@@ -373,12 +372,12 @@ int mosquitto_sub_topic_tokenise(const char *subtopic, char ***topics, int *coun
 			stop = i;
 			if(start != stop){
 				tlen = stop-start + 1;
-				(*topics)[hier] = mosquitto__calloc(tlen, sizeof(char));
+				(*topics)[hier] = mosquitto_calloc(tlen, sizeof(char));
 				if(!(*topics)[hier]){
 					for(j=0; j<hier; j++){
-						mosquitto__FREE((*topics)[j]);
+						mosquitto_FREE((*topics)[j]);
 					}
-					mosquitto__FREE((*topics));
+					mosquitto_FREE((*topics));
 					return MOSQ_ERR_NOMEM;
 				}
 				for(j=start; j<stop; j++){
@@ -402,9 +401,9 @@ int mosquitto_sub_topic_tokens_free(char ***topics, int count)
 	if(!topics || !(*topics) || count<1) return MOSQ_ERR_INVAL;
 
 	for(i=0; i<count; i++){
-		mosquitto__FREE((*topics)[i]);
+		mosquitto_FREE((*topics)[i]);
 	}
-	mosquitto__FREE(*topics);
+	mosquitto_FREE(*topics);
 
 	return MOSQ_ERR_SUCCESS;
 }

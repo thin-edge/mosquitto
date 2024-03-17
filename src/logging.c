@@ -38,7 +38,6 @@ Contributors:
 
 #include "logging_mosq.h"
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "misc_mosq.h"
 #include "util_mosq.h"
 

@@ -32,7 +32,6 @@ Contributors:
 #endif
 
 #include "callbacks.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
@@ -71,7 +70,7 @@ int packet__alloc(struct mosquitto__packet **packet, uint8_t command, uint32_t r
 	if(remaining_count == 5) return MOSQ_ERR_PAYLOAD_SIZE;
 
 	packet_length = remaining_length_stored + 1 + (uint8_t)remaining_count;
-	(*packet) = mosquitto__malloc(sizeof(struct mosquitto__packet) + packet_length + WS_PACKET_OFFSET);
+	(*packet) = mosquitto_malloc(sizeof(struct mosquitto__packet) + packet_length + WS_PACKET_OFFSET);
 	if((*packet) == NULL) return MOSQ_ERR_NOMEM;
 
 	/* Clear memory for everything but the payload - that will be set to valid
@@ -100,7 +99,7 @@ void packet__cleanup(struct mosquitto__packet_in *packet)
 	packet->remaining_count = 0;
 	packet->remaining_mult = 1;
 	packet->remaining_length = 0;
-	mosquitto__FREE(packet->payload);
+	mosquitto_FREE(packet->payload);
 	packet->to_process = 0;
 	packet->pos = 0;
 }
@@ -116,7 +115,7 @@ void packet__cleanup_all_no_locks(struct mosquitto *mosq)
 		/* Free data and reset values */
 		mosq->out_packet = mosq->out_packet->next;
 
-		mosquitto__FREE(packet);
+		mosquitto_FREE(packet);
 	}
 	metrics__int_dec(mosq_gauge_out_packets, mosq->out_packet_count);
 	metrics__int_dec(mosq_gauge_out_packet_bytes, mosq->out_packet_bytes);
@@ -139,7 +138,7 @@ static void packet__queue_append(struct mosquitto *mosq, struct mosquitto__packe
 {
 #ifdef WITH_BROKER
 	if(db.config->max_queued_messages > 0 && mosq->out_packet_count >= db.config->max_queued_messages){
-		mosquitto__free(packet);
+		mosquitto_free(packet);
 		if(mosq->is_dropping == false){
 			mosq->is_dropping = true;
 			log__printf(NULL, MOSQ_LOG_NOTICE,
@@ -330,7 +329,7 @@ int packet__write(struct mosquitto *mosq)
 		}
 
 		next_packet = packet__get_next_out(mosq);
-		mosquitto__FREE(packet);
+		mosquitto_FREE(packet);
 		packet = next_packet;
 
 #ifdef WITH_BROKER
@@ -515,7 +514,7 @@ int packet__read(struct mosquitto *mosq)
 		/* FIXME - client case for incoming message received from broker too large */
 #endif
 		if(mosq->in_packet.remaining_length > 0){
-			mosq->in_packet.payload = mosquitto__malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
+			mosq->in_packet.payload = mosquitto_malloc(mosq->in_packet.remaining_length*sizeof(uint8_t));
 			if(!mosq->in_packet.payload){
 				return MOSQ_ERR_NOMEM;
 			}

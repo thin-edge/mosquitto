@@ -3,8 +3,6 @@ if(WITH_TLS)
 		mosquitto_passwd.c
 		get_password.c get_password.h
 		../../common/base64_mosq.c ../../common/base64_mosq.h
-		../../lib/memory_mosq.c ../../lib/memory_mosq.h
-		../../src/memory_public.c
 		../../common/misc_mosq.c ../../common/misc_mosq.h
 		../../common/password_mosq.c ../../common/password_mosq.h
 	)
@@ -27,6 +25,7 @@ if(WITH_TLS)
     target_link_libraries(mosquitto_passwd
 	  PRIVATE
 	  	common-options
+		libmosquitto_common
 		OpenSSL::SSL
 	)
 

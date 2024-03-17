@@ -28,7 +28,6 @@ Contributors:
 
 #include "callbacks.h"
 #include "logging_mosq.h"
-#include "memory_mosq.h"
 #include "mosquitto_internal.h"
 #include "mosquitto.h"
 #include "util_mosq.h"
@@ -78,19 +77,19 @@ int mosquitto_connect_srv(struct mosquitto *mosq, const char *host, int keepaliv
 	}else{
 #ifdef WITH_TLS
 		if(mosq->tls_cafile || mosq->tls_capath || mosq->tls_psk){
-			h = mosquitto__malloc(strlen(host) + strlen("_secure-mqtt._tcp.") + 1);
+			h = mosquitto_malloc(strlen(host) + strlen("_secure-mqtt._tcp.") + 1);
 			if(!h) return MOSQ_ERR_NOMEM;
 			sprintf(h, "_secure-mqtt._tcp.%s", host);
 		}else{
 #endif
-			h = mosquitto__malloc(strlen(host) + strlen("_mqtt._tcp.") + 1);
+			h = mosquitto_malloc(strlen(host) + strlen("_mqtt._tcp.") + 1);
 			if(!h) return MOSQ_ERR_NOMEM;
 			sprintf(h, "_mqtt._tcp.%s", host);
 #ifdef WITH_TLS
 		}
 #endif
 		ares_search(mosq->achan, h, ns_c_in, ns_t_srv, srv_callback, mosq);
-		mosquitto__FREE(h);
+		mosquitto_FREE(h);
 	}
 
 	mosquitto__set_state(mosq, mosq_cs_connect_srv);

@@ -27,7 +27,6 @@ Contributors:
 #include <inttypes.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "sys_tree.h"
 
 #define BUFLEN 100

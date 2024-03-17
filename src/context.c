@@ -25,7 +25,6 @@ Contributors:
 
 #include "mosquitto_broker_internal.h"
 #include "alias_mosq.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
 #include "sys_tree.h"
@@ -45,7 +44,7 @@ int context__init_sock(struct mosquitto *context, mosq_sock_t sock)
 					address, sizeof(address),
 					&context->remote_port)){
 
-			context->address = mosquitto__strdup(address);
+			context->address = mosquitto_strdup(address);
 		}
 		if(!context->address){
 			/* getpeername and inet_ntop failed and not a bridge */
@@ -60,7 +59,7 @@ struct mosquitto *context__init(void)
 {
 	struct mosquitto *context;
 
-	context = mosquitto__calloc(1, sizeof(struct mosquitto));
+	context = mosquitto_calloc(1, sizeof(struct mosquitto));
 	if(!context) return NULL;
 
 #if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
@@ -123,7 +122,7 @@ static void context__cleanup_out_packets(struct mosquitto *context)
 	while(context->out_packet){
 		packet = context->out_packet;
 		context->out_packet = context->out_packet->next;
-		mosquitto__free(packet);
+		mosquitto_free(packet);
 	}
 	metrics__int_dec(mosq_gauge_out_packets, context->out_packet_count);
 	metrics__int_dec(mosq_gauge_out_packet_bytes, context->out_packet_bytes);
@@ -156,9 +155,9 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 	keepalive__remove(context);
 	context__cleanup_out_packets(context);
 
-	mosquitto__FREE(context->auth_method);
-	mosquitto__FREE(context->username);
-	mosquitto__FREE(context->password);
+	mosquitto_FREE(context->auth_method);
+	mosquitto_FREE(context->username);
+	mosquitto_FREE(context->password);
 
 	net__socket_close(context);
 	if(force_free){
@@ -166,13 +165,13 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 	}
 	db__messages_delete(context, force_free);
 
-	mosquitto__FREE(context->address);
+	mosquitto_FREE(context->address);
 
 	context__send_will(context);
 
 	if(context->id){
 		context__remove_from_by_id(context);
-		mosquitto__FREE(context->id);
+		mosquitto_FREE(context->id);
 	}
 	packet__cleanup(&(context->in_packet));
 	context__cleanup_out_packets(context);
@@ -180,16 +179,16 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 	if(context->adns){
 		gai_cancel(context->adns);
 		struct addrinfo *ar_request = (struct addrinfo *)context->adns->ar_request;
-		mosquitto__FREE(ar_request);
-		mosquitto__FREE(context->adns);
+		mosquitto_FREE(ar_request);
+		mosquitto_FREE(context->adns);
 	}
 #endif
 
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	mosquitto__FREE(context->http_request);
+	mosquitto_FREE(context->http_request);
 #endif
 	if(force_free){
-		mosquitto__FREE(context);
+		mosquitto_FREE(context);
 	}
 }
 

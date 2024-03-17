@@ -26,7 +26,6 @@ Contributors:
 #include "logging_mosq.h"
 #include "mosquitto_internal.h"
 #include "mosquitto.h"
-#include "memory_mosq.h"
 
 int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, ...)
 {
@@ -40,7 +39,7 @@ int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, 
 	pthread_mutex_lock(&mosq->log_callback_mutex);
 	if(mosq->on_log){
 		len = strlen(fmt) + 500;
-		s = mosquitto__malloc(len*sizeof(char));
+		s = mosquitto_malloc(len*sizeof(char));
 		if(!s){
 			pthread_mutex_unlock(&mosq->log_callback_mutex);
 			return MOSQ_ERR_NOMEM;
@@ -53,7 +52,7 @@ int log__printf(struct mosquitto *mosq, unsigned int priority, const char *fmt, 
 
 		mosq->on_log(mosq, mosq->userdata, (int)priority, s);
 
-		mosquitto__FREE(s);
+		mosquitto_FREE(s);
 	}
 	pthread_mutex_unlock(&mosq->log_callback_mutex);
 

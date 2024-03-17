@@ -31,7 +31,6 @@ Contributors:
 #include <time.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "persist.h"
 #include "property_mosq.h"
@@ -93,7 +92,7 @@ int persist__chunk_client_read_v56(FILE *db_fptr, struct P_client *chunk, uint32
 	if(chunk->F.username_len > 0){
 		rc = persist__read_string_len(db_fptr, &chunk->username, chunk->F.username_len);
 		if(rc || !chunk->username){
-			mosquitto__FREE(chunk->clientid);
+			mosquitto_FREE(chunk->clientid);
 			return 1;
 		}
 	}
@@ -125,7 +124,7 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 	if(length > 0){
 		prop_packet.remaining_length = length;
-		prop_packet.payload = mosquitto__malloc(length);
+		prop_packet.payload = mosquitto_malloc(length);
 		if(!prop_packet.payload){
 			errno = ENOMEM;
 			goto error;
@@ -133,9 +132,9 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
-		mosquitto__FREE(prop_packet.payload);
+		mosquitto_FREE(prop_packet.payload);
 		if(rc){
-			mosquitto__FREE(chunk->clientid);
+			mosquitto_FREE(chunk->clientid);
 			return rc;
 		}
 
@@ -153,8 +152,8 @@ int persist__chunk_client_msg_read_v56(FILE *db_fptr, struct P_client_msg *chunk
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->clientid);
-	mosquitto__FREE(prop_packet.payload);
+	mosquitto_FREE(chunk->clientid);
+	mosquitto_FREE(prop_packet.payload);
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
 	return 1;
 }
@@ -194,7 +193,7 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 	if(rc) goto error;
 
 	if(chunk->F.payloadlen > 0){
-		chunk->payload = mosquitto__malloc(chunk->F.payloadlen+1);
+		chunk->payload = mosquitto_malloc(chunk->F.payloadlen+1);
 		if(chunk->payload == NULL){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
@@ -206,14 +205,14 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 
 	if(length > 0){
 		prop_packet.remaining_length = length;
-		prop_packet.payload = mosquitto__malloc(length);
+		prop_packet.payload = mosquitto_malloc(length);
 		if(!prop_packet.payload){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
 		}
 		read_e(db_fptr, prop_packet.payload, length);
 		rc = property__read_all(CMD_PUBLISH, &prop_packet, &properties);
-		mosquitto__FREE(prop_packet.payload);
+		mosquitto_FREE(prop_packet.payload);
 		if(rc){
 			rc = MOSQ_ERR_NOMEM;
 			goto error;
@@ -223,11 +222,11 @@ int persist__chunk_base_msg_read_v56(FILE *db_fptr, struct P_base_msg *chunk, ui
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->payload);
-	mosquitto__FREE(chunk->source.id);
-	mosquitto__FREE(chunk->source.username);
-	mosquitto__FREE(chunk->topic);
-	mosquitto__FREE(prop_packet.payload);
+	mosquitto_FREE(chunk->payload);
+	mosquitto_FREE(chunk->source.id);
+	mosquitto_FREE(chunk->source.username);
+	mosquitto_FREE(chunk->topic);
+	mosquitto_FREE(prop_packet.payload);
 	return rc;
 }
 
@@ -259,7 +258,7 @@ int persist__chunk_sub_read_v56(FILE *db_fptr, struct P_sub *chunk)
 
 	return MOSQ_ERR_SUCCESS;
 error:
-	mosquitto__FREE(chunk->clientid);
+	mosquitto_FREE(chunk->clientid);
 	return rc;
 }
 

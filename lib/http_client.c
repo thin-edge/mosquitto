@@ -27,7 +27,6 @@ Contributors:
 #include "mosquitto_internal.h"
 #include "base64_mosq.h"
 #include "http_client.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 #include "net_mosq.h"
 #include "packet_mosq.h"
@@ -52,7 +51,7 @@ int http_c__context_init(struct mosquitto *context)
 	const char *path;
 
 	context->transport = mosq_t_http;
-	context->http_request = mosquitto__calloc(1, (size_t)context->wsd.http_header_size + 1);
+	context->http_request = mosquitto_calloc(1, (size_t)context->wsd.http_header_size + 1);
 	if(context->http_request == NULL){
 		return MOSQ_ERR_NOMEM;
 	}
@@ -64,7 +63,7 @@ int http_c__context_init(struct mosquitto *context)
 		return MOSQ_ERR_UNKNOWN;
 	}
 
-	packet = mosquitto__calloc(1, sizeof(struct mosquitto__packet) + 1024 + WS_PACKET_OFFSET);
+	packet = mosquitto_calloc(1, sizeof(struct mosquitto__packet) + 1024 + WS_PACKET_OFFSET);
 	if(!packet) return MOSQ_ERR_NOMEM;
 
 	path = context->wsd.http_path?context->wsd.http_path:"/mqtt";
@@ -89,7 +88,7 @@ int http_c__context_init(struct mosquitto *context)
 int http_c__context_cleanup(struct mosquitto *context)
 {
 	SAFE_FREE(context->wsd.accept_key);
-	mosquitto__FREE(context->http_request);
+	mosquitto_FREE(context->http_request);
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -164,7 +163,7 @@ int http_c__read(struct mosquitto *mosq)
 	}
 
 	if(http_status != 101){
-		mosquitto__FREE(mosq->http_request);
+		mosquitto_FREE(mosq->http_request);
 		/* FIXME Not supported - send 501 response */
 		return MOSQ_ERR_UNKNOWN;
 	}

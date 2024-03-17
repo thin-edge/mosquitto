@@ -12,6 +12,7 @@ LOCAL_LIBADD+=
 .PHONY : really clean install
 
 OBJS= \
+	memory_common.o \
 	strings_common.o \
 	time_common.o \
 	topic_common.o \

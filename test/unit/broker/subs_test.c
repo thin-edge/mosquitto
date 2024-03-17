@@ -7,7 +7,6 @@
 #include <CUnit/Basic.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 
 struct mosquitto_db db;
 
@@ -70,7 +69,7 @@ static void TEST_sub_add_single(void)
 		hier_quick_check(&subhier, &context, "e");
 		CU_ASSERT_PTR_NULL(subhier);
 	}
-	mosquitto__free(context.subs);
+	mosquitto_free(context.subs);
 	db__close();
 }
 

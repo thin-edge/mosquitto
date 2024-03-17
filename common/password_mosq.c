@@ -27,7 +27,6 @@ Contributors:
 
 #include "mosquitto.h"
 #include "base64_mosq.h"
-#include "memory_mosq.h"
 #include "password_mosq.h"
 
 #ifdef WIN32

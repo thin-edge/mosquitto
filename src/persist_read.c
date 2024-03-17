@@ -33,7 +33,6 @@ Contributors:
 #include <utlist.h>
 
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "persist.h"
 #include "misc_mosq.h"
 #include "util_mosq.h"
@@ -60,9 +59,9 @@ static struct mosquitto *persist__find_or_add_context(const char *clientid, uint
 	if(!context){
 		context = context__init();
 		if(!context) return NULL;
-		context->id = mosquitto__strdup(clientid);
+		context->id = mosquitto_strdup(clientid);
 		if(!context->id){
-			mosquitto__FREE(context);
+			mosquitto_FREE(context);
 			return NULL;
 		}
 
@@ -82,13 +81,13 @@ int persist__read_string_len(FILE *db_fptr, char **str, uint16_t len)
 	char *s = NULL;
 
 	if(len){
-		s = mosquitto__malloc(len+1U);
+		s = mosquitto_malloc(len+1U);
 		if(!s){
 			log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 			return MOSQ_ERR_NOMEM;
 		}
 		if(fread(s, 1, len, db_fptr) != len){
-			mosquitto__FREE(s);
+			mosquitto_FREE(s);
 			return MOSQ_ERR_NOMEM;
 		}
 		s[len] = '\0';
@@ -132,7 +131,7 @@ static int persist__client_msg_restore(struct P_client_msg *chunk)
 		return 0;
 	}
 
-	cmsg = mosquitto__calloc(1, sizeof(struct mosquitto__client_msg));
+	cmsg = mosquitto_calloc(1, sizeof(struct mosquitto__client_msg));
 	if(!cmsg){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -217,8 +216,8 @@ static int persist__client_chunk_restore(FILE *db_fptr)
 		rc = 1;
 	}
 
-	mosquitto__FREE(chunk.clientid);
-	mosquitto__FREE(chunk.username);
+	mosquitto_FREE(chunk.clientid);
+	mosquitto_FREE(chunk.username);
 	if(rc == 0) client_count++;
 	return rc;
 }
@@ -241,7 +240,7 @@ static int persist__client_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	}
 
 	rc = persist__client_msg_restore(&chunk);
-	mosquitto__FREE(chunk.clientid);
+	mosquitto_FREE(chunk.clientid);
 
 	if(rc == 0) client_msg_count++;
 	return rc;
@@ -287,7 +286,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		message_expiry_interval = 0;
 	}
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
+	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		rc = MOSQ_ERR_NOMEM;
@@ -307,8 +306,8 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	rc = db__message_store(&chunk.source, base_msg, &message_expiry_interval,
 			mosq_mo_client);
 
-	mosquitto__FREE(chunk.source.id);
-	mosquitto__FREE(chunk.source.username);
+	mosquitto_FREE(chunk.source.id);
+	mosquitto_FREE(chunk.source.username);
 
 	if(rc == MOSQ_ERR_SUCCESS){
 		base_msg_count++;
@@ -317,10 +316,10 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		return rc;
 	}
 cleanup:
-	mosquitto__FREE(chunk.source.id);
-	mosquitto__FREE(chunk.source.username);
-	mosquitto__FREE(chunk.topic);
-	mosquitto__FREE(chunk.payload);
+	mosquitto_FREE(chunk.source.id);
+	mosquitto_FREE(chunk.source.username);
+	mosquitto_FREE(chunk.topic);
+	mosquitto_FREE(chunk.payload);
 	return rc;
 }
 
@@ -347,8 +346,8 @@ static int persist__retain_chunk_restore(FILE *db_fptr)
 	if(base_msg){
 		if(sub__topic_tokenise(base_msg->data.topic, &local_topic, &split_topics, NULL)) return 1;
 		retain__store(base_msg->data.topic, base_msg, split_topics, true);
-		mosquitto__FREE(local_topic);
-		mosquitto__FREE(split_topics);
+		mosquitto_FREE(local_topic);
+		mosquitto_FREE(split_topics);
 		retained_count++;
 	}else{
 		/* Can't find the message - probably expired */
@@ -379,8 +378,8 @@ static int persist__sub_chunk_restore(FILE *db_fptr)
 	sub.identifier = chunk.F.identifier;
 	rc = persist__restore_sub(&sub);
 
-	mosquitto__FREE(chunk.clientid);
-	mosquitto__FREE(chunk.topic);
+	mosquitto_FREE(chunk.clientid);
+	mosquitto_FREE(chunk.topic);
 	if(rc == 0) subscription_count++;
 
 	return rc;

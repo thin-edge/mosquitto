@@ -28,11 +28,10 @@ Contributors:
 
 #include "db_dump.h"
 #include <mosquitto_broker_internal.h>
-#include <memory_mosq.h>
 #include <persist.h>
 
-#define mosquitto__malloc(A) malloc((A))
-#define mosquitto__free(A) free((A))
+#define mosquitto_malloc(A) malloc((A))
+#define mosquitto_free(A) free((A))
 #define _mosquitto_malloc(A) malloc((A))
 #define _mosquitto_free(A) free((A))
 #include <uthash.h>
@@ -252,13 +251,13 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 		message_expiry_interval = 0;
 	}
 
-	stored = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
+	stored = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
 	if(stored == NULL){
 		fprintf(stderr, "Error: Out of memory.\n");
-		mosquitto__free(chunk.source.id);
-		mosquitto__free(chunk.source.username);
-		mosquitto__free(chunk.topic);
-		mosquitto__free(chunk.payload);
+		mosquitto_free(chunk.source.id);
+		mosquitto_free(chunk.source.username);
+		mosquitto_free(chunk.topic);
+		mosquitto_free(chunk.payload);
 		return MOSQ_ERR_NOMEM;
 	}
 	stored->data.store_id = chunk.F.store_id;
@@ -273,8 +272,8 @@ static int dump__base_msg_chunk_process(FILE *db_fptr, uint32_t length)
 	rc = db__message_store(&chunk.source, stored, &message_expiry_interval,
 			mosq_mo_client);
 
-	mosquitto__free(chunk.source.id);
-	mosquitto__free(chunk.source.username);
+	mosquitto_free(chunk.source.id);
+	mosquitto_free(chunk.source.username);
 	chunk.source.id = NULL;
 	chunk.source.username = NULL;
 

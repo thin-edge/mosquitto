@@ -29,21 +29,19 @@ Contributors:
 #endif
 
 void *mosquitto__calloc(size_t nmemb, size_t size);
-void mosquitto__free(void *mem);
-void *mosquitto__malloc(size_t size);
+void mosquitto_free(void *mem);
+void *mosquitto_malloc(size_t size);
 #ifdef REAL_WITH_MEMORY_TRACKING
 unsigned long mosquitto__memory_used(void);
 unsigned long mosquitto__max_memory_used(void);
 #endif
-void *mosquitto__realloc(void *ptr, size_t size);
-char *mosquitto__strdup(const char *s);
+void *mosquitto_realloc(void *ptr, size_t size);
+char *mosquitto_strdup(const char *s);
 char *mosquitto__strndup(const char *s, size_t n);
 
 #ifdef WITH_BROKER
 void memory__set_limit(size_t lim);
 #endif
 
-#define mosquitto__FREE(A) do { mosquitto__free(A); (A) = NULL;} while(0)
-#define SAFE_FREE(A) do { free(A); (A) = NULL;} while(0)
 
 #endif

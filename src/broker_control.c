@@ -32,7 +32,6 @@ Contributors:
 #include "mosquitto/broker.h"
 #include "mosquitto/broker_control.h"
 #include "mosquitto/broker_plugin.h"
-#include "memory_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
 
 static mosquitto_plugin_id_t plg_id;

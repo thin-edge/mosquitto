@@ -19,7 +19,6 @@ Contributors:
 #include "config.h"
 #include <time.h>
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include <utlist.h>
 
 
@@ -81,7 +80,7 @@ int keepalive__init(void)
 	}else{
 		keepalive_list_max = (db.config->max_keepalive * 3)/2 + 1;
 	}
-	keepalive_list = mosquitto__calloc((size_t)keepalive_list_max, sizeof(struct mosquitto *));
+	keepalive_list = mosquitto_calloc((size_t)keepalive_list_max, sizeof(struct mosquitto *));
 	if(keepalive_list == NULL){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		keepalive_list_max = 0;
@@ -101,7 +100,7 @@ int keepalive__init(void)
 void keepalive__cleanup(void)
 {
 #ifndef WITH_OLD_KEEPALIVE
-	mosquitto__FREE(keepalive_list);
+	mosquitto_FREE(keepalive_list);
 	keepalive_list_max = 0;
 #endif
 }

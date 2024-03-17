@@ -24,7 +24,6 @@ Contributors:
 #include "mosquitto_broker_internal.h"
 #include "alias_mosq.h"
 #include "mosquitto/mqtt_protocol.h"
-#include "memory_mosq.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
 #include "read_handle.h"
@@ -57,7 +56,7 @@ int handle__publish(struct mosquitto *context)
 
 	context->stats.messages_received++;
 
-	base_msg = mosquitto__calloc(1, sizeof(struct mosquitto__base_msg));
+	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
 	if(base_msg == NULL){
 		return MOSQ_ERR_NOMEM;
 	}
@@ -167,7 +166,7 @@ int handle__publish(struct mosquitto *context)
 	metrics__int_inc(mosq_counter_pub_bytes_received, base_msg->data.payloadlen);
 	if(context->listener && context->listener->mount_point){
 		len = strlen(context->listener->mount_point) + strlen(base_msg->data.topic) + 1;
-		topic_mount = mosquitto__malloc(len+1);
+		topic_mount = mosquitto_malloc(len+1);
 		if(!topic_mount){
 			db__msg_store_free(base_msg);
 			return MOSQ_ERR_NOMEM;
@@ -175,7 +174,7 @@ int handle__publish(struct mosquitto *context)
 		snprintf(topic_mount, len, "%s%s", context->listener->mount_point, base_msg->data.topic);
 		topic_mount[len] = '\0';
 
-		mosquitto__FREE(base_msg->data.topic);
+		mosquitto_FREE(base_msg->data.topic);
 		base_msg->data.topic = topic_mount;
 	}
 
@@ -185,7 +184,7 @@ int handle__publish(struct mosquitto *context)
 			reason_code = MQTT_RC_PACKET_TOO_LARGE;
 			goto process_bad_message;
 		}
-		base_msg->data.payload = mosquitto__malloc(base_msg->data.payloadlen+1);
+		base_msg->data.payload = mosquitto_malloc(base_msg->data.payloadlen+1);
 		if(base_msg->data.payload == NULL){
 			db__msg_store_free(base_msg);
 			return MOSQ_ERR_NOMEM;

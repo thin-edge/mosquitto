@@ -32,7 +32,6 @@ Contributors:
 
 #include "mosquitto/mqtt_protocol.h"
 #include "mosquitto_broker_internal.h"
-#include "memory_mosq.h"
 #include "persist.h"
 #include "packet_mosq.h"
 #include "property_mosq.h"
@@ -123,14 +122,14 @@ int persist__chunk_client_msg_write_v6(FILE *db_fptr, struct P_client_msg *chunk
 			}
 
 			write_e(db_fptr, prop_packet->payload, proplen);
-			mosquitto__FREE(prop_packet);
+			mosquitto_FREE(prop_packet);
 		}
 	}
 
 	return MOSQ_ERR_SUCCESS;
 error:
 	log__printf(NULL, MOSQ_LOG_ERR, "Error: %s.", strerror(errno));
-	mosquitto__FREE(prop_packet);
+	mosquitto_FREE(prop_packet);
 	return 1;
 }
 
