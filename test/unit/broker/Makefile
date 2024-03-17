@@ -21,8 +21,7 @@ BRIDGE_TOPIC_OBJS = \
 		${R}/src/bridge_topic.o \
 		${R}/src/memory_mosq.o \
 		${R}/src/packet_datatypes.o \
-		${R}/src/property_mosq.o \
-		${R}/src/util_topic.o
+		${R}/src/property_mosq.o
 
 KEEPALIVE_TEST_OBJS = \
 		keepalive_stubs.o \
@@ -169,9 +168,6 @@ ${R}/src/topic_tok.o : ${R}/src/topic_tok.c
 
 ${R}/src/util_mosq.o : ${R}/lib/util_mosq.c
 	$(MAKE) -C ${R}/src/ util_mosq.o
-
-${R}/src/util_topic.o : ${R}/lib/util_topic.c
-	$(MAKE) -C ${R}/src/ util_topic.o
 
 build : bridge_topic_test keepalive_test persist_read_test persist_write_test subs_test
 

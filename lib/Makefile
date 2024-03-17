@@ -81,7 +81,6 @@ OBJS= \
 	thread_mosq.o \
 	tls_mosq.o \
 	util_mosq.o \
-	util_topic.o \
 	will_mosq.o
 
 OBJS_EXTERNAL= \

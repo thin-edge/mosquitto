@@ -15,6 +15,7 @@ endif
 TEST_OBJS = \
 	strings_test.o \
 	test.o \
+	topic_test.o \
 	utf8.o \
 
 LIB_OBJS =

@@ -1,6 +1,7 @@
 set(C_SRC
 	strings_common.c
 	time_common.c
+	topic_common.c
 	utf8_common.c
 )
 

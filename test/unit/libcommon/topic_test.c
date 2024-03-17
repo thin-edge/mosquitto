@@ -1458,7 +1458,7 @@ static void TEST_sub_match_acl(void)
  * TEST SUITE SETUP
  * ======================================================================== */
 
-int init_util_topic_tests(void)
+int init_topic_tests(void)
 {
 	CU_pSuite test_suite = NULL;
 

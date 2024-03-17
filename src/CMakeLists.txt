@@ -74,7 +74,7 @@ set (MOSQ_SRCS
 	sys_tree.c sys_tree.h
 	../lib/tls_mosq.c
 	topic_tok.c
-	../lib/util_mosq.c ../lib/util_topic.c ../lib/util_mosq.h
+	../lib/util_mosq.c ../lib/util_mosq.h
 	websockets.c
 	will_delay.c
 	../lib/will_mosq.c ../lib/will_mosq.h

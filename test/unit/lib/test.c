@@ -11,7 +11,6 @@ int init_property_read_tests(void);
 int init_property_user_read_tests(void);
 int init_property_write_tests(void);
 int init_property_value_tests(void);
-int init_util_topic_tests(void);
 int init_misc_trim_tests(void);
 
 int main(int argc, char *argv[])
@@ -34,7 +33,6 @@ int main(int argc, char *argv[])
 			|| init_property_user_read_tests()
 			|| init_property_write_tests()
 			|| init_property_value_tests()
-			|| init_util_topic_tests()
 			|| init_misc_trim_tests()
 			){
 

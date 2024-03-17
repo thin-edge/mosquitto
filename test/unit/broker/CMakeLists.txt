@@ -3,7 +3,6 @@ add_library(bridge-topic-obj
 	OBJECT
 	../../../src/bridge_topic.c
 	../../../lib/memory_mosq.c
-	../../../lib/util_topic.c
 )
 target_compile_definitions(bridge-topic-obj PRIVATE WITH_BRIDGE WITH_BROKER)
 target_link_libraries(bridge-topic-obj PUBLIC common-unit-test-header)
@@ -13,7 +12,7 @@ add_executable(bridge-topic-test
     stubs.c
 )
 target_compile_definitions(bridge-topic-test PRIVATE WITH_BRIDGE WITH_BROKER)
-target_link_libraries(bridge-topic-test PRIVATE bridge-topic-obj common-unit-test-header)
+target_link_libraries(bridge-topic-test PRIVATE bridge-topic-obj common-unit-test-header libmosquitto_common)
 add_test(NAME unit-bridge-topic-test COMMAND bridge-topic-test)
 
 # keepalive-test

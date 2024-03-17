@@ -48,7 +48,7 @@ set(C_SRC
 	srv_mosq.c
 	thread_mosq.c
 	tls_mosq.c
-	util_mosq.c util_topic.c util_mosq.h
+	util_mosq.c util_mosq.h
 	will_mosq.c will_mosq.h)
 
 if (WITH_THREADING AND WIN32)

@@ -8,7 +8,6 @@ add_executable(lib-test
 	property_write.c
 	property_value.c
 	stubs.c
-	util_topic_test.c
 	# main test files
 	test.c
 	../../../lib/memory_mosq.c
@@ -17,7 +16,6 @@ add_executable(lib-test
 	../../../lib/packet_mosq.c
 	../../../lib/property_mosq.c
 	../../../lib/util_mosq.c
-	../../../lib/util_topic.c
 )
 
 target_link_libraries(lib-test PRIVATE common-unit-test-header OpenSSL::SSL libmosquitto_common)

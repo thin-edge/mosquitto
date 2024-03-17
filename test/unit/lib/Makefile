@@ -23,7 +23,6 @@ TEST_OBJS = \
 	property_write.o \
 	property_value.o \
 	stubs.o \
-	util_topic_test.o
 
 LIB_OBJS = \
 	${R}/lib/memory_mosq.o \
@@ -31,8 +30,7 @@ LIB_OBJS = \
 	${R}/lib/packet_datatypes.o \
 	${R}/lib/packet_mosq.o \
 	${R}/lib/property_mosq.o \
-	${R}/lib/util_mosq.o \
-	${R}/lib/util_topic.o
+	${R}/lib/util_mosq.o
 
 
 all : test-compile
@@ -65,9 +63,6 @@ ${R}/lib/property_mosq.o : ${R}/lib/property_mosq.c
 
 ${R}/lib/util_mosq.o : ${R}/lib/util_mosq.c
 	$(MAKE) -C ${R}/lib/ util_mosq.o
-
-${R}/lib/util_topic.o : ${R}/lib/util_topic.c
-	$(MAKE) -C ${R}/lib/ util_topic.o
 
 ${R}/lib/utf8_mosq.o : ${R}/common/utf8_mosq.c
 	$(MAKE) -C ${R}/lib/ utf8_mosq.o

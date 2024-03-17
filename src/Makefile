@@ -138,7 +138,6 @@ OBJS_EXTERNAL= \
 		send_unsubscribe.o \
 		tls_mosq.o \
 		util_mosq.o \
-		util_topic.o \
 		will_mosq.o
 
 ifeq ($(WITH_WEBSOCKETS),yes)
@@ -233,9 +232,6 @@ tls_mosq.o : ${R}/lib/tls_mosq.c
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 util_mosq.o : ${R}/lib/util_mosq.c ${R}/lib/util_mosq.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-util_topic.o : ${R}/lib/util_topic.c ${R}/lib/util_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 will_mosq.o : ${R}/lib/will_mosq.c ${R}/lib/will_mosq.h

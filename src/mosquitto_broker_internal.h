@@ -61,7 +61,6 @@ Contributors:
 #define MQTT3_LOG_ALL 0xFF
 
 #define CMD_PORT_LIMIT 10
-#define TOPIC_HIERARCHY_LIMIT 200
 
 typedef uint64_t dbid_t;
 

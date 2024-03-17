@@ -99,4 +99,6 @@ typedef SSIZE_T ssize_t;
 #  define BROKER_EXPORT
 #endif
 
+#define TOPIC_HIERARCHY_LIMIT 200
+
 #endif
