@@ -43,7 +43,6 @@ add_library(persistence-read-obj
         ../../../src/persist_read.c
         ../../../src/retain.c
         ../../../src/topic_tok.c
-        ../../../common/utf8_mosq.c
 )
 target_compile_definitions(persistence-read-obj PRIVATE WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(persistence-read-obj PUBLIC common-unit-test-header OpenSSL::SSL)
@@ -56,7 +55,7 @@ add_executable(persist-read-test
     ../../../lib/util_mosq.c
 )
 target_compile_definitions(persist-read-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER)
-target_link_libraries(persist-read-test PRIVATE persistence-read-obj)
+target_link_libraries(persist-read-test PRIVATE persistence-read-obj libmosquitto_common)
 add_test(NAME unit-persist-read-test COMMAND persist-read-test)
 
 # persist-write-test
@@ -74,7 +73,6 @@ add_library(persistence-write-obj
         ../../../src/retain.c
         ../../../src/subs.c
         ../../../src/topic_tok.c
-        ../../../common/utf8_mosq.c
 )
 target_compile_definitions(persistence-write-obj PRIVATE WITH_PERSISTENCE WITH_BROKER)
 target_link_libraries(persistence-write-obj PUBLIC common-unit-test-header)
@@ -88,7 +86,7 @@ add_executable(persist-write-test
     ../../../lib/packet_mosq.c
 )
 target_compile_definitions(persist-write-test PRIVATE TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" WITH_PERSISTENCE WITH_BROKER WITH_SYS_TREE)
-target_link_libraries(persist-write-test PRIVATE persistence-write-obj OpenSSL::SSL)
+target_link_libraries(persist-write-test PRIVATE persistence-write-obj OpenSSL::SSL libmosquitto_common)
 add_test(NAME unit-persist-write-test COMMAND persist-write-test)
 
 # subs-test
@@ -101,7 +99,6 @@ add_library(subs-obj
         ../../../src/database.c
         ../../../src/subs.c
         ../../../src/topic_tok.c
-        ../../../common/utf8_mosq.c
 )
 target_compile_definitions(subs-obj PRIVATE WITH_BROKER)
 target_link_libraries(subs-obj PUBLIC common-unit-test-header)
@@ -112,5 +109,5 @@ add_executable(subs-test
 )
 
 target_compile_definitions(subs-test PRIVATE WITH_PERSISTENCE WITH_BROKER WITH_SYS_TREE)
-target_link_libraries(subs-test PRIVATE common-unit-test-header subs-obj)
+target_link_libraries(subs-test PRIVATE common-unit-test-header subs-obj libmosquitto_common)
 add_test(NAME unit-subs-test COMMAND subs-test)

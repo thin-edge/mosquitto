@@ -1,6 +1,6 @@
 include config.mk
 
-DIRS=lib apps client plugins src
+DIRS=libcommon lib apps client plugins src
 DOCDIRS=man
 DISTDIRS=man
 DISTFILES= \

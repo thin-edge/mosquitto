@@ -9,7 +9,6 @@ add_executable(lib-test
 	property_value.c
 	strings_test.c
 	stubs.c
-	utf8.c
 	util_topic_test.c
 	# main test files
 	test.c
@@ -21,8 +20,7 @@ add_executable(lib-test
 	../../../lib/strings_mosq.c
 	../../../lib/util_mosq.c
 	../../../lib/util_topic.c
-	../../../common/utf8_mosq.c
 )
 
-target_link_libraries(lib-test PRIVATE common-unit-test-header OpenSSL::SSL)
+target_link_libraries(lib-test PRIVATE common-unit-test-header OpenSSL::SSL libmosquitto_common)
 add_test(NAME unit-lib-test COMMAND lib-test)

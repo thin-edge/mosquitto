@@ -6,7 +6,7 @@ include ${R}/config.mk
 LOCAL_CFLAGS+=-coverage
 LOCAL_CPPFLAGS+=-I${R}/src -I${R}/test -I${R}/lib -DTEST_SOURCE_DIR='"$(realpath .)"'
 LOCAL_LDFLAGS+=-coverage
-LOCAL_LDADD+=-lcunit
+LOCAL_LDADD+=-lcunit ${LIBMOSQ_COMMON}
 
 ifeq ($(WITH_TLS),yes)
 	LOCAL_LDADD+=-lssl -lcrypto
@@ -24,7 +24,6 @@ TEST_OBJS = \
 	property_value.o \
 	strings_test.o \
 	stubs.o \
-	utf8.o \
 	util_topic_test.o
 
 LIB_OBJS = \
@@ -35,8 +34,7 @@ LIB_OBJS = \
 	${R}/lib/property_mosq.o \
 	${R}/lib/strings_mosq.o \
 	${R}/lib/util_mosq.o \
-	${R}/lib/util_topic.o \
-	${R}/lib/utf8_mosq.o
+	${R}/lib/util_topic.o
 
 
 all : test-compile

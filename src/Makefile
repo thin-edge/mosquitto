@@ -6,7 +6,7 @@ include ${R}/config.mk
 LOCAL_CFLAGS+=
 LOCAL_CPPFLAGS+=-DWITH_BROKER -I${R}/lib
 LOCAL_LDFLAGS+=
-LOCAL_LDADD+=-lcjson -lm ${LIB_ARGON2}
+LOCAL_LDADD+=-lcjson -lm ${LIB_ARGON2} ${LIBMOSQ_COMMON}
 
 # ------------------------------------------
 #  Platform specific
@@ -139,7 +139,6 @@ OBJS_EXTERNAL= \
 		strings_mosq.o \
 		time_mosq.o \
 		tls_mosq.o \
-		utf8_mosq.o \
 		util_mosq.o \
 		util_topic.o \
 		will_mosq.o
@@ -245,9 +244,6 @@ util_mosq.o : ${R}/lib/util_mosq.c ${R}/lib/util_mosq.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 util_topic.o : ${R}/lib/util_topic.c ${R}/lib/util_mosq.h
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-utf8_mosq.o : ${R}/common/utf8_mosq.c
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 will_mosq.o : ${R}/lib/will_mosq.c ${R}/lib/will_mosq.h

@@ -7,7 +7,7 @@ include ${R}/make/broker.mk
 LOCAL_CFLAGS+=-coverage
 LOCAL_CPPFLAGS+=-DWITH_BROKER -I${R}/src -I${R}/test -I${R}/lib -DTEST_SOURCE_DIR='"$(realpath .)"' -I${R}/lib
 LOCAL_LDFLAGS+=-coverage
-LOCAL_LDADD+=-lcunit
+LOCAL_LDADD+=-lcunit ${LIBMOSQ_COMMON}
 
 ifeq ($(WITH_TLS),yes)
 	LOCAL_LDADD+=-lssl -lcrypto
@@ -22,8 +22,7 @@ BRIDGE_TOPIC_OBJS = \
 		${R}/src/memory_mosq.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/property_mosq.o \
-		${R}/src/util_topic.o \
-		${R}/src/utf8_mosq.o
+		${R}/src/util_topic.o
 
 KEEPALIVE_TEST_OBJS = \
 		keepalive_stubs.o \
@@ -47,8 +46,7 @@ PERSIST_READ_OBJS = \
 		${R}/src/property_mosq.o \
 		${R}/src/retain.o \
 		${R}/src/topic_tok.o \
-		${R}/src/util_mosq.o \
-		${R}/src/utf8_mosq.o
+		${R}/src/util_mosq.o
 
 PERSIST_WRITE_TEST_OBJS = \
 		persist_write_test.o \
@@ -70,8 +68,7 @@ PERSIST_WRITE_OBJS = \
 		${R}/src/retain.o \
 		${R}/src/subs.o \
 		${R}/src/topic_tok.o \
-		${R}/src/util_mosq.o \
-		${R}/src/utf8_mosq.o
+		${R}/src/util_mosq.o
 
 SUBS_TEST_OBJS = \
 		subs_test.o \
@@ -84,8 +81,7 @@ SUBS_OBJS = \
 		${R}/src/packet_datatypes.o \
 		${R}/src/property_mosq.o \
 		${R}/src/subs.o \
-		${R}/src/topic_tok.o \
-		${R}/src/utf8_mosq.o
+		${R}/src/topic_tok.o
 
 all : test-compile
 
@@ -176,9 +172,6 @@ ${R}/src/util_mosq.o : ${R}/lib/util_mosq.c
 
 ${R}/src/util_topic.o : ${R}/lib/util_topic.c
 	$(MAKE) -C ${R}/src/ util_topic.o
-
-${R}/src/utf8_mosq.o : ${R}/common/utf8_mosq.c
-	$(MAKE) -C ${R}/src/ utf8_mosq.o
 
 build : bridge_topic_test keepalive_test persist_read_test persist_write_test subs_test
 

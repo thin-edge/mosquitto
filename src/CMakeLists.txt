@@ -77,7 +77,6 @@ set (MOSQ_SRCS
 	../lib/tls_mosq.c
 	topic_tok.c
 	../lib/util_mosq.c ../lib/util_topic.c ../lib/util_mosq.h
-	../common/utf8_mosq.c
 	websockets.c
 	will_delay.c
 	../lib/will_mosq.c ../lib/will_mosq.h
@@ -248,6 +247,7 @@ endif()
 target_link_libraries(mosquitto
 	PUBLIC
 		config-header
+		libmosquitto_common
 	PRIVATE
 		common-options
 		${MOSQ_LIBS}

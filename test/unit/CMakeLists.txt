@@ -17,5 +17,6 @@ target_link_libraries(common-unit-test-header
         CUnit::CUnit
 )
 
+add_subdirectory(libcommon)
 add_subdirectory(broker)
 add_subdirectory(lib)

@@ -134,6 +134,7 @@ if(WITH_TLS)
 endif()
 
 
+add_subdirectory(libcommon)
 add_subdirectory(lib)
 if(WITH_CLIENTS)
 	add_subdirectory(client)

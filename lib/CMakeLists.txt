@@ -50,7 +50,6 @@ set(C_SRC
 	thread_mosq.c
 	../common/time_mosq.c ../common/time_mosq.h
 	tls_mosq.c
-	../common/utf8_mosq.c
 	util_mosq.c util_topic.c util_mosq.h
 	will_mosq.c will_mosq.h)
 
@@ -58,7 +57,7 @@ if (WITH_THREADING AND WIN32)
 	list(APPEND C_SRC "../common/winthread_mosq.c" "../common/winthread_mosq.h")
 endif()
 
-set(LIBRARIES common-options)
+set(LIBRARIES common-options libmosquitto_common)
 
 if(WITH_TLS)
 	set (LIBRARIES ${LIBRARIES} OpenSSL::SSL)

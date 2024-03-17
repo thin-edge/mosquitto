@@ -6,7 +6,6 @@ add_executable(mosquitto_db_dump
 	../../lib/memory_mosq.c
 	../../lib/packet_datatypes.c
 	../../lib/property_mosq.c
-	../../common/utf8_mosq.c
 
 	../../src/memory_public.c
 	../../src/persist_read.c
@@ -38,6 +37,8 @@ endif()
 if(WITH_TLS)
 	target_link_libraries(mosquitto_db_dump PRIVATE config-header OpenSSL::SSL)
 endif()
+
+target_link_libraries(mosquitto_db_dump PRIVATE libmosquitto_common)
 
 install(TARGETS mosquitto_db_dump
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

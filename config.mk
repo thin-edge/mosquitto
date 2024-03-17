@@ -221,6 +221,7 @@ ifeq ($(WITH_SHARED_LIBRARIES),yes)
 else
 	LIBMOSQ:=${R}/lib/libmosquitto.a
 endif
+LIBMOSQ_COMMON:=-Wl,--whole-archive ${R}/libcommon/libmosquitto_common.a -Wl,--no-whole-archive
 
 ifeq ($(WITH_TLS),yes)
 	LOCAL_CPPFLAGS+=-DWITH_TLS

@@ -4,7 +4,7 @@ include ${R}/config.mk
 LOCAL_CFLAGS+=
 LOCAL_CPPFLAGS+=-I${R}/lib -I${R}/src -I${R}/common -DWITH_BROKER
 LOCAL_LDFLAGS+=
-LOCAL_LDADD+=-lcjson -lm
+LOCAL_LDADD+=-lcjson -lm ${LIBMOSQ_COMMON}
 
 # ------------------------------------------
 #  Compile time options
@@ -28,8 +28,7 @@ BROKER_OBJS = \
 	${R}/src/persist_read_v234.o \
 	${R}/src/persist_read_v5.o \
 	${R}/src/property_mosq.o \
-	${R}/src/topic_tok.o \
-	${R}/src/utf8_mosq.o
+	${R}/src/topic_tok.o
 
 .PHONY: all clean reallyclean
 

@@ -4,7 +4,7 @@ include ${R}/config.mk
 LOCAL_CFLAGS+=-fPIC
 LOCAL_CPPFLAGS+=
 LOCAL_LDFLAGS+=-Wl,--version-script=linker.version -Wl,-soname,libmosquitto.so.$(SOVERSION) -fPIC -shared
-LOCAL_LIBADD+=-lcjson -lc ${LIB_ARGON2}
+LOCAL_LIBADD+=-lcjson -lc ${LIB_ARGON2} ${LIBMOSQ_COMMON}
 STATIC_LIB_DEPS:=
 
 # ------------------------------------------
@@ -89,8 +89,7 @@ OBJS_EXTERNAL= \
 	base64_mosq.o \
 	misc_mosq.o \
 	password_mosq.o \
-	time_mosq.o \
-	utf8_mosq.o
+	time_mosq.o
 
 ifeq ($(WITH_WEBSOCKETS),yes)
 	OBJS_EXTERNAL+=${R}/deps/picohttpparser/picohttpparser.o
@@ -159,9 +158,6 @@ password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
 
 time_mosq.o : ${R}/common/time_mosq.c ${R}/common/time_mosq.h
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-utf8_mosq.o : ${R}/common/utf8_mosq.c
-	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 ${R}/deps/picohttpparser/picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
