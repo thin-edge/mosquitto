@@ -29,6 +29,7 @@ if(WITH_TLS)
 	)
 
 	set(LINKLIST
+		libmosquitto_common
 		cJSON
 		OpenSSL::SSL
 	)

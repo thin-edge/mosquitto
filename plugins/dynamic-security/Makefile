@@ -5,7 +5,7 @@ PLUGIN_NAME=mosquitto_dynamic_security
 
 LOCAL_CFLAGS+=
 LOCAL_CPPFLAGS+=-I${R}/lib/ -I${R}/src/ -I${R}/plugins/common
-LOCAL_LIBADD+=-lcjson -lm
+LOCAL_LIBADD+=-lcjson -lm $(LIBMOSQ_COMMON)
 LOCAL_LDFLAGS+=
 
 WITH_PW_CACHE:=yes
