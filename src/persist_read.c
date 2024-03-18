@@ -252,6 +252,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	struct mosquitto__base_msg *base_msg = NULL;
 	int64_t message_expiry_interval64;
 	uint32_t message_expiry_interval;
+	uint32_t *p_message_expiry_interval = NULL;
 	int rc = 0;
 
 	memset(&chunk, 0, sizeof(struct P_base_msg));
@@ -281,8 +282,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 		}else{
 			message_expiry_interval = (uint32_t)message_expiry_interval64;
 		}
-	}else{
-		message_expiry_interval = 0;
+		p_message_expiry_interval = &message_expiry_interval;
 	}
 
 	base_msg = mosquitto_calloc(1, sizeof(struct mosquitto__base_msg));
@@ -302,7 +302,7 @@ static int persist__base_msg_chunk_restore(FILE *db_fptr, uint32_t length)
 	base_msg->data.payload = chunk.payload;
 	base_msg->source_listener = chunk.source.listener;
 
-	rc = db__message_store(&chunk.source, base_msg, &message_expiry_interval,
+	rc = db__message_store(&chunk.source, base_msg, p_message_expiry_interval,
 			mosq_mo_client);
 
 	mosquitto_FREE(chunk.source.id);

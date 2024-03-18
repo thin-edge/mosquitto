@@ -81,8 +81,8 @@ int send__connect(struct mosquitto *mosq, uint16_t keepalive, bool clean_session
 		version = MQTT_PROTOCOL_V5;
 		headerlen = 10;
 		proplen = 0;
-		proplen += mosquitto_property_get_remaining_length(properties);
-		proplen += mosquitto_property_get_remaining_length(local_props);
+		proplen += mosquitto_property_get_length_all(properties);
+		proplen += mosquitto_property_get_length_all(local_props);
 		varbytes = mosquitto_varint_bytes(proplen);
 		headerlen += proplen + varbytes;
 	}else if(mosq->protocol == mosq_p_mqtt311){
