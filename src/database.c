@@ -939,7 +939,7 @@ int db__message_store(const struct mosquitto *source, struct mosquitto__base_msg
 		base_msg->source_listener = source->listener;
 	}
 	base_msg->origin = origin;
-	if(message_expiry_interval){
+	if(message_expiry_interval && *message_expiry_interval != MSG_EXPIRY_INFINITE){
 		base_msg->data.expiry_time = db.now_real_s + (*message_expiry_interval);
 	}else{
 		base_msg->data.expiry_time = 0;

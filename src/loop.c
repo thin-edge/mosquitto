@@ -104,7 +104,7 @@ static void read_message_expiry_interval(mosquitto_property **proplist, uint32_t
 {
 	mosquitto_property *p, *previous = NULL;
 
-	*message_expiry = 0;
+	*message_expiry = MSG_EXPIRY_INFINITE;
 
 	if(!proplist) return;
 

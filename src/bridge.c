@@ -284,7 +284,7 @@ static int bridge__connect_step1(struct mosquitto *context)
 		if(context->bridge->notification_topic){
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
+				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 			notification_payload = '0';
@@ -301,7 +301,7 @@ static int bridge__connect_step1(struct mosquitto *context)
 
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
+				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 
@@ -510,7 +510,7 @@ int bridge__connect(struct mosquitto *context)
 		if(context->bridge->notification_topic){
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
+				db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 
@@ -528,7 +528,7 @@ int bridge__connect(struct mosquitto *context)
 
 			if(!context->bridge->initial_notification_done){
 				notification_payload = '0';
-				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
+				db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
 				context->bridge->initial_notification_done = true;
 			}
 
@@ -646,7 +646,7 @@ int bridge__on_connect(struct mosquitto *context)
 					return 1;
 				}
 			}
-			db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
+			db__messages_easy_queue(context, context->bridge->notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
 		}else{
 			notification_topic_len = strlen(context->bridge->remote_clientid)+strlen("$SYS/broker/connection//state");
 			notification_topic = mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
@@ -662,7 +662,7 @@ int bridge__on_connect(struct mosquitto *context)
 					return 1;
 				}
 			}
-			db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, 0, NULL);
+			db__messages_easy_queue(context, notification_topic, qos, 1, &notification_payload, 1, MSG_EXPIRY_INFINITE, NULL);
 			mosquitto_FREE(notification_topic);
 		}
 	}

@@ -45,8 +45,7 @@ int handle__publish(struct mosquitto *context)
 	uint16_t slen;
 	char *topic_mount;
 	mosquitto_property *properties = NULL;
-	uint32_t message_expiry_interval = 0;
-	uint32_t *p_message_expiry_interval = NULL;
+	uint32_t message_expiry_interval = MSG_EXPIRY_INFINITE;
 	int topic_alias = -1;
 	uint8_t reason_code = 0;
 	uint16_t mid = 0;
@@ -121,17 +120,11 @@ int handle__publish(struct mosquitto *context)
 			return rc;
 		}
 
-		int64_t expiry_interval_64 = -1;
-
-		rc = property__process_publish(base_msg, &properties, &topic_alias, &expiry_interval_64);
+		rc = property__process_publish(base_msg, &properties, &topic_alias, &message_expiry_interval);
 		if(rc){
 			mosquitto_property_free_all(&properties);
 			db__msg_store_free(base_msg);
 			return MOSQ_ERR_PROTOCOL;
-		}
-		if(expiry_interval_64 != -1){
-			message_expiry_interval = (uint32_t)expiry_interval_64;
-			p_message_expiry_interval = &message_expiry_interval;
 		}
 	}
 	mosquitto_property_free_all(&properties);
@@ -281,7 +274,7 @@ int handle__publish(struct mosquitto *context)
 				){
 
 			dup = 0;
-			rc = db__message_store(context, base_msg, p_message_expiry_interval, mosq_mo_client);
+			rc = db__message_store(context, base_msg, &message_expiry_interval, mosq_mo_client);
 			if(rc) return rc;
 		}else{
 			/* Client isn't allowed any more incoming messages, so fail early */

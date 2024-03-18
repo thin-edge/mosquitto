@@ -85,6 +85,8 @@ typedef int mosq_sock_t;
 #define SAFE_PRINT(A) (A)?(A):"null"
 #define SAFE_FREE(A) do { free(A); (A) = NULL;} while(0)
 
+#define MSG_EXPIRY_INFINITE UINT32_MAX
+
 enum mosquitto_msg_direction {
 	mosq_md_in = 0,
 	mosq_md_out = 1

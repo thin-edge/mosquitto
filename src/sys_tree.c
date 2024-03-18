@@ -155,7 +155,7 @@ void sys_tree__init(void)
 
 	/* Set static $SYS messages */
 	len = (uint32_t)snprintf(buf, 64, "mosquitto version %s", VERSION);
-	db__messages_easy_queue(NULL, "$SYS/broker/version", SYS_TREE_QOS, len, buf, 1, 0, NULL);
+	db__messages_easy_queue(NULL, "$SYS/broker/version", SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 
 	start_time = mosquitto_time();
 	last_update = start_time;
@@ -187,7 +187,7 @@ static void calc_load(char *buf, double exponent, double i_mult, struct metric_l
 	new_value = interval + exponent*(m->current - interval);
 	if(fabs(new_value - (m->current)) >= 0.01){
 		len = (uint32_t)snprintf(buf, BUFLEN, "%.2f", new_value);
-		db__messages_easy_queue(NULL, m->topic, SYS_TREE_QOS, len, buf, 1, 0, NULL);
+		db__messages_easy_queue(NULL, m->topic, SYS_TREE_QOS, len, buf, 1, MSG_EXPIRY_INFINITE, NULL);
 	}
 	m->current = new_value;
 }
