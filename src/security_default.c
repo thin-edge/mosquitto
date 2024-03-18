@@ -741,17 +741,27 @@ static int pwfile__parse(const char *file, struct mosquitto__unpwd **root)
 
 			username = strtok_r(buf, ":", &saveptr);
 			if(username){
+				username = mosquitto_trimblanks(username);
+				if(strlen(username) > 65535){
+					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
+					continue;
+				}
+				if(strlen(username) <= 0){
+					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Empty username in password file '%s', ingoring.", file);
+					continue;
+				}
+
+				HASH_FIND(hh, *root, username, strlen(username), unpwd);
+				if(unpwd){
+					log__printf(NULL, MOSQ_LOG_NOTICE, "Error: Duplicate user '%s' in password file '%s', ignoring.", username, file);
+					continue;
+				}
+
 				unpwd = mosquitto_calloc(1, sizeof(struct mosquitto__unpwd));
 				if(!unpwd){
 					fclose(pwfile);
 					mosquitto_FREE(buf);
 					return MOSQ_ERR_NOMEM;
-				}
-				username = mosquitto_trimblanks(username);
-				if(strlen(username) > 65535){
-					log__printf(NULL, MOSQ_LOG_NOTICE, "Warning: Invalid line in password file '%s', username too long.", file);
-					mosquitto_FREE(unpwd);
-					continue;
 				}
 
 				unpwd->username = mosquitto_strdup(username);
