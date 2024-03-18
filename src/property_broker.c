@@ -136,7 +136,7 @@ int property__process_will(struct mosquitto *context, struct mosquitto_message_a
 }
 
 
-int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, uint32_t *message_expiry_interval)
+int property__process_publish(struct mosquitto__base_msg *base_msg, mosquitto_property **props, int *topic_alias, int64_t *message_expiry_interval)
 {
 	mosquitto_property *p, *p_prev;
 	mosquitto_property *msg_properties_last;
