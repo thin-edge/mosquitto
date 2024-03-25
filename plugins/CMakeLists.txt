@@ -36,7 +36,25 @@ function(add_mosquitto_plugin PLUGIN_NAME SRCLIST INCLIST LINKLIST)
 	endif()
 endfunction()
 
-add_subdirectory(dynamic-security)
-add_subdirectory(persist-sqlite)
-add_subdirectory(examples)
-add_subdirectory(sparkplug-aware)
+
+option(WITH_PLUGIN_DYNAMIC_SECURITY "Build dynamic-security plugin?" ON)
+option(WITH_PLUGIN_EXAMPLES "Build example plugins?" ON)
+option(WITH_PLUGIN_PERSIST_SQLITE "Build persist-sqlite plugin?" ON)
+option(WITH_PLUGIN_SPARKPLUG_AWARE "Build sparkplug-aware plugin?" ON)
+
+if(WITH_PLUGIN_DYNAMIC_SECURITY)
+	add_subdirectory(dynamic-security)
+endif()
+
+if (WITH_PLUGIN_EXAMPLES)
+	add_subdirectory(examples)
+endif()
+
+if (WITH_PLUGIN_PERSIST_SQLITE)
+	find_package(SQLite3 REQUIRED)
+	add_subdirectory(persist-sqlite)
+endif()
+
+if(WITH_PLUGIN_SPARKPLUG_AWARE)
+	add_subdirectory(sparkplug-aware)
+endif()
