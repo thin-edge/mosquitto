@@ -303,7 +303,7 @@ static void report_features(void)
 }
 
 
-static void post_shutdown(void)
+static void post_shutdown_cleanup(void)
 {
 	struct mosquitto *ctxt, *ctxt_tmp;
 
@@ -423,52 +423,67 @@ int main(int argc, char *argv[])
 	config__init(&config);
 	rc = config__parse_args(&config, argc, argv);
 	if(rc != MOSQ_ERR_SUCCESS){
-		config__cleanup(&config);
+		post_shutdown_cleanup();
 		return rc;
 	}
 
 	if(config.test_configuration){
 		if(!db.config_file){
 			log__printf(NULL, MOSQ_LOG_ERR, "Please provide a configuration file to test.");
-			config__cleanup(&config);
+			post_shutdown_cleanup();
 			return MOSQ_ERR_INVAL;
 		}else{
 			log__printf(NULL, MOSQ_LOG_INFO, "Configuration file is OK.");
-			config__cleanup(&config);
+			post_shutdown_cleanup();
 			return MOSQ_ERR_SUCCESS;
 		}
 	}
 
 	rc = keepalive__init();
-	if(rc != MOSQ_ERR_SUCCESS) return rc;
+	if(rc){
+		post_shutdown_cleanup();
+		return rc;
+	}
 
 	/* Drop privileges permanently immediately after the config is loaded.
 	 * This requires the user to ensure that all certificates, log locations,
 	 * etc. are accessible my the `mosquitto` or other unprivileged user.
 	 */
 	rc = drop_privileges(&config);
-	if(rc != MOSQ_ERR_SUCCESS) return rc;
+	if(rc){
+		post_shutdown_cleanup();
+		return rc;
+	}
 	/* Set umask based on environment variable */
 	rc = set_umask();
-	if(rc != MOSQ_ERR_SUCCESS) return rc;
+	if(rc){
+		post_shutdown_cleanup();
+		return rc;
+	}
 
 
 	if(config.daemon){
 		mosquitto__daemonise();
 	}
 
-	if(pid__write()) return 1;
+	rc = pid__write();
+	if(rc){
+		post_shutdown_cleanup();
+		return rc;
+	}
 
 	rc = db__open(&config);
 	if(rc != MOSQ_ERR_SUCCESS){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Couldn't open database.");
+		post_shutdown_cleanup();
 		return rc;
 	}
 
 	/* Initialise logging only after initialising the database in case we're
 	 * logging to topics */
-	if(log__init(&config)){
-		rc = 1;
+	rc = log__init(&config);
+	if(rc){
+		post_shutdown_cleanup();
 		return rc;
 	}
 	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s starting", VERSION);
@@ -481,12 +496,12 @@ int main(int argc, char *argv[])
 
 	rc = plugin__load_all();
 	if(rc){
-		post_shutdown();
+		post_shutdown_cleanup();
 		return rc;
 	}
 	rc = mosquitto_security_init(false);
 	if(rc){
-		post_shutdown();
+		post_shutdown_cleanup();
 		return rc;
 	}
 
@@ -510,9 +525,16 @@ int main(int argc, char *argv[])
 #endif
 
 	rc = mux__init();
-	if(rc) return rc;
+	if(rc){
+		post_shutdown_cleanup();
+		return rc;
+	}
 
-	if(listeners__start()) return 1;
+	rc = listeners__start();
+	if(rc){
+		post_shutdown_cleanup();
+		return rc;
+	}
 
 	signal__setup();
 
@@ -530,7 +552,7 @@ int main(int argc, char *argv[])
 	g_run = 1;
 	rc = mosquitto_main_loop(g_listensock, g_listensock_count);
 
-	post_shutdown();
+	post_shutdown_cleanup();
 
 	return rc;
 }
