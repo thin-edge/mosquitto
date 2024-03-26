@@ -42,22 +42,26 @@ static void plugin__unload_single(mosquitto_plugin_id_t *plugin)
 					plugin->config.option_count);
 		}
 	}else if(plugin->lib.version == 4){
-		plugin->lib.plugin_cleanup_v4(
-				plugin->lib.user_data,
-				plugin->config.options,
-				plugin->config.option_count);
-
+		if(plugin->lib.plugin_cleanup_v4){
+			plugin->lib.plugin_cleanup_v4(
+					plugin->lib.user_data,
+					plugin->config.options,
+					plugin->config.option_count);
+		}
 	}else if(plugin->lib.version == 3){
-		plugin->lib.plugin_cleanup_v3(
-				plugin->lib.user_data,
-				plugin->config.options,
-				plugin->config.option_count);
-
-		}else if(plugin->lib.version == 2){
-		plugin->lib.plugin_cleanup_v2(
-				plugin->lib.user_data,
-				(struct mosquitto_auth_opt *)plugin->config.options,
-				plugin->config.option_count);
+		if(plugin->lib.plugin_cleanup_v3){
+			plugin->lib.plugin_cleanup_v3(
+					plugin->lib.user_data,
+					plugin->config.options,
+					plugin->config.option_count);
+		}
+	}else if(plugin->lib.version == 2){
+		if(plugin->lib.plugin_cleanup_v2){
+			plugin->lib.plugin_cleanup_v2(
+					plugin->lib.user_data,
+					(struct mosquitto_auth_opt *)plugin->config.options,
+					plugin->config.option_count);
+		}
 	}
 
 	plugin__callback_unregister_all(plugin);

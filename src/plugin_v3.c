@@ -135,14 +135,12 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_init().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 	if(!(plugin->lib.plugin_cleanup_v3 = (FUNC_auth_plugin_cleanup_v3)LIB_SYM(lib, "mosquitto_auth_plugin_cleanup"))){
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_plugin_cleanup().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -150,7 +148,6 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_init().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -158,7 +155,6 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_security_cleanup().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -166,7 +162,6 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_acl_check().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -174,7 +169,6 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_unpwd_check().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -182,7 +176,6 @@ int plugin__load_v3(mosquitto_plugin_id_t *plugin, void *lib)
 		log__printf(NULL, MOSQ_LOG_ERR,
 				"Error: Unable to load auth plugin function mosquitto_auth_psk_key_get().");
 		LIB_ERROR();
-		LIB_CLOSE(lib);
 		return MOSQ_ERR_UNKNOWN;
 	}
 
