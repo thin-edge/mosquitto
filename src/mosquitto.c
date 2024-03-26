@@ -303,6 +303,67 @@ static void report_features(void)
 }
 
 
+static void post_shutdown(void)
+{
+	struct mosquitto *ctxt, *ctxt_tmp;
+
+	/* FIXME - this isn't quite right, all wills with will delay zero should be
+	 * sent now, but those with positive will delay should be persisted and
+	 * restored, pending the client reconnecting in time. */
+	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
+		context__send_will(ctxt);
+	}
+	will_delay__send_all();
+
+	/* Set to true only after persistence events have been processed */
+	db.shutdown = true;
+	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
+
+	broker_control__cleanup();
+
+#ifdef WITH_PERSISTENCE
+	persist__backup(true);
+#endif
+	session_expiry__remove_all();
+
+	listeners__stop();
+
+	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+		if(!ctxt->wsi)
+#endif
+		{
+			ctxt->is_persisted = false; /* prevent persistence removal */
+			context__cleanup(ctxt, true);
+		}
+	}
+	HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
+		ctxt->is_persisted = false; /* prevent persistence removal */
+		context__cleanup(ctxt, true);
+	}
+#ifdef WITH_BRIDGE
+	bridge__db_cleanup();
+#endif
+	context__free_disused();
+	keepalive__cleanup();
+
+#ifdef WITH_TLS
+	mosquitto_FREE(db.tls_keylog);
+#endif
+	db__close();
+
+	plugin__unload_all();
+	mosquitto_security_cleanup(false);
+
+	if(db.config->pid_file){
+		(void)remove(db.config->pid_file);
+	}
+
+	log__close(db.config);
+	config__cleanup(db.config);
+	net__broker_cleanup();
+}
+
 #ifdef WITH_FUZZING
 int mosquitto_fuzz_main(int argc, char *argv[])
 #else
@@ -419,9 +480,15 @@ int main(int argc, char *argv[])
 	report_features();
 
 	rc = plugin__load_all();
-	if(rc) return rc;
+	if(rc){
+		post_shutdown();
+		return rc;
+	}
 	rc = mosquitto_security_init(false);
-	if(rc) return rc;
+	if(rc){
+		post_shutdown();
+		return rc;
+	}
 
 	plugin_persist__handle_restore();
 	db__msg_store_compact();
@@ -463,61 +530,7 @@ int main(int argc, char *argv[])
 	g_run = 1;
 	rc = mosquitto_main_loop(g_listensock, g_listensock_count);
 
-	/* FIXME - this isn't quite right, all wills with will delay zero should be
-	 * sent now, but those with positive will delay should be persisted and
-	 * restored, pending the client reconnecting in time. */
-	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-		context__send_will(ctxt);
-	}
-	will_delay__send_all();
-
-	/* Set to true only after persistence events have been processed */
-	db.shutdown = true;
-	log__printf(NULL, MOSQ_LOG_INFO, "mosquitto version %s terminating", VERSION);
-
-	broker_control__cleanup();
-
-#ifdef WITH_PERSISTENCE
-	persist__backup(true);
-#endif
-	session_expiry__remove_all();
-
-	listeners__stop();
-
-	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
-		if(!ctxt->wsi)
-#endif
-		{
-			ctxt->is_persisted = false; /* prevent persistence removal */
-			context__cleanup(ctxt, true);
-		}
-	}
-	HASH_ITER(hh_sock, db.contexts_by_sock, ctxt, ctxt_tmp){
-		ctxt->is_persisted = false; /* prevent persistence removal */
-		context__cleanup(ctxt, true);
-	}
-#ifdef WITH_BRIDGE
-	bridge__db_cleanup();
-#endif
-	context__free_disused();
-	keepalive__cleanup();
-
-#ifdef WITH_TLS
-	mosquitto_FREE(db.tls_keylog);
-#endif
-	db__close();
-
-	plugin__unload_all();
-	mosquitto_security_cleanup(false);
-
-	if(config.pid_file){
-		(void)remove(config.pid_file);
-	}
-
-	log__close(&config);
-	config__cleanup(db.config);
-	net__broker_cleanup();
+	post_shutdown();
 
 	return rc;
 }
