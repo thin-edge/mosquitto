@@ -232,8 +232,8 @@ endif
 
 ifeq ($(WITH_ASAN),yes)
 	CC:=clang
-	CFLAGS+=-fsanitize=address
-	LDFLAGS+=-fsanitize=address
+	LOCAL_CFLAGS+=-fsanitize=address
+	LOCAL_LDFLAGS+=-fsanitize=address
 endif
 
 ifeq ($(WITH_LTO),yes)
