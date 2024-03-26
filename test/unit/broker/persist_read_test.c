@@ -18,6 +18,20 @@ uint32_t last_identifier;
 
 struct mosquitto_db db;
 
+static void test_cleanup(void)
+{
+	struct mosquitto *ctxt, *ctxt_tmp;
+
+	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
+		HASH_DELETE(hh_id, db.contexts_by_id, ctxt);
+		mosquitto_free(ctxt->username);
+		mosquitto_free(ctxt->id);
+		db__messages_delete(ctxt, true);
+		mosquitto_free(ctxt);
+	}
+	db__close();
+}
+
 static void TEST_persistence_disabled(void)
 {
 	struct mosquitto__config config;
@@ -29,6 +43,7 @@ static void TEST_persistence_disabled(void)
 
 	rc = persist__restore();
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+	test_cleanup();
 }
 
 
@@ -48,6 +63,7 @@ static void TEST_empty_file(void)
 	config.persistence_filepath = persistence_filepath;
 
 	rc = persist__restore();
+	test_cleanup();
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
 }
 
@@ -228,6 +244,7 @@ static void TEST_v3_message_store(void)
 			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v3_client(void)
@@ -256,6 +273,7 @@ static void TEST_v3_client(void)
 		CU_ASSERT_PTR_NULL(context->msgs_out.inflight);
 		CU_ASSERT_EQUAL(context->last_mid, 0x5287);
 	}
+	test_cleanup();
 }
 
 static void TEST_v3_client_message(void)
@@ -309,6 +327,7 @@ static void TEST_v3_client_message(void)
 			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.subscription_identifier, 0);
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v3_retain(void)
@@ -358,6 +377,7 @@ static void TEST_v3_retain(void)
 			}
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v3_sub(void)
@@ -392,6 +412,7 @@ static void TEST_v3_sub(void)
 		}
 		CU_ASSERT_EQUAL(last_qos, 1);
 	}
+	test_cleanup();
 }
 
 static void TEST_v4_message_store(void)
@@ -428,6 +449,7 @@ static void TEST_v4_message_store(void)
 			CU_ASSERT_NSTRING_EQUAL(db.msg_store->data.payload, "payload", 7);
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v6_config_ok(void)
@@ -522,6 +544,7 @@ static void TEST_v6_message_store(void)
 		}
 		CU_ASSERT_PTR_NULL(db.msg_store->data.properties);
 	}
+	test_cleanup();
 }
 
 
@@ -568,6 +591,7 @@ static void TEST_v6_message_store_props(void)
 		}
 		CU_ASSERT_PTR_NOT_NULL(db.msg_store->source_listener);
 	}
+	test_cleanup();
 }
 
 static void TEST_v5_client(void)
@@ -596,6 +620,7 @@ static void TEST_v5_client(void)
 		CU_ASSERT_PTR_NULL(context->msgs_out.inflight);
 		CU_ASSERT_EQUAL(context->last_mid, 0x5287);
 	}
+	test_cleanup();
 }
 
 static void TEST_v6_client(void)
@@ -635,6 +660,7 @@ static void TEST_v6_client(void)
 			CU_ASSERT_STRING_EQUAL(context->username, "usrname");
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v6_client_message(void)
@@ -684,6 +710,7 @@ static void TEST_v6_client_message(void)
 			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.subscription_identifier, 0);
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v6_client_message_props(void)
@@ -733,6 +760,7 @@ static void TEST_v6_client_message_props(void)
 			CU_ASSERT_EQUAL(context->msgs_out.inflight->data.subscription_identifier, 1);
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v6_retain(void)
@@ -779,6 +807,7 @@ static void TEST_v6_retain(void)
 			}
 		}
 	}
+	test_cleanup();
 }
 
 static void TEST_v6_sub(void)
@@ -814,6 +843,7 @@ static void TEST_v6_sub(void)
 		CU_ASSERT_EQUAL(last_qos, 1);
 		CU_ASSERT_EQUAL(last_identifier, 0x7623);
 	}
+	test_cleanup();
 }
 
 /* ========================================================================

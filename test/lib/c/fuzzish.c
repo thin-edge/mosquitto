@@ -257,7 +257,6 @@ static void on_message_v5(struct mosquitto *mosq, void *obj, const struct mosqui
 static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos)
 {
 	UNUSED(mosq);
-	UNUSED(obj);
 	UNUSED(mid);
 
 	int tot = 0;
@@ -269,12 +268,13 @@ static void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_cou
 	for(int i=0; i<qos_count; i++){
 		tot += granted_qos[i];
 	}
+
+	(void)tot;
 }
 
 static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos, const mosquitto_property *props)
 {
 	UNUSED(mosq);
-	UNUSED(obj);
 	UNUSED(mid);
 
 	int tot = 0;
@@ -287,6 +287,8 @@ static void on_subscribe_v5(struct mosquitto *mosq, void *obj, int mid, int qos_
 		tot += granted_qos[i];
 	}
 	prop_test(props);
+
+	(void)tot;
 }
 
 static void on_unsubscribe(struct mosquitto *mosq, void *obj, int mid)

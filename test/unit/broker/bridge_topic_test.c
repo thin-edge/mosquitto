@@ -31,6 +31,8 @@ static void map_valid_helper(const char *topic, const char *local_prefix, const 
 		CU_ASSERT_STRING_EQUAL(map_topic, expected);
 		free(map_topic);
 	}
+
+	bridge__cleanup_topics(&bridge);
 }
 
 static void map_invalid_helper(const char *topic, const char *local_prefix, const char *remote_prefix)
@@ -46,6 +48,8 @@ static void map_invalid_helper(const char *topic, const char *local_prefix, cons
 
 	rc = bridge__add_topic(&bridge, topic, bd_in, 0, local_prefix, remote_prefix);
 	CU_ASSERT_NOT_EQUAL(rc, 0);
+
+	bridge__cleanup_topics(&bridge);
 }
 
 

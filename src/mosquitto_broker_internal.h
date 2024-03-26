@@ -797,6 +797,7 @@ int bridge__on_connect(struct mosquitto *context);
 void bridge_check(void);
 int bridge__register_local_connections(void);
 int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix);
+void bridge__cleanup_topics(struct mosquitto__bridge *bridge);
 int bridge__remap_topic_in(struct mosquitto *context, char **topic);
 #endif
 

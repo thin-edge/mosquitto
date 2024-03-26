@@ -132,6 +132,24 @@ static struct mosquitto__bridge_topic *bridge__find_topic(struct mosquitto__brid
 }
 
 
+void bridge__cleanup_topics(struct mosquitto__bridge *bridge)
+{
+	struct mosquitto__bridge_topic *topic, *topic_tmp;
+
+	if(!bridge) return;
+
+	LL_FOREACH_SAFE(bridge->topics, topic, topic_tmp){
+		LL_DELETE(bridge->topics, topic);
+		mosquitto_free(topic->local_prefix);
+		mosquitto_free(topic->remote_prefix);
+		mosquitto_free(topic->local_topic);
+		mosquitto_free(topic->remote_topic);
+		mosquitto_free(topic->topic);
+		mosquitto_free(topic);
+	}
+}
+
+
 /* topic <topic> [[[out | in | both] qos-level] local-prefix remote-prefix] */
 int bridge__add_topic(struct mosquitto__bridge *bridge, const char *topic, enum mosquitto__bridge_direction direction, uint8_t qos, const char *local_prefix, const char *remote_prefix)
 {

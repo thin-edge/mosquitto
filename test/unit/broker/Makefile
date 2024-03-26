@@ -4,7 +4,7 @@ include ${R}/make/broker.mk
 
 .PHONY: all check test test-compile clean coverage
 
-LOCAL_CFLAGS+=-coverage
+LOCAL_CFLAGS+=-coverage -ggdb
 LOCAL_CPPFLAGS+=-DWITH_BROKER -I${R}/src -I${R}/test -I${R}/lib -DTEST_SOURCE_DIR='"$(realpath .)"' -I${R}/lib -I${R}/libcommon
 LOCAL_LDFLAGS+=-coverage
 LOCAL_LDADD+=-lcunit ${LIBMOSQ_COMMON}
@@ -33,6 +33,7 @@ PERSIST_READ_TEST_OBJS = \
 		persist_read_stubs.o
 
 PERSIST_READ_OBJS = \
+		${R}/src/database.o \
 		${R}/src/packet_datatypes.o \
 		${R}/src/persist_read.o \
 		${R}/src/persist_read_v234.o \

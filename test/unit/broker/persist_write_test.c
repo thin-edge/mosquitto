@@ -16,6 +16,22 @@ int last_qos;
 
 struct mosquitto_db db;
 
+static void test_cleanup(void)
+{
+	struct mosquitto *ctxt, *ctxt_tmp;
+
+	HASH_ITER(hh_id, db.contexts_by_id, ctxt, ctxt_tmp){
+		HASH_DELETE(hh_id, db.contexts_by_id, ctxt);
+		mosquitto_free(ctxt->username);
+		mosquitto_free(ctxt->id);
+		db__messages_delete(ctxt, true);
+		sub__clean_session(ctxt);
+		mosquitto_free(ctxt);
+	}
+
+	db__close();
+}
+
 /* read entire file into memory */
 static int file_read(const char *filename, uint8_t **data, size_t *len)
 {
@@ -92,6 +108,8 @@ static void TEST_persistence_disabled(void)
 	config.persistence_filepath = "disabled.db";
 	rc = persist__backup(false);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
+
+	test_cleanup();
 }
 
 
@@ -113,6 +131,8 @@ static void TEST_empty_file(void)
 	cat_sourcedir_with_relpath(persistence_filepath, "/files/persist_write/empty.test-db");
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "empty.db"));
 	unlink("empty.db");
+
+	test_cleanup();
 }
 
 
@@ -138,6 +158,8 @@ static void TEST_v6_config_ok(void)
 
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "v6-cfg.db"));
 	unlink("v6-cfg.db");
+
+	test_cleanup();
 }
 
 
@@ -165,6 +187,8 @@ static void TEST_v6_message_store_no_ref(void)
 	cat_sourcedir_with_relpath(persistence_filepath_no_ref, "/files/persist_write/v6-message-store-no-ref.test-db");
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath_no_ref, "v6-message-store-no-ref.db"));
 	unlink("v6-message-store-no-ref.db");
+
+	test_cleanup();
 }
 
 
@@ -196,6 +220,8 @@ static void TEST_v6_message_store_props(void)
 
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "v6-message-store-props.db"));
 	unlink("v6-message-store-props.db");
+
+	test_cleanup();
 }
 
 
@@ -227,6 +253,8 @@ static void TEST_v6_client(void)
 
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "v6-client.db"));
 	unlink("v6-client.db");
+
+	test_cleanup();
 }
 
 
@@ -258,6 +286,8 @@ static void TEST_v6_client_message(void)
 
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "v6-client-message.db"));
 	unlink("v6-client-message.db");
+
+	test_cleanup();
 }
 
 
@@ -297,6 +327,8 @@ static void TEST_v6_client_message_props(void)
 
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "v6-client-message-props.db"));
 	//unlink("v6-client-message-props.db");
+
+	test_cleanup();
 }
 
 
@@ -330,6 +362,8 @@ static void TEST_v6_sub(void)
 
 	CU_ASSERT_EQUAL(0, file_diff(persistence_filepath, "v6-sub.db"));
 	unlink("v6-sub.db");
+
+	test_cleanup();
 }
 
 
