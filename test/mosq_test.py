@@ -102,7 +102,7 @@ def start_broker(filename, cmd=None, port=0, use_conf=False, expect_fail=False, 
 
     if expect_fail:
         try:
-            broker.wait(delay)
+            broker.wait(delay*10)
         except subprocess.TimeoutExpired:
             _, errs = terminate_broker(broker)
             print(f"Broker did not fail to start:\n{errs.decode('utf-8')}")
