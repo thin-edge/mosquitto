@@ -230,6 +230,12 @@ ifeq ($(WITH_TLS),yes)
 	endif
 endif
 
+ifeq ($(WITH_ASAN),yes)
+	CC:=clang
+	CFLAGS+=-fsanitize=address
+	LDFLAGS+=-fsanitize=address
+endif
+
 ifeq ($(WITH_LTO),yes)
 	LOCAL_CFLAGS+=-flto
 	LOCAL_LDFLAGS+=-flto
