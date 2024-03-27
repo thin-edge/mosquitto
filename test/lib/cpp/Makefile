@@ -75,7 +75,7 @@ TESTS = ${SRC:.cpp=.test}
 all : ${TESTS}
 
 ${TESTS} : %.test: %.cpp ${R}/test/path_helper.h
-	$(CXX) -DTEST_SOURCE_DIR='"$(realpath .)"' $< -o $@ $(LOCAL_CXXFLAGS) $(LIBS)
+	$(CXX) -DTEST_SOURCE_DIR='"$(realpath .)"' $< -o $@ $(LOCAL_CXXFLAGS) $(LIBS) $(LOCAL_LDFLAGS)
 
 reallyclean : clean
 	-rm -f *.orig

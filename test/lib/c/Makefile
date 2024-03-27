@@ -82,7 +82,7 @@ TESTS = ${SRC:.c=.test}
 all : ${TESTS}
 
 ${TESTS} : %.test: %.c ${R}/test/path_helper.h
-	$(CC) $< -o $@ -D TEST_SOURCE_DIR='"$(realpath .)"' $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) $(LOCAL_LIBADD)
+	$(CC) $< -o $@ -D TEST_SOURCE_DIR='"$(realpath .)"' $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) $(LOCAL_LIBADD) $(LOCAL_LDFLAGS)
 
 reallyclean : clean
 	-rm -f *.orig
