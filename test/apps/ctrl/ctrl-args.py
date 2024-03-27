@@ -16,7 +16,7 @@ def do_test(args, rc_expected, response=None):
             raise ValueError(proc.stderr)
 
     if proc.returncode != rc_expected:
-        raise ValueError(args)
+        raise ValueError(f"return code {proc.returncode} != expected {rc_expected} while testing args: {args}")
 
 env = mosq_test.env_add_ld_library_path()
 
@@ -130,5 +130,25 @@ do_test(["-f", "file", "dynsec", "setClientPassword", "admin", "admin", "-i"], 3
 do_test(["-f", "file", "dynsec", "setClientPassword", "admin", "admin", "-c"], 3, response="Error: Unknown argument: -c\nError: Invalid input.\n")
 do_test(["dynsec", "createClient", "client", "-c"], 3, response="Error: -c argument given, but no clientid provided.\nError: Invalid input.\n")
 do_test(["dynsec", "createClient", "client", "-p"], 3, response="Error: -p argument given, but no password provided.\nError: Invalid input.\n")
+
+# Env modification
+
+# Missing file
+env["HOME"] = "/tmp"
+do_test(["--cert", ssl_dir / "client.crt"], 1, response="Error: Both certfile and keyfile must be provided if one of them is set.\n")
+
+# Invalid file
+env["XDG_CONFIG_HOME"] = "."
+with open("mosquitto_ctrl", "w") as f:
+    f.write(f"--cert {ssl_dir}/client.crt\n")
+    f.write(f"--key\n")
+do_test(["broker"], 1, response="Error: --key argument given but no file specified.\n\n")
+
+# Empty file
+env["XDG_CONFIG_HOME"] = "."
+with open("mosquitto_ctrl", "w") as f:
+    pass
+do_test(["--cert", ssl_dir / "client.crt"], 1, response="Error: Both certfile and keyfile must be provided if one of them is set.\n")
+os.remove("mosquitto_ctrl")
 
 exit(0)

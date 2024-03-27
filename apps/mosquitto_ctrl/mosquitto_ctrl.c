@@ -73,10 +73,14 @@ int main(int argc, char *argv[])
 	argv++;
 
 	rc = ctrl_config_parse(&ctrl.cfg, &argc, &argv);
-	if(rc) return rc;
+	if(rc){
+		client_config_cleanup(&ctrl.cfg);
+		return rc;
+	}
 
 	if(argc < 2){
 		print_usage();
+		client_config_cleanup(&ctrl.cfg);
 		return 1;
 	}
 
@@ -113,6 +117,9 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Error: %s.\n", mosquitto_strerror(rc));
 		}
 	}
+	free(ctrl.payload);
+	free(ctrl.request_topic);
+	free(ctrl.response_topic);
 
 	client_config_cleanup(&ctrl.cfg);
 	return rc;

@@ -84,6 +84,7 @@ static void print_listeners(cJSON *j_response)
 		jtmp = cJSON_GetObjectItem(j_listener, "tls");
 		printf("  TLS:               %s\n", jtmp && cJSON_IsBool(jtmp) && cJSON_IsTrue(jtmp)?"true":"false");
 		printf("\n");
+		i++;
 	}
 }
 
@@ -264,6 +265,8 @@ int broker__main(int argc, char *argv[], struct mosq_ctrl *ctrl)
 
 	}else{
 		fprintf(stderr, "Command '%s' not recognised.\n", argv[0]);
+		cJSON_Delete(j_tree);
+		j_tree = NULL;
 		return MOSQ_ERR_UNKNOWN;
 	}
 

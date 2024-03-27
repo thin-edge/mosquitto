@@ -33,7 +33,7 @@ def ctrl_cmd(cmd, args, ports, response=None):
         opts += ["--cafile", f"{ssl_dir}/all-ca.crt"]
         capture_output = True
 
-    proc = subprocess.run([mosq_test.get_build_root()+"/apps/mosquitto_ctrl/mosquitto_ctrl"]
+    proc = subprocess.run([mosq_test.get_build_root() + "/apps/mosquitto_ctrl/mosquitto_ctrl"]
                     + opts + [cmd] + args,
                     env=env, capture_output=True, encoding='utf-8')
 
@@ -67,7 +67,7 @@ try:
     ctrl_cmd("dynsec", ["addRoleACL", "admin", "publishClientReceive", "$CONTROL/#", "allow"], ports)
     ctrl_cmd("dynsec", ["addRoleACL", "admin", "subscribePattern", "$CONTROL/#", "allow"], ports)
 
-    ctrl_cmd("broker", ["listListeners"], ports, response=f"Listener 1:\n  Port:              {ports[0]}\n  Protocol:          mqtt\n  TLS:               false\n\nListener 1:\n  Port:              {ports[1]}\n  Protocol:          mqtt\n  TLS:               true\n\n")
+    ctrl_cmd("broker", ["listListeners"], ports, response=f"Listener 1:\n  Port:              {ports[0]}\n  Protocol:          mqtt\n  TLS:               false\n\nListener 2:\n  Port:              {ports[1]}\n  Protocol:          mqtt\n  TLS:               true\n\n")
 
     ctrl_cmd("broker", ["listPlugins"], ports, response="Plugin:            dynamic-security\nControl endpoints: $CONTROL/dynamic-security/v1\n")
 

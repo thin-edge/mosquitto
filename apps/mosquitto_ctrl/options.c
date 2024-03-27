@@ -282,7 +282,7 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 					cfg->username = strdup(url);
 					url = tmp;
 				}
-				cfg->host = url;
+				cfg->host = strdup(url);
 
 				tmp = strchr(url, ':');
 				if(tmp) {

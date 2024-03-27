@@ -242,9 +242,11 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 
 						if(mosquitto_base64_encode(client.pw.params.sha512_pbkdf2.password_hash, sizeof(client.pw.params.sha512_pbkdf2.password_hash), &password_b64) != MOSQ_ERR_SUCCESS){
 							fprintf(stderr, "Error: Problem generating password hash.\n");
+							pw__cleanup(&client.pw);
 							return MOSQ_ERR_NOMEM;
 						}
 						if(mosquitto_base64_encode(client.pw.params.sha512_pbkdf2.salt, client.pw.params.sha512_pbkdf2.salt_len, &salt_b64) != MOSQ_ERR_SUCCESS){
+							pw__cleanup(&client.pw);
 							free(password_b64);
 							fprintf(stderr, "Error: Problem generating password hash.\n");
 							return MOSQ_ERR_NOMEM;
@@ -254,6 +256,7 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 								|| (j_iterations = cJSON_CreateNumber(client.pw.params.sha512_pbkdf2.iterations)) == NULL
 								){
 
+							pw__cleanup(&client.pw);
 							free(password_b64);
 							free(salt_b64);
 							fprintf(stderr, "Error: Out of memory.\n");
@@ -276,11 +279,13 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 					}else{
 						if(pw__encode(&client.pw)){
 							fprintf(stderr, "Error: Out of memory.\n");
+							pw__cleanup(&client.pw);
 							return MOSQ_ERR_NOMEM;
 						}
 						cJSON *j_encoded_password = cJSON_CreateString(client.pw.encoded_password);
 						if(!j_encoded_password){
 							fprintf(stderr, "Error: Out of memory.\n");
+							pw__cleanup(&client.pw);
 							return MOSQ_ERR_NOMEM;
 						}
 
@@ -295,17 +300,20 @@ int dynsec_client__file_set_password(int argc, char *argv[], const char *file)
 					cJSON_Delete(j_tree);
 					if(json_str == NULL){
 						fprintf(stderr, "Error: Out of memory.\n");
+						pw__cleanup(&client.pw);
 						return MOSQ_ERR_NOMEM;
 					}
 					fptr = fopen(file, "wb");
 					if(fptr == NULL){
 						fprintf(stderr, "Error: Unable to write to %s.\n", file);
 						free(json_str);
+						pw__cleanup(&client.pw);
 						return MOSQ_ERR_UNKNOWN;
 					}
 					fprintf(fptr, "%s", json_str);
 					free(json_str);
 					fclose(fptr);
+					pw__cleanup(&client.pw);
 					return MOSQ_ERR_SUCCESS;
 				}
 			}

@@ -8,7 +8,7 @@ all :
 
 check : test
 
-test : 
+test :
 	./ctrl-args.py
 	./ctrl-broker.py
 	./ctrl-dynsec.py

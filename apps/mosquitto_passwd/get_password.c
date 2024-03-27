@@ -93,7 +93,7 @@ static int gets_quiet(char *s, int len)
 	if(!rs){
 		return 1;
 	}else{
-		while(s[strlen(s)-1] == 10 || s[strlen(s)-1] == 13){
+		while(strlen(s) > 0 && (s[strlen(s)-1] == 10 || s[strlen(s)-1] == 13)){
 			s[strlen(s)-1] = 0;
 		}
 		if(strlen(s) == 0){

@@ -65,5 +65,6 @@ int pw__create(struct mosquitto_pw *pw, const char *password);
 int pw__encode(struct mosquitto_pw *pw);
 int pw__decode(struct mosquitto_pw *pw, const char *password);
 int pw__verify(struct mosquitto_pw *pw, const char *password);
+void pw__cleanup(struct mosquitto_pw *pw);
 
 #endif

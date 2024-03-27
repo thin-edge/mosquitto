@@ -871,6 +871,8 @@ int dynsec__main(int argc, char *argv[], struct mosq_ctrl *ctrl)
 
 	}else{
 		fprintf(stderr, "Command '%s' not recognised.\n", argv[0]);
+		cJSON_Delete(j_tree);
+		j_tree = NULL;
 		return MOSQ_ERR_UNKNOWN;
 	}
 
@@ -881,6 +883,8 @@ int dynsec__main(int argc, char *argv[], struct mosq_ctrl *ctrl)
 			fprintf(stderr, "Error: Out of memory.\n");
 			return MOSQ_ERR_NOMEM;
 		}
+	}else{
+		cJSON_Delete(j_tree);
 	}
 	return rc;
 }

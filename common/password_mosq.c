@@ -537,3 +537,11 @@ int pw__decode(struct mosquitto_pw *pw, const char *password)
 		return MOSQ_ERR_INVAL;
 	}
 }
+
+void pw__cleanup(struct mosquitto_pw *pw)
+{
+	if(pw){
+		free(pw->encoded_password);
+		pw->encoded_password = NULL;
+	}
+}
