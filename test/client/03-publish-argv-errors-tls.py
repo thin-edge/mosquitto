@@ -23,7 +23,7 @@ def do_test(args, stderr_expected, rc_expected):
     if pub.returncode != rc_expected:
         raise mosq_test.TestError(pub.returncode)
     if stderr_expected is not None and stde.decode('utf-8') != stderr_expected:
-        raise mosq_test.TestError(stde)
+        raise mosq_test.TestError(stde.decode('utf-8'))
 
 
 if __name__ == '__main__':

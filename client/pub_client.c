@@ -621,6 +621,7 @@ int main(int argc, char *argv[])
 	}
 
 cleanup:
+	mosquitto_destroy(mosq);
 	mosquitto_lib_cleanup();
 	client_config_cleanup(&cfg);
 	pub_shared_cleanup();

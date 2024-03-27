@@ -1338,7 +1338,6 @@ static int client_tls_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 	}else if(cfg->psk){
 		if(mosquitto_tls_psk_set(mosq, cfg->psk, cfg->psk_identity, NULL)){
 			err_printf(cfg, "Error: Problem setting TLS-PSK options.\n");
-			mosquitto_lib_cleanup();
 			return 1;
 		}
 #  endif
@@ -1392,19 +1391,16 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 				cfg->will_retain, cfg->will_props)){
 
 		err_printf(cfg, "Error: Problem setting will.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 	cfg->will_props = NULL;
 
 	if((cfg->username || cfg->password) && mosquitto_username_pw_set(mosq, cfg->username, cfg->password)){
 		err_printf(cfg, "Error: Problem setting username and/or password.\n");
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 #ifdef WITH_TLS
 	if(client_tls_opts_set(mosq, cfg)){
-		mosquitto_lib_cleanup();
 		return 1;
 	}
 #endif
@@ -1413,7 +1409,6 @@ int client_opts_set(struct mosquitto *mosq, struct mosq_config *cfg)
 	if(cfg->socks5_host){
 		rc = mosquitto_socks5_set(mosq, cfg->socks5_host, cfg->socks5_port, cfg->socks5_username, cfg->socks5_password);
 		if(rc){
-			mosquitto_lib_cleanup();
 			return rc;
 		}
 	}
@@ -1437,7 +1432,6 @@ int clientid_generate(struct mosq_config *cfg)
 		cfg->id = malloc(strlen(cfg->id_prefix)+10);
 		if(!cfg->id){
 			err_printf(cfg, "Error: Out of memory.\n");
-			mosquitto_lib_cleanup();
 			return 1;
 		}
 		snprintf(cfg->id, strlen(cfg->id_prefix)+10, "%s%d", cfg->id_prefix, getpid());
