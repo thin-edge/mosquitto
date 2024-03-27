@@ -69,54 +69,54 @@ static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 				rc = mosquitto_property_add_varint(&props, MQTT_PROP_SUBSCRIPTION_IDENTIFIER, 268435455);
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_string_pair(&props, MQTT_PROP_USER_PROPERTY, "key", "value");
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 			}else if(!strncmp(command, "unsubscribe", strlen("unsubscribe"))){
 				rc = mosquitto_property_add_string_pair(&props, MQTT_PROP_USER_PROPERTY, "key", "value");
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 			}else if(!strncmp(command, "publish", strlen("publish"))){
 				rc = mosquitto_property_add_byte(&props, MQTT_PROP_PAYLOAD_FORMAT_INDICATOR, 1);
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_int32(&props, MQTT_PROP_MESSAGE_EXPIRY_INTERVAL, UINT32_MAX);
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_int16(&props, MQTT_PROP_TOPIC_ALIAS, UINT16_MAX);
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_string(&props, MQTT_PROP_RESPONSE_TOPIC, "response/topic");
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_binary(&props, MQTT_PROP_CORRELATION_DATA, "7deac5c5-8802-44ff-86ce-11479f337419", strlen("7deac5c5-8802-44ff-86ce-11479f337419"));
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_string(&props, MQTT_PROP_CONTENT_TYPE, "text/plain");
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 				rc = mosquitto_property_add_string_pair(&props, MQTT_PROP_USER_PROPERTY, "key", "value");
 				if(rc){
 					printf("bad on_connect prop add: %s\n", mosquitto_strerror(rc));
-					exit(1);
+					goto error;
 				}
 			}
 		}
@@ -125,63 +125,70 @@ static void on_connect(struct mosquitto *mosq, void *obj, int rc)
 			rc = mosquitto_subscribe_v5(mosq, &mid, "test/subscribe", 2, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect subscribe-2 %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "subscribe-1")){
 			rc = mosquitto_subscribe_v5(mosq, &mid, "test/subscribe", 1, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect subscribe-1 %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "subscribe-0")){
 			rc = mosquitto_subscribe_v5(mosq, &mid, "test/subscribe", 0, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect subscribe-0 %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "subscribe-multiple")){
 			char *subs[] = {"test/subscribe1", "test/subscribe2"};
 			rc = mosquitto_subscribe_multiple(mosq, &mid, 2, subs, 2, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect subscribe-multiple %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "unsubscribe")){
 			rc = mosquitto_unsubscribe_v5(mosq, &mid, "test/subscribe", props);
 			if(rc || mid != 1){
 				printf("bad on_connect unsubscribe %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "unsubscribe-multiple")){
 			char *subs[] = {"test/subscribe1", "test/subscribe2"};
 			rc = mosquitto_unsubscribe_multiple(mosq, &mid, 2, subs, props);
 			if(rc || mid != 1){
 				printf("bad on_connect unsubscribe-multiple %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "publish-2")){
 			rc = mosquitto_publish_v5(mosq, &mid, "test/publish", strlen("message"), "message", 2, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect publish-2 %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "publish-1")){
 			rc = mosquitto_publish_v5(mosq, &mid, "test/publish", strlen("message"), "message", 1, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect publish-1 %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else if(!strcmp(command, "publish-0")){
 			rc = mosquitto_publish_v5(mosq, &mid, "test/publish", strlen("message"), "message", 0, 0, props);
 			if(rc || mid != 1){
 				printf("bad on_connect publish-0 %d || %d\n", rc, mid);
-				exit(1);
+				goto error;
 			}
 		}else{
 			printf("bad on_connect command '%s'\n", command);
-			exit(1);
+			goto error;
 		}
 	}
+
+	mosquitto_property_free_all(&props);
+	return;
+
+error:
+	mosquitto_property_free_all(&props);
+	exit(1);
 }
 
 static void on_connect_with_flags(struct mosquitto *mosq, void *obj, int rc, int flags)
