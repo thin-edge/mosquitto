@@ -232,8 +232,10 @@ endif
 
 ifeq ($(WITH_ASAN),yes)
 	CC:=clang
+	CXX:=clang++
 	LOCAL_CFLAGS+=-fsanitize=address -fno-omit-frame-pointer
-	LOCAL_LDFLAGS+=-fsanitize=address -fno-omit-frame-pointer
+	LOCAL_CXXFLAGS+=-fsanitize=address -fno-omit-frame-pointer
+	LOCAL_LDFLAGS+=-fsanitize=address -fno-omit-frame-pointer -static-libsan
 endif
 
 ifeq ($(WITH_LTO),yes)

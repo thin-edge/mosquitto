@@ -10,7 +10,7 @@ static int password_callback(char* buf, int size, int rwflag, void* userdata)
 	(void)rwflag;
 	(void)userdata;
 
-	strncpy(buf, "password", size);
+	strncpy(buf, "password", (size_t )size);
 	buf[size-1] = '\0';
 
 	return (int)strlen(buf);
