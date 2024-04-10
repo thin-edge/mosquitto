@@ -148,6 +148,7 @@ enum mosquitto__transport {
 	mosq_t_ws = 2,
 	mosq_t_sctp = 3,
 	mosq_t_http = 4, /* not valid for MQTT, just as a ws precursor */
+	mosq_t_proxy_v2 = 5, /* not valid for MQTT, just as a PROXY protocol v2 precursor */
 };
 
 /* Alias direction - local <-> remote */
@@ -259,6 +260,17 @@ struct ws_data{
 	bool is_client;
 };
 #endif
+
+struct proxy_data{
+	uint8_t *buf;
+	char *cipher;
+	char *tls_version;
+	uint16_t len;
+	uint16_t pos;
+	int8_t cmd;
+	uint8_t fam;
+	bool have_tls;
+};
 
 struct client_stats{
 	uint64_t messages_received;
@@ -441,6 +453,7 @@ struct mosquitto {
 #else
 	uint32_t events;
 #endif
+	struct proxy_data proxy;
 };
 
 #define STREMPTY(str) (str[0] == '\0')

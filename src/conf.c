@@ -1598,6 +1598,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #else
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: $CONTROL support not available (enable_control_api).");
 #endif
+				}else if(!strcmp(token, "enable_proxy_protocol_v2")){
+					REQUIRE_LISTENER(token);
+					if(conf__parse_bool(&token, "enable_proxy_protocol_v2", &cur_listener->enable_proxy_protocol_v2, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "global_max_clients")){
 					if(conf__parse_int(&token, "global_max_clients", &config->global_max_clients, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "global_max_connections")){
@@ -2122,6 +2125,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						log__printf(NULL, MOSQ_LOG_ERR, "Error: Invalid 'protocol' value (%s).", token);
 						return MOSQ_ERR_INVAL;
 					}
+				}else if(!strcmp(token, "proxy_protocol_v2_require_tls")){
+					REQUIRE_LISTENER(token);
+					if(conf__parse_bool(&token, "proxy_protocol_v2_require_tls", &cur_listener->proxy_protocol_v2_require_tls, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "psk_file")){
 #ifdef FINAL_WITH_TLS_PSK
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
@@ -2509,15 +2515,34 @@ int config__read_file(struct mosquitto__config *config, bool reload, const char 
 	return rc;
 }
 
+static int config__check_proxy_v2(struct mosquitto__config *config)
+{
+	for(int i=0; i<config->listener_count; i++){
+		struct mosquitto__listener *l = &config->listeners[i];
+
+		if(l->enable_proxy_protocol_v2){
+			if(l->use_subject_as_username){
+				log__printf(NULL, MOSQ_LOG_ERR, "Error: use_subject_as_username cannot be used with enable_proxy_protocol_v2.");
+				return MOSQ_ERR_INVAL;
+			}
+
+			if(l->certfile || l->keyfile){
+				log__printf(NULL, MOSQ_LOG_ERR, "Error: certfile and keyfile cannot be used with enable_proxy_protocol_v2.");
+				return MOSQ_ERR_INVAL;
+			}
+		}
+	}
+
+	return MOSQ_ERR_SUCCESS;
+}
+
 static int config__check(struct mosquitto__config *config)
 {
 	/* Checks that are easy to make after the config has been loaded. */
 
-	int i;
-
 	/* Default to auto_id_prefix = 'auto-' if none set. */
 	if(config->per_listener_settings){
-		for(i=0; i<config->listener_count; i++){
+		for(int i=0; i<config->listener_count; i++){
 			if(!config->listeners[i].security_options->auto_id_prefix){
 				config->listeners[i].security_options->auto_id_prefix = mosquitto_strdup("auto-");
 				if(!config->listeners[i].security_options->auto_id_prefix){
@@ -2536,7 +2561,7 @@ static int config__check(struct mosquitto__config *config)
 		}
 	}
 
-	return MOSQ_ERR_SUCCESS;
+	return config__check_proxy_v2(config);
 }
 
 #ifdef WITH_BRIDGE
