@@ -146,8 +146,10 @@ static int read_tlv(struct mosquitto *context, bool *have_certificate)
 
 		switch(tlv->type){
 			case PP2_TYPE_SSL:
-				int rc = read_tlv_ssl(context, tlv_len, have_certificate);
-				if(rc) return rc;
+				{
+					int rc = read_tlv_ssl(context, tlv_len, have_certificate);
+					if(rc) return rc;
+				}
 				break;
 			default:
 				context->proxy.pos += (uint16_t)tlv_len;
