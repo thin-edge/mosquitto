@@ -288,7 +288,7 @@ static int client_config_line_proc(struct mosq_config *cfg, int *argc, char **ar
 				if(tmp) {
 					*tmp++ = 0;
 					if(strlen(tmp) == 0){
-						url = NULL; /* Prevent free of non-heap memory later */
+						cfg->host = NULL; /* Prevent free of non-heap memory later */
 						fprintf(stderr, "Error: Empty port in URL.\n");
 						return 1;
 					}
