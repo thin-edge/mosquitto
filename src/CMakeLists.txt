@@ -104,9 +104,8 @@ endif()
 
 option(INC_DB_UPGRADE "Include database upgrade support? (recommended)" ON)
 
-option(INC_MEMTRACK "Include memory tracking support?" ON)
 if(INC_MEMTRACK)
-	target_compile_definitions(mosquitto PRIVATE "WITH_MEMORY_TRACKING")
+	target_compile_definitions(mosquitto PUBLIC "WITH_MEMORY_TRACKING")
 endif()
 
 option(WITH_PERSISTENCE "Include persistence support?" ON)
