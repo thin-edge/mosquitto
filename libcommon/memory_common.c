@@ -24,7 +24,7 @@ Contributors:
 #include "mosquitto.h"
 
 #if defined(WITH_MEMORY_TRACKING) && defined(WITH_BROKER)
-#  if defined(__APPLE__) || defined(__FreeBSD__) || defined(__GLIBC__)
+#  if defined(__APPLE__) || defined(__FreeBSD__) || defined(__linux__)
 #    define REAL_WITH_MEMORY_TRACKING
 #  endif
 #endif
@@ -40,10 +40,8 @@ Contributors:
 #  endif
 #endif
 
-#ifdef REAL_WITH_MEMORY_TRACKING
 static unsigned long memcount = 0;
 static unsigned long max_memcount = 0;
-#endif
 
 static size_t mem_limit = 0;
 void mosquitto_memory_set_limit(size_t lim)
@@ -51,64 +49,6 @@ void mosquitto_memory_set_limit(size_t lim)
 	mem_limit = lim;
 }
 
-BROKER_EXPORT void *mosquitto_calloc(size_t nmemb, size_t size)
-{
-	void *mem;
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(mem_limit && memcount + size > mem_limit){
-		return NULL;
-	}
-#endif
-	mem = calloc(nmemb, size);
-
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(mem){
-		memcount += malloc_usable_size(mem);
-		if(memcount > max_memcount){
-			max_memcount = memcount;
-		}
-	}
-#endif
-
-	return mem;
-}
-
-BROKER_EXPORT void mosquitto_free(void *mem)
-{
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(!mem){
-		return;
-	}
-	memcount -= malloc_usable_size(mem);
-#endif
-	free(mem);
-}
-
-BROKER_EXPORT void *mosquitto_malloc(size_t size)
-{
-	void *mem;
-
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(mem_limit && memcount + size > mem_limit){
-		return NULL;
-	}
-#endif
-
-	mem = malloc(size);
-
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(mem){
-		memcount += malloc_usable_size(mem);
-		if(memcount > max_memcount){
-			max_memcount = memcount;
-		}
-	}
-#endif
-
-	return mem;
-}
-
-#ifdef REAL_WITH_MEMORY_TRACKING
 unsigned long mosquitto_memory_used(void)
 {
 	return memcount;
@@ -118,81 +58,123 @@ unsigned long mosquitto_max_memory_used(void)
 {
 	return max_memcount;
 }
-#endif
 
-BROKER_EXPORT void *mosquitto_realloc(void *ptr, size_t size)
+
+#ifdef WITH_REAL_MEMORY_TRACKING
+
+BROKER_EXPORT void *mosquitto_malloc(size_t size)
 {
 	void *mem;
-#ifdef REAL_WITH_MEMORY_TRACKING
+
 	if(mem_limit && memcount + size > mem_limit){
 		return NULL;
 	}
-	if(ptr){
-		memcount -= malloc_usable_size(ptr);
-	}
-#endif
-	mem = realloc(ptr, size);
-
-#ifdef REAL_WITH_MEMORY_TRACKING
+	mem = malloc(size);
 	if(mem){
 		memcount += malloc_usable_size(mem);
 		if(memcount > max_memcount){
 			max_memcount = memcount;
 		}
 	}
-#endif
 
+	return mem;
+}
+
+BROKER_EXPORT void *mosquitto_realloc(void *ptr, size_t size)
+{
+	void *mem;
+	size_t free_size = ptr != NULL ? malloc_usable_size(ptr) : 0;
+
+	/* Avoid counter underflow due to mismatched memory allocation function usage */
+	if(free_size > memcount){
+		free_size = memcount;
+	}
+	if(mem_limit && memcount - free_size + size > mem_limit){
+		return NULL;
+	}
+	mem = realloc(ptr, size);
+	if(mem){
+		memcount -= free_size;
+		memcount += malloc_usable_size(mem);
+		if(memcount > max_memcount){
+			max_memcount = memcount;
+		}
+	}else if(size == 0){
+		memcount -= free_size;
+	}
+
+	return mem;
+}
+
+BROKER_EXPORT void mosquitto_free(void *mem)
+{
+	if(!mem){
+		return;
+	}
+	size_t free_size = malloc_usable_size(mem);
+	free(mem);
+
+	/* Avoid counter underflow due to mismatched memory function allocation usage */
+	if(free_size > memcount){
+		free_size = memcount;
+	}
+	memcount -= free_size;
+}
+
+#else /* #ifdef WITH_REAL_MEMORY_TRACKING */
+
+BROKER_EXPORT void *mosquitto_malloc(size_t size)
+{
+	return malloc(size);
+}
+
+BROKER_EXPORT void *mosquitto_realloc(void *ptr, size_t size)
+{
+	return realloc(ptr, size);
+}
+
+BROKER_EXPORT void mosquitto_free(void *mem)
+{
+	free(mem);
+}
+
+#endif /* #ifdef WITH_REAL_MEMORY_TRACKING */
+
+BROKER_EXPORT void *mosquitto_calloc(size_t nmemb, size_t size)
+{
+	void *mem;
+	const size_t alloc_size = nmemb * size;
+	mem = mosquitto_malloc(alloc_size);
+	if(mem){
+		memset(mem, 0, alloc_size);
+	}
 	return mem;
 }
 
 BROKER_EXPORT char *mosquitto_strdup(const char *s)
 {
 	char *str;
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(mem_limit && memcount + strlen(s) > mem_limit){
-		return NULL;
-	}
-#endif
-	str = strdup(s);
+	size_t size = strlen(s) + 1;
 
-#ifdef REAL_WITH_MEMORY_TRACKING
+	str = mosquitto_malloc(size);
 	if(str){
-		memcount += malloc_usable_size(str);
-		if(memcount > max_memcount){
-			max_memcount = memcount;
-		}
+		memcpy(str, s, size);
 	}
-#endif
-
 	return str;
 }
 
 BROKER_EXPORT char *mosquitto_strndup(const char *s, size_t n)
 {
 	char *str;
-#ifdef REAL_WITH_MEMORY_TRACKING
-	if(mem_limit && memcount + strlen(s) > mem_limit){
-		return NULL;
+	size_t size = strnlen(s, n);
+
+	if(size > n){
+		size = n;
 	}
-#endif
-
-#ifdef WIN32
-	str = malloc(n+1);
-	if(!str) return NULL;
-	memcpy(str, s, n);
-	str[n] = 0;
-#else
-	str = strndup(s, n);
-#endif
-
-#ifdef REAL_WITH_MEMORY_TRACKING
+	str = mosquitto_malloc(size + 1);
 	if(str){
-		memcount += malloc_usable_size(str);
-		if(memcount > max_memcount){
-			max_memcount = memcount;
-		}
+		memcpy(str, s, size);
 	}
-#endif
-
+	str[size] = 0;
 	return str;
 }
