@@ -152,8 +152,7 @@ static int config__add_listener(struct mosquitto__config *config)
 			}
 		}
 	}
-	config->listener_count++;
-	config->listeners = mosquitto_realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)config->listener_count);
+	config->listeners = mosquitto_realloc(config->listeners, sizeof(struct mosquitto__listener)*(size_t)(config->listener_count+1));
 	if(!config->listeners){
 		log__printf(NULL, MOSQ_LOG_ERR, "Error: Out of memory.");
 		return MOSQ_ERR_NOMEM;
@@ -168,6 +167,7 @@ static int config__add_listener(struct mosquitto__config *config)
 	if(def_listener != -1){
 		config->default_listener = &config->listeners[def_listener];
 	}
+	config->listener_count++;
 
 	return MOSQ_ERR_SUCCESS;
 }
