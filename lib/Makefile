@@ -82,8 +82,7 @@ OBJS= \
 	util_mosq.o \
 	will_mosq.o
 
-OBJS_EXTERNAL= \
-	password_mosq.o
+OBJS_EXTERNAL=
 
 ifeq ($(WITH_WEBSOCKETS),yes)
 	OBJS_EXTERNAL+=${R}/deps/picohttpparser/picohttpparser.o
@@ -140,9 +139,6 @@ libmosquitto.a : ${OBJS} ${OBJS_EXTERNAL}
 
 ${OBJS} : %.o: %.c ${R}/include/mosquitto.h mosquitto_internal.h
 	${CROSS_COMPILE}${CC} $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
-
-password_mosq.o : ${R}/common/password_mosq.c net_mosq.h
-	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
 
 ${R}/deps/picohttpparser/picohttpparser.o : ${R}/deps/picohttpparser/picohttpparser.c
 	${CROSS_COMPILE}$(CC) $(LOCAL_CPPFLAGS) $(LOCAL_CFLAGS) -c $< -o $@
