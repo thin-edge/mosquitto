@@ -533,16 +533,20 @@ int mosquitto_pw_hash_encoded(struct mosquitto_pw *pw, const char *password)
 		case MOSQ_PW_DEFAULT:
 		case MOSQ_PW_ARGON2ID:
 			rc = pw__create_argon2id(pw, password);
+			break;
 		case MOSQ_PW_SHA512_PBKDF2:
 			rc = pw__create_sha512_pbkdf2(pw, password);
+			break;
 		case MOSQ_PW_SHA512:
 			rc = pw__create_sha512(pw, password);
+			break;
 		default:
 #ifdef WITH_ARGON2
 			rc = pw__create_argon2id(pw, password);
 #else
 			rc = pw__create_sha512_pbkdf2(pw, password);
 #endif
+			break;
 	}
 	if(rc == MOSQ_ERR_SUCCESS){
 		return pw__encode(pw);
