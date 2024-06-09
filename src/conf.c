@@ -142,7 +142,7 @@ static int config__check_bridges(struct mosquitto__config *config);
 static int config__add_listener(struct mosquitto__config *config)
 {
 	struct mosquitto__listener *listener;
-	struct mosquitto__listener **new_listeners;
+	struct mosquitto__listener *new_listeners;
 	int def_listener = -1;
 
 	if(config->default_listener){
