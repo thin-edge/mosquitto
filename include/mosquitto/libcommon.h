@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #include <mosquitto/libcommon_base64.h>
+#include <mosquitto/libcommon_cjson.h>
 #include <mosquitto/libcommon_file.h>
 #include <mosquitto/libcommon_memory.h>
 #include <mosquitto/libcommon_password.h>

@@ -25,6 +25,7 @@ endif
 
 OBJS= \
 	base64_common.o \
+	cjson_common.o \
 	file_common.o \
 	memory_common.o \
 	mqtt_common.o \
