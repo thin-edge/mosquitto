@@ -93,6 +93,7 @@ OBJS=	mosquitto.o \
 		plugin_subscribe.o \
 		plugin_unsubscribe.o \
 		plugin_tick.o \
+		proxy_v1.o \
 		proxy_v2.o \
 		psk_file.o \
 		read_handle.o \

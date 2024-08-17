@@ -48,6 +48,7 @@ add_executable(mosquitto
 	plugin_tick.c
 	plugin_unsubscribe.c
 	property_broker.c
+	proxy_v1.c
 	proxy_v2.c
 	../lib/property_mosq.c ../lib/property_mosq.h
 	psk_file.c

@@ -269,7 +269,7 @@ struct mosquitto__listener {
 	bool disable_protocol_v3;
 	bool disable_protocol_v4;
 	bool disable_protocol_v5;
-	bool enable_proxy_protocol_v2;
+	int enable_proxy_protocol;
 	bool proxy_protocol_v2_require_tls;
 };
 
@@ -965,9 +965,10 @@ int http__write(struct mosquitto *context);
 void do_disconnect(struct mosquitto *context, int reason);
 
 /* ============================================================
- * PROXY v2 related functions
+ * PROXY related functions
  * ============================================================ */
 int proxy_v2__read(struct mosquitto *context);
+int proxy_v1__read(struct mosquitto *context);
 
 /* ============================================================
  * Will delay
