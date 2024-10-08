@@ -187,6 +187,9 @@ Clients:
 DB Dump:
 - Add `--json` output mode.
 
+Apps:
+- Add `mosquitto_signal` for helping send signals to mosquitto on Windows.
+
 Build:
 - Increased CMake minimal required version to 3.14, which is required for the
   preinstalled SQLite3 find module.

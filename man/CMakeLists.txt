@@ -19,6 +19,7 @@ if(XSLTPROC AND NOT WIN32)
 	compile_manpage("mosquitto_pub.1")
 	compile_manpage("mosquitto_sub.1")
 	compile_manpage("mosquitto_rr.1")
+	compile_manpage("mosquitto_signal.1")
 	compile_manpage("libmosquitto.3")
 	compile_manpage("mosquitto.conf.5")
 	compile_manpage("mosquitto-tls.7")
@@ -32,6 +33,7 @@ if(XSLTPROC AND NOT WIN32)
 		mosquitto_pub.1
 		mosquitto_sub.1
 		mosquitto_rr.1
+		mosquitto_signal.1
 		DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
 		OPTIONAL)
 

@@ -13,6 +13,7 @@ MANPAGES = \
 	mosquitto_passwd.1 \
 	mosquitto_pub.1 \
 	mosquitto_rr.1 \
+	mosquitto_signal.1 \
 	mosquitto_sub.1 \
 	mqtt.7
 
@@ -38,6 +39,7 @@ install :
 	$(INSTALL) -m 644 mosquitto_pub.1 "${DESTDIR}${mandir}/man1/mosquitto_pub.1"
 	$(INSTALL) -m 644 mosquitto_sub.1 "${DESTDIR}${mandir}/man1/mosquitto_sub.1"
 	$(INSTALL) -m 644 mosquitto_rr.1 "${DESTDIR}${mandir}/man1/mosquitto_rr.1"
+	$(INSTALL) -m 644 mosquitto_signal.1 "${DESTDIR}${mandir}/man1/mosquitto_signal.1"
 	$(INSTALL) -d "${DESTDIR}$(mandir)/man7"
 	$(INSTALL) -m 644 mqtt.7 "${DESTDIR}${mandir}/man7/mqtt.7"
 	$(INSTALL) -m 644 mosquitto-tls.7 "${DESTDIR}${mandir}/man7/mosquitto-tls.7"
@@ -53,6 +55,7 @@ uninstall :
 	-rm -f "${DESTDIR}${mandir}/man1/mosquitto_pub.1"
 	-rm -f "${DESTDIR}${mandir}/man1/mosquitto_sub.1"
 	-rm -f "${DESTDIR}${mandir}/man1/mosquitto_rr.1"
+	-rm -f "${DESTDIR}${mandir}/man1/mosquitto_signal.1"
 	-rm -f "${DESTDIR}${mandir}/man7/mqtt.7"
 	-rm -f "${DESTDIR}${mandir}/man7/mosquitto-tls.7"
 	-rm -f "${DESTDIR}${mandir}/man3/libmosquitto.3"
@@ -76,6 +79,7 @@ potgen :
 	 xml2po -o po/mosquitto_pub/mosquitto_pub.1.pot mosquitto_pub.1.xml
 	 xml2po -o po/mosquitto_sub/mosquitto_sub.1.pot mosquitto_sub.1.xml
 	 xml2po -o po/mosquitto_sub/mosquitto_rr.1.pot mosquitto_rr.1.xml
+	 xml2po -o po/mosquitto_sub/mosquitto_signal.1.pot mosquitto_signal.1.xml
 	 xml2po -o po/mqtt/mqtt.7.pot mqtt.7.xml
 	 xml2po -o po/mosquitto-tls/mosquitto-tls.7.pot mosquitto-tls.7.xml
 	 xml2po -o po/libmosquitto/libmosquitto.3.pot libmosquitto.3.xml

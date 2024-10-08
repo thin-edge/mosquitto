@@ -1,7 +1,8 @@
 DIRS= \
 		db_dump \
 		mosquitto_ctrl \
-		mosquitto_passwd
+		mosquitto_passwd \
+		mosquitto_signal
 
 .PHONY : all binary check clean reallyclean test install uninstall
 
