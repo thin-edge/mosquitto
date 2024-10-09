@@ -603,6 +603,13 @@ int handle__connect(struct mosquitto *context)
 		goto handle_connect_error;
 	}
 
+	if(context->in_packet.command == 0x16 && context->listener->ssl_ctx == NULL){ /* 0x16 is TLS handshake client hello */
+		log__printf(NULL, MOSQ_LOG_NOTICE, "Client from %s:%d appears to be using TLS to connect to a non-TLS listener.",
+						context->address, context->remote_port);
+		rc = MOSQ_ERR_PROTOCOL;
+		goto handle_connect_error;
+	}
+
 	/* Read protocol name as length then bytes rather than with read_string
 	 * because the length is fixed and we can check that. Removes the need
 	 * for another malloc as well. */
