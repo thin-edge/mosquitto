@@ -66,12 +66,15 @@ static int proxy_v1__decode(struct mosquitto *context)
 		return MOSQ_ERR_INVAL;
 	}
 
+	context->proxy.buf[context->proxy.pos-1] = '\0';
+	context->proxy.buf[context->proxy.pos-2] = '\0';
 	saddr_s = strtok_r((char *)&context->proxy.buf[sizeof(signature4)], " ", &saveptr);
 	daddr_s = strtok_r(NULL, " ", &saveptr);
 	sport_s = strtok_r(NULL, " ", &saveptr);
 	dport_s = strtok_r(NULL, " ", &saveptr);
 
-	if(!saddr_s || !daddr_s || !sport_s || !dport_s || !saveptr || saveptr[0] != '\0'){
+
+	if(!saddr_s || !daddr_s || !sport_s || !dport_s || (saveptr && strlen(saveptr) > 0)){
 		log__printf(NULL, MOSQ_LOG_NOTICE, "Connection rejected, corrupt PROXY header.");
 		proxy_cleanup(context);
 		return MOSQ_ERR_INVAL;
