@@ -103,6 +103,8 @@ const char *mosquitto_strerror(int mosq_errno)
 			return "Entry already exists";
 		case MOSQ_ERR_PLUGIN_IGNORE:
 			return "Ignore plugin";
+		case MOSQ_ERR_HTTP_BAD_ORIGIN:
+			return "Bad http origin";
 
 		case MOSQ_ERR_UNSPECIFIED:
 			return "Unspecified error";
@@ -133,7 +135,13 @@ const char *mosquitto_strerror(int mosq_errno)
 		case MOSQ_ERR_CONNECTION_RATE_EXCEEDED:
 			return "Connection rate exceeded";
 		default:
-			return "Unknown error";
+			if(mosq_errno >= 128) {
+				// If mosq_errno is greater than 127,
+				// a mqtt5_return_code error was used
+				return mosquitto_reason_string(mosq_errno);
+			} else {
+				return "Unknown error";
+			}
 	}
 }
 

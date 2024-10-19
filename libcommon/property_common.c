@@ -56,8 +56,7 @@ void mosquitto_property_free(mosquitto_property **property)
 			break;
 	}
 
-	mosquitto_free(*property);
-	*property = NULL;
+	mosquitto_FREE(*property);
 }
 
 
@@ -652,6 +651,10 @@ BROKER_EXPORT int mosquitto_property_check_all(int command, const mosquitto_prop
 			if(p->value.i16 == 0){
 				return MOSQ_ERR_PROTOCOL;
 			}
+		}else if(p->identifier == MQTT_PROP_RESPONSE_TOPIC){
+			if(mosquitto_pub_topic_check(p->value.s.v) != MOSQ_ERR_SUCCESS){
+				return MOSQ_ERR_PROTOCOL;
+			}
 		}
 
 		/* Check for properties on incorrect commands */
@@ -892,8 +895,7 @@ BROKER_EXPORT const mosquitto_property *mosquitto_property_read_string_pair(cons
 			*value = mosquitto_calloc(1, (size_t)p->value.s.len+1);
 			if(!(*value)){
 				if(name){
-					mosquitto_free(*name);
-					*name = NULL;
+					mosquitto_FREE(*name);
 				}
 				return NULL;
 			}

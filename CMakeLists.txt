@@ -26,7 +26,7 @@ if(WIN32)
 endif()
 
 if(APPLE)
-	set(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
+	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -undefined dynamic_lookup")
 endif()
 
 add_library(common-options INTERFACE)
@@ -46,6 +46,12 @@ option(INC_MEMTRACK "Include memory tracking support?" ON)
 if (WITH_TLS)
 	find_package(OpenSSL REQUIRED)
 	add_definitions("-DWITH_TLS")
+
+	# mosquitto uses OpenSSL 1.1 API, so set OPENSSL_API_COMPAT accordingly:
+	# https://www.openssl.org/docs/manmaster/man7/OPENSSL_API_COMPAT.html
+	# TODO: migrate off ENGINE API (deprecated since OpenSSL 3.0), see:
+	#       https://www.openssl.org/docs/manmaster/man7/migration_guide.html#Engines-and-METHOD-APIs
+	add_definitions("-DOPENSSL_API_COMPAT=0x10100000L")
 
 	if (WITH_TLS_PSK)
 		add_definitions("-DWITH_TLS_PSK")

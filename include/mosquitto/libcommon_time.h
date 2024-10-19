@@ -7,6 +7,12 @@ extern "C" {
 
 #include <time.h>
 
+/* Function: mosquitto_time_init
+ *
+ * Initialises the time source to use the best source available at run time.
+ */
+libmosqcommon_EXPORT void mosquitto_time_init(void);
+
 /* Function: mosquitto_time
  *
  * Returns an indication of the current time in seconds. The exact type of

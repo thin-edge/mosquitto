@@ -43,7 +43,12 @@ InstallDir "$PROGRAMFILES64\Mosquitto"
 
 Section "Files" SecInstall
 	SectionIn RO
+
+	ExecWait 'sc stop mosquitto'
+	Sleep 1000
+
 	SetOutPath "$INSTDIR"
+	File "..\logo\mosquitto.ico"
 	File "..\build64\src\Release\mosquitto.exe"
 	File "..\build64\apps\mosquitto_ctrl\Release\mosquitto_ctrl.exe"
 	File "..\build64\apps\mosquitto_passwd\Release\mosquitto_passwd.exe"
@@ -114,6 +119,7 @@ Section "Files" SecInstall
 
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Mosquitto64" "DisplayName" "Eclipse Mosquitto MQTT broker (64 bit)"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Mosquitto64" "DisplayIcon" "$INSTDIR\mosquitto.ico"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Mosquitto64" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Mosquitto64" "QuietUninstallString" "$\"$INSTDIR\Uninstall.exe$\" /S"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Mosquitto64" "HelpLink" "https://mosquitto.org/"
@@ -135,10 +141,16 @@ SectionEnd
 
 Section "Service" SecService
 	ExecWait '"$INSTDIR\mosquitto.exe" install'
+	ExecWait 'sc start mosquitto'
 SectionEnd
 
 Section "Uninstall"
+	ExecWait 'sc stop mosquitto'
+	Sleep 1000
 	ExecWait '"$INSTDIR\mosquitto.exe" uninstall'
+	Sleep 1000
+
+	Delete "$INSTDIR\mosquitto.dll"
 	Delete "$INSTDIR\mosquitto.exe"
 	Delete "$INSTDIR\mosquitto_common.dll"
 	Delete "$INSTDIR\mosquitto_ctrl.exe"
@@ -147,7 +159,6 @@ Section "Uninstall"
 	Delete "$INSTDIR\mosquitto_pub.exe"
 	Delete "$INSTDIR\mosquitto_rr.exe"
 	Delete "$INSTDIR\mosquitto_sub.exe"
-	Delete "$INSTDIR\mosquitto.dll"
 	Delete "$INSTDIR\mosquittopp.dll"
 	Delete "$INSTDIR\mosquitto_dynamic_security.dll"
 	Delete "$INSTDIR\mosquitto_persist_sqlite.dll"
@@ -163,6 +174,14 @@ Section "Uninstall"
 	Delete "$INSTDIR\SECURITY.md"
 	Delete "$INSTDIR\edl-v10"
 	Delete "$INSTDIR\epl-v20"
+	Delete "$INSTDIR\mosquitto.ico"
+
+	Delete "$INSTDIR\cjson.dll"
+	Delete "$INSTDIR\libcrypto-3-x64.dll"
+	Delete "$INSTDIR\libssl-3-x64.dll"
+	Delete "$INSTDIR\pthreadVC3.dll"
+	Delete "$INSTDIR\uv.dll"
+	Delete "$INSTDIR\websockets.dll"
 
 	Delete "$INSTDIR\argon2.dll"
 	Delete "$INSTDIR\cjson.dll"
@@ -172,32 +191,32 @@ Section "Uninstall"
 	Delete "$INSTDIR\sqlite3.dll"
 
 	Delete "$INSTDIR\devel\mosquitto.h"
-	Delete "$INSTDIR\devel\mosquitto/broker.h"
-	Delete "$INSTDIR\devel\mosquitto/broker_control.h"
-	Delete "$INSTDIR\devel\mosquitto/broker_plugin.h"
-	Delete "$INSTDIR\devel\mosquitto/defs.h"
-	Delete "$INSTDIR\devel\mosquitto/libcommon.h"
-	Delete "$INSTDIR\devel\mosquitto/libcommon_properties.h"
-	Delete "$INSTDIR\devel\mosquitto/libcommon_string.h"
-	Delete "$INSTDIR\devel\mosquitto/libcommon_topic.h"
-	Delete "$INSTDIR\devel\mosquitto/libcommon_utf8.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_auth.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_callbacks.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_connect.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_create_delete.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_helpers.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_loop.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_message.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_options.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_publish.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_socks.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_subscribe.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_tls.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_unsubscribe.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquitto_will.h"
-	Delete "$INSTDIR\devel\mosquitto/libmosquittopp.h"
-	Delete "$INSTDIR\devel\mosquitto/mqtt_protocol.h"
+	Delete "$INSTDIR\devel\mosquitto\broker.h"
+	Delete "$INSTDIR\devel\mosquitto\broker_control.h"
+	Delete "$INSTDIR\devel\mosquitto\broker_plugin.h"
+	Delete "$INSTDIR\devel\mosquitto\defs.h"
+	Delete "$INSTDIR\devel\mosquitto\libcommon.h"
+	Delete "$INSTDIR\devel\mosquitto\libcommon_properties.h"
+	Delete "$INSTDIR\devel\mosquitto\libcommon_string.h"
+	Delete "$INSTDIR\devel\mosquitto\libcommon_topic.h"
+	Delete "$INSTDIR\devel\mosquitto\libcommon_utf8.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_auth.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_callbacks.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_connect.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_create_delete.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_helpers.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_loop.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_message.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_options.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_publish.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_socks.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_subscribe.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_tls.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_unsubscribe.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquitto_will.h"
+	Delete "$INSTDIR\devel\mosquitto\libmosquittopp.h"
+	Delete "$INSTDIR\devel\mosquitto\mqtt_protocol.h"
 	Delete "$INSTDIR\devel\mosquitto_broker.h"
 	Delete "$INSTDIR\devel\mosquitto_plugin.h"
 	Delete "$INSTDIR\devel\mosquittopp.h"

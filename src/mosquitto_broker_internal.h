@@ -467,7 +467,8 @@ struct mosquitto__message_v5{
 struct mosquitto_db{
 	dbid_t last_db_id;
 	uint64_t node_id_shifted;
-	struct mosquitto__subhier *subs;
+	struct mosquitto__subhier *normal_subs;
+	struct mosquitto__subhier *shared_subs;
 	struct mosquitto__retainhier *retains;
 	struct mosquitto *contexts_by_id;
 	struct mosquitto *contexts_by_sock;

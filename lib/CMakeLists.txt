@@ -49,7 +49,7 @@ set(C_SRC
 	util_mosq.c util_mosq.h
 	will_mosq.c will_mosq.h)
 
-set(LIBRARIES common-options)
+set(LIBRARIES common-options ${OPENSSL_LIBRARIES})
 
 if(WITH_TLS)
 	set (LIBRARIES ${LIBRARIES} OpenSSL::SSL)
@@ -103,6 +103,7 @@ target_include_directories(libmosquitto
 		"${mosquitto_SOURCE_DIR}"
 		"${mosquitto_SOURCE_DIR}/common"
 		"${mosquitto_SOURCE_DIR}/libcommon"
+		"${OPENSSL_INCLUDE_DIR}" # Required for cross compilation
 )
 
 if(WITH_BUNDLED_DEPS)

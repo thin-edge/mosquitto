@@ -113,7 +113,7 @@ libmosq_EXPORT int mosquitto_unsubscribe_v5(struct mosquitto *mosq, int *mid, co
  *	       pointers nor the strings that they point to are mutable. If you aren't
  *	       familiar with this, just think of it as a safer "char **",
  *	       equivalent to "const char *" for a simple string pointer.
- *	       Each sub must not be NULL or an empty string.
+ *	       Each sub must not be NULL nor an empty string.
  * 	properties - a valid mosquitto_property list, or NULL. Only used with MQTT
  * 	             v5 clients.
  *

@@ -17,7 +17,7 @@ Contributors:
 */
 
 /*
- * File: mosquitto/control.h
+ * File: mosquitto/broker_control.h
  *
  * This header contains functions for use by plugins using the CONTROL event.
  */

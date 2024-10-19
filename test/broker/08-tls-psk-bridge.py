@@ -56,17 +56,14 @@ try:
 
     mosq_test.do_send_receive(sock, subscribe_packet, suback_packet, "suback")
 
-    pub = subprocess.Popen(['./c/08-tls-psk-bridge.test', str(port3)], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    pub_terminate_rc = 0
-    if mosq_test.wait_for_subprocess(pub):
-        print("pub not terminated")
-        pub_terminate_rc = 1
+    pub = subprocess.run(['./c/08-tls-psk-bridge.test', str(port3)], env=env, capture_output=True, encoding='utf-8')
     if pub.returncode != 0:
+        print("d")
+        print(pub.returncode)
         raise ValueError
-    (stdo, stde) = pub.communicate()
 
     mosq_test.expect_packet(sock, "publish", publish_packet)
-    rc = pub_terminate_rc
+    rc = pub.returncode
 
     sock.close()
 except mosq_test.TestError:
@@ -74,12 +71,10 @@ except mosq_test.TestError:
 finally:
     os.remove(conf_file1)
     os.remove(conf_file2)
-    time.sleep(1)
     broker.terminate()
     if mosq_test.wait_for_subprocess(broker):
         print("broker not terminated")
         if rc == 0: rc=1
-    time.sleep(1)
     bridge.terminate()
     if mosq_test.wait_for_subprocess(bridge):
         print("bridge not terminated")
@@ -90,8 +85,8 @@ finally:
         (stdo, stde) = bridge.communicate()
         print(stde.decode('utf-8'))
         if pub:
-            (stdo, stde) = pub.communicate()
-            print(stdo.decode('utf-8'))
+            print(pub.stdout)
+            print(pub.stderr)
 
 exit(rc)
 

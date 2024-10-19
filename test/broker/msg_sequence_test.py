@@ -62,7 +62,7 @@ class MsgSequence(object):
     def _connected_check(self, sock):
         try:
             mosq_test.do_ping(sock)
-        except mosq_test.TestError:
+        except (BrokenPipeError, mosq_test.TestError):
             raise ValueError("connection failed")
 
     def _send_message(self, sock, msg):
@@ -89,7 +89,7 @@ class MsgSequence(object):
     def _recv_message(self, sock, msg):
         data = sock.recv(len(msg.message))
         if data != msg.message:
-            raise ValueError("Receive message %s | %s | %s" % (msg.comment, data, msg.message))
+            raise ValueError("Receive message %s | rec:%s | exp:%s" % (msg.comment, data, msg.message))
 
 
     def _disconnected_check(self, sock):
@@ -285,6 +285,10 @@ def main(protocol):
         if mosq_test.wait_for_subprocess(broker):
             print("broker not terminated")
             if rc == 0: rc=1
+        if broker.returncode != 0:
+            rc = broker.returncode
+            print(f"Broker exited with code {rc}. If there are no obvious errors this may be due to an ASAN build having leaks, which must be fixed.")
+            print("The easiest way to reproduce this is to run the broker with `mosquitto -p 1888`, rerun the test, then quit the broker.")
         (stdo, stde) = broker.communicate()
     if rc:
         #print(stde.decode('utf-8'))

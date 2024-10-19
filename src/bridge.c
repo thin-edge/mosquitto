@@ -128,7 +128,12 @@ static struct mosquitto *bridge__new(struct mosquitto__bridge *bridge)
 	new_context->protocol = bridge->protocol_version;
 	if(!bridge->clean_start_local){
 		new_context->session_expiry_interval = UINT32_MAX;
-		plugin_persist__handle_client_add(new_context);		 
+		plugin_persist__handle_client_add(new_context);
+		if(new_context->expiry_list_item){
+			/* We've restored from persistence and been added to the session
+			 * expiry list, even though we should never be expired */
+			session_expiry__remove(new_context);
+		}
 	}
 
 	bridges = mosquitto_realloc(db.bridges, (size_t)(db.bridge_count+1)*sizeof(struct mosquitto *));

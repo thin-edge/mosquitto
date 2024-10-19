@@ -32,6 +32,7 @@ def get_build_root():
 
 def env_add_ld_library_path(env=None):
     p = ":".join([
+        get_build_root() + '/libcommon',
         get_build_root() + '/lib',
         get_build_root() + '/lib/cpp',
         os.getenv("LD_LIBRARY_PATH", "")
@@ -208,7 +209,11 @@ def expect_packet(sock, name, expected):
         while len(packet_recvd) < rlen:
             data = sock.recv(rlen-len(packet_recvd))
             if len(data) == 0:
-                raise BrokenPipeError(f"when reading {name} from {sock.getpeername()}")
+                try:
+                    s = f"when reading {name} from {sock.getpeername()}"
+                except OSError:
+                    s = f"when reading {name} from {sock}"
+                raise BrokenPipeError(s)
             packet_recvd += data
     except socket.timeout:
         pass

@@ -45,8 +45,8 @@
 				{"type":"recv", "payload":"20 02 00 00", "comment": "CONNACK"},
 				{"type":"send", "payload":"10 0D 0004 4D515454 04 02 000A 0001 70", "comment":"minimal valid CONNECT"}
 			]},
-			{ "name": "10 missing client ID", "msgs":[{"type":"send", "payload":"10 08 0004 4D515454 04 02 000A"}]},
-			{ "name": "10 empty client ID", "expect_disconnect":false, "msgs":[
+			{ "name": "10 missing client ID", "connect":false, "msgs":[{"type":"send", "payload":"10 0A 0004 4D515454 04 02 000A"}]},
+			{ "name": "10 empty client ID", "connect":false, "expect_disconnect":false, "msgs":[
 				{"type":"send", "payload":"10 0C 0004 4D515454 04 02 000A 0000", "comment":"CONNECT clean session true, no client id"},
 				{"type":"recv", "payload":"20 02 00 00", "comment": "CONNACK"}
 			]},
@@ -758,9 +758,9 @@
 				{"type":"send", "payload":"10 16 0004 4D515454 05 06 000A 00 0001 70  01 08  0001 70 0001 70"},
 				{"type":"recv", "payload":"20 03 00 81 00"}
 			]},
-			{ "name": "response-topic (UTF-8 string) empty", "expect_disconnect":false, "msgs":[
+			{ "name": "response-topic (UTF-8 string) empty", "msgs":[
 				{"type":"send", "payload":"10 18 0004 4D515454 05 06 000A 00 0001 70  03 08 0000  0001 70 0001 70"},
-				{"type":"recv", "payload":"20 09 00 00 06 22000A 210014", "comment": "CONNACK"}
+				{"type":"recv", "payload":"20 03 00 82 00", "comment": "CONNACK"}
 			]},
 
 			{ "name": "correlation-data (binary)", "expect_disconnect":false, "msgs":[

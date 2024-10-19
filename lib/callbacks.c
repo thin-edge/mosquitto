@@ -25,114 +25,114 @@ Contributors:
 
 void mosquitto_connect_callback_set(struct mosquitto *mosq, void (*on_connect)(struct mosquitto *, void *, int))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_connect = on_connect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_connect_with_flags_callback_set(struct mosquitto *mosq, void (*on_connect)(struct mosquitto *, void *, int, int))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_connect_with_flags = on_connect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_connect_v5_callback_set(struct mosquitto *mosq, void (*on_connect)(struct mosquitto *, void *, int, int, const mosquitto_property *))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_connect_v5 = on_connect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_pre_connect_callback_set(struct mosquitto *mosq, void (*on_pre_connect)(struct mosquitto *, void *))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_pre_connect = on_pre_connect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_disconnect_callback_set(struct mosquitto *mosq, void (*on_disconnect)(struct mosquitto *, void *, int))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_disconnect = on_disconnect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_disconnect_v5_callback_set(struct mosquitto *mosq, void (*on_disconnect)(struct mosquitto *, void *, int, const mosquitto_property *))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_disconnect_v5 = on_disconnect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_publish_callback_set(struct mosquitto *mosq, void (*on_publish)(struct mosquitto *, void *, int))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_publish = on_publish;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_publish_v5_callback_set(struct mosquitto *mosq, void (*on_publish)(struct mosquitto *, void *, int, int, const mosquitto_property *props))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_publish_v5 = on_publish;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_message_callback_set(struct mosquitto *mosq, void (*on_message)(struct mosquitto *, void *, const struct mosquitto_message *))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_message = on_message;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_message_v5_callback_set(struct mosquitto *mosq, void (*on_message)(struct mosquitto *, void *, const struct mosquitto_message *, const mosquitto_property *props))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_message_v5 = on_message;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_subscribe_callback_set(struct mosquitto *mosq, void (*on_subscribe)(struct mosquitto *, void *, int, int, const int *))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_subscribe = on_subscribe;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_subscribe_v5_callback_set(struct mosquitto *mosq, void (*on_subscribe)(struct mosquitto *, void *, int, int, const int *, const mosquitto_property *props))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_subscribe_v5 = on_subscribe;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_unsubscribe_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_unsubscribe = on_unsubscribe;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_unsubscribe_v5_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int, const mosquitto_property *props))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_unsubscribe_v5 = on_unsubscribe;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_unsubscribe2_v5_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int, int, const int *, const mosquitto_property *props))
 {
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	mosq->on_unsubscribe2_v5 = on_unsubscribe;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 }
 
 void mosquitto_log_callback_set(struct mosquitto *mosq, void (*on_log)(struct mosquitto *, void *, int, const char *))
 {
-	pthread_mutex_lock(&mosq->log_callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->log_callback_mutex);
 	mosq->on_log = on_log;
-	pthread_mutex_unlock(&mosq->log_callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->log_callback_mutex);
 }
 
 
@@ -140,9 +140,9 @@ void callback__on_pre_connect(struct mosquitto *mosq)
 {
 	void (*on_pre_connect)(struct mosquitto *, void *userdata);
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_pre_connect = mosq->on_pre_connect;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_pre_connect){
@@ -158,11 +158,11 @@ void callback__on_connect(struct mosquitto *mosq, uint8_t reason_code, uint8_t c
 	void (*on_connect_with_flags)(struct mosquitto *, void *userdata, int rc, int flags);
 	void (*on_connect_v5)(struct mosquitto *, void *userdata, int rc, int flags, const mosquitto_property *props);
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_connect = mosq->on_connect;
 	on_connect_with_flags = mosq->on_connect_with_flags;
 	on_connect_v5 = mosq->on_connect_v5;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_connect){
@@ -183,10 +183,10 @@ void callback__on_publish(struct mosquitto *mosq, int mid, int reason_code, cons
 	void (*on_publish)(struct mosquitto *, void *userdata, int mid);
 	void (*on_publish_v5)(struct mosquitto *, void *userdata, int mid, int reason_code, const mosquitto_property *props);
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_publish = mosq->on_publish;
 	on_publish_v5 = mosq->on_publish_v5;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_publish){
@@ -204,10 +204,10 @@ void callback__on_message(struct mosquitto *mosq, const struct mosquitto_message
 	void (*on_message)(struct mosquitto *, void *userdata, const struct mosquitto_message *message);
 	void (*on_message_v5)(struct mosquitto *, void *userdata, const struct mosquitto_message *message, const mosquitto_property *props);
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_message = mosq->on_message;
 	on_message_v5 = mosq->on_message_v5;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_message){
@@ -225,10 +225,10 @@ void callback__on_subscribe(struct mosquitto *mosq, int mid, int qos_count, cons
 	void (*on_subscribe)(struct mosquitto *, void *userdata, int mid, int qos_count, const int *granted_qos) = NULL;
 	void (*on_subscribe_v5)(struct mosquitto *, void *userdata, int mid, int qos_count, const int *granted_qos, const mosquitto_property *props) = NULL;
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_subscribe = mosq->on_subscribe;
 	on_subscribe_v5 = mosq->on_subscribe_v5;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_subscribe){
@@ -247,11 +247,11 @@ void callback__on_unsubscribe(struct mosquitto *mosq, int mid, int reason_code_c
 	void (*on_unsubscribe_v5)(struct mosquitto *, void *userdata, int mid, const mosquitto_property *props) = NULL;
 	void (*on_unsubscribe2_v5)(struct mosquitto *, void *userdata, int mid, int reason_code_count, const int *reason_codes, const mosquitto_property *props) = NULL;
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_unsubscribe = mosq->on_unsubscribe;
 	on_unsubscribe_v5 = mosq->on_unsubscribe_v5;
 	on_unsubscribe2_v5 = mosq->on_unsubscribe2_v5;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_unsubscribe){
@@ -272,10 +272,10 @@ void callback__on_disconnect(struct mosquitto *mosq, int rc, const mosquitto_pro
 	void (*on_disconnect)(struct mosquitto *, void *, int) = NULL;
 	void (*on_disconnect_v5)(struct mosquitto *, void *, int, const mosquitto_property *) = NULL;
 
-	pthread_mutex_lock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->callback_mutex);
 	on_disconnect = mosq->on_disconnect;
 	on_disconnect_v5 = mosq->on_disconnect_v5;
-	pthread_mutex_unlock(&mosq->callback_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->callback_mutex);
 
 	mosq->callback_depth++;
 	if(on_disconnect){

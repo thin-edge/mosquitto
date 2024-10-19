@@ -95,7 +95,7 @@ int sub__topic_tokenise(const char *subtopic, char **local_sub, char ***topics, 
 	}
 
 	if(!strcmp((*topics)[0], "$share")){
-		if(count < 2){
+		if(count < 3 || (count == 3 && strlen((*topics)[2]) == 0)){
 			mosquitto_FREE(*local_sub);
 			mosquitto_FREE(*topics);
 			return MOSQ_ERR_PROTOCOL;

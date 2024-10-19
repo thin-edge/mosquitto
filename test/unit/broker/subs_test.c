@@ -56,9 +56,10 @@ static void TEST_sub_add_single(void)
 	sub.topic_filter = "a/b/c/d/e";
 	rc = sub__add(&context, &sub);
 	CU_ASSERT_EQUAL(rc, MOSQ_ERR_SUCCESS);
-	CU_ASSERT_PTR_NOT_NULL(db.subs);
-	if(db.subs){
-		subhier = db.subs;
+	CU_ASSERT_PTR_NOT_NULL(db.shared_subs);
+	CU_ASSERT_PTR_NOT_NULL(db.normal_subs);
+	if(db.normal_subs){
+		subhier = db.normal_subs;
 
 		hier_quick_check(&subhier, NULL, "");
 		hier_quick_check(&subhier, NULL, "");

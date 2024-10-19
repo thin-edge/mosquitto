@@ -137,6 +137,7 @@ msg_sequence_test:
 	./06-bridge-reconnect-local-out.py
 	./06-bridge-remote-shutdown.py
 	./06-bridge-config-reload.py
+	./06-bridge-remap-receive-wildcard.py
 
 07 :
 	./07-will-control.py

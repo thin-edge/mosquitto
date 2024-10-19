@@ -56,15 +56,15 @@ int mosquitto_lib_init(void)
 	int rc;
 
 	if (init_refcount == 0) {
+		mosquitto_time_init();
 #ifdef WIN32
 		srand((unsigned int)GetTickCount64());
 #elif _POSIX_TIMERS>0 && defined(_POSIX_MONOTONIC_CLOCK)
 		struct timespec tp;
 #ifdef CLOCK_BOOTTIME
-		clock_gettime(CLOCK_BOOTTIME, &tp);
-#else
-		clock_gettime(CLOCK_MONOTONIC, &tp);
+		if (clock_gettime(CLOCK_BOOTTIME, &tp) != 0)
 #endif
+		clock_gettime(CLOCK_MONOTONIC, &tp);
 		srand((unsigned int)tp.tv_nsec);
 #elif defined(__APPLE__)
 		uint64_t ticks;

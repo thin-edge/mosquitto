@@ -68,7 +68,9 @@ void json_init(void)
 
 void json_print(void)
 {
-	printf("%s\n", cJSON_Print(j_tree));
+	char *jstr = cJSON_Print(j_tree);
+	printf("%s\n", jstr);
+	free(jstr);
 }
 
 void json_cleanup(void)

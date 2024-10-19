@@ -83,7 +83,10 @@ static void TEST_mosquitto_strerror(void)
 	const char *str;
 	int used[] = {-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 		12, /* 13, */ 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 31, 32,
-		128, 131, 133, 134, 136, 137, 138, 140, 142, 147, 148, 152, 154, 159};
+		33,
+		128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+		143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157,
+		158, 159, 160, 161, 162};
 
 	/* Iterate over all possible errors, checking we have a place holder for all
 	 * unused errors, and that all used errors do not have place holder text. */
@@ -98,15 +101,21 @@ static void TEST_mosquitto_strerror(void)
 					break;
 				}
 			}
+			const char *errstr;
+			if(err >= 128){
+				errstr = "Unknown reason";
+			}else{
+				errstr = "Unknown error";
+			}
 			if(is_used){
-				CU_ASSERT_STRING_NOT_EQUAL(str, "Unknown error");
-				if(!strcmp(str, "Unknown error")){
-					printf("%d: %s\n", err, str);
+				CU_ASSERT_STRING_NOT_EQUAL(str, errstr);
+				if(!strcmp(str, errstr)){
+					printf("%d: %s (!=)\n", err, str);
 				}
 			}else{
-				CU_ASSERT_STRING_EQUAL(str, "Unknown error");
-				if(strcmp(str, "Unknown error")){
-					printf("%d: %s\n", err, str);
+				CU_ASSERT_STRING_EQUAL(str, errstr);
+				if(strcmp(str, errstr)){
+					printf("%d: %s (==)\n", err, str);
 				}
 			}
 		}

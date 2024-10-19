@@ -182,7 +182,7 @@
 				{"type":"recv", "payload":"40 03 1234 10"}
 			]},
 			{ "name": "2*message-expiry-interval=1 (four byte integer)", "msgs": [
-				{"type":"send", "payload":"32 1A 0005 746F706963 1234 0A 0200000001 0200000001 7061796C6F6164"},
+				{"type":"send", "payload":"32 1B 0005 746F706963 1234 0A 0200000001 0200000001 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 82"}
 			]},
 			{ "name": "message-expiry-interval (four byte integer) missing", "msgs": [
@@ -215,6 +215,10 @@
 				{"type":"send", "payload":"32 15 0005 746F706963 1234 04 08000170 7061796C6F6164"},
 				{"type":"recv", "payload":"40 03 1234 10"}
 			]},
+			{ "name": "response-topic (UTF-8 string, with wildcard)", "ver":5, "msgs": [
+				{"type":"send", "payload":"32 15 0005 746F706963 1234 04 08000123 7061796C6F6164"},
+				{"type":"recv", "payload":"E0 01 82"}
+			]},
 			{ "name": "2*response-topic (UTF-8 string)", "msgs": [
 				{"type":"send", "payload":"32 19 0005 746F706963 1234 08 08000170 08000170 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 82"}
@@ -223,9 +227,9 @@
 				{"type":"send", "payload":"32 12 0005 746F706963 1234 01 08 7061796C6F6164"},
 				{"type":"recv", "payload":"E0 01 81"}
 			]},
-			{ "name": "response-topic (UTF-8 string) empty", "expect_disconnect":false, "msgs": [
+			{ "name": "response-topic (UTF-8 string) empty", "msgs": [
 				{"type":"send", "payload":"32 14 0005 746F706963 1234 03 080000 7061796C6F6164"},
-				{"type":"recv", "payload":"40 03 1234 10"}
+				{"type":"recv", "payload":"E0 01 82"}
 			]},
 
 			{ "name": "correlation-data (binary data)", "expect_disconnect":false, "msgs": [

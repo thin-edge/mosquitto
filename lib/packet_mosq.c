@@ -128,9 +128,9 @@ void packet__cleanup_all_no_locks(struct mosquitto *mosq)
 
 void packet__cleanup_all(struct mosquitto *mosq)
 {
-	pthread_mutex_lock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->out_packet_mutex);
 	packet__cleanup_all_no_locks(mosq);
-	pthread_mutex_unlock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->out_packet_mutex);
 }
 
 
@@ -150,7 +150,7 @@ static void packet__queue_append(struct mosquitto *mosq, struct mosquitto__packe
 	}
 #endif
 
-	pthread_mutex_lock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->out_packet_mutex);
 	if(mosq->out_packet){
 		mosq->out_packet_last->next = packet;
 	}else{
@@ -161,7 +161,7 @@ static void packet__queue_append(struct mosquitto *mosq, struct mosquitto__packe
 	mosq->out_packet_bytes += packet->packet_length;
 	metrics__int_inc(mosq_gauge_out_packets, 1);
 	metrics__int_inc(mosq_gauge_out_packet_bytes, packet->packet_length);
-	pthread_mutex_unlock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->out_packet_mutex);
 }
 
 
@@ -239,7 +239,7 @@ struct mosquitto__packet *packet__get_next_out(struct mosquitto *mosq)
 {
 	struct mosquitto__packet *packet = NULL;
 
-	pthread_mutex_lock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->out_packet_mutex);
 	if(mosq->out_packet){
 		mosq->out_packet_count--;
 		mosq->out_packet_bytes -= mosq->out_packet->packet_length;
@@ -252,7 +252,7 @@ struct mosquitto__packet *packet__get_next_out(struct mosquitto *mosq)
 		}
 		packet = mosq->out_packet;
 	}
-	pthread_mutex_unlock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->out_packet_mutex);
 
 	return packet;
 }
@@ -269,9 +269,9 @@ int packet__write(struct mosquitto *mosq)
 		return MOSQ_ERR_NO_CONN;
 	}
 
-	pthread_mutex_lock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->out_packet_mutex);
 	packet = mosq->out_packet;
-	pthread_mutex_unlock(&mosq->out_packet_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->out_packet_mutex);
 
 	if(packet == NULL){
 		return MOSQ_ERR_SUCCESS;
@@ -335,9 +335,9 @@ int packet__write(struct mosquitto *mosq)
 #ifdef WITH_BROKER
 		mosq->next_msg_out = db.now_s + mosq->keepalive;
 #else
-		pthread_mutex_lock(&mosq->msgtime_mutex);
+		COMPAT_pthread_mutex_lock(&mosq->msgtime_mutex);
 		mosq->next_msg_out = mosquitto_time() + mosq->keepalive;
-		pthread_mutex_unlock(&mosq->msgtime_mutex);
+		COMPAT_pthread_mutex_unlock(&mosq->msgtime_mutex);
 #endif
 	}
 #ifdef WITH_BROKER
@@ -541,9 +541,9 @@ int packet__read(struct mosquitto *mosq)
 #ifdef WITH_BROKER
 					keepalive__update(mosq);
 #else
-					pthread_mutex_lock(&mosq->msgtime_mutex);
+					COMPAT_pthread_mutex_lock(&mosq->msgtime_mutex);
 					mosq->last_msg_in = mosquitto_time();
-					pthread_mutex_unlock(&mosq->msgtime_mutex);
+					COMPAT_pthread_mutex_unlock(&mosq->msgtime_mutex);
 #endif
 				}
 				return MOSQ_ERR_SUCCESS;
@@ -573,9 +573,9 @@ int packet__read(struct mosquitto *mosq)
 #ifdef WITH_BROKER
 	keepalive__update(mosq);
 #else
-	pthread_mutex_lock(&mosq->msgtime_mutex);
+	COMPAT_pthread_mutex_lock(&mosq->msgtime_mutex);
 	mosq->last_msg_in = mosquitto_time();
-	pthread_mutex_unlock(&mosq->msgtime_mutex);
+	COMPAT_pthread_mutex_unlock(&mosq->msgtime_mutex);
 #endif
 	return rc;
 }
