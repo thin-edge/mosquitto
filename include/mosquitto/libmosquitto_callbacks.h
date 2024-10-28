@@ -411,6 +411,38 @@ libmosq_EXPORT void mosquitto_unsubscribe_v5_callback_set(struct mosquitto *mosq
 libmosq_EXPORT void mosquitto_unsubscribe2_v5_callback_set(struct mosquitto *mosq, void (*on_unsubscribe)(struct mosquitto *, void *, int, int, const int *, const mosquitto_property *props));
 
 /*
+ * Function: mosquitto_ext_auth_callback_set
+ *
+ * Set the callback for extended authentication. This should be used if you
+ * want to support MQTT v5.0 extended authentication.
+ *
+ *  mosq -        a valid mosquitto instance.
+ *  on_ext_auth - a callback function in the following form:
+ *                void callback(struct mosquitto *mosq, void *obj, const char *auth_method, int auth_data_len, const void *auth_data, const mosquitto_property *props)
+ *
+ * Callback Parameters:
+ *  mosq -          the mosquitto instance making the callback.
+ *  obj -           the user data provided in <mosquitto_new>
+ *  auth_method -   the authentication method provided by the broker
+ *  auth_data_len - the length of auth_data in bytes
+ *  auth_data -     the authentication data, or NULL
+ *  props -         list of MQTT 5 properties sent
+ *                  note that this includes the auth-method and auth-data
+ *                  properties, so you cannot use it directly with
+ *                  mosquitto_ext_auth_continue and must instead create your
+ *                  own property list
+ *
+ * Callback Return:
+ *  MOSQ_ERR_SUCCESS - if you accept the authentication data
+ *  MOSQ_ERR_AUTH    - if the authentication should fail
+ *  MOSQ_ERR_NOMEM   - on out of memory
+ *
+ * See Also:
+ *    <mosquitto_ext_auth_continue>
+ */
+void mosquitto_ext_auth_callback_set(struct mosquitto *mosq, int (*on_auth)(struct mosquitto *, void *, const char *, uint16_t, const void *, const mosquitto_property *props));
+
+/*
  * Function: mosquitto_log_callback_set
  *
  * Set the logging callback. This should be used if you want event logging

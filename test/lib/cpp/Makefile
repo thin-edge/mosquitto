@@ -12,6 +12,8 @@ SRC = \
 	01-con-discon-will-clear.cpp \
 	01-con-discon-will-v5.cpp \
 	01-con-discon-will.cpp \
+	01-extended-auth-continue.cpp \
+	01-extended-auth-failure.cpp \
 	01-keepalive-pingreq.cpp \
 	01-no-clean-session.cpp \
 	01-pre-connect-callback.cpp \

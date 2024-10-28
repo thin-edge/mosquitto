@@ -170,6 +170,9 @@ Client library:
   gives access to reason codes for each of the unsubscription requests.
 - Add `mosquitto_property_remove`, for removing properties from property
   lists.
+- Add `on_ext_auth()` callback to allow handling MQTT v5 extended authentication.
+- Add `mosquitto_ext_auth_continue()` function to continue an MQTT v5 extended
+  authentication.
 
 Clients:
 - Add `-W` timeout support to Windows.

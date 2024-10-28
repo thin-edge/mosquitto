@@ -13,6 +13,8 @@ SRC = \
 	01-con-discon-will.c \
 	01-con-discon-will-v5.c \
 	01-con-discon-will-clear.c \
+	01-extended-auth-continue.c \
+	01-extended-auth-failure.c \
 	01-keepalive-pingreq.c \
 	01-no-clean-session.c \
 	01-pre-connect-callback.c \

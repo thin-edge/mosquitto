@@ -125,6 +125,14 @@ static void on_unsubscribe_v5_wrapper(struct mosquitto *mosq, void *userdata, in
 }
 
 
+static int on_ext_auth_wrapper(struct mosquitto *mosq, void *userdata, const char *auth_method, uint16_t auth_data_len, const void *auth_data, const mosquitto_property *props)
+{
+	class mosquittopp *m = (class mosquittopp *)userdata;
+	UNUSED(mosq);
+	return m->on_ext_auth(auth_method, auth_data_len, auth_data, props);
+}
+
+
 static void on_log_wrapper(struct mosquitto *mosq, void *userdata, int level, const char *str)
 {
 	class mosquittopp *m = (class mosquittopp *)userdata;
@@ -273,6 +281,7 @@ void mosquitto_callbacks_set(struct mosquitto *mosq) {
 	mosquitto_subscribe_v5_callback_set(mosq, on_subscribe_v5_wrapper);
 	mosquitto_unsubscribe_callback_set(mosq, on_unsubscribe_wrapper);
 	mosquitto_unsubscribe_v5_callback_set(mosq, on_unsubscribe_v5_wrapper);
+	mosquitto_ext_auth_callback_set(mosq, on_ext_auth_wrapper);
 	mosquitto_log_callback_set(mosq, on_log_wrapper);
 }
 }
@@ -343,6 +352,11 @@ int mosquittopp::disconnect()
 int mosquittopp::disconnect_v5(int reason_code, const mosquitto_property *properties)
 {
 	return mosquitto_disconnect_v5(m_mosq, reason_code, properties);
+}
+
+int mosquittopp::ext_auth_continue(const char *auth_method, uint16_t auth_data_len, const void *auth_data, const mosquitto_property *properties)
+{
+	return mosquitto_ext_auth_continue(m_mosq, auth_method, auth_data_len, auth_data, properties);
 }
 
 int mosquittopp::socket()

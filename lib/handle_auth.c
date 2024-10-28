@@ -21,6 +21,7 @@ Contributors:
 #include <stdio.h>
 #include <string.h>
 
+#include "callbacks.h"
 #include "logging_mosq.h"
 #include "mosquitto_internal.h"
 #include "mosquitto/mqtt_protocol.h"
@@ -33,6 +34,9 @@ int handle__auth(struct mosquitto *mosq)
 {
 	int rc = 0;
 	uint8_t reason_code;
+	char *auth_method = NULL;
+	void *auth_data = NULL;
+	uint16_t auth_data_len = 0;
 	mosquitto_property *properties = NULL;
 
 	if(!mosq) return MOSQ_ERR_INVAL;
@@ -49,7 +53,11 @@ int handle__auth(struct mosquitto *mosq)
 
 	rc = property__read_all(CMD_AUTH, &mosq->in_packet, &properties);
 	if(rc) return rc;
-	mosquitto_property_free_all(&properties); /* FIXME - TEMPORARY UNTIL PROPERTIES PROCESSED */
 
-	return MOSQ_ERR_SUCCESS;
+	mosquitto_property_read_string(properties, MQTT_PROP_AUTHENTICATION_METHOD, &auth_method, false);
+	mosquitto_property_read_binary(properties, MQTT_PROP_AUTHENTICATION_DATA, &auth_data, &auth_data_len, false);
+	rc = callback__on_ext_auth(mosq, auth_method, auth_data_len, auth_data, properties);
+	mosquitto_property_free_all(&properties);
+
+	return rc;
 }

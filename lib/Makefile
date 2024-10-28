@@ -46,6 +46,7 @@ OBJS= \
 	alias_mosq.o \
 	callbacks.o \
 	connect.o \
+	extended_auth.o \
 	handle_auth.o \
 	handle_connack.o \
 	handle_disconnect.o \

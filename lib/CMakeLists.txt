@@ -10,6 +10,7 @@ set(C_SRC
 	alias_mosq.c alias_mosq.h
 	callbacks.c
 	connect.c
+	extended_auth.c
 	handle_auth.c
 	handle_connack.c
 	handle_disconnect.c

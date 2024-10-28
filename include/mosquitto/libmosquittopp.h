@@ -120,6 +120,7 @@ class mosqpp_EXPORT mosquittopp {
 		void message_retry_set(unsigned int message_retry);
 		void user_data_set(void *userdata);
 		int tls_set(const char *cafile, const char *capath=NULL, const char *certfile=NULL, const char *keyfile=NULL, int (*pw_callback)(char *buf, int size, int rwflag, void *userdata)=NULL);
+		int ext_auth_continue(const char *auth_method, uint16_t auth_data_len=0, const void *auth_data=NULL, const mosquitto_property *properties=NULL);
 		int tls_opts_set(int cert_reqs, const char *tls_version=NULL, const char *ciphers=NULL);
 		int tls_insecure_set(bool value);
 		int tls_psk_set(const char *psk, const char *identity, const char *ciphers=NULL);
@@ -156,6 +157,7 @@ class mosqpp_EXPORT mosquittopp {
 		virtual void on_unsubscribe_v5(int /*mid*/, const mosquitto_property * /*props*/) {return;}
 		virtual void on_log(int /*level*/, const char * /*str*/) {return;}
 		virtual void on_error() {return;}
+		virtual int on_ext_auth(const char * /*auth_method*/, uint16_t /*auth_data_len*/, const void * /*auth_data*/, const mosquitto_property * /*props*/) {return MOSQ_ERR_AUTH;}
 };
 
 }

@@ -136,6 +136,14 @@ void mosquitto_log_callback_set(struct mosquitto *mosq, void (*on_log)(struct mo
 }
 
 
+void mosquitto_ext_auth_callback_set(struct mosquitto *mosq, int (*on_ext_auth)(struct mosquitto *, void *, const char *, uint16_t, const void *, const mosquitto_property *props))
+{
+	pthread_mutex_lock(&mosq->callback_mutex);
+	mosq->on_ext_auth = on_ext_auth;
+	pthread_mutex_unlock(&mosq->callback_mutex);
+}
+
+
 void callback__on_pre_connect(struct mosquitto *mosq)
 {
 	void (*on_pre_connect)(struct mosquitto *, void *userdata);
@@ -285,4 +293,21 @@ void callback__on_disconnect(struct mosquitto *mosq, int rc, const mosquitto_pro
 		on_disconnect_v5(mosq, mosq->userdata, rc, properties);
 	}
 	mosq->callback_depth--;
+}
+
+int callback__on_ext_auth(struct mosquitto *mosq, const char *auth_method, uint16_t auth_data_len, const void *auth_data, const mosquitto_property *properties)
+{
+	int rc = MOSQ_ERR_AUTH;
+	int (*on_ext_auth)(struct mosquitto *, void *userdata, const char *, uint16_t, const void *, const mosquitto_property *props);
+
+	pthread_mutex_lock(&mosq->callback_mutex);
+	on_ext_auth = mosq->on_ext_auth;
+	pthread_mutex_unlock(&mosq->callback_mutex);
+
+	mosq->callback_depth++;
+	if(on_ext_auth){
+		rc = on_ext_auth(mosq, mosq->userdata, auth_method, auth_data_len, auth_data, properties);
+	}
+	mosq->callback_depth--;
+	return rc;
 }

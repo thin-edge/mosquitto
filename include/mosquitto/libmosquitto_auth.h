@@ -56,6 +56,26 @@ extern "C" {
  */
 libmosq_EXPORT int mosquitto_username_pw_set(struct mosquitto *mosq, const char *username, const char *password);
 
+/*
+ * Function: mosquitto_ext_auth_continue
+ *
+ * Use within an on_ext_auth callback only.
+ *
+ * Call to continue the MQTT v5 extended authentication flow.
+ *
+ * Parameters:
+ * 	mosq -          a valid mosquitto instance.
+ * 	auth_method -   the authentication method as provided in the on_ext_auth callback
+ * 	auth_data -     authentication data to send to the broker, or NULL
+ * 	auth_data_len - the length of auth_data, in bytes, or 0
+ *
+ * Returns:
+ * 	MOSQ_ERR_SUCCESS - on success.
+ * 	MOSQ_ERR_INVAL -   if the input parameters were invalid.
+ * 	MOSQ_ERR_NOMEM -   if an out of memory condition occurred.
+ */
+libmosq_EXPORT int mosquitto_ext_auth_continue(struct mosquitto *context, const char *auth_method, uint16_t auth_data_len, const void *auth_data, const mosquitto_property *props);
+
 #ifdef __cplusplus
 }
 #endif

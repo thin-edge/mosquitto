@@ -4,6 +4,8 @@ set(BINARIES
     01-con-discon-will-clear
     01-con-discon-will
     01-con-discon-will-v5
+    01-extended-auth-continue
+    01-extended-auth-failure
     01-keepalive-pingreq
     01-no-clean-session
     01-pre-connect-callback
