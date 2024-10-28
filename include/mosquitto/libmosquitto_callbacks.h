@@ -440,7 +440,7 @@ libmosq_EXPORT void mosquitto_unsubscribe2_v5_callback_set(struct mosquitto *mos
  * See Also:
  *    <mosquitto_ext_auth_continue>
  */
-void mosquitto_ext_auth_callback_set(struct mosquitto *mosq, int (*on_auth)(struct mosquitto *, void *, const char *, uint16_t, const void *, const mosquitto_property *props));
+libmosq_EXPORT void mosquitto_ext_auth_callback_set(struct mosquitto *mosq, int (*on_auth)(struct mosquitto *, void *, const char *, uint16_t, const void *, const mosquitto_property *props));
 
 /*
  * Function: mosquitto_log_callback_set
