@@ -3,7 +3,7 @@ set(SRC
 )
 
 if(WIN32)
-	set(SRC ${SRC} signal_win32.c)
+	set(SRC ${SRC} signal_windows.c)
 else()
 	set(SRC ${SRC} signal_unix.c)
 endif()
