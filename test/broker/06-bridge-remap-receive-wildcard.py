@@ -77,7 +77,7 @@ def do_test(proto_ver):
             #bridge.send(bytes.fromhex("320c00062b2b2b2b2b2b00040033"))
             #bridge.send(bytes.fromhex("320c00062b2b2b2b2b2b00040033"))
             mosq_test.do_ping(bridge)
-        except ConnectionResetError:
+        except (ConnectionResetError, BrokenPipeError):
             #expected behaviour
             rc = 0
 
