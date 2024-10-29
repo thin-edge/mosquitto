@@ -39,6 +39,7 @@ static bool flag_log_rotate = false;
 static bool flag_db_backup = false;
 #endif
 static bool flag_tree_print = false;
+static bool flag_xtreport = false;
 
 static void handle_signal(int signal)
 {
@@ -59,6 +60,7 @@ static void handle_signal(int signal)
 #ifdef SIGUSR2
 	}else if(signal == SIGUSR2){
 		flag_tree_print = true;
+		flag_xtreport = true;
 #endif
 #ifdef SIGRTMIN
 	}else if(signal == SIGRTMIN){
@@ -122,43 +124,57 @@ void signal__flag_check(void)
 		sub__tree_print(db.normal_subs, 0);
 		sub__tree_print(db.shared_subs, 0);
 		flag_tree_print = false;
-#ifdef WITH_XTREPORT
-		xtreport();
-#endif
 	}
+#ifdef WITH_XTREPORT
+	if(flag_xtreport){
+		xtreport();
+		flag_xtreport = false;
+	}
+#endif
 }
 
 /*
  *
  * Signalling mosquitto process on Win32.
  *
- *  On Windows we we can use named events to pass signals to the mosquitto process.
+ *  On Windows we can use named events to pass signals to the mosquitto process.
  *  List of events :
  *
  *    mosqPID_shutdown
  *    mosqPID_reload
  *    mosqPID_backup
+ *    mosqPID_log_rotate
+ *    mosqPID_tree_print
+ *    mosqPID_xtreport
  *
  * (where PID is the PID of the mosquitto process).
  */
 #ifdef WIN32
+
+#define MOSQ_MAX_EVTS 6
 DWORD WINAPI SigThreadProc(void* data)
 {
 	TCHAR evt_name[MAX_PATH];
-	static HANDLE evt[3];
+	static HANDLE evt[MOSQ_MAX_EVTS];
 	int pid = GetCurrentProcessId();
+	const char *evt_names[MOSQ_MAX_EVTS] = {
+		"shutdown",
+		"reload",
+		"backup",
+		"log_rotate",
+		"tree_print",
+		"xtreport"
+	};
 
 	UNUSED(data);
 
-	sprintf_s(evt_name, MAX_PATH, "mosq%d_shutdown", pid);
-	evt[0] = CreateEvent(NULL, TRUE, FALSE, evt_name);
-	sprintf_s(evt_name, MAX_PATH, "mosq%d_reload", pid);
-	evt[1] = CreateEvent(NULL, FALSE, FALSE, evt_name);
-	sprintf_s(evt_name, MAX_PATH, "mosq%d_backup", pid);
-	evt[2] = CreateEvent(NULL, FALSE, FALSE, evt_name);
+	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+		sprintf_s(evt_name, MAX_PATH, "mosq%d_%s", pid, evt_names[i]);
+		evt[i] = CreateEvent(NULL, TRUE, FALSE, evt_name);
+	}
 
 	while (g_run) {
-		int wr = WaitForMultipleObjects(sizeof(evt) / sizeof(HANDLE), evt, FALSE, INFINITE);
+		int wr = WaitForMultipleObjects(MOSQ_MAX_EVTS, evt, FALSE, INFINITE);
 		switch (wr) {
 			case WAIT_OBJECT_0 + 0:
 				handle_signal(SIGINT);
@@ -172,11 +188,21 @@ DWORD WINAPI SigThreadProc(void* data)
 #endif
 				continue;
 				break;
+			case WAIT_OBJECT_0 + 3:
+				flag_log_rotate = true;
+				continue;
+			case WAIT_OBJECT_0 + 4:
+				flag_tree_print = true;
+				continue;
+			case WAIT_OBJECT_0 + 5:
+				flag_xtreport = true;
+				continue;
 		}
 	}
-	CloseHandle(evt[0]);
-	if(evt[1]) CloseHandle(evt[1]);
-	if(evt[2]) CloseHandle(evt[2]);
+	for(int i=0; i<MOSQ_MAX_EVTS; i++){
+		if(evt[i]) CloseHandle(evt[i]);
+	}
 	return 0;
 }
+#undef MOSQ_MAX_EVTS
 #endif
