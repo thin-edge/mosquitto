@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: lock
+  group: lock-threads
 
 jobs:
   action:
