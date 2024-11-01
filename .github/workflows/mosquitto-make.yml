@@ -44,4 +44,4 @@ jobs:
     -
       name: make test
       run: |
-        make test
+        make ptest

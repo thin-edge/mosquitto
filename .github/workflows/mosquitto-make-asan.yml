@@ -45,4 +45,4 @@ jobs:
     -
       name: make test
       run: |
-        make WITH_ASAN=yes test
+        make WITH_ASAN=yes ptest
