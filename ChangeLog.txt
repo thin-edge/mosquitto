@@ -76,6 +76,7 @@ Broker:
 - Add -q option to allow logging to be disabled at the command line.
 - Add suport for PROXY protocol v1 and v2.
 - Log message if a client attempts to connect with TLS to a non-TLS listener.
+- Add `listener_allow_anonymous` option.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.

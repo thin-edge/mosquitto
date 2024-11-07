@@ -252,7 +252,7 @@
 			<varlistentry>
 				<term><option>allow_anonymous</option> [ true | false ]</term>
 				<listitem>
-					<para>Boolean value that determines whether clients that
+					<para>Global boolean value that determines whether clients that
 						connect without providing a username are allowed to
 						connect. If set to <replaceable>false</replaceable>
 						then another means of connection should be created to
@@ -262,7 +262,12 @@
 						file, in which case it set to <replaceable>true</replaceable>,
 						but connections are only allowed from the local machine.</para>
 
-					<para>If <option>per_listener_settings</option> is
+					<para>
+						If you want to control this setting for each listener individually,
+						use the <option>listener_allow_anonymous</option> option.
+					</para>
+
+					<para>(Note: Deprecated) If <option>per_listener_settings</option> is
 						<replaceable>true</replaceable>, this option applies to
 						the current listener being configured only. If
 						<option>per_listener_settings</option> is
@@ -1390,6 +1395,27 @@ accept_protocol_versions 3, 4</programlisting>
 						<para>This option may be specified multiple times. See
 							also the <option>mount_point</option>
 							option.</para>
+						<para>Not reloaded on reload signal.</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term><option>listener_allow_anonymous</option> [ true | false ]</term>
+					<listitem>
+						<para>
+							Boolean value that determines whether clients that
+							connect without providing a username are allowed to
+							connect to this specific listener. If set, this overrides
+							the value set by <option>allow_anonymous</option>
+
+							If set to <replaceable>false</replaceable>
+							then another means of connection should be created to
+							control authenticated client access.
+						</para>
+
+						<para>
+							If not explicitly set, the value from <option>allow_anonymous</option> will be used.
+						</para>
+
 						<para>Not reloaded on reload signal.</para>
 					</listitem>
 				</varlistentry>

@@ -26,6 +26,18 @@ def write_config5(filename, port):
         f.write("listener %d\n" % (port))
         f.write("allow_anonymous true\n")
 
+def write_config6(filename, port):
+    with open(filename, 'w') as f:
+        f.write("allow_anonymous false\n")
+        f.write("listener %d\n" % (port))
+        f.write("listener_allow_anonymous true\n")
+
+def write_config7(filename, port):
+    with open(filename, 'w') as f:
+        f.write("allow_anonymous true\n")
+        f.write("listener %d\n" % (port))
+        f.write("listener_allow_anonymous false\n")
+
 
 def do_test(use_conf, write_config, expect_success):
     port = mosq_test.get_port()
@@ -89,4 +101,10 @@ do_test(use_conf=True, write_config=write_config4, expect_success=True)
 
 # Config file with "listener" - allow_anonymous explicitly true
 do_test(use_conf=True, write_config=write_config5, expect_success=True)
+
+# Config file with "listener" - allow_anonymous explicitly false and listener_allow_anonymous explicitly true
+do_test(use_conf=True, write_config=write_config6, expect_success=True)
+
+# Config file with "listener" - allow_anonymous explicitly true and listener_allow_anonymous explicitly false
+do_test(use_conf=True, write_config=write_config7, expect_success=False)
 exit(0)

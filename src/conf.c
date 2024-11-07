@@ -126,6 +126,11 @@ extern SERVICE_STATUS_HANDLE service_handle;
 		} \
 	}while(0)
 
+#define PER_LISTENER_ALTERNATIVE(A, B) \
+	if(config->per_listener_settings){ \
+		log__printf(NULL, MOSQ_LOG_NOTICE, "You are using the '%s' option with 'per_listener_settings true'. Please replace this with '%s'.", A, B); \
+	} \
+
 static struct mosquitto__security_options *cur_security_options = NULL;
 
 static int conf__parse_bool(char **token, const char *name, bool *value, char **saveptr);
@@ -1024,6 +1029,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #endif
 				}else if(!strcmp(token, "allow_anonymous")){
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
+					PER_LISTENER_ALTERNATIVE(token, "listener_allow_anonymous");
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					if(conf__parse_bool(&token, "allow_anonymous", (bool *)&cur_security_options->allow_anonymous, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "allow_duplicate_messages")){
@@ -1785,6 +1791,9 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 							cur_listener->host = mosquitto_strdup(token);
 						}
 					}
+				}else if(!strcmp(token, "listener_allow_anonymous")){
+					REQUIRE_LISTENER(token);
+					if(conf__parse_bool(&token, "listener_allow_anonymous", (bool *)&cur_listener->security_options->allow_anonymous, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "local_clientid")){
 #ifdef WITH_BRIDGE
 					REQUIRE_BRIDGE(token);
