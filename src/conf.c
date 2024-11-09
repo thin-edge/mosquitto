@@ -1137,6 +1137,7 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					if(config__plugin_add_secopt(cur_plugin, cur_listener->security_options)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "auto_id_prefix")){
 					REQUIRE_LISTENER_IF_PER_LISTENER(token);
+					OPTION_DEPRECATED(token, "Please use 'listener_auto_id_prefix' instead.");
 					conf__set_cur_security_options(config, &cur_listener, &cur_security_options, token);
 					if(conf__parse_string(&token, "auto_id_prefix", &cur_security_options->auto_id_prefix, &saveptr)) return MOSQ_ERR_INVAL;
 					if(cur_security_options->auto_id_prefix){
@@ -1794,6 +1795,14 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 				}else if(!strcmp(token, "listener_allow_anonymous")){
 					REQUIRE_LISTENER(token);
 					if(conf__parse_bool(&token, "listener_allow_anonymous", (bool *)&cur_listener->security_options->allow_anonymous, &saveptr)) return MOSQ_ERR_INVAL;
+				}else if(!strcmp(token, "listener_auto_id_prefix")){
+					REQUIRE_LISTENER(token);
+					if(conf__parse_string(&token, "listener_auto_id_prefix", &cur_listener->security_options->auto_id_prefix, &saveptr)) return MOSQ_ERR_INVAL;
+					if(cur_listener->security_options->auto_id_prefix){
+						cur_listener->security_options->auto_id_prefix_len = (uint16_t)strlen(cur_listener->security_options->auto_id_prefix);
+					}else{
+						cur_listener->security_options->auto_id_prefix_len = 0;
+					}
 				}else if(!strcmp(token, "local_clientid")){
 #ifdef WITH_BRIDGE
 					REQUIRE_BRIDGE(token);
@@ -2555,24 +2564,24 @@ static int config__check(struct mosquitto__config *config)
 {
 	/* Checks that are easy to make after the config has been loaded. */
 
-	/* Default to auto_id_prefix = 'auto-' if none set. */
-	if(config->per_listener_settings){
-		for(int i=0; i<config->listener_count; i++){
-			if(!config->listeners[i].security_options->auto_id_prefix){
-				config->listeners[i].security_options->auto_id_prefix = mosquitto_strdup("auto-");
-				if(!config->listeners[i].security_options->auto_id_prefix){
-					return MOSQ_ERR_NOMEM;
-				}
-				config->listeners[i].security_options->auto_id_prefix_len = (uint16_t)strlen("auto-");
-			}
-		}
+	const char *id_prefix;
+	int id_prefix_len;
+	if(config->security_options.auto_id_prefix){
+		id_prefix = config->security_options.auto_id_prefix;
+		id_prefix_len = config->security_options.auto_id_prefix_len;
 	}else{
-		if(!config->security_options.auto_id_prefix){
-			config->security_options.auto_id_prefix = mosquitto_strdup("auto-");
-			if(!config->security_options.auto_id_prefix){
+		id_prefix = "auto-";
+		id_prefix_len = strlen("auto-");
+	}
+
+	/* Default to auto_id_prefix = 'auto-' if none set. */
+	for(int i=0; i<config->listener_count; i++){
+		if(!config->listeners[i].security_options->auto_id_prefix){
+			config->listeners[i].security_options->auto_id_prefix = mosquitto_strdup(id_prefix);
+			if(!config->listeners[i].security_options->auto_id_prefix){
 				return MOSQ_ERR_NOMEM;
 			}
-			config->security_options.auto_id_prefix_len = (uint16_t)strlen("auto-");
+			config->listeners[i].security_options->auto_id_prefix_len = (uint16_t)id_prefix_len;
 		}
 	}
 

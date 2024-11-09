@@ -77,6 +77,7 @@ Broker:
 - Add suport for PROXY protocol v1 and v2.
 - Log message if a client attempts to connect with TLS to a non-TLS listener.
 - Add `listener_allow_anonymous` option.
+- Add `listener_auto_id_prefix` ` option.
 
 Plugins / plugin interface:
 - Add persist-sqlite plugin.

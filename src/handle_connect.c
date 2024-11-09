@@ -801,11 +801,7 @@ int handle__connect(struct mosquitto *context)
 				rc = MOSQ_ERR_PROTOCOL;
 				goto handle_connect_error;
 			}else{
-				if(db.config->per_listener_settings){
-					clientid = clientid_gen(&slen, context->listener->security_options->auto_id_prefix, context->listener->security_options->auto_id_prefix_len);
-				}else{
-					clientid = clientid_gen(&slen, db.config->security_options.auto_id_prefix, db.config->security_options.auto_id_prefix_len);
-				}
+				clientid = clientid_gen(&slen, context->listener->security_options->auto_id_prefix, context->listener->security_options->auto_id_prefix_len);
 				if(!clientid){
 					rc = MOSQ_ERR_NOMEM;
 					goto handle_connect_error;

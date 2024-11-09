@@ -361,6 +361,9 @@
 			<varlistentry>
 				<term><option>auto_id_prefix</option> <replaceable>prefix</replaceable></term>
 				<listitem>
+					<para>
+						This option is deprecated, please use <option>listener_auto_id_prefix</option> instead.
+					</para>
 					<para>If <option>allow_zero_length_clientid</option> is
 						<replaceable>true</replaceable>, this option allows you
 						to set a string that will be prefixed to the
@@ -1419,6 +1422,19 @@ accept_protocol_versions 3, 4</programlisting>
 						<para>Not reloaded on reload signal.</para>
 					</listitem>
 				</varlistentry>
+				<varlistentry>
+					<term><option>auto_id_prefix</option> <replaceable>prefix</replaceable></term>
+					<listitem>
+						<para>
+							This option allows you to set a string that will be prefixed
+							to the automatically generated client ids (i.e. for when a
+							client connects without providing a client id) to aid
+							visibility in logs. Defaults to <option>auto-</option>.
+						</para>
+
+						<para>Not reloaded on reload signal.</para>
+				</listitem>
+			</varlistentry>
 				<varlistentry>
 					<term><option>max_connections</option> <replaceable>count</replaceable></term>
 					<listitem>
