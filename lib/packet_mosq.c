@@ -349,6 +349,40 @@ int packet__write(struct mosquitto *mosq)
 }
 
 
+static int read_header(struct mosquitto *mosq, ssize_t (*func_read)(struct mosquitto *, void *, size_t))
+{
+	ssize_t read_length;
+
+	mosq->in_packet.packet_buffer_pos = 0;
+	read_length = func_read(mosq, &mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_pos], mosq->in_packet.packet_buffer_size);
+	if(read_length > 0){
+		mosq->in_packet.packet_buffer_to_process = (uint16_t)read_length;
+#ifdef WITH_BROKER
+		metrics__int_inc(mosq_counter_bytes_received, read_length);
+#endif
+	}else{
+		if(read_length == 0){
+			return MOSQ_ERR_CONN_LOST; /* EOF */
+		}
+#ifdef WIN32
+		errno = WSAGetLastError();
+#endif
+		if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
+			return MOSQ_ERR_SUCCESS;
+		}else{
+			switch(errno){
+				case COMPAT_ECONNRESET:
+					return MOSQ_ERR_CONN_LOST;
+				case COMPAT_EINTR:
+					return MOSQ_ERR_SUCCESS;
+				default:
+					return MOSQ_ERR_ERRNO;
+			}
+		}
+	}
+	return MOSQ_ERR_SUCCESS;
+}
+
 int packet__read(struct mosquitto *mosq)
 {
 	uint8_t byte;
@@ -386,41 +420,27 @@ int packet__read(struct mosquitto *mosq)
 	 * be more than one byte - will need to save data pending next read if it
 	 * does fail.
 	 * Then try to read the remaining payload, where 'payload' here means the
-	 * combined variable header and actual payload. This is the most likely to
+	 * combined variable packet_buffer and actual payload. This is the most likely to
 	 * fail due to longer length, so save current data and current position.
 	 * After all data is read, send to mosquitto__handle_packet() to deal with.
 	 * Finally, free the memory and reset everything to starting conditions.
 	 */
 	if(!mosq->in_packet.command){
-		read_length = local__read(mosq, &byte, 1);
-		if(read_length == 1){
-			mosq->in_packet.command = byte;
+		if(mosq->in_packet.packet_buffer_to_process == 0){
+			rc = read_header(mosq, local__read);
+			if(rc) return rc;
+		}
+
+		if(mosq->in_packet.packet_buffer_to_process > 0){
+			mosq->in_packet.command = mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_pos];
+			mosq->in_packet.packet_buffer_to_process--;
+			mosq->in_packet.packet_buffer_pos++;
 #ifdef WITH_BROKER
-			metrics__int_inc(mosq_counter_bytes_received, 1);
 			/* Clients must send CONNECT as their first command. */
-			if(!(mosq->bridge) && state == mosq_cs_new && (byte&0xF0) != CMD_CONNECT){
+			if(!(mosq->bridge) && state == mosq_cs_new && (mosq->in_packet.command&0xF0) != CMD_CONNECT){
 				return MOSQ_ERR_PROTOCOL;
 			}
 #endif
-		}else{
-			if(read_length == 0){
-				return MOSQ_ERR_CONN_LOST; /* EOF */
-			}
-#ifdef WIN32
-			errno = WSAGetLastError();
-#endif
-			if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
-				return MOSQ_ERR_SUCCESS;
-			}else{
-				switch(errno){
-					case COMPAT_ECONNRESET:
-						return MOSQ_ERR_CONN_LOST;
-					case COMPAT_EINTR:
-						return MOSQ_ERR_SUCCESS;
-					default:
-						return MOSQ_ERR_ERRNO;
-				}
-			}
 		}
 	}
 	/* remaining_count is the number of bytes that the remaining_length
@@ -434,8 +454,12 @@ int packet__read(struct mosquitto *mosq)
 	 */
 	if(mosq->in_packet.remaining_count <= 0){
 		do{
-			read_length = local__read(mosq, &byte, 1);
-			if(read_length == 1){
+			if(mosq->in_packet.packet_buffer_to_process == 0){
+				rc = read_header(mosq, local__read);
+				if(rc) return rc;
+			}
+
+			if(mosq->in_packet.packet_buffer_to_process > 0){
 				mosq->in_packet.remaining_count--;
 				/* Max 4 bytes length for remaining length as defined by protocol.
 				 * Anything more likely means a broken/malicious client.
@@ -444,28 +468,13 @@ int packet__read(struct mosquitto *mosq)
 					return MOSQ_ERR_MALFORMED_PACKET;
 				}
 
-				metrics__int_inc(mosq_counter_bytes_received, 1);
+				byte = mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_pos];
+				mosq->in_packet.packet_buffer_pos++;
+				mosq->in_packet.packet_buffer_to_process--;
 				mosq->in_packet.remaining_length += (byte & 127) * mosq->in_packet.remaining_mult;
 				mosq->in_packet.remaining_mult *= 128;
 			}else{
-				if(read_length == 0){
-					return MOSQ_ERR_CONN_LOST; /* EOF */
-				}
-#ifdef WIN32
-				errno = WSAGetLastError();
-#endif
-				if(errno == EAGAIN || errno == COMPAT_EWOULDBLOCK){
-					return MOSQ_ERR_SUCCESS;
-				}else{
-					switch(errno){
-						case COMPAT_ECONNRESET:
-							return MOSQ_ERR_CONN_LOST;
-						case COMPAT_EINTR:
-							return MOSQ_ERR_SUCCESS;
-						default:
-							return MOSQ_ERR_ERRNO;
-					}
-				}
+				return MOSQ_ERR_SUCCESS;
 			}
 		}while((byte & 128) != 0);
 		/* We have finished reading remaining_length, so make remaining_count
@@ -518,7 +527,23 @@ int packet__read(struct mosquitto *mosq)
 			if(!mosq->in_packet.payload){
 				return MOSQ_ERR_NOMEM;
 			}
+
+			mosq->in_packet.pos = 0;
 			mosq->in_packet.to_process = mosq->in_packet.remaining_length;
+
+			if(mosq->in_packet.packet_buffer_to_process > 0){
+				uint32_t len;
+				if(mosq->in_packet.packet_buffer_to_process > mosq->in_packet.remaining_length){
+					len = mosq->in_packet.remaining_length;
+				}else{
+					len = mosq->in_packet.packet_buffer_to_process;
+				}
+				memcpy(mosq->in_packet.payload, &mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_pos], len);
+				mosq->in_packet.packet_buffer_pos += (uint16_t)len;
+				mosq->in_packet.packet_buffer_to_process -= (uint16_t)len;
+				mosq->in_packet.pos += len;
+				mosq->in_packet.to_process -= len;
+			}
 		}
 	}
 	while(mosq->in_packet.to_process>0){

@@ -113,6 +113,13 @@ struct mosquitto *mosquitto_new(const char *id, bool clean_start, void *userdata
 
 	mosq = (struct mosquitto *)mosquitto_calloc(1, sizeof(struct mosquitto));
 	if(mosq){
+		mosq->in_packet.packet_buffer_size = 4096;
+		mosq->in_packet.packet_buffer = mosquitto_calloc(1, mosq->in_packet.packet_buffer_size);
+		if(!mosq->in_packet.packet_buffer){
+			mosquitto_FREE(mosq);
+			errno = ENOMEM;
+			return NULL;
+		}
 		mosq->sock = INVALID_SOCKET;
 #ifdef WITH_THREADING
 #  ifndef WIN32
@@ -297,6 +304,8 @@ void mosquitto__destroy(struct mosquitto *mosq)
 	mosquitto_FREE(mosq->password);
 	mosquitto_FREE(mosq->host);
 	mosquitto_FREE(mosq->bind_address);
+	mosquitto_FREE(mosq->in_packet.packet_buffer);
+	mosq->in_packet.packet_buffer_size = 0;
 
 	mosquitto_property_free_all(&mosq->connect_properties);
 

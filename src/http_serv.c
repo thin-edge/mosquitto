@@ -37,10 +37,6 @@ Contributors:
 int http__context_init(struct mosquitto *context)
 {
 	context->transport = mosq_t_http;
-	context->http_request = mosquitto_calloc(1, db.config->websockets_headers_size);
-	if(context->http_request == NULL){
-		return MOSQ_ERR_NOMEM;
-	}
 
 	return MOSQ_ERR_SUCCESS;
 }
@@ -48,7 +44,7 @@ int http__context_init(struct mosquitto *context)
 
 int http__context_cleanup(struct mosquitto *context)
 {
-	mosquitto_FREE(context->http_request);
+	UNUSED(context);
 	return MOSQ_ERR_SUCCESS;
 }
 
@@ -91,8 +87,8 @@ int http__read(struct mosquitto *mosq)
 		return MOSQ_ERR_SUCCESS;
 	}
 
-	hlen = strlen(mosq->http_request);
-	read_length = net__read(mosq, &mosq->http_request[hlen], db.config->websockets_headers_size-hlen);
+	hlen = strlen((char *)mosq->in_packet.packet_buffer);
+	read_length = net__read(mosq, &mosq->in_packet.packet_buffer[hlen], mosq->in_packet.packet_buffer_size-hlen);
 	if(read_length <= 0){
 		if(read_length == 0){
 			return MOSQ_ERR_CONN_LOST; /* EOF */
@@ -114,8 +110,8 @@ int http__read(struct mosquitto *mosq)
 		}
 	}
 
-	mosq->http_request[db.config->websockets_headers_size-1] = '\0'; /* Always 0 terminate */
-	read_length = phr_parse_request(mosq->http_request, strlen(mosq->http_request),
+	mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_size-1] = '\0'; /* Always 0 terminate */
+	read_length = phr_parse_request((char *)mosq->in_packet.packet_buffer, strlen((char *)mosq->in_packet.packet_buffer),
 			&http_method, &http_method_len,
 			&http_path, &http_path_len,
 			&http_minor_version,
@@ -131,7 +127,6 @@ int http__read(struct mosquitto *mosq)
 	}
 
 	if(strncmp(http_method, "GET", http_method_len) && strncmp(http_method, "HEAD", http_method_len)){
-		mosquitto_FREE(mosq->http_request);
 		/* FIXME Not supported - send 501 response */
 		return MOSQ_ERR_UNKNOWN;
 	}
@@ -247,7 +242,7 @@ int http__read(struct mosquitto *mosq)
 	SAFE_FREE(accept_key);
 	packet->to_process = packet->packet_length;
 
-	memset(mosq->http_request, 0, db.config->websockets_headers_size);
+	memset(mosq->in_packet.packet_buffer, 0, db.config->packet_buffer_size);
 	rc = packet__queue(mosq, packet);
 	http__context_cleanup(mosq);
 	ws__context_init(mosq);

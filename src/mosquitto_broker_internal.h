@@ -352,9 +352,7 @@ struct mosquitto__config {
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 	int websockets_log_level;
 #endif
-#ifdef WITH_WEBSOCKETS
-	uint16_t websockets_headers_size;
-#endif
+	uint16_t packet_buffer_size;
 #ifdef WITH_BRIDGE
 	struct mosquitto__bridge **bridges;
 	int bridge_count;

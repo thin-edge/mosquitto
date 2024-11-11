@@ -64,6 +64,13 @@ struct mosquitto *context__init(void)
 	context = mosquitto_calloc(1, sizeof(struct mosquitto));
 	if(!context) return NULL;
 
+	context->in_packet.packet_buffer_size = db.config->packet_buffer_size;
+	context->in_packet.packet_buffer = mosquitto_calloc(1, context->in_packet.packet_buffer_size);
+	if(!context->in_packet.packet_buffer){
+		mosquitto_FREE(context);
+		return NULL;
+	}
+
 #if defined(WITH_EPOLL) || defined(WITH_KQUEUE)
 	context->ident = id_client;
 #else
@@ -152,6 +159,8 @@ void context__cleanup(struct mosquitto *context, bool force_free)
 		bridge__cleanup(context);
 	}
 #endif
+	mosquitto_FREE(context->in_packet.packet_buffer);
+	context->in_packet.packet_buffer_size = 0;
 
 	alias__free_all(context);
 	keepalive__remove(context);

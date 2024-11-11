@@ -1605,16 +1605,25 @@ accept_protocol_versions 3, 4</programlisting>
 					</listitem>
 				</varlistentry>
 				<varlistentry>
+					<term><option>packet_buffer_size</option> <replaceable>size</replaceable></term>
 					<term><option>websockets_headers_size</option> <replaceable>size</replaceable></term>
 					<listitem>
-						<para>Change the websockets headers size. This is a
-							global option, it is not possible to set per
-							listener. This option sets the size of the buffer
-							used in the libwebsockets library when reading HTTP
-							headers. If you are passing large header data such
-							as cookies then you may need to increase this
-							value. If left unset, or set to 0, then the default
-							of 1024 bytes will be used.</para>
+						<para>
+                            Change the size of the buffer used when reading from
+                            the network before the size of the MQTT packet is
+                            known. Defaults to 4096. Packets received that are
+                            smaller than this value in principle only need a
+                            single read() call, making reading packets more
+                            efficient.
+						</para>
+
+						<para>
+                            This also operates as the option that sets the size
+                            of the buffer used by websockets when reading the
+                            initial header. If you are passing large header data
+                            such as cookies then you may need to increase this
+                            value.
+						</para>
 					</listitem>
 				</varlistentry>
 				<varlistentry>

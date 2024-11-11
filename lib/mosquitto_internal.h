@@ -182,7 +182,11 @@ struct mosquitto__packet_in{
 	uint32_t packet_length;
 	uint32_t to_process;
 	uint32_t pos;
+	uint16_t packet_buffer_to_process;
+	uint16_t packet_buffer_pos;
+	uint16_t packet_buffer_size;
 	uint8_t command;
+	uint8_t *packet_buffer;
 	int8_t remaining_count;
 };
 

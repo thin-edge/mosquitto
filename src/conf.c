@@ -318,9 +318,7 @@ static void config__init_reload(struct mosquitto__config *config)
 	config->set_tcp_nodelay = false;
 	config->sys_interval = 10;
 	config->upgrade_outgoing_qos = false;
-#ifdef WITH_WEBSOCKETS
-	config->websockets_headers_size = 4096;
-#endif
+	config->packet_buffer_size = 4096;
 }
 
 
@@ -2457,17 +2455,13 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
 					if(conf__parse_int(&token, "websockets_log_level", &config->websockets_log_level, &saveptr)) return MOSQ_ERR_INVAL;
 #endif
-				}else if(!strcmp(token, "websockets_headers_size")){
-#ifdef WITH_WEBSOCKETS
-					if(conf__parse_int(&token, "websockets_headers_size", &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
+				}else if(!strcmp(token, "websockets_headers_size") || !strcmp(token, "packet_buffer_size")){
+					if(conf__parse_int(&token, token, &tmp_int, &saveptr)) return MOSQ_ERR_INVAL;
 					if(tmp_int < 0 || tmp_int > UINT16_MAX){
-						log__printf(NULL, MOSQ_LOG_WARNING, "Error: Websockets headers size must be between 0 and 65535 inclusive.");
+						log__printf(NULL, MOSQ_LOG_WARNING, "Error: Packet buffer size must be between 0 and 65535 inclusive.");
 						return MOSQ_ERR_INVAL;
 					}
-					config->websockets_headers_size = (uint16_t)tmp_int;
-#else
-					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: Websockets support not available.");
-#endif
+					config->packet_buffer_size = (uint16_t)tmp_int;
 				}else if(!strcmp(token, "websockets_origin")){
 #ifdef WITH_WEBSOCKETS
 #  if LWS_LIBRARY_VERSION_NUMBER >= 3001000 || WITH_WEBSOCKETS == WS_IS_BUILTIN
