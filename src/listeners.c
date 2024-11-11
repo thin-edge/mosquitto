@@ -155,13 +155,21 @@ static int listeners__add_local(const char *host, uint16_t port)
 
 	listener__set_defaults(&listeners[db.config->listener_count]);
 	listeners[db.config->listener_count].security_options->allow_anonymous = true;
+	listeners[db.config->listener_count].security_options->auto_id_prefix = mosquitto_strdup("auto-");
+	if(listeners[db.config->listener_count].security_options->auto_id_prefix == NULL){
+		mosquitto_FREE(listeners[db.config->listener_count].security_options);
+		return MOSQ_ERR_NOMEM;
+	}
+	listeners[db.config->listener_count].security_options->auto_id_prefix_len = strlen("auto-");
 	listeners[db.config->listener_count].port = port;
 	listeners[db.config->listener_count].host = mosquitto_strdup(host);
 	if(listeners[db.config->listener_count].host == NULL){
+		mosquitto_FREE(listeners[db.config->listener_count].security_options->auto_id_prefix);
 		mosquitto_FREE(listeners[db.config->listener_count].security_options);
 		return MOSQ_ERR_NOMEM;
 	}
 	if(listeners__start_single_mqtt(&listeners[db.config->listener_count])){
+		mosquitto_FREE(listeners[db.config->listener_count].security_options->auto_id_prefix);
 		mosquitto_FREE(listeners[db.config->listener_count].security_options);
 		mosquitto_FREE(listeners[db.config->listener_count].host);
 		return MOSQ_ERR_UNKNOWN;
