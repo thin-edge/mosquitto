@@ -6,6 +6,7 @@ include ${R}/fuzzing/config.mk
 FUZZERS:= \
 	libcommon_fuzz_pub_topic_check2 \
 	libcommon_fuzz_sub_topic_check2 \
+	libcommon_fuzz_topic_tokenise \
 	libcommon_fuzz_utf8
 
 LOCAL_CPPFLAGS+=-I${R}/include/
@@ -20,6 +21,10 @@ libcommon_fuzz_pub_topic_check2 : libcommon_fuzz_pub_topic_check2.cpp
 	install $@ ${OUT}/$@
 
 libcommon_fuzz_sub_topic_check2 : libcommon_fuzz_sub_topic_check2.cpp
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
+	install $@ ${OUT}/$@
+
+libcommon_fuzz_topic_tokenise : libcommon_fuzz_topic_tokenise.cpp
 	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
 	install $@ ${OUT}/$@
 
