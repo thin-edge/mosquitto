@@ -5,7 +5,7 @@ all:
 	zip -r corpora/db_dump_seed_corpus.zip ../test/apps/db_dump/data/
 	$(MAKE) -C apps $@
 	$(MAKE) -C broker $@
-	$(MAKE) -C lib $@
+	$(MAKE) -C libcommon $@
 	$(MAKE) -C plugins $@
 
 clean:
@@ -14,5 +14,5 @@ clean:
 	-rm -f corpora/db_dump_seed_corpus.zip
 	$(MAKE) -C apps $@
 	$(MAKE) -C broker $@
-	$(MAKE) -C lib $@
+	$(MAKE) -C libcommon $@
 	$(MAKE) -C plugins $@
