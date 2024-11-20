@@ -1,3 +1,4 @@
+#ifndef FUZZ_PACKET_READ_BASE_H
 /*
 Copyright (c) 2023 Cedalo GmbH
 
@@ -16,18 +17,25 @@ Contributors:
    Roger Light - initial implementation and documentation.
 */
 
-#include "fuzz_packet_read_base.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-extern "C" int fuzz_packet_read_init(struct mosquitto *context)
-{
-	return 0;
-}
+#include <stdint.h>
 
-extern "C" void fuzz_packet_read_cleanup(struct mosquitto *context)
-{
-}
+#include "mosquitto_broker_internal.h"
+#include "mosquitto_internal.h"
+#include "read_handle.h"
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-{
-	return fuzz_packet_read_base(data, size, handle__packet);
+#define kMinInputLength 3
+#define kMaxInputLength 268435455U
+
+int fuzz_packet_read_base(const uint8_t *data, size_t size, int (*packet_func)(struct mosquitto *));
+int fuzz_packet_read_init(struct mosquitto *context);
+void fuzz_packet_read_cleanup(struct mosquitto *context);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

@@ -20,14 +20,19 @@ Contributors:
 
 extern "C" int fuzz_packet_read_init(struct mosquitto *context)
 {
-	return 0;
+	context->protocol = mosq_p_mqtt5;
+	context->auth_method = strdup("FUZZ");
+	return !context->auth_method;
 }
 
 extern "C" void fuzz_packet_read_cleanup(struct mosquitto *context)
 {
+	free(context->auth_method);
+	context->auth_method = NULL;
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-	return fuzz_packet_read_base(data, size, handle__packet);
+	int rc = fuzz_packet_read_base(data, size, handle__auth);
+	return rc;
 }

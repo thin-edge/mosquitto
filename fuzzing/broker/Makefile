@@ -19,7 +19,21 @@ LOCAL_CXXFLAGS+=-g -Wall -Werror -pthread
 LOCAL_LDFLAGS+=
 LOCAL_LIBADD+=$(LIB_FUZZING_ENGINE) ${R}/src/mosquitto_broker.a -lssl -lcrypto -lcjson -lm ${R}/libcommon/libmosquitto_common.a -Wl,-Bdynamic -Wl,-Bstatic -largon2 -Wl,-Bdynamic
 
-all: $(FUZZERS)
+PACKET_FUZZERS:= \
+	broker_fuzz_handle_auth \
+	broker_fuzz_handle_connect \
+	broker_fuzz_handle_publish \
+	broker_fuzz_handle_subscribe \
+	broker_fuzz_handle_unsubscribe
+
+all: $(FUZZERS) $(PACKET_FUZZERS)
+
+${PACKET_FUZZERS} : %: %.cpp fuzz_packet_read_base.o ${R}/src/mosquitto_broker.a
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< fuzz_packet_read_base.o  $(LOCAL_LIBADD)
+	install $@ ${OUT}/$@
+
+fuzz_packet_read_base.o : fuzz_packet_read_base.c
+	$(CC) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) -c -o $@ $<
 
 broker_fuzz_acl_file : broker_fuzz_acl_file.cpp ${R}/src/mosquitto_broker.a
 	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< $(LOCAL_LIBADD)
@@ -42,8 +56,8 @@ broker_fuzz_queue_msg : broker_fuzz_queue_msg.cpp ${R}/src/mosquitto_broker.a
 	install $@ ${OUT}/$@
 	cp ${R}/fuzzing/corpora/broker_queue_msg_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
 
-broker_fuzz_read_handle : broker_fuzz_read_handle.cpp ${R}/src/mosquitto_broker.a
-	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< $(LOCAL_LIBADD)
+broker_fuzz_read_handle : broker_fuzz_read_handle.cpp fuzz_packet_read_base.o ${R}/src/mosquitto_broker.a
+	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $^ $(LOCAL_LIBADD)
 	install $@ ${OUT}/$@
 	cp ${R}/fuzzing/corpora/broker_packet_seed_corpus.zip ${OUT}/$@_seed_corpus.zip
 
@@ -54,4 +68,4 @@ broker_fuzz_test_config : broker_fuzz_test_config.cpp ${R}/src/mosquitto_broker.
 	cp ${R}/fuzzing/corpora/broker_conf.dict ${OUT}/$@.dict
 
 clean:
-	rm -f *.o $(FUZZERS)
+	rm -f *.o $(FUZZERS) $(PACKET_FUZZERS)
