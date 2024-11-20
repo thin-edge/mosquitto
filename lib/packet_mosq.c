@@ -354,7 +354,7 @@ static int read_header(struct mosquitto *mosq, ssize_t (*func_read)(struct mosqu
 	ssize_t read_length;
 
 	mosq->in_packet.packet_buffer_pos = 0;
-	read_length = func_read(mosq, &mosq->in_packet.packet_buffer[mosq->in_packet.packet_buffer_pos], mosq->in_packet.packet_buffer_size);
+	read_length = func_read(mosq, mosq->in_packet.packet_buffer, mosq->in_packet.packet_buffer_size);
 	if(read_length > 0){
 		mosq->in_packet.packet_buffer_to_process = (uint16_t)read_length;
 #ifdef WITH_BROKER
@@ -383,48 +383,12 @@ static int read_header(struct mosquitto *mosq, ssize_t (*func_read)(struct mosqu
 	return MOSQ_ERR_SUCCESS;
 }
 
-int packet__read(struct mosquitto *mosq)
+static int packet__read_single(struct mosquitto *mosq, enum mosquitto_client_state state, ssize_t (*local__read)(struct mosquitto *, void *, size_t))
 {
 	uint8_t byte;
 	ssize_t read_length;
 	int rc = 0;
-	enum mosquitto_client_state state;
-	ssize_t (*local__read)(struct mosquitto *, void *, size_t);
 
-	if(!mosq){
-		return MOSQ_ERR_INVAL;
-	}
-	if(!net__is_connected(mosq)){
-		return MOSQ_ERR_NO_CONN;
-	}
-
-	state = mosquitto__get_state(mosq);
-	if(state == mosq_cs_connect_pending){
-		return MOSQ_ERR_SUCCESS;
-	}
-#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
-	if(mosq->transport == mosq_t_ws){
-		local__read = net__read_ws;
-	}else
-#endif
-	{
-		local__read = net__read;
-	}
-
-	/* This gets called if pselect() indicates that there is network data
-	 * available - ie. at least one byte.  What we do depends on what data we
-	 * already have.
-	 * If we've not got a command, attempt to read one and save it. This should
-	 * always work because it's only a single byte.
-	 * Then try to read the remaining length. This may fail because it is may
-	 * be more than one byte - will need to save data pending next read if it
-	 * does fail.
-	 * Then try to read the remaining payload, where 'payload' here means the
-	 * combined variable packet_buffer and actual payload. This is the most likely to
-	 * fail due to longer length, so save current data and current position.
-	 * After all data is read, send to mosquitto__handle_packet() to deal with.
-	 * Finally, free the memory and reset everything to starting conditions.
-	 */
 	if(!mosq->in_packet.command){
 		if(mosq->in_packet.packet_buffer_to_process == 0){
 			rc = read_header(mosq, local__read);
@@ -603,4 +567,53 @@ int packet__read(struct mosquitto *mosq)
 	COMPAT_pthread_mutex_unlock(&mosq->msgtime_mutex);
 #endif
 	return rc;
+}
+
+
+int packet__read(struct mosquitto *mosq)
+{
+	int rc = 0;
+	enum mosquitto_client_state state;
+	ssize_t (*local__read)(struct mosquitto *, void *, size_t);
+
+	if(!mosq){
+		return MOSQ_ERR_INVAL;
+	}
+	if(!net__is_connected(mosq)){
+		return MOSQ_ERR_NO_CONN;
+	}
+
+	state = mosquitto__get_state(mosq);
+	if(state == mosq_cs_connect_pending){
+		return MOSQ_ERR_SUCCESS;
+	}
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
+	if(mosq->transport == mosq_t_ws){
+		local__read = net__read_ws;
+	}else
+#endif
+	{
+		local__read = net__read;
+	}
+
+	/* This gets called if pselect() indicates that there is network data
+	 * available - ie. at least one byte.  What we do depends on what data we
+	 * already have.
+	 * If we've not got a command, attempt to read one and save it. This should
+	 * always work because it's only a single byte.
+	 * Then try to read the remaining length. This may fail because it is may
+	 * be more than one byte - will need to save data pending next read if it
+	 * does fail.
+	 * Then try to read the remaining payload, where 'payload' here means the
+	 * combined variable packet_buffer and actual payload. This is the most likely to
+	 * fail due to longer length, so save current data and current position.
+	 * After all data is read, send to mosquitto__handle_packet() to deal with.
+	 * Finally, free the memory and reset everything to starting conditions.
+	 */
+	do{
+		rc = packet__read_single(mosq, state, local__read);
+		if(rc) return rc;
+	}while(mosq->in_packet.packet_buffer_to_process > 0);
+
+	return MOSQ_ERR_SUCCESS;
 }
