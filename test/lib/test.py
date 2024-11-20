@@ -9,7 +9,7 @@ tests = [
     (1, './01-con-discon-will-clear.py'),
     (1, './01-con-discon-will-v5.py'),
     (1, './01-con-discon-will.py'),
-    (1, './01-extended-auth-complete.py'),
+    (1, './01-extended-auth-continue.py'),
     (1, './01-extended-auth-failure.py'),
     (1, './01-keepalive-pingreq.py'),
     (1, './01-no-clean-session.py'),
