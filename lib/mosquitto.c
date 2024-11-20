@@ -101,6 +101,13 @@ int mosquitto_lib_cleanup(void)
 	return MOSQ_ERR_SUCCESS;
 }
 
+static int alloc_packet_buffer(struct mosquitto *mosq)
+{
+	mosq->in_packet.packet_buffer_size = 4096;
+	mosq->in_packet.packet_buffer = mosquitto_calloc(1, mosq->in_packet.packet_buffer_size);
+	return !mosq->in_packet.packet_buffer;
+}
+
 struct mosquitto *mosquitto_new(const char *id, bool clean_start, void *userdata)
 {
 	struct mosquitto *mosq = NULL;
@@ -113,13 +120,6 @@ struct mosquitto *mosquitto_new(const char *id, bool clean_start, void *userdata
 
 	mosq = (struct mosquitto *)mosquitto_calloc(1, sizeof(struct mosquitto));
 	if(mosq){
-		mosq->in_packet.packet_buffer_size = 4096;
-		mosq->in_packet.packet_buffer = mosquitto_calloc(1, mosq->in_packet.packet_buffer_size);
-		if(!mosq->in_packet.packet_buffer){
-			mosquitto_FREE(mosq);
-			errno = ENOMEM;
-			return NULL;
-		}
 		mosq->sock = INVALID_SOCKET;
 #ifdef WITH_THREADING
 #  ifndef WIN32
@@ -169,6 +169,9 @@ int mosquitto_reinitialise(struct mosquitto *mosq, const char *id, bool clean_st
 	mosq->wsd.is_client = true;
 	mosq->wsd.http_header_size = 4096;
 #endif
+	if(alloc_packet_buffer(mosq)){
+		return MOSQ_ERR_NOMEM;
+	}
 	mosq->transport = mosq_t_tcp;
 	mosq->protocol = mosq_p_mqtt311;
 	mosq->sock = INVALID_SOCKET;
@@ -305,7 +308,7 @@ void mosquitto__destroy(struct mosquitto *mosq)
 	mosquitto_FREE(mosq->host);
 	mosquitto_FREE(mosq->bind_address);
 	mosquitto_FREE(mosq->in_packet.packet_buffer);
-	mosq->in_packet.packet_buffer_size = 0;
+	mosq->in_packet.packet_buffer_size = 4096;
 
 	mosquitto_property_free_all(&mosq->connect_properties);
 

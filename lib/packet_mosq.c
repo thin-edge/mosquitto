@@ -583,10 +583,6 @@ int packet__read(struct mosquitto *mosq)
 		return MOSQ_ERR_NO_CONN;
 	}
 
-	state = mosquitto__get_state(mosq);
-	if(state == mosq_cs_connect_pending){
-		return MOSQ_ERR_SUCCESS;
-	}
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_BUILTIN
 	if(mosq->transport == mosq_t_ws){
 		local__read = net__read_ws;
@@ -611,6 +607,10 @@ int packet__read(struct mosquitto *mosq)
 	 * Finally, free the memory and reset everything to starting conditions.
 	 */
 	do{
+		state = mosquitto__get_state(mosq);
+		if(state == mosq_cs_connect_pending){
+			return MOSQ_ERR_SUCCESS;
+		}
 		rc = packet__read_single(mosq, state, local__read);
 		if(rc) return rc;
 	}while(mosq->in_packet.packet_buffer_to_process > 0);
