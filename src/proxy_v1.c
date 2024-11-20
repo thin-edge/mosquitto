@@ -9,6 +9,8 @@
 #include "mosquitto_internal.h"
 #include "net_mosq.h"
 
+#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+
 #define PROXY_V1_PACKET_LIMIT 108
 
 const uint8_t signature4[11] = {'P', 'R', 'O', 'X', 'Y', ' ', 'T', 'C', 'P', '4', ' '};
@@ -153,3 +155,4 @@ int proxy_v1__read(struct mosquitto *context)
 
 	return MOSQ_ERR_SUCCESS;
 }
+#endif

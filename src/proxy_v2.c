@@ -8,6 +8,8 @@
 #include "mosquitto_internal.h"
 #include "net_mosq.h"
 
+#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+
 #define PROXY_CMD_LOCAL 0x00
 #define PROXY_CMD_PROXY 0x01
 
@@ -304,3 +306,4 @@ int proxy_v2__read(struct mosquitto *context)
 
 	return MOSQ_ERR_SUCCESS;
 }
+#endif

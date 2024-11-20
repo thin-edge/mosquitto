@@ -324,12 +324,15 @@ static void loop_handle_reads_writes(void)
 					rc = http__write(context);
 					break;
 #endif
+#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+			/* Not supported with LWS */
 				case mosq_t_proxy_v2:
 					rc = packet__write(context);
 					break;
 				case mosq_t_proxy_v1:
 					rc = packet__write(context);
 					break;
+#endif
 				default:
 					rc = MOSQ_ERR_INVAL;
 					break;
@@ -369,12 +372,15 @@ static void loop_handle_reads_writes(void)
 						rc = http__read(context);
 						break;
 #endif
+#if !defined(WITH_WEBSOCKETS) || WITH_WEBSOCKETS == WS_IS_BUILTIN
+			/* Not supported with LWS */
 					case mosq_t_proxy_v2:
 						rc = proxy_v2__read(context);
 						break;
 					case mosq_t_proxy_v1:
 						rc = proxy_v1__read(context);
 						break;
+#endif
 					default:
 						rc = MOSQ_ERR_INVAL;
 						break;

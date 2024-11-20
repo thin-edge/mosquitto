@@ -1606,6 +1606,10 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: $CONTROL support not available (enable_control_api).");
 #endif
 				}else if(!strcmp(token, "enable_proxy_protocol")){
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+					log__printf(NULL, MOSQ_LOG_ERR, "Error: PROXY support not available with libwebsockets.");
+					return MOSQ_ERR_INVAL;
+#endif
 					REQUIRE_LISTENER(token);
 					if(conf__parse_int(&token, "enable_proxy_protocol", &cur_listener->enable_proxy_protocol, &saveptr)) return MOSQ_ERR_INVAL;
 					if(cur_listener->enable_proxy_protocol < 1 || cur_listener->enable_proxy_protocol > 2){
@@ -2148,6 +2152,10 @@ static int config__read_file_core(struct mosquitto__config *config, bool reload,
 						return MOSQ_ERR_INVAL;
 					}
 				}else if(!strcmp(token, "proxy_protocol_v2_require_tls")){
+#if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+					log__printf(NULL, MOSQ_LOG_ERR, "Error: PROXY support not available with libwebsockets.");
+					return MOSQ_ERR_INVAL;
+#endif
 					REQUIRE_LISTENER(token);
 					if(conf__parse_bool(&token, "proxy_protocol_v2_require_tls", &cur_listener->proxy_protocol_v2_require_tls, &saveptr)) return MOSQ_ERR_INVAL;
 				}else if(!strcmp(token, "psk_file")){

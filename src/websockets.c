@@ -700,9 +700,9 @@ void mosq_websockets_init(struct mosquitto__listener *listener, const struct mos
 	if(listener->socket_domain == AF_INET){
 		info.options |= LWS_SERVER_OPTION_DISABLE_IPV6;
 	}
-    info.max_http_header_data = conf->websockets_headers_size;
+    info.max_http_header_data = conf->packet_buffer_size;
 
-	user = mosquitto__calloc(1, sizeof(struct libws_mqtt_hack));
+	user = mosquitto_calloc(1, sizeof(struct libws_mqtt_hack));
 	if(!user){
 		mosquitto_FREE(p);
 		log__printf(NULL, MOSQ_LOG_ERR, "Out of memory.");

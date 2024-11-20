@@ -63,6 +63,7 @@ struct mosquitto__client_msg;
 #endif
 
 #if defined(WITH_WEBSOCKETS) && WITH_WEBSOCKETS == WS_IS_LWS
+#  include <libwebsockets.h>
 #  define WS_PACKET_OFFSET LWS_PRE
 #else
 #  define WS_PACKET_OFFSET 16
