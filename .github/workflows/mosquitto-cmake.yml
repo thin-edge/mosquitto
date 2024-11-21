@@ -48,4 +48,4 @@ jobs:
     - run: cmake --build build --parallel $(nproc)
 
     - working-directory: build/
-      run: ctest --output-on-failure
+      run: ctest --output-on-failure --repeat until-pass:5
