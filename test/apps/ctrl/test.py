@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-import mosq_test_helper
-import pathlib
+import sys
+sys.path.insert(0, "../..")
 import ptest
 
 tests = [
@@ -11,5 +11,6 @@ tests = [
     (2, './ctrl-dynsec.py'),
 ]
 
-test = ptest.PTest()
-test.run_tests(tests)
+if __name__ == "__main__":
+    test = ptest.PTest()
+    test.run_tests(tests)

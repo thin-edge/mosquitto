@@ -209,7 +209,7 @@ def do_test(hostname, port, protocol):
                     failed_tests.append(this_test)
                     sock = mosq_test.client_connect_only(hostname=hostname, port=port, timeout=2, protocol=protocol)
                     this_test.process_all(sock)
-                    print("\033[32m" + tname + "\033[0m")
+                    #print("\033[32m" + tname + "\033[0m")
                     succeeded += 1
                     sock.close()
                     failed_tests.pop()

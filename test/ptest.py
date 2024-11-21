@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
 import subprocess
 import time
 import sys
 
 class PTestCase():
-    def __init__(self, testdef):
-        self.ports = testdef[0]
-        self.cmd = str(testdef[1])
+    def __init__(self, path, ports, cmd, args=None):
+        self.path = path
+        self.ports = ports
+        self.cmd = str(cmd)
         self.attempts = 0
-        try:
-            if isinstance(testdef[2], (list,)):
-                self.args = [self.cmd] + testdef[2]
-            else:
-                self.args = [self.cmd] + [testdef[2]]
-        except IndexError:
+        if args is not None:
+            self.args = [self.cmd] + args
+        else:
             self.args = [self.cmd]
         self.start_time = 0
         self.proc = None
@@ -26,12 +25,12 @@ class PTestCase():
         for p in self.mosq_port:
             self.run_args.append(str(p))
 
-        self.proc = subprocess.Popen(self.run_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.proc = subprocess.Popen(self.run_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=self.path)
         self.start_time = time.time()
 
     def print_result(self, col):
         cmd = " ".join(self.run_args)
-        print(f"{self.runtime:0.3f}s : \033[{col}m{cmd}\033[0m")
+        print(f"{self.runtime:0.3f}s : \033[{col}m{self.path}/{cmd}\033[0m")
 
 
 class PTest():
@@ -40,18 +39,28 @@ class PTest():
         self.max_running = 20
         self.tests = []
 
-    def next_test(self, tests, ports):
-        if len(tests) == 0 or len(ports) == 0:
+    def add_tests(self, test_list, path=".", label=""):
+        for testdef in test_list:
+            try:
+                if isinstance(testdef[2], (list,)):
+                    args = testdef[2]
+                else:
+                    args = [testdef[2]]
+            except IndexError:
+                args = None
+            self.tests.append(PTestCase(path, testdef[0], testdef[1], args))
+
+    def _next_test(self, ports):
+        if len(self.tests) == 0 or len(ports) == 0:
             return
 
-        test = tests.pop()
+        test = self.tests.pop()
         test.mosq_port = []
 
         if len(ports) < test.ports:
-            tests.insert(0, test)
+            self.tests.insert(0, test)
             return None
         else:
-
             for i in range(0, test.ports):
                 proc_port = ports.pop()
                 test.mosq_port.append(proc_port)
@@ -59,32 +68,31 @@ class PTest():
             test.start()
             return test
 
-
     def run_tests(self, test_list):
+        self.add_tests(test_list)
+        self.run()
+
+    def run(self):
         ports = list(range(self.minport, self.minport+self.max_running+1))
         start_time = time.time()
         passed = 0
         retried = 0
         failed = 0
 
-        tests = []
-        for t in test_list:
-            tests.append(PTestCase(t))
-
         failed_tests = []
         running_tests = []
         retry_tests = []
-        while len(tests) > 0 or len(running_tests) > 0 or len(retry_tests) > 0:
+        while len(self.tests) > 0 or len(running_tests) > 0 or len(retry_tests) > 0:
             if len(running_tests) <= self.max_running:
-                t = self.next_test(tests, ports)
+                t = self._next_test(ports)
                 if t is None:
                     time.sleep(0.1)
                 else:
                     running_tests.append(t)
 
-            if len(running_tests) == 0 and len(tests) == 0 and len(retry_tests) > 0:
+            if len(running_tests) == 0 and len(self.tests) == 0 and len(retry_tests) > 0:
                 # Only retry tests after everything else has finished to reduce load
-                tests = retry_tests
+                self.tests = retry_tests
                 retry_tests = []
 
             for t in running_tests:

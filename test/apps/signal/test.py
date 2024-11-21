@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
-import mosq_test_helper
+import os
 import pathlib
+import sys
+sys.path.insert(0, "../..")
 import ptest
 
 tests = []
 
-for test_file in pathlib.Path('.').glob('signal-*.py'):
+for test_file in pathlib.Path(os.path.abspath(os.path.dirname(__file__))).glob('signal-*.py'):
     tests.append((1, test_file.resolve()))
 
-test = ptest.PTest()
-test.run_tests(tests)
+if __name__ == "__main__":
+    test = ptest.PTest()
+    test.run_tests(tests)

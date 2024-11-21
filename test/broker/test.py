@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
-import mosq_test_helper
+import sys
+sys.path.insert(0, "..")
 import ptest
 
 tests = [
     #(ports required, 'path'),
+    (1, './msg_sequence_test.py'),
     (1, './01-bad-initial-packets.py'),
     (1, './01-connect-575314.py'),
     (1, './01-connect-accept-protocol.py'),
@@ -289,5 +291,6 @@ tests = [
     (1, './21-proxy-v2-ssl-require-tls-success.py'),
 ]
 
-test = ptest.PTest()
-test.run_tests(tests)
+if __name__ == "__main__":
+    test = ptest.PTest()
+    test.run_tests(tests)

@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import mosq_test_helper
+import sys
+sys.path.insert(0, "..")
 import ptest
 
 tests = [
+    (1, './msg_sequence_test.py'),
     (1, './01-con-discon-success-v5.py'),
     (1, './01-con-discon-success.py'),
     (1, './01-con-discon-will-clear.py'),
@@ -63,5 +65,6 @@ tests = [
     ]
 
 
-test = ptest.PTest()
-test.run_tests(tests)
+if __name__ == "__main__":
+    test = ptest.PTest()
+    test.run_tests(tests)

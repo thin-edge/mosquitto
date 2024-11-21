@@ -10,7 +10,7 @@ all :
 
 check : test
 
-ptest : test-compile msg_sequence_test
+ptest : test-compile
 	./test.py
 
 msg_sequence_test: test-compile-c
