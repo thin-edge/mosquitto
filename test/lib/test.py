@@ -63,4 +63,5 @@ tests = [
     ]
 
 
-ptest.run_tests(tests)
+test = ptest.PTest()
+test.run_tests(tests)

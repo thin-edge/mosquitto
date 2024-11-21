@@ -9,4 +9,5 @@ tests = []
 for test_file in pathlib.Path('.').glob('passwd-*.py'):
     tests.append((1, test_file.resolve()))
 
-ptest.run_tests(tests)
+test = ptest.PTest()
+test.run_tests(tests)

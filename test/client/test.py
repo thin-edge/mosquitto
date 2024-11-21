@@ -47,4 +47,5 @@ tests = [
     (2, './04-rr-qos1-ws.py'),
     ]
 
-ptest.run_tests(tests)
+test = ptest.PTest()
+test.run_tests(tests)

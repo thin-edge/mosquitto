@@ -289,4 +289,5 @@ tests = [
     (1, './21-proxy-v2-ssl-require-tls-success.py'),
 ]
 
-ptest.run_tests(tests)
+test = ptest.PTest()
+test.run_tests(tests)
