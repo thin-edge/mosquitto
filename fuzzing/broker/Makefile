@@ -29,7 +29,7 @@ PACKET_FUZZERS:= \
 all: $(FUZZERS) $(PACKET_FUZZERS)
 
 ${PACKET_FUZZERS} : %: %.cpp fuzz_packet_read_base.o ${R}/src/mosquitto_broker.a
-	$(CXX) $(LOCAL_CXXFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< fuzz_packet_read_base.o  $(LOCAL_LIBADD)
+	$(CC) $(LOCAL_CFLAGS) $(LOCAL_CPPFLAGS) $(LOCAL_LDFLAGS) -o $@ $< fuzz_packet_read_base.o  $(LOCAL_LIBADD)
 	install $@ ${OUT}/$@
 
 fuzz_packet_read_base.o : fuzz_packet_read_base.c
